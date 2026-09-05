@@ -1,5 +1,6 @@
 import "./globals.css";
 import type { Metadata } from "next";
+import { GlobalLoader } from "@/components/GlobalLoader";
 
 export const metadata: Metadata = {
   title: "StoryBoard",
@@ -7,5 +8,12 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: Readonly<{children: React.ReactNode}>) {
-  return <html lang="en"><body>{children}</body></html>;
+  return (
+    <html lang="en">
+      <body>
+        <GlobalLoader />
+        {children}
+      </body>
+    </html>
+  );
 }
