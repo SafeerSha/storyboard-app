@@ -26,4 +26,7 @@ export type Story = {
   updated_at?: string;
 };
 
-export type GeneratedStory = Omit<Story, "id" | "project_id" | "epic_id" | "created_at" | "updated_at"> & { suggestedEpic?: string };
+export type GeneratedStory = Omit<Story, "id" | "project_id" | "epic_id" | "created_at" | "updated_at"> & {
+  epic_id?: string | null;
+  suggestedEpic?: string;
+};
