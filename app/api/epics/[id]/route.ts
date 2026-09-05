@@ -14,8 +14,12 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     const admin = createAdminClient();
     
     // Validate ownership
-    const { data: epic } = await admin.from("epics").select("project_id, projects(owner_id)").eq("id", epicId).single();
-    if (!epic || Array.isArray(epic.projects) ? epic.projects[0].owner_id !== user.id : (epic.projects as any)?.owner_id !== user.id) {
+    const { data: epic } = await admin.from("epics").select("project_id, projects(owner_id)").eq("id", epicId).maybeSingle();
+    if (!epic) {
+      return NextResponse.json({ error: "Epic not found or access denied." }, { status: 404 });
+    }
+    const projectData = Array.isArray(epic.projects) ? epic.projects[0] : epic.projects;
+    if ((projectData as any)?.owner_id !== user.id) {
       return NextResponse.json({ error: "Epic not found or access denied." }, { status: 404 });
     }
 
@@ -44,8 +48,12 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
     const admin = createAdminClient();
     
     // Validate ownership
-    const { data: epic } = await admin.from("epics").select("project_id, projects(owner_id)").eq("id", epicId).single();
-    if (!epic || Array.isArray(epic.projects) ? epic.projects[0].owner_id !== user.id : (epic.projects as any)?.owner_id !== user.id) {
+    const { data: epic } = await admin.from("epics").select("project_id, projects(owner_id)").eq("id", epicId).maybeSingle();
+    if (!epic) {
+      return NextResponse.json({ error: "Epic not found or access denied." }, { status: 404 });
+    }
+    const projectData = Array.isArray(epic.projects) ? epic.projects[0] : epic.projects;
+    if ((projectData as any)?.owner_id !== user.id) {
       return NextResponse.json({ error: "Epic not found or access denied." }, { status: 404 });
     }
 
