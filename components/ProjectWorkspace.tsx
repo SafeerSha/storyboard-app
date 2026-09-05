@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { ArrowLeft, ExternalLink, LayoutList, Loader2, Plus, Edit2, Trash2, ChevronDown, ChevronUp, Sparkles } from "lucide-react";
+import { DashboardHeader } from "@/components/layout/DashboardHeader";
 import { GenerateStory } from "@/components/GenerateStory";
 import { StoryEditor } from "@/components/StoryEditor";
 import { StoryCard } from "@/components/StoryCard";
@@ -167,26 +168,29 @@ export function ProjectWorkspace({ projectId, projectName, initialStories, initi
   const filteredEpics = epicFilter === "all" ? epics : epics.filter(e => e.id === epicFilter);
 
   return (
-    <main className="min-h-screen">
-      <div className="lg:pl-[248px]">
-        <header className="sticky top-0 z-20 border-b border-line bg-paper/90 backdrop-blur-xl">
-          <div className="flex min-h-[72px] items-center justify-between px-6 lg:px-9">
-            <div className="flex items-center gap-3">
-              <Link href="/" className="rounded-lg p-2 text-neutral-500 hover:bg-neutral-100"><ArrowLeft size={18} /></Link>
-              <div>
-                <p className="text-xs text-neutral-400">PROJECT</p>
-                <h1 className="font-semibold">{projectName}</h1>
-              </div>
-            </div>
-            <div className="flex gap-2">
-              <button className="inline-flex items-center gap-2 rounded-xl border border-line bg-white px-3 py-2 text-sm font-medium">
-                <ExternalLink size={15} /> Share
-              </button>
-            </div>
-          </div>
-        </header>
+    <div>
+      <DashboardHeader
+        category="PROJECT"
+        title={projectName}
+        backHref="/projects"
+        actions={
+          <button
+            type="button"
+            onClick={() => {
+              if (typeof window !== "undefined") {
+                const url = `${window.location.origin}/client/login`;
+                navigator.clipboard.writeText(url);
+                alert(`Client portal link copied: ${url}`);
+              }
+            }}
+            className="inline-flex items-center gap-2 rounded-xl border border-line bg-white px-3 py-2 text-sm font-medium hover:bg-neutral-50 transition shadow-xs"
+          >
+            <ExternalLink size={15} /> Share portal
+          </button>
+        }
+      />
 
-        <div className="mx-auto max-w-[1320px] px-6 py-8 lg:px-9">
+      <div className="mx-auto max-w-[1320px] px-6 py-8 lg:px-9">
           <div className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
             <div>
               <div className="mb-2 flex items-center gap-2 text-sm text-neutral-400"><LayoutList size={16} /> Requirements</div>
@@ -316,7 +320,6 @@ export function ProjectWorkspace({ projectId, projectName, initialStories, initi
               )}
             </div>
           </div>
-        </div>
       </div>
 
       {epicModalOpen && (
@@ -420,6 +423,6 @@ export function ProjectWorkspace({ projectId, projectName, initialStories, initi
           </div>
         </div>
       )}
-    </main>
+    </div>
   );
 }
