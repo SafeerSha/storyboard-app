@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { ArrowLeft, ExternalLink, LayoutList, Loader2, Plus, Edit2, Trash2, ChevronDown, ChevronUp } from "lucide-react";
+import { ArrowLeft, ExternalLink, LayoutList, Loader2, Plus, Edit2, Trash2, ChevronDown, ChevronUp, Sparkles } from "lucide-react";
 import { GenerateStory } from "@/components/GenerateStory";
 import { StoryEditor } from "@/components/StoryEditor";
 import { StoryCard } from "@/components/StoryCard";
@@ -27,6 +27,9 @@ export function ProjectWorkspace({ projectId, projectName, initialStories, initi
   const [epicModalOpen, setEpicModalOpen] = useState(false);
   const [editingEpic, setEditingEpic] = useState<Epic | null>(null);
   const [epicForm, setEpicForm] = useState({ name: "", description: "", status: "active" });
+  const [aiCorrecting, setAiCorrecting] = useState(false);
+  const [aiSuggestions, setAiSuggestions] = useState<string[] | null>(null);
+  const [aiError, setAiError] = useState("");
 
   const [epicFilter, setEpicFilter] = useState<string>("all");
 
@@ -117,7 +120,48 @@ export function ProjectWorkspace({ projectId, projectName, initialStories, initi
   function openCreateEpic(name = "") {
     setEpicForm({ name, description: "", status: "active" });
     setEditingEpic(null);
+    setAiSuggestions(null);
+    setAiError("");
     setEpicModalOpen(true);
+  }
+
+  function openEditEpic(epic: Epic) {
+    setEditingEpic(epic);
+    setEpicForm({ name: epic.name, description: epic.description || "", status: epic.status });
+    setAiSuggestions(null);
+    setAiError("");
+    setEpicModalOpen(true);
+  }
+
+  async function handleAiCorrectEpicName() {
+    if (!epicForm.name.trim()) return;
+    setAiCorrecting(true);
+    setAiError("");
+    try {
+      const res = await fetch("/api/epics/correct-name", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: epicForm.name,
+          description: epicForm.description,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to correct epic name.");
+
+      const suggestions = Array.from(new Set([data.correctedName, ...(data.alternatives || [])])).filter(Boolean);
+      setAiSuggestions(suggestions);
+
+      setEpicForm(prev => ({
+        ...prev,
+        name: data.correctedName,
+        description: prev.description ? prev.description : (data.suggestedDescription || prev.description),
+      }));
+    } catch (e) {
+      setAiError(e instanceof Error ? e.message : "Failed to correct epic name.");
+    } finally {
+      setAiCorrecting(false);
+    }
   }
 
   const filteredEpics = epicFilter === "all" ? epics : epics.filter(e => e.id === epicFilter);
@@ -207,7 +251,7 @@ export function ProjectWorkspace({ projectId, projectName, initialStories, initi
                             )}
                           </div>
                           <div className="flex items-center gap-1">
-                            <button onClick={() => { setEditingEpic(epic); setEpicForm({ name: epic.name, description: epic.description || "", status: epic.status }); setEpicModalOpen(true); }} className="p-2 text-neutral-400 hover:text-neutral-900 rounded-lg hover:bg-white"><Edit2 size={16} /></button>
+                            <button onClick={() => openEditEpic(epic)} className="p-2 text-neutral-400 hover:text-neutral-900 rounded-lg hover:bg-white"><Edit2 size={16} /></button>
                             <button onClick={() => deleteEpic(epic.id)} className="p-2 text-neutral-400 hover:text-rose-600 rounded-lg hover:bg-white"><Trash2 size={16} /></button>
                           </div>
                         </div>
@@ -281,16 +325,86 @@ export function ProjectWorkspace({ projectId, projectName, initialStories, initi
             <h3 className="text-lg font-semibold mb-4">{editingEpic ? "Edit Epic" : "Create Epic"}</h3>
             <div className="space-y-4">
               <div>
-                <label className="text-sm font-medium">Name</label>
-                <input value={epicForm.name} onChange={e => setEpicForm(f => ({ ...f, name: e.target.value }))} className="mt-1 w-full rounded-xl border border-line px-4 py-2.5 outline-none focus:border-indigo-400" />
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="text-sm font-medium text-neutral-800">Epic Name</label>
+                  {epicForm.name.trim() && (
+                    <button
+                      type="button"
+                      onClick={handleAiCorrectEpicName}
+                      disabled={aiCorrecting}
+                      className="inline-flex items-center gap-1.5 text-xs font-semibold text-indigo-600 hover:text-indigo-700 bg-indigo-50 hover:bg-indigo-100 px-2.5 py-1 rounded-lg transition disabled:opacity-50"
+                    >
+                      {aiCorrecting ? (
+                        <>
+                          <Loader2 size={12} className="animate-spin" />
+                          <span>Refining...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Sparkles size={12} />
+                          <span>AI Correct Name</span>
+                        </>
+                      )}
+                    </button>
+                  )}
+                </div>
+                <input
+                  value={epicForm.name}
+                  onChange={e => {
+                    setEpicForm(f => ({ ...f, name: e.target.value }));
+                    if (aiError) setAiError("");
+                  }}
+                  placeholder="e.g. user auth, checkout, order mgt"
+                  className="w-full rounded-xl border border-line px-4 py-2.5 outline-none focus:border-indigo-400 text-sm"
+                />
+
+                {aiError && (
+                  <p className="mt-1 text-xs text-rose-600">{aiError}</p>
+                )}
+
+                {aiSuggestions && aiSuggestions.length > 0 && (
+                  <div className="mt-2.5 p-3 bg-indigo-50/70 border border-indigo-100 rounded-xl space-y-2">
+                    <div className="flex items-center justify-between text-xs text-indigo-900 font-medium">
+                      <span className="flex items-center gap-1.5"><Sparkles size={12} className="text-indigo-600" /> AI Suggestions:</span>
+                      <button type="button" onClick={() => setAiSuggestions(null)} className="text-neutral-400 hover:text-neutral-600 text-[11px]">Dismiss</button>
+                    </div>
+                    <div className="flex flex-wrap gap-1.5">
+                      {aiSuggestions.map((suggestion) => (
+                        <button
+                          key={suggestion}
+                          type="button"
+                          onClick={() => {
+                            setEpicForm(f => ({ ...f, name: suggestion }));
+                          }}
+                          className={`text-xs px-2.5 py-1 rounded-lg font-medium transition ${
+                            epicForm.name === suggestion
+                              ? "bg-indigo-600 text-white shadow-sm"
+                              : "bg-white text-indigo-700 border border-indigo-200 hover:bg-indigo-100"
+                          }`}
+                        >
+                          {suggestion}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
               <div>
-                <label className="text-sm font-medium">Description</label>
-                <textarea value={epicForm.description} onChange={e => setEpicForm(f => ({ ...f, description: e.target.value }))} className="mt-1 w-full rounded-xl border border-line px-4 py-2.5 outline-none focus:border-indigo-400 min-h-24 resize-none" />
+                <label className="text-sm font-medium text-neutral-800">Description</label>
+                <textarea
+                  value={epicForm.description}
+                  onChange={e => setEpicForm(f => ({ ...f, description: e.target.value }))}
+                  placeholder="High-level description of this Epic..."
+                  className="mt-1.5 w-full rounded-xl border border-line px-4 py-2.5 outline-none focus:border-indigo-400 min-h-24 resize-none text-sm"
+                />
               </div>
               <div>
-                <label className="text-sm font-medium">Status</label>
-                <select value={epicForm.status} onChange={e => setEpicForm(f => ({ ...f, status: e.target.value }))} className="mt-1 w-full rounded-xl border border-line px-4 py-2.5 outline-none focus:border-indigo-400">
+                <label className="text-sm font-medium text-neutral-800">Status</label>
+                <select
+                  value={epicForm.status}
+                  onChange={e => setEpicForm(f => ({ ...f, status: e.target.value }))}
+                  className="mt-1.5 w-full rounded-xl border border-line px-4 py-2.5 outline-none focus:border-indigo-400 text-sm"
+                >
                   <option value="active">Active</option>
                   <option value="completed">Completed</option>
                   <option value="archived">Archived</option>
