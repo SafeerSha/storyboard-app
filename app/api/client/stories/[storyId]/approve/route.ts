@@ -2,12 +2,13 @@ import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getAuthenticatedClient } from "@/lib/client-session";
 
-export async function POST(req: Request, { params }: { params: { storyId: string } }) {
+export async function POST(req: Request, { params }: { params: Promise<{ storyId: string }> }) {
   const client = await getAuthenticatedClient();
   if (!client) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
+  const { storyId } = await params;
   const db = createAdminClient();
-  const { data: story } = await db.from("stories").select("id,project_id").eq("id", params.storyId).eq("project_id", client.project_id).single();
+  const { data: story } = await db.from("stories").select("id,project_id").eq("id", storyId).eq("project_id", client.project_id).single();
   
   if (!story) return NextResponse.json({ error: "Story not found." }, { status: 404 });
 
