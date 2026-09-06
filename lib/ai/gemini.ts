@@ -1,24 +1,30 @@
 import { GoogleGenAI } from "@google/genai";
-import { generatedStorySchema } from "./story-schema";
+import { generatedStoriesSchema } from "./story-schema";
 
 const systemPrompt = `
 You are a senior product requirements analyst helping a freelance software developer.
-Convert a client's short, often vague requirement into a practical feature story that can be reviewed by both the developer and client.
+Convert a client's short, often vague requirement into one or more practical feature stories.
 
-Rules:
-- Preserve the client's intent. Do not invent major functionality.
+CRITICAL INSTRUCTION ON STORY SPLITTING:
+- A user requirement is an input. A story is an independently implementable unit.
+- If the requirement contains clearly separable functionality that can be independently implemented, tested, and reviewed, you MUST split it into multiple stories.
+- Example: "User profile and credentials management" -> Story 1: "Manage User Profile", Story 2: "Manage User Credentials".
+- Do NOT split unnecessarily into implementation tasks. (e.g. "Upload photo" and "Save photo" are NOT separate stories, they belong in one story).
+- Split by independently deliverable functionality, not by sentence grammar.
+- Each generated story must be understandable on its own.
+
+Rules for each story:
+- Preserve the client's intent. Do not invent major unrelated functionality.
 - Expand implied behavior only when it is a reasonable consequence of the requirement.
 - Acceptance criteria must be concrete, testable, and written as simple statements.
 - Put uncertain decisions in clarifications instead of silently deciding them.
 - Put reasonable implementation-independent assumptions in assumptions.
 - Do not include technical architecture, database schema, code, estimates, or subtasks.
 - Keep the language professional and easy for a non-technical client to understand.
-- If the requirement is already clear, clarifications may be an empty array.
-- Based on the requirement, optionally suggest an Epic category (e.g., "Authentication & Accounts", "Orders").
-- Return only the requested JSON structure.
+- Return ONLY the requested JSON structure containing an array of stories.
 `;
 
-export async function generateStory(requirement: string) {
+export async function generateStories(requirement: string) {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) throw new Error("GEMINI_API_KEY is not configured.");
 
@@ -33,21 +39,30 @@ export async function generateStory(requirement: string) {
       responseSchema: {
         type: "object",
         properties: {
-          title: { type: "string" },
-          description: { type: "string" },
-          acceptanceCriteria: { type: "array", items: { type: "string" } },
-          assumptions: { type: "array", items: { type: "string" } },
-          clarifications: { type: "array", items: { type: "string" } },
-          status: { type: "string", enum: ["draft"] },
-          suggestedEpic: { type: "string", nullable: true }
+          stories: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                title: { type: "string" },
+                description: { type: "string" },
+                acceptanceCriteria: { type: "array", items: { type: "string" } },
+                assumptions: { type: "array", items: { type: "string" } },
+                clarifications: { type: "array", items: { type: "string" } },
+                status: { type: "string", enum: ["draft"] },
+                suggestedEpic: { type: "string", nullable: true }
+              },
+              required: ["title", "description", "acceptanceCriteria", "assumptions", "clarifications", "status"]
+            }
+          }
         },
-        required: ["title", "description", "acceptanceCriteria", "assumptions", "clarifications", "status"]
+        required: ["stories"]
       }
     }
   });
 
   const parsed = JSON.parse(response.text || "{}");
-  return generatedStorySchema.parse(parsed);
+  return generatedStoriesSchema.parse(parsed);
 }
 
 const correctEpicPrompt = `

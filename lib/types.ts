@@ -30,3 +30,7 @@ export type GeneratedStory = Omit<Story, "id" | "project_id" | "epic_id" | "crea
   epic_id?: string | null;
   suggestedEpic?: string;
 };
+
+export type GenerateStoriesResult = {
+  stories: GeneratedStory[];
+};

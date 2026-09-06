@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const generatedStorySchema = z.object({
+export const storySchema = z.object({
   title: z.string(),
   description: z.string(),
   acceptanceCriteria: z.array(z.string()),
@@ -10,4 +10,9 @@ export const generatedStorySchema = z.object({
   suggestedEpic: z.string().optional()
 });
 
-export type GeneratedStory = z.infer<typeof generatedStorySchema>;
+export const generatedStoriesSchema = z.object({
+  stories: z.array(storySchema)
+});
+
+export type GeneratedStory = z.infer<typeof storySchema>;
+export type GeneratedStories = z.infer<typeof generatedStoriesSchema>;

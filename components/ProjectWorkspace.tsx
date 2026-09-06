@@ -3,10 +3,10 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { ArrowLeft, ExternalLink, LayoutList, Loader2, Plus, Edit2, Trash2, ChevronDown, ChevronUp, Sparkles } from "lucide-react";
 import { DashboardHeader } from "@/components/layout/DashboardHeader";
-import { GenerateStory } from "@/components/GenerateStory";
+import { GenerateStoriesModal } from "@/components/GenerateStoriesModal";
 import { StoryEditor } from "@/components/StoryEditor";
 import { StoryCard } from "@/components/StoryCard";
-import type { GeneratedStory, Story, Epic } from "@/lib/types";
+import type { Story, Epic } from "@/lib/types";
 
 type ProjectWorkspaceProps = {
   projectId: string;
@@ -19,7 +19,7 @@ export function ProjectWorkspace({ projectId, projectName, initialStories, initi
   const [stories, setStories] = useState<Story[]>(initialStories);
   const [epics, setEpics] = useState<Epic[]>(initialEpics);
   
-  const [generated, setGenerated] = useState<(GeneratedStory & { raw_requirement?: string }) | null>(null);
+  const [generatingEpicId, setGeneratingEpicId] = useState<string | null>(null);
   const [editing, setEditing] = useState<Story | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -40,20 +40,6 @@ export function ProjectWorkspace({ projectId, projectName, initialStories, initi
   }, [initialStories, initialEpics]);
 
   // Story Actions
-  async function saveStory(story: GeneratedStory & { raw_requirement: string }) {
-    setLoading(true); setError("");
-    try {
-      const res = await fetch(`/api/stories?projectId=${encodeURIComponent(projectId)}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...story, project_id: projectId }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
-      setStories(v => [...v, data.story]);
-      setGenerated(null);
-    } catch (e) { setError(e instanceof Error ? e.message : "Failed to save story"); } finally { setLoading(false); }
-  }
 
   async function updateStory(id: string, updates: Partial<Story>) {
     setLoading(true); setError("");
@@ -279,6 +265,14 @@ export function ProjectWorkspace({ projectId, projectName, initialStories, initi
                           ) : (
                             epicStories.map(s => <StoryCard key={s.id} story={s} onClick={() => setEditing(s)} />)
                           )}
+                          <div className="mt-2 flex justify-center border-t border-line border-dashed pt-4">
+                            <button
+                              onClick={() => setGeneratingEpicId(epic.id)}
+                              className="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2 text-sm font-medium text-indigo-600 shadow-sm border border-line hover:border-indigo-300 hover:bg-indigo-50 transition"
+                            >
+                              <Sparkles size={16} /> Generate stories from requirement
+                            </button>
+                          </div>
                         </div>
                       </div>
                     );
@@ -320,18 +314,10 @@ export function ProjectWorkspace({ projectId, projectName, initialStories, initi
                   onCreateEpic={openCreateEpic}
                   onDelete={() => deleteStory(editing.id)}
                 />
-              ) : generated ? (
-                <StoryEditor
-                  story={generated}
-                  epics={epics}
-                  onCancel={() => setGenerated(null)}
-                  onSave={async (story) => {
-                    await saveStory({ ...story, raw_requirement: story.raw_requirement ?? "" });
-                  }}
-                  onCreateEpic={openCreateEpic}
-                />
               ) : (
-                <GenerateStory onGenerated={setGenerated} />
+                <div className="rounded-2xl border border-dashed border-neutral-300 bg-neutral-50/50 p-8 text-center text-sm text-neutral-500">
+                  Select a story to view or edit its details.
+                </div>
               )}
             </div>
           </div>
@@ -437,6 +423,18 @@ export function ProjectWorkspace({ projectId, projectName, initialStories, initi
             </div>
           </div>
         </div>
+      )}
+
+      {generatingEpicId && (
+        <GenerateStoriesModal
+          projectId={projectId}
+          epicId={generatingEpicId}
+          onClose={() => setGeneratingEpicId(null)}
+          onStoriesGenerated={(newStories) => {
+            setStories(v => [...v, ...newStories]);
+            setGeneratingEpicId(null);
+          }}
+        />
       )}
     </div>
   );
