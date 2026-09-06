@@ -28,7 +28,7 @@ export async function createClientSession(clientId: string) {
 
   if (error) {
     console.error("Failed to create client session", error);
-    throw new Error("Failed to create client session");
+    throw new Error(`Failed to create client session: ${error.message} (Code: ${error.code})`);
   }
 
   // Set the raw token in an HTTP-only cookie

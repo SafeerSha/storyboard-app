@@ -11,7 +11,7 @@ export async function GET() {
 
   const { data: projects, error } = await supabase
     .from("projects")
-    .select("id,name,description,created_at,updated_at")
+    .select("id,name,description,status,created_at,updated_at")
     .eq("owner_id", user.id)
     .order("created_at", { ascending: false });
 
@@ -43,7 +43,7 @@ export async function POST(req: Request) {
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const body = schema.parse(await req.json());
-  const { data: project, error } = await supabase.from("projects").insert({ owner_id: user.id, name: body.name, description: body.description }).select("id,name,description,created_at,updated_at").single();
+  const { data: project, error } = await supabase.from("projects").insert({ owner_id: user.id, name: body.name, description: body.description }).select("id,name,description,status,created_at,updated_at").single();
   if (error) return NextResponse.json({ error: error.message }, { status: 400 });
   return NextResponse.json({ project: { ...project, total: 0, approved: 0, review: 0 } }, { status: 201 });
 }

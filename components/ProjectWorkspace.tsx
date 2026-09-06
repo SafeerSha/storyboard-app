@@ -70,6 +70,20 @@ export function ProjectWorkspace({ projectId, projectName, initialStories, initi
     } catch (e) { setError(e instanceof Error ? e.message : "Failed to update story"); } finally { setLoading(false); }
   }
 
+  async function deleteStory(id: string) {
+    if (!confirm("Are you sure you want to delete this story?")) return;
+    setLoading(true); setError("");
+    try {
+      const res = await fetch(`/api/stories/${id}`, { method: "DELETE" });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error);
+      }
+      setStories(v => v.filter(s => s.id !== id));
+      setEditing(null);
+    } catch (e) { setError(e instanceof Error ? e.message : "Failed to delete story"); } finally { setLoading(false); }
+  }
+
   // Epic Actions
   async function saveEpic() {
     if (!epicForm.name.trim()) return;
@@ -304,6 +318,7 @@ export function ProjectWorkspace({ projectId, projectName, initialStories, initi
                     });
                   }}
                   onCreateEpic={openCreateEpic}
+                  onDelete={() => deleteStory(editing.id)}
                 />
               ) : generated ? (
                 <StoryEditor

@@ -2,13 +2,14 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Loader2, Plus, Trash2 } from "lucide-react";
+import { Loader2, Plus, Trash2, Edit3, X } from "lucide-react";
 import { DashboardHeader } from "@/components/layout/DashboardHeader";
 
 type Project = {
   id: string;
   name: string;
   description: string;
+  status: string;
   total: number;
   approved: number;
   created_at?: string;
@@ -21,6 +22,13 @@ export default function ProjectsPage() {
   const [creating, setCreating] = useState(false);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+
+  const [editing, setEditing] = useState<Project | null>(null);
+  const [editName, setEditName] = useState("");
+  const [editDesc, setEditDesc] = useState("");
+  const [editStatus, setEditStatus] = useState("");
+  const [updating, setUpdating] = useState(false);
+  const [editError, setEditError] = useState("");
 
   async function load() {
     setLoading(true);
@@ -63,8 +71,29 @@ export default function ProjectsPage() {
     }
   }
 
+  async function update() {
+    if (!editing || !editName.trim()) return;
+    setUpdating(true);
+    setEditError("");
+    try {
+      const res = await fetch(`/api/projects/${editing.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: editName.trim(), description: editDesc.trim(), status: editStatus }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      setProjects(v => v.map(p => p.id === editing.id ? { ...p, ...data.project } : p));
+      setEditing(null);
+    } catch (e) {
+      setEditError(e instanceof Error ? e.message : "Failed to update project");
+    } finally {
+      setUpdating(false);
+    }
+  }
+
   async function remove(id: string) {
-    if (!confirm("Delete this project and all its stories?")) return;
+    if (!confirm("This action cannot be undone. This project contains Epics, Stories, or Clients. Deleting the project may affect associated data. Are you sure?")) return;
     setLoading(true);
     try {
       const res = await fetch(`/api/projects/${id}`, { method: "DELETE" });
@@ -132,23 +161,114 @@ export default function ProjectsPage() {
                   {p.name.slice(0, 1)}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <Link href={`/project/${p.id}`} className="text-sm font-medium text-neutral-900 hover:text-indigo-600 transition">
-                    {p.name}
-                  </Link>
-                  <p className="text-xs text-neutral-400">{p.total || 0} stories · {p.approved || 0} approved</p>
+                  <div className="flex items-center gap-2">
+                    <Link href={`/project/${p.id}`} className="text-sm font-medium text-neutral-900 hover:text-indigo-600 transition">
+                      {p.name}
+                    </Link>
+                    <span className="text-[10px] uppercase tracking-wider font-semibold px-2 py-0.5 rounded-full bg-neutral-100 text-neutral-600">
+                      {p.status || "active"}
+                    </span>
+                  </div>
+                  <p className="text-xs text-neutral-500 mt-0.5">{p.description}</p>
+                  <p className="text-xs text-neutral-400 mt-1">{p.total || 0} stories · {p.approved || 0} approved</p>
                 </div>
-                <button
-                  onClick={() => remove(p.id)}
-                  className="rounded-xl p-2 text-neutral-400 hover:bg-rose-50 hover:text-rose-600 transition"
-                  aria-label={`Delete ${p.name}`}
-                >
-                  <Trash2 size={16} />
-                </button>
+                <div className="flex items-center gap-1">
+                  <button
+                    onClick={() => {
+                      setEditing(p);
+                      setEditName(p.name);
+                      setEditDesc(p.description || "");
+                      setEditStatus(p.status || "active");
+                    }}
+                    className="rounded-xl p-2 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-900 transition"
+                    aria-label={`Edit ${p.name}`}
+                  >
+                    <Edit3 size={16} />
+                  </button>
+                  <button
+                    onClick={() => remove(p.id)}
+                    className="rounded-xl p-2 text-neutral-400 hover:bg-rose-50 hover:text-rose-600 transition"
+                    aria-label={`Delete ${p.name}`}
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                </div>
               </div>
             ))}
           </div>
         )}
       </main>
+
+      {/* Edit Project Modal */}
+      {editing && (
+        <div className="fixed inset-0 z-50 grid place-items-center bg-black/40 backdrop-blur-sm p-5">
+          <div className="w-full max-w-lg rounded-3xl border border-line bg-white p-7 shadow-2xl">
+            <div className="mb-6 flex items-start justify-between">
+              <div>
+                <h3 className="text-xl font-semibold text-neutral-900">Edit Project</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setEditing(null)}
+                className="rounded-lg p-2 text-neutral-400 hover:bg-neutral-100 transition"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm font-medium text-neutral-800">Project Name</label>
+                <input
+                  value={editName}
+                  onChange={e => setEditName(e.target.value)}
+                  className="mt-1.5 w-full rounded-xl border border-line px-4 py-2.5 text-sm outline-none focus:border-indigo-400"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-neutral-800">Description</label>
+                <textarea
+                  value={editDesc}
+                  onChange={e => setEditDesc(e.target.value)}
+                  className="mt-1.5 w-full rounded-xl border border-line px-4 py-2.5 text-sm outline-none focus:border-indigo-400 min-h-[80px]"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-neutral-800">Status</label>
+                <select
+                  value={editStatus}
+                  onChange={e => setEditStatus(e.target.value)}
+                  className="mt-1.5 w-full rounded-xl border border-line bg-white px-4 py-2.5 text-sm outline-none focus:border-indigo-400"
+                >
+                  <option value="active">Active</option>
+                  <option value="completed">Completed</option>
+                  <option value="archived">Archived</option>
+                </select>
+              </div>
+
+              {editError && <p className="text-sm text-rose-600">{editError}</p>}
+              
+              <div className="mt-6 flex justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => setEditing(null)}
+                  className="rounded-xl border border-line px-4 py-2.5 text-sm font-medium text-neutral-700 hover:bg-neutral-50 transition"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={update}
+                  disabled={updating || !editName.trim()}
+                  className="rounded-xl bg-ink px-4 py-2.5 text-sm font-medium text-white hover:bg-neutral-800 transition disabled:opacity-50"
+                >
+                  {updating ? "Saving..." : "Save changes"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

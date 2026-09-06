@@ -15,5 +15,8 @@ export async function POST(req: Request) {
     if (!full || !(await bcrypt.compare(input.password, full.password_hash))) return NextResponse.json({ error: "Invalid login ID or password." }, { status: 401 });
     await createClientSession(client.id);
     return NextResponse.json({ ok: true });
-  } catch { return NextResponse.json({ error: "Unable to sign in." }, { status: 400 }); }
+  } catch (error: any) { 
+    console.error("Login error:", error);
+    return NextResponse.json({ error: error?.message || "Unable to sign in." }, { status: 400 }); 
+  }
 }

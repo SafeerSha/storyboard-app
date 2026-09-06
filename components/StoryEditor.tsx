@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
 import type { GeneratedStory, Epic } from "@/lib/types";
 
-export function StoryEditor({ story, epics, onSave, onCancel, onCreateEpic }: { story: GeneratedStory & { raw_requirement?: string | null }; epics: Epic[]; onSave: (story: GeneratedStory & { raw_requirement?: string | null }) => void; onCancel: () => void; onCreateEpic: (name: string) => void }) {
+export function StoryEditor({ story, epics, onSave, onCancel, onCreateEpic, onDelete }: { story: GeneratedStory & { raw_requirement?: string | null }; epics: Epic[]; onSave: (story: GeneratedStory & { raw_requirement?: string | null }) => void; onCancel: () => void; onCreateEpic: (name: string) => void; onDelete?: () => void }) {
   const [value, setValue] = useState(story);
   const updateList = (key: "acceptance_criteria" | "assumptions" | "clarifications", index: number, text: string) =>
     setValue(v => ({ ...v, [key]: v[key].map((x: string, i: number) => (i === index ? text : x)) }));
@@ -70,9 +70,18 @@ export function StoryEditor({ story, epics, onSave, onCancel, onCreateEpic }: { 
           </div>
         </section>
       ))}
-      <div className="flex justify-end gap-2 border-t border-line pt-5">
-        <button onClick={onCancel} className="rounded-xl px-4 py-2.5 text-sm font-medium text-neutral-600 hover:bg-neutral-50">Cancel</button>
-        <button onClick={() => onSave(value)} className="rounded-xl bg-ink px-4 py-2.5 text-sm font-medium text-white">Save draft</button>
+      <div className="flex justify-between items-center border-t border-line pt-5">
+        <div>
+          {onDelete && (
+            <button onClick={onDelete} className="rounded-xl px-4 py-2.5 text-sm font-medium text-rose-600 hover:bg-rose-50 inline-flex items-center gap-1.5">
+              <Trash2 size={16} /> Delete story
+            </button>
+          )}
+        </div>
+        <div className="flex gap-2">
+          <button onClick={onCancel} className="rounded-xl px-4 py-2.5 text-sm font-medium text-neutral-600 hover:bg-neutral-50">Cancel</button>
+          <button onClick={() => onSave(value)} className="rounded-xl bg-ink px-4 py-2.5 text-sm font-medium text-white">Save draft</button>
+        </div>
       </div>
     </div>
   );
