@@ -20,13 +20,29 @@ export async function middleware(request: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser();
   const pathname = request.nextUrl.pathname;
+
+  let isSuperAdmin = false;
+  if (user) {
+    const { data: profile } = await supabase.from("freelancer_profiles").select("role, status").eq("id", user.id).single();
+    if (profile?.status === "disabled") {
+      await supabase.auth.signOut();
+      return NextResponse.redirect(new URL("/login", request.url));
+    }
+    if (profile?.role === "super_admin") {
+      isSuperAdmin = true;
+    }
+  }
   
   // Protect Freelancer routes.
-  // Note: /client is NOT in this list, because it uses custom client auth.
-  const protectedPath = pathname === "/" || pathname.startsWith("/clients") || pathname.startsWith("/projects") || pathname.startsWith("/project") || pathname.startsWith("/settings");
+  const protectedPath = pathname === "/" || pathname.startsWith("/clients") || pathname.startsWith("/projects") || pathname.startsWith("/project") || pathname.startsWith("/settings") || pathname.startsWith("/users");
   
   if (protectedPath && !user) return NextResponse.redirect(new URL("/login", request.url));
   if (pathname === "/login" && user) return NextResponse.redirect(new URL("/", request.url));
+  
+  // Block non-admins from /users
+  if (pathname.startsWith("/users") && user && !isSuperAdmin) {
+    return NextResponse.redirect(new URL("/", request.url));
+  }
   
   return response;
 }

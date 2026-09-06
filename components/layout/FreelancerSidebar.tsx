@@ -22,6 +22,7 @@ interface FreelancerSidebarProps {
 export function FreelancerSidebar({ mobileOpen, setMobileOpen }: FreelancerSidebarProps) {
   const pathname = usePathname();
   const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [userRole, setUserRole] = useState<string>("freelancer");
   const [showUserMenu, setShowUserMenu] = useState(false);
 
   useEffect(() => {
@@ -29,6 +30,9 @@ export function FreelancerSidebar({ mobileOpen, setMobileOpen }: FreelancerSideb
     supabase.auth.getUser().then(({ data }) => {
       if (data?.user?.email) {
         setUserEmail(data.user.email);
+        supabase.from("freelancer_profiles").select("role").eq("id", data.user.id).single().then((res) => {
+          if (res.data) setUserRole(res.data.role);
+        });
       }
     });
   }, []);
@@ -43,6 +47,7 @@ export function FreelancerSidebar({ mobileOpen, setMobileOpen }: FreelancerSideb
   const isProjectsActive = pathname.startsWith("/project") || pathname.startsWith("/projects");
   const isClientsActive = pathname.startsWith("/clients");
   const isSettingsActive = pathname.startsWith("/settings");
+  const isUsersActive = pathname.startsWith("/users");
 
   const closeMobile = () => setMobileOpen(false);
 
@@ -146,14 +151,28 @@ export function FreelancerSidebar({ mobileOpen, setMobileOpen }: FreelancerSideb
             href="/settings"
             onClick={closeMobile}
             className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition ${
-              isSettingsActive
+              isSettingsActive && !isUsersActive
                 ? "bg-neutral-100 font-medium text-neutral-900"
                 : "text-neutral-500 hover:bg-neutral-50 hover:text-neutral-900"
             }`}
           >
-            <Settings size={17} strokeWidth={isSettingsActive ? 2.2 : 1.8} />
+            <Settings size={17} strokeWidth={isSettingsActive && !isUsersActive ? 2.2 : 1.8} />
             Settings
           </Link>
+          {userRole === "super_admin" && (
+            <Link
+              href="/users"
+              onClick={closeMobile}
+              className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition ${
+                isUsersActive
+                  ? "bg-neutral-100 font-medium text-neutral-900"
+                  : "text-neutral-500 hover:bg-neutral-50 hover:text-neutral-900"
+              }`}
+            >
+              <Users size={17} strokeWidth={isUsersActive ? 2.2 : 1.8} />
+              Users / Freelancers
+            </Link>
+          )}
         </nav>
       </div>
 
