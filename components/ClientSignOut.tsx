@@ -1,3 +1,26 @@
 "use client";
+
 import { LogOut } from "lucide-react";
-export function ClientSignOut(){async function out(){await fetch("/api/client/logout",{method:"POST"});location.href="/client/login";}return <button onClick={out} className="inline-flex items-center gap-2 rounded-xl border border-line bg-white px-3 py-2 text-sm text-neutral-600"><LogOut size={15}/> Sign out</button>}
+import { Button } from "@/components/ui/Button";
+
+export function ClientSignOut() {
+  async function handleSignOut() {
+    try {
+      await fetch("/api/client/logout", { method: "POST" });
+    } catch {
+      // Proceed
+    }
+    window.location.href = "/client/login";
+  }
+
+  return (
+    <Button
+      variant="secondary"
+      size="sm"
+      leftIcon={<LogOut size={14} />}
+      onClick={handleSignOut}
+    >
+      <span className="hidden min-[380px]:inline">Sign out</span>
+    </Button>
+  );
+}

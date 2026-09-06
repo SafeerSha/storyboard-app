@@ -3,21 +3,26 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
-  Bell,
+  ArrowRight,
+  ArrowUpRight,
+  CheckCircle2,
+  Clock,
   FolderKanban,
-  LayoutDashboard,
+  Layers,
   Plus,
   Sparkles,
-  CheckCircle2,
-  Clock3,
-  ArrowUpRight,
 } from "lucide-react";
 import { DashboardHeader } from "@/components/layout/DashboardHeader";
+import { Button } from "@/components/ui/Button";
+import { Badge } from "@/components/ui/Badge";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { StoryRowSkeleton } from "@/components/ui/Skeleton";
 
 type Project = {
   id: string;
   name: string;
   description?: string;
+  status?: string;
   total: number;
   approved: number;
   created_at?: string;
@@ -33,8 +38,8 @@ export default function Home() {
     let cancelled = false;
     setLoading(true);
     fetch("/api/projects")
-      .then(r => r.json())
-      .then(d => {
+      .then((r) => r.json())
+      .then((d) => {
         if (!cancelled) {
           if (d.error) setError(d.error);
           else setProjects(d.projects ?? []);
@@ -64,111 +69,186 @@ export default function Home() {
   return (
     <div>
       <DashboardHeader
-        category="Workspace"
+        eyebrow="WORKSPACE"
         title="Overview"
+        description="Requirements at a glance"
         actions={
-          <>
-            <button
-              type="button"
-              className="grid h-9 w-9 place-items-center rounded-xl border border-line bg-white text-neutral-500 hover:text-neutral-900 transition"
-              aria-label="Notifications"
-            >
-              <Bell size={17} />
-            </button>
-            <Link
-              href="/projects"
-              className="inline-flex items-center gap-2 rounded-xl bg-ink px-3.5 py-2 text-sm font-medium text-white hover:bg-neutral-800 transition shadow-sm"
-            >
-              <Plus size={16} /> New project
-            </Link>
-          </>
+          <Link href="/projects">
+            <Button variant="primary" size="md" leftIcon={<Plus size={14} />}>
+              New project
+            </Button>
+          </Link>
         }
       />
 
-      <main className="mx-auto max-w-[1320px] px-6 py-8 lg:px-9">
-        <section className="mb-8 flex flex-col justify-between gap-5 md:flex-row md:items-end">
-          <div>
-            <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-indigo-100 bg-indigo-50 px-3 py-1.5 text-xs font-medium text-indigo-700">
-              <Sparkles size={13} /> Requirements at a glance
-            </div>
-            <h2 className="text-3xl font-semibold tracking-tight text-neutral-950">Good morning.</h2>
-            <p className="mt-2 text-sm leading-6 text-neutral-500">Keep client requirements clear, reviewed, and approved.</p>
-          </div>
-        </section>
-
-        <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+      <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8 space-y-6">
+        {/* Metric Summary Grid */}
+        <section className="grid gap-3 sm:gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
           {[
-            ["Active projects", String(totalProjects), "Across your workspace", FolderKanban],
-            ["Total epics", String(totalEpics), "Grouped feature areas", LayoutDashboard],
-            ["Total stories", String(totalStories), "Across all projects", Sparkles],
-            ["Approved", String(totalApproved), `${totalStories ? Math.round((totalApproved / totalStories) * 100) : 0}% of all stories`, CheckCircle2],
-            ["Awaiting review", String(awaitingReview), "Need client attention", Clock3],
-          ].map(([label, value, note, Icon]) => (
-            <div key={String(label)} className="rounded-2xl border border-line bg-white p-5 shadow-soft">
-              <div className="flex items-center justify-between">
-                <p className="text-sm text-neutral-500">{String(label)}</p>
-                <Icon size={17} className="text-neutral-300" />
+            { label: "Active Projects", value: totalProjects, note: "Across workspace", icon: FolderKanban },
+            { label: "Total Epics", value: totalEpics, note: "Product areas", icon: Layers },
+            { label: "Feature Stories", value: totalStories, note: "Defined requirements", icon: Sparkles },
+            {
+              label: "Approved",
+              value: totalApproved,
+              note: `${totalStories ? Math.round((totalApproved / totalStories) * 100) : 0}% of all stories`,
+              icon: CheckCircle2,
+            },
+            { label: "In Review", value: awaitingReview, note: "Awaiting client sign-off", icon: Clock },
+          ].map((stat, i) => {
+            const Icon = stat.icon;
+            return (
+              <div
+                key={i}
+                className="rounded-xl border border-zinc-200/80 bg-white p-4 shadow-card flex flex-col justify-between"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
+                    {stat.label}
+                  </span>
+                  <Icon size={15} className="text-zinc-400" />
+                </div>
+                <div className="mt-3">
+                  <p className="text-2xl font-bold tracking-tight text-slate-900 truncate">
+                    {stat.value}
+                  </p>
+                  <p className="text-[11px] text-zinc-400 truncate mt-0.5">{stat.note}</p>
+                </div>
               </div>
-              <p className="mt-4 text-3xl font-semibold tracking-tight">{String(value)}</p>
-              <p className="mt-1 text-xs text-neutral-400">{String(note)}</p>
-            </div>
-          ))}
+            );
+          })}
         </section>
 
-        <section className="mt-8 grid gap-6 xl:grid-cols-[1fr_360px]">
-          <div className="rounded-2xl border border-line bg-white shadow-soft">
-            <div className="flex items-center justify-between border-b border-line px-5 py-4">
+        {error && (
+          <div className="rounded-xl border border-rose-200 bg-rose-50 p-4 text-xs sm:text-sm text-rose-700">
+            {error}
+          </div>
+        )}
+
+        {/* Workspace Split Layout: Recent Projects on Left, AI Helper on Right */}
+        <div className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr] items-start">
+          {/* Recent Projects Card */}
+          <div className="rounded-2xl border border-zinc-200/80 bg-white shadow-card overflow-hidden">
+            <div className="flex items-center justify-between border-b border-zinc-100 px-5 py-4">
               <div>
-                <h3 className="font-semibold">Recent projects</h3>
-                <p className="mt-0.5 text-xs text-neutral-400">Your latest requirement boards</p>
+                <h3 className="text-sm sm:text-base font-semibold text-slate-900 tracking-tight">
+                  Recent Projects
+                </h3>
+                <p className="text-xs text-zinc-500">Your active requirements workspaces</p>
               </div>
-              <Link href="/projects" className="text-xs font-medium text-indigo-600 hover:text-indigo-700">View all</Link>
+              <Link
+                href="/projects"
+                className="text-xs font-medium text-indigo-600 hover:text-indigo-800 transition"
+              >
+                View all
+              </Link>
             </div>
+
             {loading ? (
-              <div className="p-12 text-center text-sm text-neutral-400">Loading projects...</div>
-            ) : error ? (
-              <div className="p-12 text-center text-sm text-rose-600">{error}</div>
-            ) : projects.length === 0 ? (
-              <div className="p-12 text-center">
-                <p className="text-sm font-medium text-neutral-900">Your workspace is empty</p>
-                <p className="mt-1 text-sm text-neutral-500">Create your first project to start turning client requirements into feature stories.</p>
-                <Link href="/projects" className="mt-4 inline-flex items-center gap-2 rounded-xl bg-ink px-4 py-2.5 text-sm font-medium text-white hover:bg-neutral-800">
-                  <Plus size={16} /> Create project
-                </Link>
+              <div className="p-4 space-y-3">
+                <StoryRowSkeleton />
+                <StoryRowSkeleton />
+                <StoryRowSkeleton />
               </div>
-            ) : (
-              <div className="divide-y divide-line">
-                {projects.map((project) => (
-                  <Link href={`/project/${project.id}`} key={project.id} className="group flex items-center gap-4 px-5 py-5 transition hover:bg-neutral-50">
-                    <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-neutral-100 text-sm font-semibold text-neutral-600">
-                      {project.name.slice(0, 1)}
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2">
-                        <h4 className="truncate text-sm font-medium">{project.name}</h4>
-                      </div>
-                      <p className="mt-1 text-xs text-neutral-400">{project.total || 0} stories · {project.approved || 0} approved</p>
-                    </div>
-                    <div className="hidden w-28 sm:block">
-                      <div className="mb-1 flex justify-between text-[10px] text-neutral-400"><span>Progress</span><span>{project.total ? Math.round((project.approved / project.total) * 100) : 0}%</span></div>
-                      <div className="h-1.5 overflow-hidden rounded-full bg-neutral-100"><div className="h-full rounded-full bg-indigo-500" style={{width:`${project.total ? (project.approved / project.total) * 100 : 0}%`}} /></div>
-                    </div>
-                    <ArrowUpRight size={16} className="text-neutral-300 transition group-hover:text-neutral-700" />
+            ) : projects.length === 0 ? (
+              <EmptyState
+                icon={FolderKanban}
+                title="Your workspace is empty"
+                description="Create your first project to start turning client requirements into feature stories."
+                action={
+                  <Link href="/projects">
+                    <Button variant="primary" size="sm" leftIcon={<Plus size={14} />}>
+                      Create project
+                    </Button>
                   </Link>
-                ))}
+                }
+                className="border-none rounded-none py-10"
+              />
+            ) : (
+              <div className="divide-y divide-zinc-100">
+                {projects.slice(0, 5).map((project) => {
+                  const progress = project.total
+                    ? Math.round((project.approved / project.total) * 100)
+                    : 0;
+
+                  return (
+                    <Link
+                      href={`/project/${project.id}`}
+                      key={project.id}
+                      className="group flex items-center justify-between gap-4 px-5 py-4 transition hover:bg-zinc-50/70"
+                    >
+                      <div className="flex items-center gap-3.5 min-w-0 flex-1">
+                        <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-slate-900 text-xs font-semibold text-white">
+                          {project.name.slice(0, 1).toUpperCase()}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <h4 className="text-sm font-semibold text-slate-900 group-hover:text-indigo-600 transition truncate">
+                            {project.name}
+                          </h4>
+                          <p className="text-xs text-zinc-400 truncate mt-0.5">
+                            {project.total || 0} stories · {project.approved || 0} approved
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="hidden sm:flex items-center gap-3 shrink-0">
+                        <div className="w-24 text-right">
+                          <div className="text-[11px] font-medium text-zinc-400 mb-1">
+                            {progress}%
+                          </div>
+                          <div className="h-1.5 w-full bg-zinc-100 rounded-full overflow-hidden">
+                            <div
+                              className="h-full bg-slate-900 rounded-full transition-all duration-300"
+                              style={{ width: `${progress}%` }}
+                            />
+                          </div>
+                        </div>
+                        <ArrowRight
+                          size={15}
+                          className="text-zinc-300 transition group-hover:text-slate-900 group-hover:translate-x-0.5"
+                        />
+                      </div>
+                    </Link>
+                  );
+                })}
               </div>
             )}
           </div>
 
-          <div className="rounded-2xl border border-line bg-neutral-950 p-6 text-white shadow-soft">
-            <div className="grid h-9 w-9 place-items-center rounded-xl bg-white/10 text-indigo-300"><Sparkles size={17}/></div>
-            <h3 className="mt-6 text-xl font-semibold tracking-tight">Start with one sentence.</h3>
-            <p className="mt-2 text-sm leading-6 text-neutral-400">Gemini turns a rough client request into a structured feature story with acceptance criteria and questions.</p>
-            <Link href="/projects" className="mt-6 inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2.5 text-sm font-medium text-neutral-950 hover:bg-neutral-100">
-              Open StoryBoard <ArrowUpRight size={15}/>
-            </Link>
+          {/* AI Story Generation Highlight */}
+          <div className="rounded-2xl border border-zinc-200/80 bg-slate-900 p-6 text-white shadow-card space-y-4">
+            <div className="flex items-center gap-2">
+              <div className="grid h-8 w-8 place-items-center rounded-lg bg-white/10 text-indigo-300">
+                <Sparkles size={16} />
+              </div>
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-indigo-200">
+                AI Requirements Breakdown
+              </span>
+            </div>
+
+            <div className="space-y-1.5">
+              <h3 className="text-base sm:text-lg font-semibold tracking-tight text-white">
+                Turn rough requirements into structured stories.
+              </h3>
+              <p className="text-xs text-zinc-400 leading-relaxed">
+                Gemini GenAI breaks client scope into atomic user stories with acceptance criteria, technical assumptions, and open clarification questions.
+              </p>
+            </div>
+
+            <div className="pt-2">
+              <Link href="/projects">
+                <Button
+                  variant="secondary"
+                  size="md"
+                  className="w-full sm:w-auto"
+                  rightIcon={<ArrowUpRight size={14} />}
+                >
+                  Explore projects
+                </Button>
+              </Link>
+            </div>
           </div>
-        </section>
+        </div>
       </main>
     </div>
   );

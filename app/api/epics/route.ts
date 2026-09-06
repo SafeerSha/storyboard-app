@@ -1,42 +1,86 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { getAuthenticatedTeamUser } from "@/lib/team-session";
 
 export async function POST(req: Request) {
-  const auth = await createClient();
-  const { data: { user } } = await auth.auth.getUser();
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
   try {
     const body = await req.json();
-    const projectId = String(body.projectId || "").trim();
+    let projectId = String(body.projectId || "").trim();
     const name = String(body.name || "").trim();
     const description = String(body.description || "").trim();
     const status = String(body.status || "active").trim();
     const sortOrder = Number(body.sortOrder || 0);
 
-    if (!projectId || !name) {
-      return NextResponse.json({ error: "Project ID and Epic name are required." }, { status: 400 });
+    if (!name) {
+      return NextResponse.json({ error: "Epic name is required." }, { status: 400 });
     }
 
     const admin = createAdminClient();
-    
-    // Validate that the freelancer owns the project
-    const { data: project } = await admin.from("projects").select("id").eq("id", projectId).eq("owner_id", user.id).maybeSingle();
-    if (!project) return NextResponse.json({ error: "Project not found or access denied." }, { status: 404 });
+    let isAuthorized = false;
 
-    const { data: epic, error } = await admin.from("epics").insert({
-      project_id: projectId,
-      name,
-      description,
-      status,
-      sort_order: sortOrder
-    }).select().single();
+    // 1. Team User authorization
+    const teamUser = await getAuthenticatedTeamUser();
+    if (teamUser) {
+      // Force projectId to assigned project
+      projectId = teamUser.project_id;
+      isAuthorized = true;
+    }
+
+    // 2. Freelancer / Super Admin authorization
+    if (!isAuthorized) {
+      const auth = await createClient();
+      const {
+        data: { user },
+      } = await auth.auth.getUser();
+
+      if (user) {
+        // Super admin check
+        const { data: profile } = await admin
+          .from("freelancer_profiles")
+          .select("role")
+          .eq("id", user.id)
+          .maybeSingle();
+
+        if (profile?.role === "super_admin") {
+          isAuthorized = true;
+        } else {
+          // Project owner check
+          const { data: project } = await admin
+            .from("projects")
+            .select("id")
+            .eq("id", projectId)
+            .eq("owner_id", user.id)
+            .maybeSingle();
+
+          if (project) isAuthorized = true;
+        }
+      }
+    }
+
+    if (!isAuthorized || !projectId) {
+      return NextResponse.json({ error: "Unauthorized or project access denied." }, { status: 403 });
+    }
+
+    const { data: epic, error } = await admin
+      .from("epics")
+      .insert({
+        project_id: projectId,
+        name,
+        description,
+        status,
+        sort_order: sortOrder,
+      })
+      .select()
+      .single();
 
     if (error) throw error;
 
     return NextResponse.json(epic, { status: 201 });
   } catch (error) {
-    return NextResponse.json({ error: error instanceof Error ? error.message : "Failed to create Epic." }, { status: 500 });
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : "Failed to create Epic." },
+      { status: 500 }
+    );
   }
 }

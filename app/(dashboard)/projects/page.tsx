@@ -1,17 +1,31 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
-import { Loader2, Plus, Trash2, Edit3, X } from "lucide-react";
+import {
+  ArrowRight,
+  Edit3,
+  FolderKanban,
+  Plus,
+  Search,
+  Trash2,
+} from "lucide-react";
 import { DashboardHeader } from "@/components/layout/DashboardHeader";
+import { Badge } from "@/components/ui/Badge";
+import { Button } from "@/components/ui/Button";
+import { Modal } from "@/components/ui/Modal";
+import { DropdownMenu } from "@/components/ui/DropdownMenu";
+import { ProjectCardSkeleton } from "@/components/ui/Skeleton";
+import { EmptyState } from "@/components/ui/EmptyState";
 
 type Project = {
   id: string;
   name: string;
-  description: string;
-  status: string;
+  description?: string;
+  status?: string;
   total: number;
   approved: number;
+  epics?: number;
   created_at?: string;
 };
 
@@ -19,14 +33,23 @@ export default function ProjectsPage() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [creating, setCreating] = useState(false);
+
+  // Search & Filter state
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+
+  // Create Modal state
+  const [createModalOpen, setCreateModalOpen] = useState(false);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+  const [creating, setCreating] = useState(false);
+  const [createError, setCreateError] = useState("");
 
+  // Edit Modal state
   const [editing, setEditing] = useState<Project | null>(null);
   const [editName, setEditName] = useState("");
   const [editDesc, setEditDesc] = useState("");
-  const [editStatus, setEditStatus] = useState("");
+  const [editStatus, setEditStatus] = useState("active");
   const [updating, setUpdating] = useState(false);
   const [editError, setEditError] = useState("");
 
@@ -36,7 +59,7 @@ export default function ProjectsPage() {
     try {
       const res = await fetch("/api/projects");
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
+      if (!res.ok) throw new Error(data.error || "Failed to load projects");
       setProjects(data.projects ?? []);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed to load projects");
@@ -49,10 +72,11 @@ export default function ProjectsPage() {
     load();
   }, []);
 
-  async function create() {
+  async function handleCreate(e: React.FormEvent) {
+    e.preventDefault();
     if (!name.trim()) return;
     setCreating(true);
-    setError("");
+    setCreateError("");
     try {
       const res = await fetch("/api/projects", {
         method: "POST",
@@ -60,18 +84,20 @@ export default function ProjectsPage() {
         body: JSON.stringify({ name: name.trim(), description: description.trim() }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
-      setProjects(v => [data.project, ...v]);
+      if (!res.ok) throw new Error(data.error || "Failed to create project");
+      setProjects((v) => [data.project, ...v]);
       setName("");
       setDescription("");
+      setCreateModalOpen(false);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to create project");
+      setCreateError(e instanceof Error ? e.message : "Failed to create project");
     } finally {
       setCreating(false);
     }
   }
 
-  async function update() {
+  async function handleUpdate(e: React.FormEvent) {
+    e.preventDefault();
     if (!editing || !editName.trim()) return;
     setUpdating(true);
     setEditError("");
@@ -79,11 +105,17 @@ export default function ProjectsPage() {
       const res = await fetch(`/api/projects/${editing.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: editName.trim(), description: editDesc.trim(), status: editStatus }),
+        body: JSON.stringify({
+          name: editName.trim(),
+          description: editDesc.trim(),
+          status: editStatus,
+        }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
-      setProjects(v => v.map(p => p.id === editing.id ? { ...p, ...data.project } : p));
+      if (!res.ok) throw new Error(data.error || "Failed to update project");
+      setProjects((v) =>
+        v.map((p) => (p.id === editing.id ? { ...p, ...data.project } : p))
+      );
       setEditing(null);
     } catch (e) {
       setEditError(e instanceof Error ? e.message : "Failed to update project");
@@ -92,14 +124,19 @@ export default function ProjectsPage() {
     }
   }
 
-  async function remove(id: string) {
-    if (!confirm("This action cannot be undone. This project contains Epics, Stories, or Clients. Deleting the project may affect associated data. Are you sure?")) return;
+  async function handleRemove(id: string, projectName: string) {
+    if (
+      !confirm(
+        `Are you sure you want to delete "${projectName}"? This action cannot be undone and will remove associated epics, stories, and client access.`
+      )
+    )
+      return;
     setLoading(true);
     try {
       const res = await fetch(`/api/projects/${id}`, { method: "DELETE" });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
-      setProjects(v => v.filter(p => p.id !== id));
+      if (!res.ok) throw new Error(data.error || "Failed to delete project");
+      setProjects((v) => v.filter((p) => p.id !== id));
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed to delete project");
     } finally {
@@ -107,168 +144,365 @@ export default function ProjectsPage() {
     }
   }
 
+  const filteredProjects = useMemo(() => {
+    return projects.filter((p) => {
+      const matchesSearch =
+        p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (p.description && p.description.toLowerCase().includes(searchQuery.toLowerCase()));
+      const matchesStatus =
+        statusFilter === "all" || (p.status || "active").toLowerCase() === statusFilter;
+      return matchesSearch && matchesStatus;
+    });
+  }, [projects, searchQuery, statusFilter]);
+
   return (
     <div>
-      <DashboardHeader category="MANAGE" title="Projects" />
+      <DashboardHeader
+        eyebrow="PROJECTS"
+        title="Projects"
+        description="Organize requirements by client or initiative."
+        actions={
+          <Button
+            variant="primary"
+            size="md"
+            leftIcon={<Plus size={15} />}
+            onClick={() => {
+              setName("");
+              setDescription("");
+              setCreateError("");
+              setCreateModalOpen(true);
+            }}
+          >
+            New project
+          </Button>
+        }
+      />
 
-      <main className="mx-auto max-w-[1200px] px-6 py-8 lg:px-9">
-        <div className="mb-7">
-          <h2 className="text-3xl font-semibold tracking-tight text-neutral-950">Projects</h2>
-          <p className="mt-2 text-sm text-neutral-500">Organize requirements by client or initiative.</p>
-        </div>
-
-        {error && <div className="mb-6 rounded-xl bg-rose-50 p-4 text-sm text-rose-700">{error}</div>}
-
-        <div className="mb-8 rounded-2xl border border-line bg-white p-6 shadow-soft">
-          <h3 className="mb-4 text-sm font-semibold text-neutral-900">Create new project</h3>
-          <div className="grid gap-4 sm:grid-cols-[1fr_2fr_auto]">
-            <input
-              value={name}
-              onChange={e => setName(e.target.value)}
-              placeholder="Project name"
-              className="rounded-xl border border-line px-4 py-2.5 text-sm outline-none focus:border-indigo-400"
+      <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8 space-y-6">
+        {/* Search and Filters Bar */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+          <div className="relative flex-1 max-w-sm">
+            <Search
+              size={15}
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400"
             />
             <input
-              value={description}
-              onChange={e => setDescription(e.target.value)}
-              placeholder="Short description (optional)"
-              className="rounded-xl border border-line px-4 py-2.5 text-sm outline-none focus:border-indigo-400"
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search projects..."
+              className="h-9 w-full rounded-xl border border-zinc-200/90 bg-white pl-9 pr-3.5 text-xs sm:text-sm text-zinc-900 outline-none transition focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
             />
-            <button
-              disabled={creating || !name.trim()}
-              onClick={create}
-              className="inline-flex items-center gap-2 rounded-xl bg-ink px-4 py-2.5 text-sm font-medium text-white transition hover:bg-neutral-800 disabled:opacity-50"
+          </div>
+
+          <div className="flex items-center gap-2 self-end sm:self-auto">
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="h-9 rounded-xl border border-zinc-200/90 bg-white px-3 text-xs sm:text-sm font-medium text-zinc-700 outline-none transition focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 cursor-pointer"
             >
-              <Plus size={16} /> {creating ? "Creating..." : "Create"}
-            </button>
+              <option value="all">All statuses</option>
+              <option value="active">Active</option>
+              <option value="completed">Completed</option>
+              <option value="archived">Archived</option>
+            </select>
           </div>
         </div>
 
+        {error && (
+          <div className="rounded-xl border border-rose-200 bg-rose-50 p-4 text-xs sm:text-sm text-rose-700">
+            {error}
+          </div>
+        )}
+
+        {/* Project Cards Grid */}
         {loading ? (
-          <div className="flex items-center gap-2 rounded-2xl border border-line bg-white p-6 text-sm text-neutral-500">
-            <Loader2 className="animate-spin" size={17} /> Loading projects...
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <ProjectCardSkeleton />
+            <ProjectCardSkeleton />
+            <ProjectCardSkeleton />
           </div>
-        ) : projects.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-neutral-300 p-12 text-center bg-white">
-            <p className="text-sm font-medium text-neutral-900">Your workspace is empty</p>
-            <p className="mt-1 text-sm text-neutral-500">Create your first project to start turning client requirements into feature stories.</p>
-          </div>
+        ) : filteredProjects.length === 0 ? (
+          projects.length === 0 ? (
+            <EmptyState
+              icon={FolderKanban}
+              title="No projects yet"
+              description="Create your first project to start organizing client requirements into feature stories and acceptance criteria."
+              action={
+                <Button
+                  variant="primary"
+                  leftIcon={<Plus size={15} />}
+                  onClick={() => setCreateModalOpen(true)}
+                >
+                  Create project
+                </Button>
+              }
+            />
+          ) : (
+            <div className="rounded-2xl border border-dashed border-zinc-200 bg-white/50 p-8 text-center">
+              <p className="text-sm font-medium text-zinc-800">No projects match your filter</p>
+              <p className="mt-1 text-xs text-zinc-400">
+                Try searching with a different term or reset the status filter.
+              </p>
+              <Button
+                variant="outline"
+                size="sm"
+                className="mt-3"
+                onClick={() => {
+                  setSearchQuery("");
+                  setStatusFilter("all");
+                }}
+              >
+                Reset filters
+              </Button>
+            </div>
+          )
         ) : (
-          <div className="overflow-hidden rounded-2xl border border-line bg-white shadow-soft">
-            {projects.map(p => (
-              <div key={p.id} className="flex items-center gap-4 border-b border-line px-5 py-4 last:border-0 hover:bg-neutral-50/50 transition">
-                <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-neutral-100 text-sm font-semibold text-neutral-600">
-                  {p.name.slice(0, 1)}
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2">
-                    <Link href={`/project/${p.id}`} className="text-sm font-medium text-neutral-900 hover:text-indigo-600 transition">
-                      {p.name}
-                    </Link>
-                    <span className="text-[10px] uppercase tracking-wider font-semibold px-2 py-0.5 rounded-full bg-neutral-100 text-neutral-600">
-                      {p.status || "active"}
-                    </span>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {filteredProjects.map((project) => {
+              const progress = project.total
+                ? Math.round((project.approved / project.total) * 100)
+                : 0;
+              const statusRaw = (project.status || "active").toLowerCase();
+              const badgeVariant =
+                statusRaw === "completed"
+                  ? "completed"
+                  : statusRaw === "archived"
+                  ? "neutral"
+                  : "approved";
+
+              return (
+                <div
+                  key={project.id}
+                  className="group relative flex flex-col justify-between rounded-xl border border-zinc-200/80 bg-white p-5 shadow-card transition-all hover:border-zinc-300 hover:shadow-md"
+                >
+                  <div>
+                    {/* Top Row: Title, Status Badge, & Menu */}
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0 flex-1">
+                        <Link
+                          href={`/project/${project.id}`}
+                          className="block text-base font-semibold tracking-tight text-slate-900 group-hover:text-indigo-600 transition truncate"
+                        >
+                          {project.name}
+                        </Link>
+                      </div>
+
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        <Badge
+                          variant={badgeVariant}
+                          size="sm"
+                          showIcon={false}
+                        >
+                          {project.status || "Active"}
+                        </Badge>
+                        <DropdownMenu
+                          ariaLabel={`Options for ${project.name}`}
+                          items={[
+                            {
+                              label: "Edit details",
+                              icon: <Edit3 size={14} />,
+                              onClick: () => {
+                                setEditing(project);
+                                setEditName(project.name);
+                                setEditDesc(project.description || "");
+                                setEditStatus(project.status || "active");
+                                setEditError("");
+                              },
+                            },
+                            {
+                              label: "Delete project",
+                              icon: <Trash2 size={14} />,
+                              variant: "danger",
+                              onClick: () => handleRemove(project.id, project.name),
+                            },
+                          ]}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Description */}
+                    <p className="mt-2 text-xs sm:text-sm text-zinc-500 line-clamp-2 leading-relaxed min-h-[2.5rem]">
+                      {project.description || "No project description provided."}
+                    </p>
+
+                    {/* Stats Hierarchy */}
+                    <div className="mt-4 flex items-center gap-3 text-xs text-zinc-500 font-medium">
+                      <span>{project.epics || 0} Epics</span>
+                      <span className="text-zinc-300">•</span>
+                      <span>{project.total || 0} Stories</span>
+                      <span className="text-zinc-300">•</span>
+                      <span className="text-emerald-700">
+                        {project.approved || 0} Approved
+                      </span>
+                    </div>
+
+                    {/* Progress Bar */}
+                    <div className="mt-2.5 h-1.5 w-full overflow-hidden rounded-full bg-zinc-100">
+                      <div
+                        className="h-full rounded-full bg-slate-900 transition-all duration-300"
+                        style={{ width: `${progress}%` }}
+                      />
+                    </div>
                   </div>
-                  <p className="text-xs text-neutral-500 mt-0.5">{p.description}</p>
-                  <p className="text-xs text-neutral-400 mt-1">{p.total || 0} stories · {p.approved || 0} approved</p>
+
+                  {/* Card Footer */}
+                  <div className="mt-4 pt-3 border-t border-zinc-100 flex items-center justify-between text-xs text-zinc-400">
+                    <span>{progress}% reviewed</span>
+                    <Link
+                      href={`/project/${project.id}`}
+                      className="inline-flex items-center gap-1 font-medium text-slate-900 group-hover:text-indigo-600 transition"
+                    >
+                      <span>Open</span>
+                      <ArrowRight size={13} className="transition-transform group-hover:translate-x-0.5" />
+                    </Link>
+                  </div>
                 </div>
-                <div className="flex items-center gap-1">
-                  <button
-                    onClick={() => {
-                      setEditing(p);
-                      setEditName(p.name);
-                      setEditDesc(p.description || "");
-                      setEditStatus(p.status || "active");
-                    }}
-                    className="rounded-xl p-2 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-900 transition"
-                    aria-label={`Edit ${p.name}`}
-                  >
-                    <Edit3 size={16} />
-                  </button>
-                  <button
-                    onClick={() => remove(p.id)}
-                    className="rounded-xl p-2 text-neutral-400 hover:bg-rose-50 hover:text-rose-600 transition"
-                    aria-label={`Delete ${p.name}`}
-                  >
-                    <Trash2 size={16} />
-                  </button>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </main>
 
-      {/* Edit Project Modal */}
-      {editing && (
-        <div className="fixed inset-0 z-50 grid place-items-center bg-black/40 backdrop-blur-sm p-5">
-          <div className="w-full max-w-lg rounded-3xl border border-line bg-white p-7 shadow-2xl">
-            <div className="mb-6 flex items-start justify-between">
-              <div>
-                <h3 className="text-xl font-semibold text-neutral-900">Edit Project</h3>
-              </div>
-              <button
-                type="button"
-                onClick={() => setEditing(null)}
-                className="rounded-lg p-2 text-neutral-400 hover:bg-neutral-100 transition"
-              >
-                <X size={18} />
-              </button>
-            </div>
-
-            <div className="space-y-4">
-              <div>
-                <label className="text-sm font-medium text-neutral-800">Project Name</label>
-                <input
-                  value={editName}
-                  onChange={e => setEditName(e.target.value)}
-                  className="mt-1.5 w-full rounded-xl border border-line px-4 py-2.5 text-sm outline-none focus:border-indigo-400"
-                />
-              </div>
-              <div>
-                <label className="text-sm font-medium text-neutral-800">Description</label>
-                <textarea
-                  value={editDesc}
-                  onChange={e => setEditDesc(e.target.value)}
-                  className="mt-1.5 w-full rounded-xl border border-line px-4 py-2.5 text-sm outline-none focus:border-indigo-400 min-h-[80px]"
-                />
-              </div>
-              <div>
-                <label className="text-sm font-medium text-neutral-800">Status</label>
-                <select
-                  value={editStatus}
-                  onChange={e => setEditStatus(e.target.value)}
-                  className="mt-1.5 w-full rounded-xl border border-line bg-white px-4 py-2.5 text-sm outline-none focus:border-indigo-400"
-                >
-                  <option value="active">Active</option>
-                  <option value="completed">Completed</option>
-                  <option value="archived">Archived</option>
-                </select>
-              </div>
-
-              {editError && <p className="text-sm text-rose-600">{editError}</p>}
-              
-              <div className="mt-6 flex justify-end gap-3">
-                <button
-                  type="button"
-                  onClick={() => setEditing(null)}
-                  className="rounded-xl border border-line px-4 py-2.5 text-sm font-medium text-neutral-700 hover:bg-neutral-50 transition"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  onClick={update}
-                  disabled={updating || !editName.trim()}
-                  className="rounded-xl bg-ink px-4 py-2.5 text-sm font-medium text-white hover:bg-neutral-800 transition disabled:opacity-50"
-                >
-                  {updating ? "Saving..." : "Save changes"}
-                </button>
-              </div>
-            </div>
+      {/* Create Project Modal */}
+      <Modal
+        isOpen={createModalOpen}
+        onClose={() => setCreateModalOpen(false)}
+        title="Create new project"
+        description="Add a workspace to turn requirements into structured, approved stories."
+        footer={
+          <>
+            <Button
+              variant="outline"
+              type="button"
+              onClick={() => setCreateModalOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="primary"
+              type="submit"
+              form="create-project-form"
+              isLoading={creating}
+              disabled={!name.trim()}
+            >
+              Create project
+            </Button>
+          </>
+        }
+      >
+        <form id="create-project-form" onSubmit={handleCreate} className="space-y-4">
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-1.5">
+              Project Name <span className="text-rose-500">*</span>
+            </label>
+            <input
+              type="text"
+              required
+              autoFocus
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="e.g. OfferNearU, Customer Portal"
+              className="h-10 w-full rounded-xl border border-zinc-200 px-3.5 text-sm text-zinc-900 outline-none transition focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+            />
           </div>
-        </div>
-      )}
+
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-1.5">
+              Short Description
+            </label>
+            <textarea
+              rows={3}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Brief description of the product or initiative..."
+              className="w-full rounded-xl border border-zinc-200 p-3 text-sm text-zinc-900 outline-none transition focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 resize-none"
+            />
+          </div>
+
+          {createError && (
+            <p className="text-xs text-rose-600 bg-rose-50 p-2.5 rounded-lg">
+              {createError}
+            </p>
+          )}
+        </form>
+      </Modal>
+
+      {/* Edit Project Modal */}
+      <Modal
+        isOpen={Boolean(editing)}
+        onClose={() => setEditing(null)}
+        title="Edit project"
+        description="Update project details or manage status."
+        footer={
+          <>
+            <Button
+              variant="outline"
+              type="button"
+              onClick={() => setEditing(null)}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="primary"
+              type="submit"
+              form="edit-project-form"
+              isLoading={updating}
+              disabled={!editName.trim()}
+            >
+              Save changes
+            </Button>
+          </>
+        }
+      >
+        <form id="edit-project-form" onSubmit={handleUpdate} className="space-y-4">
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-1.5">
+              Project Name <span className="text-rose-500">*</span>
+            </label>
+            <input
+              type="text"
+              required
+              value={editName}
+              onChange={(e) => setEditName(e.target.value)}
+              className="h-10 w-full rounded-xl border border-zinc-200 px-3.5 text-sm text-zinc-900 outline-none transition focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-1.5">
+              Description
+            </label>
+            <textarea
+              rows={3}
+              value={editDesc}
+              onChange={(e) => setEditDesc(e.target.value)}
+              className="w-full rounded-xl border border-zinc-200 p-3 text-sm text-zinc-900 outline-none transition focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 resize-none"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-1.5">
+              Status
+            </label>
+            <select
+              value={editStatus}
+              onChange={(e) => setEditStatus(e.target.value)}
+              className="h-10 w-full rounded-xl border border-zinc-200 bg-white px-3 text-sm text-zinc-900 outline-none transition focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 cursor-pointer"
+            >
+              <option value="active">Active</option>
+              <option value="completed">Completed</option>
+              <option value="archived">Archived</option>
+            </select>
+          </div>
+
+          {editError && (
+            <p className="text-xs text-rose-600 bg-rose-50 p-2.5 rounded-lg">
+              {editError}
+            </p>
+          )}
+        </form>
+      </Modal>
     </div>
   );
 }

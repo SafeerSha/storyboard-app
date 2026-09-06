@@ -1,6 +1,8 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 
+const TEAM_COOKIE = "storyboard_team_session";
+
 export async function middleware(request: NextRequest) {
   let response = NextResponse.next({ request });
   const supabase = createServerClient(
@@ -13,17 +15,40 @@ export async function middleware(request: NextRequest) {
           cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
           response = NextResponse.next({ request });
           cookiesToSet.forEach(({ name, value, options }) => response.cookies.set(name, value, options));
-        }
-      }
+        },
+      },
     }
   );
 
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   const pathname = request.nextUrl.pathname;
+  const hasTeamSession = Boolean(request.cookies.get(TEAM_COOKIE)?.value);
 
+  // 1. Team Portal route protections
+  if (pathname === "/team/login") {
+    if (hasTeamSession) {
+      return NextResponse.redirect(new URL("/team", request.url));
+    }
+    return response;
+  }
+
+  if (pathname === "/team" || pathname.startsWith("/team/")) {
+    if (!hasTeamSession) {
+      return NextResponse.redirect(new URL("/team/login", request.url));
+    }
+    return response;
+  }
+
+  // 2. Freelancer / Super Admin checks
   let isSuperAdmin = false;
   if (user) {
-    const { data: profile } = await supabase.from("freelancer_profiles").select("role, status").eq("id", user.id).single();
+    const { data: profile } = await supabase
+      .from("freelancer_profiles")
+      .select("role, status")
+      .eq("id", user.id)
+      .single();
     if (profile?.status === "disabled") {
       await supabase.auth.signOut();
       return NextResponse.redirect(new URL("/login", request.url));
@@ -32,23 +57,32 @@ export async function middleware(request: NextRequest) {
       isSuperAdmin = true;
     }
   }
-  
-  // Protect Freelancer routes.
-  const protectedPath = pathname === "/" || pathname.startsWith("/clients") || pathname.startsWith("/projects") || pathname.startsWith("/project") || pathname.startsWith("/settings") || pathname.startsWith("/users");
-  
-  if (protectedPath && !user) return NextResponse.redirect(new URL("/login", request.url));
-  if (pathname === "/login" && user) return NextResponse.redirect(new URL("/", request.url));
-  
+
+  // Protect Freelancer routes
+  const protectedFreelancerPath =
+    pathname === "/" ||
+    pathname.startsWith("/clients") ||
+    pathname.startsWith("/projects") ||
+    pathname.startsWith("/project") ||
+    pathname.startsWith("/settings") ||
+    pathname.startsWith("/users");
+
+  if (protectedFreelancerPath && !user) {
+    return NextResponse.redirect(new URL("/login", request.url));
+  }
+
+  if (pathname === "/login" && user) {
+    return NextResponse.redirect(new URL("/", request.url));
+  }
+
   // Block non-admins from /users
   if (pathname.startsWith("/users") && user && !isSuperAdmin) {
     return NextResponse.redirect(new URL("/", request.url));
   }
-  
+
   return response;
 }
 
 export const config = {
-  matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|icon.jpg).*)",
-  ],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|icon.jpg).*)"],
 };

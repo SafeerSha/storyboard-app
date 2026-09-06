@@ -1,32 +1,101 @@
-import { CheckCircle2, CircleAlert, Clock3 } from "lucide-react";
+import React from "react";
+import { CheckCircle2, MessageSquare } from "lucide-react";
+import { Badge, type BadgeVariant } from "@/components/ui/Badge";
 import type { Story } from "@/lib/types";
 
-const statusMap = {
-  draft: ["Draft", "bg-neutral-100 text-neutral-600"],
-  review: ["Client review", "bg-amber-50 text-amber-700"],
-  changes_requested: ["Changes requested", "bg-rose-50 text-rose-700"],
-  approved: ["Approved", "bg-emerald-50 text-emerald-700"],
-  in_development: ["In development", "bg-indigo-50 text-indigo-700"],
-  completed: ["Completed", "bg-sky-50 text-sky-700"]
-} as const;
+interface StoryCardProps {
+  story: Story;
+  isSelected?: boolean;
+  openFeedbackCount?: number;
+  onClick?: () => void;
+}
 
-export function StoryCard({ story, onClick }: { story: Story; onClick?: () => void }) {
-  const [label, style] = statusMap[story.status];
-  const Icon = story.status === "approved" || story.status === "completed" ? CheckCircle2 : story.status === "changes_requested" ? CircleAlert : Clock3;
+export function StoryCard({
+  story,
+  isSelected = false,
+  openFeedbackCount,
+  onClick,
+}: StoryCardProps) {
+  const statusVariant = (story.status || "review") as BadgeVariant;
+  const criteriaCount = story.acceptance_criteria?.length ?? 0;
+  const assumptionsCount = story.assumptions?.length ?? 0;
+  const clarificationsCount = story.clarifications?.length ?? 0;
+
   return (
-    <button onClick={onClick} className="w-full text-left rounded-2xl border border-line bg-white p-5 shadow-soft transition hover:-translate-y-0.5 hover:border-neutral-300">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <div className="mb-2 flex items-center gap-2 text-xs font-medium text-neutral-400">
-            <span>FEATURE</span><span>•</span><span>{story.acceptance_criteria.length} criteria</span>
+    <button
+      type="button"
+      onClick={onClick}
+      className={`group w-full text-left rounded-xl border p-4 transition-all duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900 cursor-pointer ${
+        isSelected
+          ? "border-indigo-500 bg-indigo-50/20 shadow-xs ring-1 ring-indigo-500/20"
+          : "border-zinc-200/80 bg-white hover:border-zinc-300 hover:shadow-card"
+      }`}
+    >
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0 flex-1">
+          {/* Metadata Row */}
+          <div className="flex flex-wrap items-center gap-2 mb-1.5">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400">
+              Story
+            </span>
+            <span className="text-zinc-300 text-xs">•</span>
+            <span className="text-[11px] font-medium text-zinc-500">
+              {criteriaCount} {criteriaCount === 1 ? "criterion" : "criteria"}
+            </span>
+
+            {story.team_review_status === "approved" && (
+              <>
+                <span className="text-zinc-300 text-xs">•</span>
+                <span className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-700 bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-200/60">
+                  <CheckCircle2 size={11} className="stroke-[2.5]" />
+                  Team Approved
+                </span>
+              </>
+            )}
+
+            {openFeedbackCount !== undefined && openFeedbackCount > 0 && (
+              <>
+                <span className="text-zinc-300 text-xs">•</span>
+                <span className="inline-flex items-center gap-1 text-[11px] font-medium text-amber-800 bg-amber-50 px-1.5 py-0.2 rounded border border-amber-200/80">
+                  <MessageSquare size={11} />
+                  {openFeedbackCount} open feedback
+                </span>
+              </>
+            )}
           </div>
-          <h3 className="text-base font-semibold">{story.title}</h3>
-          <p className="mt-2 line-clamp-2 text-sm leading-6 text-neutral-500">{story.description}</p>
+
+          {/* Title */}
+          <h4 className="text-sm font-semibold text-slate-900 tracking-tight group-hover:text-indigo-600 transition truncate">
+            {story.title}
+          </h4>
+
+          {/* Description */}
+          {story.description && (
+            <p className="mt-1 text-xs text-zinc-500 line-clamp-2 leading-relaxed">
+              {story.description}
+            </p>
+          )}
         </div>
-        <span className={`shrink-0 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${style}`}>
-          <Icon size={13}/>{label}
-        </span>
+
+        {/* Status Badge */}
+        <Badge variant={statusVariant} size="sm" className="shrink-0" />
       </div>
+
+      {/* Subtle counts summary if assumptions or clarifications exist */}
+      {(assumptionsCount > 0 || clarificationsCount > 0) && (
+        <div className="mt-2.5 pt-2 border-t border-zinc-100 flex items-center gap-3 text-[11px] text-zinc-400">
+          {assumptionsCount > 0 && (
+            <span>
+              • {assumptionsCount} {assumptionsCount === 1 ? "assumption" : "assumptions"}
+            </span>
+          )}
+          {clarificationsCount > 0 && (
+            <span>
+              ? {clarificationsCount} {clarificationsCount === 1 ? "clarification" : "clarifications"}
+            </span>
+          )}
+        </div>
+      )}
     </button>
   );
 }

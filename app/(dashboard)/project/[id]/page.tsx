@@ -1,5 +1,9 @@
+import Link from "next/link";
+import { ArrowLeft, FolderKanban } from "lucide-react";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { ProjectWorkspace } from "@/components/ProjectWorkspace";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { Button } from "@/components/ui/Button";
 
 export default async function ProjectPage({
   params,
@@ -16,15 +20,19 @@ export default async function ProjectPage({
 
   if (!project) {
     return (
-      <div className="min-h-screen">
-        <div className="mx-auto max-w-[1320px] px-6 py-12 lg:px-9">
-          <div className="rounded-2xl border border-line bg-white p-12 text-center shadow-soft">
-            <p className="text-sm font-semibold text-neutral-900">Project not found</p>
-            <p className="mt-1 text-sm text-neutral-500">
-              This project may have been removed or you don't have access.
-            </p>
-          </div>
-        </div>
+      <div className="min-h-[80vh] flex items-center justify-center p-6">
+        <EmptyState
+          icon={FolderKanban}
+          title="Project not found"
+          description="This project may have been removed, archived, or you may not have access."
+          action={
+            <Link href="/projects">
+              <Button variant="secondary" size="md" leftIcon={<ArrowLeft size={14} />}>
+                Back to projects
+              </Button>
+            </Link>
+          }
+        />
       </div>
     );
   }

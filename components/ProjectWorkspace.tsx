@@ -1,11 +1,29 @@
 "use client";
-import { useState, useEffect } from "react";
+
+import { useState, useEffect, useCallback, useMemo } from "react";
 import Link from "next/link";
-import { ArrowLeft, ExternalLink, LayoutList, Loader2, Plus, Edit2, Trash2, ChevronDown, ChevronUp, Sparkles } from "lucide-react";
+import {
+  AlertCircle,
+  ArrowLeft,
+  Check,
+  CheckCircle2,
+  Copy,
+  Edit2,
+  ExternalLink,
+  Layers,
+  Plus,
+  Sparkles,
+  Trash2,
+} from "lucide-react";
 import { DashboardHeader } from "@/components/layout/DashboardHeader";
 import { GenerateStoriesModal } from "@/components/GenerateStoriesModal";
 import { StoryEditor } from "@/components/StoryEditor";
 import { StoryCard } from "@/components/StoryCard";
+import { Badge } from "@/components/ui/Badge";
+import { Button } from "@/components/ui/Button";
+import { Modal } from "@/components/ui/Modal";
+import { DropdownMenu } from "@/components/ui/DropdownMenu";
+import { EmptyState } from "@/components/ui/EmptyState";
 import type { Story, Epic } from "@/lib/types";
 
 type ProjectWorkspaceProps = {
@@ -15,15 +33,22 @@ type ProjectWorkspaceProps = {
   initialEpics: Epic[];
 };
 
-export function ProjectWorkspace({ projectId, projectName, initialStories, initialEpics }: ProjectWorkspaceProps) {
+export function ProjectWorkspace({
+  projectId,
+  projectName,
+  initialStories,
+  initialEpics,
+}: ProjectWorkspaceProps) {
   const [stories, setStories] = useState<Story[]>(initialStories);
   const [epics, setEpics] = useState<Epic[]>(initialEpics);
-  
+  const [feedbackCounts, setFeedbackCounts] = useState<Record<string, number>>({});
+
   const [generatingEpicId, setGeneratingEpicId] = useState<string | null>(null);
   const [editing, setEditing] = useState<Story | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  
+  const [copiedLink, setCopiedLink] = useState(false);
+
   // Epic creation/editing state
   const [epicModalOpen, setEpicModalOpen] = useState(false);
   const [editingEpic, setEditingEpic] = useState<Epic | null>(null);
@@ -34,15 +59,28 @@ export function ProjectWorkspace({ projectId, projectName, initialStories, initi
 
   const [epicFilter, setEpicFilter] = useState<string>("all");
 
+  const loadFeedbackCounts = useCallback(async () => {
+    try {
+      const res = await fetch(`/api/projects/${projectId}/feedback-counts`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.counts) setFeedbackCounts(data.counts);
+      }
+    } catch {
+      // Silently catch
+    }
+  }, [projectId]);
+
   useEffect(() => {
     setStories(initialStories);
     setEpics(initialEpics);
-  }, [initialStories, initialEpics]);
+    loadFeedbackCounts();
+  }, [initialStories, initialEpics, loadFeedbackCounts]);
 
   // Story Actions
-
   async function updateStory(id: string, updates: Partial<Story>) {
-    setLoading(true); setError("");
+    setLoading(true);
+    setError("");
     try {
       const res = await fetch(`/api/stories/${id}`, {
         method: "PATCH",
@@ -50,72 +88,91 @@ export function ProjectWorkspace({ projectId, projectName, initialStories, initi
         body: JSON.stringify(updates),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
-      setStories(v => v.map(s => s.id === id ? data.story : s));
+      if (!res.ok) throw new Error(data.error || "Failed to update story");
+      setStories((v) => v.map((s) => (s.id === id ? data.story : s)));
       setEditing(null);
-    } catch (e) { setError(e instanceof Error ? e.message : "Failed to update story"); } finally { setLoading(false); }
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Failed to update story");
+    } finally {
+      setLoading(false);
+    }
   }
 
   async function deleteStory(id: string) {
     if (!confirm("Are you sure you want to delete this story?")) return;
-    setLoading(true); setError("");
+    setLoading(true);
+    setError("");
     try {
       const res = await fetch(`/api/stories/${id}`, { method: "DELETE" });
       if (!res.ok) {
         const data = await res.json();
-        throw new Error(data.error);
+        throw new Error(data.error || "Failed to delete story");
       }
-      setStories(v => v.filter(s => s.id !== id));
+      setStories((v) => v.filter((s) => s.id !== id));
       setEditing(null);
-    } catch (e) { setError(e instanceof Error ? e.message : "Failed to delete story"); } finally { setLoading(false); }
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Failed to delete story");
+    } finally {
+      setLoading(false);
+    }
   }
 
   // Epic Actions
   async function saveEpic() {
     if (!epicForm.name.trim()) return;
-    setLoading(true); setError("");
+    setLoading(true);
+    setError("");
     try {
       if (editingEpic) {
         const res = await fetch(`/api/epics/${editingEpic.id}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(epicForm)
+          body: JSON.stringify(epicForm),
         });
         const data = await res.json();
-        if (!res.ok) throw new Error(data.error);
-        setEpics(v => v.map(e => e.id === editingEpic.id ? data : e));
+        if (!res.ok) throw new Error(data.error || "Failed to save Epic");
+        setEpics((v) => v.map((e) => (e.id === editingEpic.id ? data : e)));
       } else {
         const res = await fetch(`/api/epics`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ ...epicForm, projectId })
+          body: JSON.stringify({ ...epicForm, projectId }),
         });
         const data = await res.json();
-        if (!res.ok) throw new Error(data.error);
-        setEpics(v => [...v, data]);
+        if (!res.ok) throw new Error(data.error || "Failed to create Epic");
+        setEpics((v) => [...v, data]);
       }
       setEpicModalOpen(false);
       setEditingEpic(null);
-    } catch (e) { setError(e instanceof Error ? e.message : "Failed to save Epic"); } finally { setLoading(false); }
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Failed to save Epic");
+    } finally {
+      setLoading(false);
+    }
   }
 
   async function deleteEpic(id: string) {
-    if (stories.some(s => s.epic_id === id)) {
-      alert("This Epic contains stories. Move or remove its stories before deleting the Epic.");
+    if (stories.some((s) => s.epic_id === id)) {
+      alert("This Epic contains stories. Reassign or remove its stories before deleting the Epic.");
       return;
     }
     if (!confirm("Are you sure you want to delete this Epic?")) return;
-    
-    setLoading(true); setError("");
+
+    setLoading(true);
+    setError("");
     try {
       const res = await fetch(`/api/epics/${id}`, { method: "DELETE" });
       if (!res.ok) {
         const data = await res.json();
-        throw new Error(data.error);
+        throw new Error(data.error || "Failed to delete Epic");
       }
-      setEpics(v => v.filter(e => e.id !== id));
+      setEpics((v) => v.filter((e) => e.id !== id));
       if (epicFilter === id) setEpicFilter("all");
-    } catch (e) { setError(e instanceof Error ? e.message : "Failed to delete Epic"); } finally { setLoading(false); }
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Failed to delete Epic");
+    } finally {
+      setLoading(false);
+    }
   }
 
   function openCreateEpic(name = "") {
@@ -128,7 +185,11 @@ export function ProjectWorkspace({ projectId, projectName, initialStories, initi
 
   function openEditEpic(epic: Epic) {
     setEditingEpic(epic);
-    setEpicForm({ name: epic.name, description: epic.description || "", status: epic.status });
+    setEpicForm({
+      name: epic.name,
+      description: epic.description || "",
+      status: epic.status,
+    });
     setAiSuggestions(null);
     setAiError("");
     setEpicModalOpen(true);
@@ -150,13 +211,17 @@ export function ProjectWorkspace({ projectId, projectName, initialStories, initi
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to correct epic name.");
 
-      const suggestions = Array.from(new Set([data.correctedName, ...(data.alternatives || [])])).filter(Boolean);
+      const suggestions = Array.from(
+        new Set([data.correctedName, ...(data.alternatives || [])])
+      ).filter(Boolean);
       setAiSuggestions(suggestions);
 
-      setEpicForm(prev => ({
+      setEpicForm((prev) => ({
         ...prev,
         name: data.correctedName,
-        description: prev.description ? prev.description : (data.suggestedDescription || prev.description),
+        description: prev.description
+          ? prev.description
+          : data.suggestedDescription || prev.description,
       }));
     } catch (e) {
       setAiError(e instanceof Error ? e.message : "Failed to correct epic name.");
@@ -165,274 +230,462 @@ export function ProjectWorkspace({ projectId, projectName, initialStories, initi
     }
   }
 
-  const filteredEpics = epicFilter === "all" ? epics : epics.filter(e => e.id === epicFilter);
+  function handleCopyClientLink() {
+    if (typeof window === "undefined") return;
+    const url = `${window.location.origin}/client/login`;
+    navigator.clipboard.writeText(url);
+    setCopiedLink(true);
+    setTimeout(() => setCopiedLink(false), 2000);
+  }
+
+  // Progress metrics
+  const totalStoriesCount = stories.length;
+  const approvedStoriesCount = stories.filter((s) => s.status === "approved").length;
+  const changesRequestedCount = stories.filter((s) => s.status === "changes_requested").length;
+  const draftStoriesCount = stories.filter(
+    (s) => !s.status || s.status === "draft" || s.status === "review"
+  ).length;
+
+  const progressPercent = totalStoriesCount
+    ? Math.round((approvedStoriesCount / totalStoriesCount) * 100)
+    : 0;
+
+  const filteredEpics =
+    epicFilter === "all" ? epics : epics.filter((e) => e.id === epicFilter);
 
   return (
     <div>
       <DashboardHeader
-        category="PROJECT"
+        eyebrow="PROJECT"
         title={projectName}
         backHref="/projects"
         actions={
-          <button
-            type="button"
-            onClick={() => {
-              if (typeof window !== "undefined") {
-                const url = `${window.location.origin}/client/login`;
-                navigator.clipboard.writeText(url);
-                alert(`Client portal link copied: ${url}`);
-              }
-            }}
-            className="inline-flex items-center gap-2 rounded-xl border border-line bg-white px-3 py-2 text-sm font-medium hover:bg-neutral-50 transition shadow-xs"
-          >
-            <ExternalLink size={15} /> Share portal
-          </button>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="secondary"
+              size="md"
+              leftIcon={copiedLink ? <Check size={14} className="text-emerald-600" /> : <Copy size={14} />}
+              onClick={handleCopyClientLink}
+            >
+              {copiedLink ? "Link copied" : "Share client portal"}
+            </Button>
+            <Button
+              variant="primary"
+              size="md"
+              leftIcon={<Plus size={14} />}
+              onClick={() => openCreateEpic()}
+            >
+              Add Epic
+            </Button>
+          </div>
         }
       />
 
-      <div className="mx-auto max-w-[1320px] px-6 py-8 lg:px-9">
-          <div className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
+      <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8 space-y-6">
+        {/* Project Summary & Progress Bar */}
+        <div className="rounded-xl border border-zinc-200/80 bg-white p-5 sm:p-6 shadow-card space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-2 border-b border-zinc-100 pb-3">
             <div>
-              <div className="mb-2 flex items-center gap-2 text-sm text-neutral-400"><LayoutList size={16} /> Requirements</div>
-              <h2 className="text-3xl font-semibold tracking-tight">Feature stories</h2>
-              <p className="mt-2 text-sm text-neutral-500">Group related feature stories into Epics to keep this project organized.</p>
+              <h2 className="text-lg font-semibold tracking-tight text-slate-900">
+                Requirements Hierarchy
+              </h2>
+              <p className="text-xs text-zinc-500">
+                Epics group focused product areas. Stories contain criteria and discussions.
+              </p>
             </div>
-            <div className="text-right flex items-center md:items-end gap-6 flex-row-reverse md:flex-row">
-              <div className="flex gap-3 items-center">
-                <select value={epicFilter} onChange={e => setEpicFilter(e.target.value)} className="rounded-xl border border-line bg-white px-3 py-2.5 text-sm outline-none font-medium text-neutral-700">
-                  <option value="all">All Epics</option>
-                  {epics.map(e => <option key={e.id} value={e.id}>{e.name}</option>)}
-                </select>
-                <button onClick={() => openCreateEpic()} className="inline-flex items-center gap-1 rounded-xl bg-ink px-4 py-2.5 text-sm font-medium text-white hover:bg-neutral-800">
-                  <Plus size={16} /> Add Epic
-                </button>
-              </div>
-              <div className="hidden md:block border-l border-line h-10"></div>
-              <div>
-                <p className="text-2xl font-semibold">{stories.filter(s => s.status === "approved").length}<span className="text-neutral-300"> / {stories.length}</span></p>
-                <p className="text-xs text-neutral-400">approved</p>
-              </div>
+            <div className="flex items-center gap-4 text-xs font-medium">
+              <span className="text-zinc-700">{totalStoriesCount} Stories</span>
+              <span className="text-emerald-700 font-semibold">{approvedStoriesCount} Approved</span>
+              {changesRequestedCount > 0 && (
+                <span className="text-rose-700 font-semibold">
+                  {changesRequestedCount} Changes Requested
+                </span>
+              )}
+              <span className="text-zinc-400">{draftStoriesCount} In Review</span>
             </div>
           </div>
 
-          {error && <div className="mb-6 rounded-xl bg-rose-50 p-4 text-sm text-rose-700">{error}</div>}
-
-          <div className="grid gap-6 lg:grid-cols-[1.1fr_.9fr] items-start relative">
-            <div className="space-y-8">
-              {loading && stories.length === 0 && epics.length === 0 ? (
-                <div className="flex items-center gap-2 rounded-2xl border border-line bg-white p-6 text-sm text-neutral-500">
-                  <Loader2 className="animate-spin" size={17} /> Loading workspace...
-                </div>
-              ) : epics.length === 0 && stories.length === 0 ? (
-                <div className="rounded-2xl border border-dashed border-neutral-300 p-12 text-center">
-                  <p className="text-sm font-medium text-neutral-900">No Epics yet</p>
-                  <p className="mt-1 text-sm text-neutral-500 mb-4">Group related feature stories into Epics to keep this project organized.</p>
-                  <button onClick={() => openCreateEpic()} className="inline-flex items-center gap-1 rounded-xl bg-ink px-4 py-2.5 text-sm font-medium text-white hover:bg-neutral-800">
-                    <Plus size={16} /> Create Epic
-                  </button>
-                </div>
-              ) : (
-                <>
-                  {filteredEpics.map(epic => {
-                    const epicStories = stories.filter(s => s.epic_id === epic.id);
-                    const approvedCount = epicStories.filter(s => s.status === "approved").length;
-                    const progress = epicStories.length > 0 ? (approvedCount / epicStories.length) * 100 : 0;
-
-                    return (
-                      <div key={epic.id} className="rounded-2xl border border-line bg-white shadow-sm overflow-hidden">
-                        <div className="bg-neutral-50/50 p-5 border-b border-line flex items-start justify-between gap-4">
-                          <div className="flex-1">
-                            <h3 className="text-lg font-semibold text-neutral-900">{epic.name}</h3>
-                            {epic.description && <p className="text-sm text-neutral-500 mt-1">{epic.description}</p>}
-                            <div className="mt-3 flex items-center gap-3">
-                              <span className="text-xs font-medium text-neutral-500 bg-neutral-100 px-2 py-1 rounded-md">{epicStories.length} stories</span>
-                              <span className="text-xs font-medium text-green-600 bg-green-50 px-2 py-1 rounded-md">{approvedCount} approved</span>
-                            </div>
-                            {epicStories.length > 0 && (
-                              <div className="mt-4 h-1.5 w-full bg-neutral-100 rounded-full overflow-hidden">
-                                <div className="h-full bg-green-500 rounded-full transition-all" style={{ width: `${progress}%` }}></div>
-                              </div>
-                            )}
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <button onClick={() => openEditEpic(epic)} className="p-2 text-neutral-400 hover:text-neutral-900 rounded-lg hover:bg-white"><Edit2 size={16} /></button>
-                            <button onClick={() => deleteEpic(epic.id)} className="p-2 text-neutral-400 hover:text-rose-600 rounded-lg hover:bg-white"><Trash2 size={16} /></button>
-                          </div>
-                        </div>
-                        <div className="p-5 flex flex-col gap-4 bg-neutral-50/30">
-                          {epicStories.length === 0 ? (
-                            <div className="text-center py-6 text-sm text-neutral-500">No stories in this Epic yet</div>
-                          ) : (
-                            epicStories.map(s => <StoryCard key={s.id} story={s} onClick={() => setEditing(s)} />)
-                          )}
-                          <div className="mt-2 flex justify-center border-t border-line border-dashed pt-4">
-                            <button
-                              onClick={() => setGeneratingEpicId(epic.id)}
-                              className="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2 text-sm font-medium text-indigo-600 shadow-sm border border-line hover:border-indigo-300 hover:bg-indigo-50 transition"
-                            >
-                              <Sparkles size={16} /> Generate stories from requirement
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-
-                  {/* Uncategorized Stories */}
-                  {(epicFilter === "all" && stories.some(s => s.epic_id === null)) && (
-                    <div className="rounded-2xl border border-line bg-white shadow-sm overflow-hidden">
-                      <div className="bg-neutral-50/50 p-5 border-b border-line">
-                        <h3 className="text-lg font-semibold text-neutral-900">Uncategorized</h3>
-                        <p className="text-sm text-neutral-500 mt-1">Stories without an assigned Epic</p>
-                      </div>
-                      <div className="p-5 flex flex-col gap-4 bg-neutral-50/30">
-                        {stories.filter(s => s.epic_id === null).map(s => <StoryCard key={s.id} story={s} onClick={() => setEditing(s)} />)}
-                      </div>
-                    </div>
-                  )}
-                </>
-              )}
+          <div>
+            <div className="flex items-center justify-between text-xs text-zinc-500 mb-1.5 font-medium">
+              <span>Overall Client Sign-off</span>
+              <span className="text-slate-900 font-semibold">{progressPercent}%</span>
             </div>
-            
-            <div className="lg:sticky lg:top-24 lg:self-start z-10">
-              {editing ? (
-                <StoryEditor
-                  story={editing}
-                  epics={epics}
-                  onCancel={() => setEditing(null)}
-                  onSave={async (story) => {
-                    await updateStory(editing.id, {
-                      title: story.title,
-                      description: story.description,
-                      acceptance_criteria: story.acceptance_criteria,
-                      assumptions: story.assumptions,
-                      clarifications: story.clarifications,
-                      raw_requirement: story.raw_requirement,
-                      epic_id: story.epic_id,
-                    });
-                  }}
-                  onCreateEpic={openCreateEpic}
-                  onDelete={() => deleteStory(editing.id)}
-                />
-              ) : (
-                <div className="rounded-2xl border border-dashed border-neutral-300 bg-neutral-50/50 p-8 text-center text-sm text-neutral-500">
-                  Select a story to view or edit its details.
-                </div>
-              )}
-            </div>
-          </div>
-      </div>
-
-      {epicModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-          <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-xl border border-line">
-            <h3 className="text-lg font-semibold mb-4">{editingEpic ? "Edit Epic" : "Create Epic"}</h3>
-            <div className="space-y-4">
-              <div>
-                <div className="flex items-center justify-between mb-1.5">
-                  <label className="text-sm font-medium text-neutral-800">Epic Name</label>
-                  {epicForm.name.trim() && (
-                    <button
-                      type="button"
-                      onClick={handleAiCorrectEpicName}
-                      disabled={aiCorrecting}
-                      className="inline-flex items-center gap-1.5 text-xs font-semibold text-indigo-600 hover:text-indigo-700 bg-indigo-50 hover:bg-indigo-100 px-2.5 py-1 rounded-lg transition disabled:opacity-50"
-                    >
-                      {aiCorrecting ? (
-                        <>
-                          <Loader2 size={12} className="animate-spin" />
-                          <span>Refining...</span>
-                        </>
-                      ) : (
-                        <>
-                          <Sparkles size={12} />
-                          <span>AI Correct Name</span>
-                        </>
-                      )}
-                    </button>
-                  )}
-                </div>
-                <input
-                  value={epicForm.name}
-                  onChange={e => {
-                    setEpicForm(f => ({ ...f, name: e.target.value }));
-                    if (aiError) setAiError("");
-                  }}
-                  placeholder="e.g. user auth, checkout, order mgt"
-                  className="w-full rounded-xl border border-line px-4 py-2.5 outline-none focus:border-indigo-400 text-sm"
-                />
-
-                {aiError && (
-                  <p className="mt-1 text-xs text-rose-600">{aiError}</p>
-                )}
-
-                {aiSuggestions && aiSuggestions.length > 0 && (
-                  <div className="mt-2.5 p-3 bg-indigo-50/70 border border-indigo-100 rounded-xl space-y-2">
-                    <div className="flex items-center justify-between text-xs text-indigo-900 font-medium">
-                      <span className="flex items-center gap-1.5"><Sparkles size={12} className="text-indigo-600" /> AI Suggestions:</span>
-                      <button type="button" onClick={() => setAiSuggestions(null)} className="text-neutral-400 hover:text-neutral-600 text-[11px]">Dismiss</button>
-                    </div>
-                    <div className="flex flex-wrap gap-1.5">
-                      {aiSuggestions.map((suggestion) => (
-                        <button
-                          key={suggestion}
-                          type="button"
-                          onClick={() => {
-                            setEpicForm(f => ({ ...f, name: suggestion }));
-                          }}
-                          className={`text-xs px-2.5 py-1 rounded-lg font-medium transition ${
-                            epicForm.name === suggestion
-                              ? "bg-indigo-600 text-white shadow-sm"
-                              : "bg-white text-indigo-700 border border-indigo-200 hover:bg-indigo-100"
-                          }`}
-                        >
-                          {suggestion}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-              <div>
-                <label className="text-sm font-medium text-neutral-800">Description</label>
-                <textarea
-                  value={epicForm.description}
-                  onChange={e => setEpicForm(f => ({ ...f, description: e.target.value }))}
-                  placeholder="High-level description of this Epic..."
-                  className="mt-1.5 w-full rounded-xl border border-line px-4 py-2.5 outline-none focus:border-indigo-400 min-h-24 resize-none text-sm"
-                />
-              </div>
-              <div>
-                <label className="text-sm font-medium text-neutral-800">Status</label>
-                <select
-                  value={epicForm.status}
-                  onChange={e => setEpicForm(f => ({ ...f, status: e.target.value }))}
-                  className="mt-1.5 w-full rounded-xl border border-line px-4 py-2.5 outline-none focus:border-indigo-400 text-sm"
-                >
-                  <option value="active">Active</option>
-                  <option value="completed">Completed</option>
-                  <option value="archived">Archived</option>
-                </select>
-              </div>
-            </div>
-            <div className="mt-6 flex justify-end gap-3">
-              <button onClick={() => setEpicModalOpen(false)} className="rounded-xl px-4 py-2 text-sm font-medium text-neutral-600 hover:bg-neutral-100">Cancel</button>
-              <button onClick={saveEpic} disabled={loading || !epicForm.name.trim()} className="rounded-xl bg-ink px-4 py-2 text-sm font-medium text-white hover:bg-neutral-800 disabled:opacity-50">
-                {loading ? "Saving..." : "Save Epic"}
-              </button>
+            <div className="h-2 w-full overflow-hidden rounded-full bg-zinc-100">
+              <div
+                className="h-full rounded-full bg-slate-900 transition-all duration-500"
+                style={{ width: `${progressPercent}%` }}
+              />
             </div>
           </div>
         </div>
-      )}
 
+        {error && (
+          <div className="rounded-xl border border-rose-200 bg-rose-50 p-4 text-xs sm:text-sm text-rose-700">
+            {error}
+          </div>
+        )}
+
+        {/* Filter & Workspace Layout */}
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
+              Filter:
+            </span>
+            <select
+              value={epicFilter}
+              onChange={(e) => setEpicFilter(e.target.value)}
+              className="h-8 rounded-lg border border-zinc-200 bg-white px-2.5 text-xs font-medium text-zinc-700 outline-none transition focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 cursor-pointer"
+            >
+              <option value="all">All Epics ({epics.length})</option>
+              {epics.map((e) => (
+                <option key={e.id} value={e.id}>
+                  {e.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <span className="text-xs text-zinc-400">
+            {stories.length} {stories.length === 1 ? "story" : "stories"} total
+          </span>
+        </div>
+
+        {/* Split View: Epics/Stories on Left, Story Document Inspector on Right */}
+        <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr] items-start">
+          {/* Left Column: Epics and Stories List */}
+          <div className="space-y-6">
+            {epics.length === 0 && stories.length === 0 ? (
+              <EmptyState
+                icon={Layers}
+                title="No Epics yet"
+                description="Create your first Epic to group feature stories into structured product areas."
+                action={
+                  <Button
+                    variant="primary"
+                    size="md"
+                    leftIcon={<Plus size={14} />}
+                    onClick={() => openCreateEpic()}
+                  >
+                    Create Epic
+                  </Button>
+                }
+              />
+            ) : (
+              <>
+                {filteredEpics.map((epic) => {
+                  const epicStories = stories.filter((s) => s.epic_id === epic.id);
+                  const approvedCount = epicStories.filter((s) => s.status === "approved").length;
+                  const changesCount = epicStories.filter((s) => s.status === "changes_requested").length;
+                  const epicProgress = epicStories.length
+                    ? Math.round((approvedCount / epicStories.length) * 100)
+                    : 0;
+
+                  return (
+                    <div
+                      key={epic.id}
+                      className="rounded-xl border border-zinc-200/80 bg-white shadow-card overflow-hidden"
+                    >
+                      {/* Epic Header */}
+                      <div className="p-4 sm:p-5 border-b border-zinc-100 bg-zinc-50/40">
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-2">
+                              <span className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400">
+                                Epic
+                              </span>
+                              <span className="text-zinc-300">•</span>
+                              <span className="text-[11px] font-medium text-zinc-500">
+                                {epicStories.length} {epicStories.length === 1 ? "story" : "stories"}
+                              </span>
+                              <span className="text-zinc-300">•</span>
+                              <span className="text-[11px] font-medium text-emerald-700">
+                                {approvedCount} approved
+                              </span>
+                              {changesCount > 0 && (
+                                <>
+                                  <span className="text-zinc-300">•</span>
+                                  <span className="text-[11px] font-medium text-rose-700">
+                                    {changesCount} changes
+                                  </span>
+                                </>
+                              )}
+                            </div>
+
+                            <h3 className="mt-1 text-base font-semibold text-slate-900 tracking-tight truncate">
+                              {epic.name}
+                            </h3>
+
+                            {epic.description && (
+                              <p className="mt-1 text-xs text-zinc-500 line-clamp-2 leading-relaxed">
+                                {epic.description}
+                              </p>
+                            )}
+
+                            {epicStories.length > 0 && (
+                              <div className="mt-3 h-1 w-full bg-zinc-200/70 rounded-full overflow-hidden">
+                                <div
+                                  className="h-full bg-slate-900 rounded-full transition-all duration-300"
+                                  style={{ width: `${epicProgress}%` }}
+                                />
+                              </div>
+                            )}
+                          </div>
+
+                          <div className="flex items-center gap-1 shrink-0">
+                            <Button
+                              variant="secondary"
+                              size="sm"
+                              leftIcon={<Sparkles size={13} className="text-indigo-600" />}
+                              onClick={() => setGeneratingEpicId(epic.id)}
+                            >
+                              Generate
+                            </Button>
+
+                            <DropdownMenu
+                              ariaLabel={`Actions for ${epic.name}`}
+                              items={[
+                                {
+                                  label: "Edit Epic",
+                                  icon: <Edit2 size={14} />,
+                                  onClick: () => openEditEpic(epic),
+                                },
+                                {
+                                  label: "Delete Epic",
+                                  icon: <Trash2 size={14} />,
+                                  variant: "danger",
+                                  onClick: () => deleteEpic(epic.id),
+                                },
+                              ]}
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Stories inside Epic */}
+                      <div className="p-3 sm:p-4 space-y-2.5 bg-zinc-50/20">
+                        {epicStories.length === 0 ? (
+                          <div className="py-6 text-center">
+                            <p className="text-xs text-zinc-400">No stories in this Epic yet.</p>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="mt-2 text-indigo-600"
+                              leftIcon={<Sparkles size={13} />}
+                              onClick={() => setGeneratingEpicId(epic.id)}
+                            >
+                              Generate stories with AI
+                            </Button>
+                          </div>
+                        ) : (
+                          epicStories.map((story) => (
+                            <StoryCard
+                              key={story.id}
+                              story={story}
+                              isSelected={editing?.id === story.id}
+                              openFeedbackCount={feedbackCounts[story.id] || 0}
+                              onClick={() => {
+                                setEditing(story);
+                                if (typeof window !== "undefined" && window.innerWidth < 1024) {
+                                  setTimeout(() => {
+                                    document
+                                      .getElementById("story-editor-section")
+                                      ?.scrollIntoView({ behavior: "smooth" });
+                                  }, 100);
+                                }
+                              }}
+                            />
+                          ))
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+
+                {/* Uncategorized Stories */}
+                {epicFilter === "all" && stories.some((s) => s.epic_id === null) && (
+                  <div className="rounded-xl border border-zinc-200/80 bg-white shadow-card overflow-hidden">
+                    <div className="p-4 border-b border-zinc-100 bg-zinc-50/40">
+                      <h3 className="text-sm font-semibold text-slate-900 tracking-tight">
+                        Uncategorized Stories
+                      </h3>
+                      <p className="text-xs text-zinc-500 mt-0.5">
+                        Requirements not assigned to an Epic
+                      </p>
+                    </div>
+                    <div className="p-3 sm:p-4 space-y-2.5 bg-zinc-50/20">
+                      {stories
+                        .filter((s) => s.epic_id === null)
+                        .map((story) => (
+                          <StoryCard
+                            key={story.id}
+                            story={story}
+                            isSelected={editing?.id === story.id}
+                            openFeedbackCount={feedbackCounts[story.id] || 0}
+                            onClick={() => setEditing(story)}
+                          />
+                        ))}
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+
+          {/* Right Column: Story Document Inspector / Editor */}
+          <div
+            id="story-editor-section"
+            className="lg:sticky lg:top-20 lg:self-start z-10"
+          >
+            {editing ? (
+              <StoryEditor
+                story={editing}
+                epics={epics}
+                onCancel={() => setEditing(null)}
+                onFeedbackChange={loadFeedbackCounts}
+                onSave={async (updated) => {
+                  await updateStory(editing.id, {
+                    title: updated.title,
+                    description: updated.description,
+                    acceptance_criteria: updated.acceptance_criteria,
+                    assumptions: updated.assumptions,
+                    clarifications: updated.clarifications,
+                    raw_requirement: updated.raw_requirement,
+                    epic_id: updated.epic_id,
+                  });
+                }}
+                onCreateEpic={openCreateEpic}
+                onDelete={() => deleteStory(editing.id)}
+              />
+            ) : (
+              <div className="rounded-2xl border border-dashed border-zinc-200/90 bg-white/70 p-8 sm:p-12 text-center">
+                <div className="mx-auto grid h-10 w-10 place-items-center rounded-xl bg-zinc-100 text-zinc-400 mb-3">
+                  <Layers size={18} />
+                </div>
+                <h4 className="text-sm font-semibold text-zinc-900">
+                  Select a feature story
+                </h4>
+                <p className="mt-1 text-xs text-zinc-500 max-w-xs mx-auto">
+                  Click any story on the left to review criteria, inspect assumptions, and participate in discussion threads.
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      </main>
+
+      {/* Epic Modal (Create / Edit) */}
+      <Modal
+        isOpen={epicModalOpen}
+        onClose={() => setEpicModalOpen(false)}
+        title={editingEpic ? "Edit Epic" : "Create Epic"}
+        description="Epics represent major product areas or feature themes."
+        footer={
+          <>
+            <Button
+              variant="outline"
+              size="md"
+              type="button"
+              onClick={() => setEpicModalOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="primary"
+              size="md"
+              type="submit"
+              form="epic-modal-form"
+              isLoading={loading}
+              disabled={!epicForm.name.trim()}
+            >
+              {editingEpic ? "Save changes" : "Create Epic"}
+            </Button>
+          </>
+        }
+      >
+        <form
+          id="epic-modal-form"
+          onSubmit={(e) => {
+            e.preventDefault();
+            saveEpic();
+          }}
+          className="space-y-4"
+        >
+          <div>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
+                Epic Name <span className="text-rose-500">*</span>
+              </label>
+              <button
+                type="button"
+                disabled={aiCorrecting || !epicForm.name.trim()}
+                onClick={handleAiCorrectEpicName}
+                className="inline-flex items-center gap-1 text-xs font-medium text-indigo-600 hover:text-indigo-800 disabled:opacity-40 transition"
+              >
+                <Sparkles size={12} />
+                <span>{aiCorrecting ? "Enhancing..." : "Auto-format name"}</span>
+              </button>
+            </div>
+            <input
+              type="text"
+              required
+              autoFocus
+              value={epicForm.name}
+              onChange={(e) =>
+                setEpicForm((prev) => ({ ...prev, name: e.target.value }))
+              }
+              placeholder="e.g. User Authentication & Security"
+              className="h-10 w-full rounded-xl border border-zinc-200 px-3.5 text-sm text-zinc-900 outline-none transition focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+            />
+
+            {aiSuggestions && aiSuggestions.length > 1 && (
+              <div className="mt-2 flex flex-wrap gap-1.5 items-center">
+                <span className="text-[10px] text-zinc-400">Suggestions:</span>
+                {aiSuggestions.map((sug) => (
+                  <button
+                    key={sug}
+                    type="button"
+                    onClick={() =>
+                      setEpicForm((prev) => ({ ...prev, name: sug }))
+                    }
+                    className="text-[11px] rounded-md bg-indigo-50 px-2 py-0.5 text-indigo-700 hover:bg-indigo-100 transition"
+                  >
+                    {sug}
+                  </button>
+                ))}
+              </div>
+            )}
+            {aiError && <p className="text-xs text-rose-600 mt-1">{aiError}</p>}
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-1.5">
+              Description
+            </label>
+            <textarea
+              rows={3}
+              value={epicForm.description}
+              onChange={(e) =>
+                setEpicForm((prev) => ({ ...prev, description: e.target.value }))
+              }
+              placeholder="Describe the scope and purpose of this Epic..."
+              className="w-full rounded-xl border border-zinc-200 p-3 text-sm text-zinc-900 outline-none transition focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 resize-none"
+            />
+          </div>
+        </form>
+      </Modal>
+
+      {/* AI Generate Stories Modal */}
       {generatingEpicId && (
         <GenerateStoriesModal
           projectId={projectId}
           epicId={generatingEpicId}
           onClose={() => setGeneratingEpicId(null)}
           onStoriesGenerated={(newStories) => {
-            setStories(v => [...v, ...newStories]);
+            setStories((prev) => [...newStories, ...prev]);
             setGeneratingEpicId(null);
+            if (newStories[0]) {
+              setEditing(newStories[0]);
+            }
           }}
         />
       )}

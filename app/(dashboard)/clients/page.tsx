@@ -1,8 +1,26 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Copy, Plus, UserRound, X, Check, Edit3, KeyRound } from "lucide-react";
+import { useEffect, useState, useMemo } from "react";
+import {
+  Check,
+  Copy,
+  Edit3,
+  ExternalLink,
+  FolderKanban,
+  KeyRound,
+  Lock,
+  Plus,
+  Search,
+  Trash2,
+  Users,
+} from "lucide-react";
 import { DashboardHeader } from "@/components/layout/DashboardHeader";
+import { Badge } from "@/components/ui/Badge";
+import { Button } from "@/components/ui/Button";
+import { Modal } from "@/components/ui/Modal";
+import { DropdownMenu } from "@/components/ui/DropdownMenu";
+import { TableRowSkeleton } from "@/components/ui/Skeleton";
+import { EmptyState } from "@/components/ui/EmptyState";
 
 type Client = {
   id: string;
@@ -13,82 +31,145 @@ type Client = {
   projects?: { name: string } | null;
 };
 
+type ProjectOption = {
+  id: string;
+  name: string;
+};
+
 export default function ClientsPage() {
   const [clients, setClients] = useState<Client[]>([]);
-  const [projects, setProjects] = useState<{ id: string; name: string }[]>([]);
-  
-  // Create state
-  const [open, setOpen] = useState(false);
+  const [projects, setProjects] = useState<ProjectOption[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  // Search & Filters
+  const [searchQuery, setSearchQuery] = useState("");
+  const [projectFilter, setProjectFilter] = useState("all");
+
+  // Create Client Modal State
+  const [showCreate, setShowCreate] = useState(false);
   const [name, setName] = useState("");
   const [projectId, setProjectId] = useState("");
   const [loginId, setLoginId] = useState("");
   const [password, setPassword] = useState("");
-  const [created, setCreated] = useState<{ login: string; password: string } | null>(null);
-  const [error, setError] = useState("");
+  const [creating, setCreating] = useState(false);
+  const [createError, setCreateError] = useState("");
 
-  // Edit state
+  // One-time credential display modal
+  const [createdCredentials, setCreatedCredentials] = useState<{
+    name: string;
+    loginId: string;
+    passwordEntered: string;
+    projectName: string;
+  } | null>(null);
+  const [copiedCreds, setCopiedCreds] = useState(false);
+
+  // Edit Client Modal State
   const [editing, setEditing] = useState<Client | null>(null);
   const [editName, setEditName] = useState("");
   const [editProjectId, setEditProjectId] = useState("");
   const [editLoginId, setEditLoginId] = useState("");
-  const [editStatus, setEditStatus] = useState("");
-  const [editError, setEditError] = useState("");
+  const [editStatus, setEditStatus] = useState("active");
   const [updating, setUpdating] = useState(false);
+  const [editError, setEditError] = useState("");
 
-  // Reset password state
-  const [resetting, setResetting] = useState(false);
+  // Reset Password Modal State
+  const [resettingClient, setResettingClient] = useState<Client | null>(null);
   const [newPassword, setNewPassword] = useState("");
+  const [resetting, setResetting] = useState(false);
   const [resetSuccess, setResetSuccess] = useState<string | null>(null);
+  const [resetError, setResetError] = useState("");
+
+  // Quick copied notification
+  const [copiedLoginId, setCopiedLoginId] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch("/api/clients")
-      .then(r => r.json())
-      .then(d => {
-        if (d.clients) setClients(d.clients);
-      });
-    fetch("/api/projects")
-      .then(r => r.json())
-      .then(d => {
-        if (d.projects) {
-          setProjects(d.projects);
-          if (d.projects[0]) setProjectId(d.projects[0].id);
+    async function load() {
+      setLoading(true);
+      setError("");
+      try {
+        const [clientsRes, projectsRes] = await Promise.all([
+          fetch("/api/clients"),
+          fetch("/api/projects"),
+        ]);
+        const clientsData = await clientsRes.json();
+        const projectsData = await projectsRes.json();
+
+        if (clientsData.clients) setClients(clientsData.clients);
+        if (projectsData.projects) {
+          setProjects(projectsData.projects);
+          if (projectsData.projects[0] && !projectId) {
+            setProjectId(projectsData.projects[0].id);
+          }
         }
-      });
+      } catch (e) {
+        setError(e instanceof Error ? e.message : "Failed to load clients");
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
   }, []);
 
-  function randomId(setter: (id: string) => void) {
-    setter(String(Math.floor(100000 + Math.random() * 900000)));
+  function generateRandomPin() {
+    return String(Math.floor(100000 + Math.random() * 900000));
   }
 
-  function generatePassword() {
-    const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*";
+  function generateRandomPassword() {
+    const chars = "abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789!@#$%^&*";
     let p = "";
-    for (let i = 0; i < 12; i++) p += chars[Math.floor(Math.random() * chars.length)];
+    for (let i = 0; i < 10; i++) {
+      p += chars[Math.floor(Math.random() * chars.length)];
+    }
     return p;
   }
 
-  async function create() {
-    setError("");
-    const r = await fetch("/api/clients", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, projectId, loginId, password }),
-    });
-    const d = await r.json();
-    if (!r.ok) {
-      setError(d.error);
-      return;
+  async function handleCreate(e: React.FormEvent) {
+    e.preventDefault();
+    if (!name.trim() || !projectId) return;
+    setCreating(true);
+    setCreateError("");
+
+    const effectivePin = loginId.trim() || generateRandomPin();
+    const effectivePwd = password || generateRandomPassword();
+
+    try {
+      const res = await fetch("/api/clients", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: name.trim(),
+          projectId,
+          loginId: effectivePin,
+          password: effectivePwd,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to create client");
+
+      const assignedProj = projects.find((p) => p.id === projectId);
+      setClients((prev) => [data.client, ...prev]);
+      setShowCreate(false);
+      setCreatedCredentials({
+        name: data.client.name,
+        loginId: data.client.login_id,
+        passwordEntered: data.generatedPassword || effectivePwd,
+        projectName: assignedProj?.name || "Assigned Project",
+      });
+
+      setName("");
+      setLoginId("");
+      setPassword("");
+    } catch (e) {
+      setCreateError(e instanceof Error ? e.message : "Failed to create client");
+    } finally {
+      setCreating(false);
     }
-    setClients(v => [d.client, ...v]);
-    setCreated({ login: d.client.login_id, password: d.generatedPassword });
-    setName("");
-    setProjectId("");
-    setLoginId("");
-    setPassword("");
   }
 
-  async function update() {
-    if (!editing) return;
+  async function handleUpdate(e: React.FormEvent) {
+    e.preventDefault();
+    if (!editing || !editName.trim()) return;
     setUpdating(true);
     setEditError("");
     try {
@@ -96,402 +177,650 @@ export default function ClientsPage() {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name: editName,
+          name: editName.trim(),
           project_id: editProjectId,
-          login_id: editLoginId,
+          login_id: editLoginId.trim(),
           status: editStatus,
         }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
-      setClients(v => v.map(c => c.id === editing.id ? data.client : c));
+      if (!res.ok) throw new Error(data.error || "Failed to update client");
+
+      setClients((prev) =>
+        prev.map((c) => (c.id === editing.id ? data.client : c))
+      );
       setEditing(null);
-    } catch (e: any) {
-      setEditError(e.message || "Failed to update client.");
+    } catch (e) {
+      setEditError(e instanceof Error ? e.message : "Failed to update client");
     } finally {
       setUpdating(false);
     }
   }
 
-  async function resetPassword() {
-    if (!editing) return;
-    const pwd = newPassword || generatePassword();
+  async function handleResetPassword(e: React.FormEvent) {
+    e.preventDefault();
+    if (!resettingClient) return;
     setResetting(true);
-    setEditError("");
+    setResetError("");
+    const pwd = newPassword || generateRandomPassword();
+
     try {
-      const res = await fetch(`/api/clients/${editing.id}/reset-password`, {
+      const res = await fetch(`/api/clients/${resettingClient.id}/reset-password`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ password: pwd }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
+      if (!res.ok) throw new Error(data.error || "Failed to reset password");
+
       setResetSuccess(pwd);
-    } catch (e: any) {
-      setEditError(e.message || "Failed to reset password.");
+    } catch (e) {
+      setResetError(e instanceof Error ? e.message : "Failed to reset password");
     } finally {
       setResetting(false);
     }
   }
 
+  async function handleDelete(id: string, clientName: string) {
+    if (!confirm(`Are you sure you want to remove client "${clientName}"?`)) return;
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/clients/${id}`, { method: "DELETE" });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to delete client");
+      setClients((prev) => prev.filter((c) => c.id !== id));
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Failed to delete client");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function handleCopyLoginId(pin: string) {
+    navigator.clipboard.writeText(pin);
+    setCopiedLoginId(pin);
+    setTimeout(() => setCopiedLoginId(null), 1500);
+  }
+
+  function handleCopyPortalLink() {
+    if (typeof window === "undefined") return;
+    const url = `${window.location.origin}/client/login`;
+    navigator.clipboard.writeText(url);
+    alert(`Client Portal link copied: ${url}`);
+  }
+
+  const filteredClients = useMemo(() => {
+    return clients.filter((c) => {
+      const matchesSearch =
+        c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        c.login_id.includes(searchQuery);
+      const matchesProject =
+        projectFilter === "all" || c.project_id === projectFilter;
+      return matchesSearch && matchesProject;
+    });
+  }, [clients, searchQuery, projectFilter]);
+
   return (
     <div>
       <DashboardHeader
-        category="MANAGE"
+        eyebrow="MANAGE"
         title="Clients"
+        description="Manage client access and portals for each project."
         actions={
-          <button
-            type="button"
+          <Button
+            variant="primary"
+            size="md"
+            leftIcon={<Plus size={15} />}
             onClick={() => {
-              setOpen(true);
-              setCreated(null);
+              setName("");
+              setLoginId(generateRandomPin());
+              setPassword(generateRandomPassword());
+              setCreateError("");
+              setShowCreate(true);
             }}
-            className="inline-flex items-center gap-2 rounded-xl bg-ink px-3.5 py-2 text-sm font-medium text-white transition hover:bg-neutral-800 shadow-sm"
           >
-            <Plus size={16} /> Add client
-          </button>
+            Add client
+          </Button>
         }
       />
 
-      <main className="mx-auto max-w-[1200px] px-6 py-8 lg:px-9">
-        <div className="mb-7">
-          <h2 className="text-3xl font-semibold tracking-tight text-neutral-950">Client portal access</h2>
-          <p className="mt-2 text-sm text-neutral-500">
-            Create credentials and assign each client to one of the projects in the workspace.
-          </p>
-        </div>
-
-        <div className="overflow-hidden rounded-2xl border border-line bg-white shadow-soft">
-          <div className="grid grid-cols-[1.3fr_1.3fr_130px_130px_auto] border-b border-line px-5 py-3 text-[11px] font-semibold uppercase tracking-wider text-neutral-400">
-            <span>Client</span>
-            <span>Project</span>
-            <span>Login ID</span>
-            <span>Status</span>
-            <span className="text-right">Actions</span>
+      <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8 space-y-6">
+        {/* Search & Project Filter Bar */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+          <div className="relative flex-1 max-w-sm">
+            <Search
+              size={15}
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400"
+            />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search clients by name or PIN..."
+              className="h-9 w-full rounded-xl border border-zinc-200/90 bg-white pl-9 pr-3.5 text-xs sm:text-sm text-zinc-900 outline-none transition focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+            />
           </div>
 
-          {clients.length === 0 ? (
-            <div className="p-12 text-center text-sm text-neutral-400">
-              No clients yet. Add the first client to create portal credentials.
-            </div>
-          ) : (
-            clients.map(c => (
-              <div
-                key={c.id}
-                className={`grid grid-cols-[1.3fr_1.3fr_130px_130px_auto] items-center border-b border-line px-5 py-4 last:border-0 hover:bg-neutral-50/50 transition ${c.status === "disabled" ? "opacity-60 grayscale" : ""}`}
-              >
-                <div className="flex items-center gap-3">
-                  <div className="grid h-9 w-9 place-items-center rounded-xl bg-neutral-100 text-neutral-500">
-                    <UserRound size={16} />
-                  </div>
-                  <span className="text-sm font-medium text-neutral-900">{c.name}</span>
-                </div>
-                <span className="text-sm text-neutral-500">{c.projects?.name ?? c.project_id}</span>
-                <div>
-                  <code className="text-sm font-mono text-neutral-600 bg-neutral-100 px-2 py-0.5 rounded w-fit">
-                    {c.login_id}
-                  </code>
-                </div>
-                <div>
-                  <span className={`w-fit rounded-full px-2.5 py-1 text-xs font-medium ${c.status === "active" ? "bg-emerald-50 text-emerald-700" : "bg-neutral-100 text-neutral-600"}`}>
-                    {c.status}
-                  </span>
-                </div>
-                <div className="flex justify-end">
-                  <button
-                    onClick={() => {
-                      setEditing(c);
-                      setEditName(c.name);
-                      setEditProjectId(c.project_id);
-                      setEditLoginId(c.login_id);
-                      setEditStatus(c.status);
-                      setResetSuccess(null);
-                      setNewPassword("");
-                    }}
-                    className="rounded-xl p-2 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-900 transition"
-                    aria-label={`Edit ${c.name}`}
-                  >
-                    <Edit3 size={16} />
-                  </button>
-                </div>
-              </div>
-            ))
-          )}
+          <div className="flex items-center gap-2">
+            <select
+              value={projectFilter}
+              onChange={(e) => setProjectFilter(e.target.value)}
+              className="h-9 rounded-xl border border-zinc-200/90 bg-white px-3 text-xs sm:text-sm font-medium text-zinc-700 outline-none transition focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 cursor-pointer"
+            >
+              <option value="all">All Projects</option>
+              {projects.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.name}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
-      </main>
 
-      {/* Edit Client Modal */}
-      {editing && (
-        <div className="fixed inset-0 z-50 grid place-items-center overflow-y-auto bg-black/40 backdrop-blur-sm p-5 py-10">
-          <div className="w-full max-w-lg rounded-3xl border border-line bg-white p-7 shadow-2xl my-auto">
-            <div className="mb-6 flex items-start justify-between">
-              <div>
-                <h3 className="text-xl font-semibold text-neutral-900">Edit Client</h3>
-              </div>
-              <button
-                type="button"
-                onClick={() => setEditing(null)}
-                className="rounded-lg p-2 text-neutral-400 hover:bg-neutral-100 transition"
+        {error && (
+          <div className="rounded-xl border border-rose-200 bg-rose-50 p-4 text-xs sm:text-sm text-rose-700">
+            {error}
+          </div>
+        )}
+
+        {/* Clients Table / Cards */}
+        {loading ? (
+          <div className="rounded-2xl border border-zinc-200/80 bg-white shadow-card p-4 space-y-3">
+            <TableRowSkeleton cols={4} />
+            <TableRowSkeleton cols={4} />
+            <TableRowSkeleton cols={4} />
+          </div>
+        ) : filteredClients.length === 0 ? (
+          clients.length === 0 ? (
+            <EmptyState
+              icon={Users}
+              title="No clients yet"
+              description="Add your first client to give them a project-scoped portal to review and approve requirements."
+              action={
+                <Button
+                  variant="primary"
+                  leftIcon={<Plus size={15} />}
+                  onClick={() => setShowCreate(true)}
+                >
+                  Add client
+                </Button>
+              }
+            />
+          ) : (
+            <div className="rounded-2xl border border-dashed border-zinc-200 bg-white/50 p-8 text-center">
+              <p className="text-sm font-medium text-zinc-800">No clients match your filter</p>
+              <p className="mt-1 text-xs text-zinc-400">Try searching with a different term.</p>
+              <Button
+                variant="outline"
+                size="sm"
+                className="mt-3"
+                onClick={() => {
+                  setSearchQuery("");
+                  setProjectFilter("all");
+                }}
               >
-                <X size={18} />
-              </button>
+                Reset filters
+              </Button>
             </div>
+          )
+        ) : (
+          <div className="rounded-2xl border border-zinc-200/80 bg-white shadow-card overflow-hidden divide-y divide-zinc-100">
+            {filteredClients.map((client) => {
+              const initials = client.name ? client.name.slice(0, 2).toUpperCase() : "CL";
+              const projectName = client.projects?.name || "Assigned Project";
+              const isCopied = copiedLoginId === client.login_id;
 
-            <div className="space-y-4">
-              <div>
-                <label className="text-sm font-medium text-neutral-800">Client Name</label>
-                <input
-                  value={editName}
-                  onChange={e => setEditName(e.target.value)}
-                  className="mt-1.5 w-full rounded-xl border border-line px-4 py-2.5 text-sm outline-none focus:border-indigo-400"
-                />
-              </div>
-              <div>
-                <label className="text-sm font-medium text-neutral-800">Assigned Project</label>
-                <select
-                  value={editProjectId}
-                  onChange={e => setEditProjectId(e.target.value)}
-                  className="mt-1.5 w-full rounded-xl border border-line bg-white px-4 py-2.5 text-sm outline-none focus:border-indigo-400"
+              return (
+                <div
+                  key={client.id}
+                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 sm:p-5 hover:bg-zinc-50/50 transition"
                 >
-                  <option value="">Select a project</option>
-                  {projects.map(p => (
-                    <option key={p.id} value={p.id}>
-                      {p.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-neutral-800">Login ID</label>
-                <div className="mt-1.5 flex gap-2">
-                  <input
-                    inputMode="numeric"
-                    maxLength={6}
-                    value={editLoginId}
-                    onChange={e => setEditLoginId(e.target.value.replace(/\D/g, ""))}
-                    placeholder="6 digits"
-                    className="w-full rounded-xl border border-line px-4 py-2.5 text-sm outline-none focus:border-indigo-400 font-mono"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => randomId(setEditLoginId)}
-                    className="shrink-0 rounded-xl border border-line px-3.5 text-sm font-medium text-neutral-700 hover:bg-neutral-50 transition"
-                  >
-                    Generate
-                  </button>
-                </div>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-neutral-800">Status</label>
-                <select
-                  value={editStatus}
-                  onChange={e => setEditStatus(e.target.value)}
-                  className="mt-1.5 w-full rounded-xl border border-line bg-white px-4 py-2.5 text-sm outline-none focus:border-indigo-400"
-                >
-                  <option value="active">Active</option>
-                  <option value="disabled">Disabled</option>
-                </select>
-                <p className="mt-1 text-xs text-neutral-500">Disabled clients cannot access the portal.</p>
-              </div>
+                  <div className="flex items-center gap-3.5 min-w-0 flex-1">
+                    <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-slate-900 text-xs font-semibold text-white">
+                      {initials}
+                    </div>
 
-              {/* Password Reset Section */}
-              <div className="mt-6 border-t border-line pt-6">
-                <h4 className="text-sm font-semibold text-neutral-900 mb-2">Reset Password</h4>
-                {resetSuccess ? (
-                  <div className="rounded-xl bg-emerald-50 p-4 border border-emerald-100">
-                    <p className="text-sm font-medium text-emerald-800 flex items-center gap-2">
-                      <Check size={16} /> Password reset successfully
-                    </p>
-                    <p className="mt-2 text-xs text-emerald-700">Existing sessions have been invalidated.</p>
-                    <div className="mt-3">
-                      <Credential label="New Password" value={resetSuccess} />
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="text-sm font-semibold text-slate-900 truncate">
+                          {client.name}
+                        </span>
+                        <Badge
+                          variant={client.status === "active" ? "approved" : "neutral"}
+                          size="sm"
+                          showIcon={false}
+                        >
+                          {client.status || "active"}
+                        </Badge>
+                      </div>
+
+                      <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-zinc-500">
+                        <span className="flex items-center gap-1 font-medium text-zinc-700">
+                          <FolderKanban size={12} className="text-zinc-400" />
+                          {projectName}
+                        </span>
+                        <span className="text-zinc-300">•</span>
+                        <span className="flex items-center gap-1">
+                          <span className="text-zinc-400">PIN:</span>
+                          <button
+                            type="button"
+                            onClick={() => handleCopyLoginId(client.login_id)}
+                            className="font-mono text-xs font-semibold text-indigo-700 hover:underline inline-flex items-center gap-1"
+                            title="Click to copy login PIN"
+                          >
+                            {client.login_id}
+                            {isCopied ? (
+                              <Check size={11} className="text-emerald-600" />
+                            ) : (
+                              <Copy size={11} className="text-zinc-400" />
+                            )}
+                          </button>
+                        </span>
+                      </div>
                     </div>
                   </div>
-                ) : (
-                  <div className="flex gap-2">
-                    <input
-                      value={newPassword}
-                      onChange={e => setNewPassword(e.target.value)}
-                      placeholder="Leave blank to auto-generate"
-                      className="w-full rounded-xl border border-line px-4 py-2.5 text-sm outline-none focus:border-indigo-400 font-mono"
-                    />
-                    <button
-                      type="button"
-                      onClick={resetPassword}
-                      disabled={resetting}
-                      className="shrink-0 rounded-xl bg-rose-50 text-rose-600 px-4 py-2.5 text-sm font-medium hover:bg-rose-100 transition disabled:opacity-50 inline-flex items-center gap-2"
-                    >
-                      <KeyRound size={14} />
-                      {resetting ? "Resetting..." : "Reset"}
-                    </button>
-                  </div>
-                )}
-              </div>
 
-              {editError && <p className="text-sm text-rose-600 pt-2">{editError}</p>}
-              
-              <div className="mt-8 flex justify-end gap-3 border-t border-line pt-5">
+                  {/* Actions Menu */}
+                  <div className="flex items-center justify-end gap-2 shrink-0 border-t border-zinc-100 sm:border-t-0 pt-2 sm:pt-0">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      leftIcon={<ExternalLink size={13} />}
+                      onClick={handleCopyPortalLink}
+                    >
+                      Portal link
+                    </Button>
+
+                    <DropdownMenu
+                      ariaLabel={`Actions for ${client.name}`}
+                      items={[
+                        {
+                          label: "Edit details",
+                          icon: <Edit3 size={14} />,
+                          onClick: () => {
+                            setEditing(client);
+                            setEditName(client.name);
+                            setEditProjectId(client.project_id);
+                            setEditLoginId(client.login_id);
+                            setEditStatus(client.status || "active");
+                            setEditError("");
+                          },
+                        },
+                        {
+                          label: "Reset password",
+                          icon: <KeyRound size={14} />,
+                          onClick: () => {
+                            setResettingClient(client);
+                            setNewPassword(generateRandomPassword());
+                            setResetSuccess(null);
+                            setResetError("");
+                          },
+                        },
+                        {
+                          label: "Delete client",
+                          icon: <Trash2 size={14} />,
+                          variant: "danger",
+                          onClick: () => handleDelete(client.id, client.name),
+                        },
+                      ]}
+                    />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </main>
+
+      {/* Create Client Modal */}
+      <Modal
+        isOpen={showCreate}
+        onClose={() => setShowCreate(false)}
+        title="Add client"
+        description="Create a client profile and generate login access for project requirement review."
+        footer={
+          <>
+            <Button
+              variant="outline"
+              type="button"
+              onClick={() => setShowCreate(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="primary"
+              type="submit"
+              form="create-client-form"
+              isLoading={creating}
+              disabled={!name.trim() || !projectId}
+            >
+              Create client
+            </Button>
+          </>
+        }
+      >
+        <form id="create-client-form" onSubmit={handleCreate} className="space-y-4">
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-1.5">
+              Client Name <span className="text-rose-500">*</span>
+            </label>
+            <input
+              type="text"
+              required
+              autoFocus
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="e.g. Sarah Jenkins"
+              className="h-10 w-full rounded-xl border border-zinc-200 px-3.5 text-sm text-zinc-900 outline-none transition focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-1.5">
+              Assigned Project <span className="text-rose-500">*</span>
+            </label>
+            <select
+              required
+              value={projectId}
+              onChange={(e) => setProjectId(e.target.value)}
+              className="h-10 w-full rounded-xl border border-zinc-200 bg-white px-3 text-sm text-zinc-900 outline-none transition focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 cursor-pointer"
+            >
+              {projects.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
+                  6-Digit Login PIN
+                </label>
                 <button
                   type="button"
-                  onClick={() => setEditing(null)}
-                  className="rounded-xl border border-line px-4 py-2.5 text-sm font-medium text-neutral-700 hover:bg-neutral-50 transition"
+                  onClick={() => setLoginId(generateRandomPin())}
+                  className="text-xs text-indigo-600 hover:underline"
                 >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  onClick={update}
-                  disabled={updating || !editName.trim() || !editProjectId || editLoginId.length !== 6}
-                  className="rounded-xl bg-ink px-4 py-2.5 text-sm font-medium text-white hover:bg-neutral-800 transition disabled:opacity-50"
-                >
-                  {updating ? "Saving..." : "Save changes"}
+                  Regenerate
                 </button>
               </div>
+              <input
+                type="text"
+                required
+                maxLength={6}
+                value={loginId}
+                onChange={(e) => setLoginId(e.target.value.replace(/\D/g, ""))}
+                placeholder="6-digit PIN"
+                className="h-10 w-full rounded-xl border border-zinc-200 px-3.5 text-sm font-mono text-zinc-900 outline-none transition focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+              />
+            </div>
+
+            <div>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
+                  Initial Password
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setPassword(generateRandomPassword())}
+                  className="text-xs text-indigo-600 hover:underline"
+                >
+                  Regenerate
+                </button>
+              </div>
+              <input
+                type="text"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Password"
+                className="h-10 w-full rounded-xl border border-zinc-200 px-3.5 text-sm font-mono text-zinc-900 outline-none transition focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+              />
             </div>
           </div>
-        </div>
-      )}
 
-      {/* Add Client Modal */}
-      {open && (
-        <div className="fixed inset-0 z-50 grid place-items-center bg-black/40 backdrop-blur-sm p-5 py-10 overflow-y-auto">
-          <div className="w-full max-w-lg rounded-3xl border border-line bg-white p-7 shadow-2xl my-auto">
-            <div className="mb-6 flex items-start justify-between">
-              <div>
-                <h3 className="text-xl font-semibold text-neutral-900">Add client</h3>
-                <p className="mt-1 text-sm text-neutral-500">Create portal credentials for a project.</p>
+          {createError && (
+            <p className="text-xs text-rose-600 bg-rose-50 p-2.5 rounded-lg">
+              {createError}
+            </p>
+          )}
+        </form>
+      </Modal>
+
+      {/* One-time Created Credentials Modal */}
+      <Modal
+        isOpen={Boolean(createdCredentials)}
+        onClose={() => setCreatedCredentials(null)}
+        title="Client Access Created"
+        description="Share these login credentials with the client to grant portal access."
+        footer={
+          <Button
+            variant="primary"
+            onClick={() => setCreatedCredentials(null)}
+          >
+            Done
+          </Button>
+        }
+      >
+        {createdCredentials && (
+          <div className="space-y-4">
+            <div className="rounded-xl border border-emerald-200 bg-emerald-50/50 p-4 space-y-2">
+              <div className="flex items-center justify-between text-xs text-emerald-800 font-medium">
+                <span>Client Name:</span>
+                <span className="font-semibold text-slate-900">{createdCredentials.name}</span>
               </div>
-              <button
+              <div className="flex items-center justify-between text-xs text-emerald-800 font-medium">
+                <span>Assigned Project:</span>
+                <span className="font-semibold text-slate-900">{createdCredentials.projectName}</span>
+              </div>
+              <div className="flex items-center justify-between text-xs text-emerald-800 font-medium">
+                <span>Login PIN:</span>
+                <span className="font-mono font-bold text-slate-900">{createdCredentials.loginId}</span>
+              </div>
+              <div className="flex items-center justify-between text-xs text-emerald-800 font-medium">
+                <span>Password:</span>
+                <span className="font-mono font-bold text-slate-900">{createdCredentials.passwordEntered}</span>
+              </div>
+            </div>
+
+            <Button
+              variant="secondary"
+              className="w-full"
+              leftIcon={copiedCreds ? <Check size={14} className="text-emerald-600" /> : <Copy size={14} />}
+              onClick={() => {
+                const text = `StoryBoard Client Portal Login:\nURL: ${window.location.origin}/client/login\nProject: ${createdCredentials.projectName}\nLogin ID: ${createdCredentials.loginId}\nPassword: ${createdCredentials.passwordEntered}`;
+                navigator.clipboard.writeText(text);
+                setCopiedCreds(true);
+                setTimeout(() => setCopiedCreds(false), 2000);
+              }}
+            >
+              {copiedCreds ? "Credentials copied" : "Copy credentials message"}
+            </Button>
+          </div>
+        )}
+      </Modal>
+
+      {/* Edit Client Modal */}
+      <Modal
+        isOpen={Boolean(editing)}
+        onClose={() => setEditing(null)}
+        title="Edit client"
+        description="Update client name, project assignment, or access status."
+        footer={
+          <>
+            <Button
+              variant="outline"
+              type="button"
+              onClick={() => setEditing(null)}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="primary"
+              type="submit"
+              form="edit-client-form"
+              isLoading={updating}
+              disabled={!editName.trim()}
+            >
+              Save changes
+            </Button>
+          </>
+        }
+      >
+        <form id="edit-client-form" onSubmit={handleUpdate} className="space-y-4">
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-1.5">
+              Client Name <span className="text-rose-500">*</span>
+            </label>
+            <input
+              type="text"
+              required
+              value={editName}
+              onChange={(e) => setEditName(e.target.value)}
+              className="h-10 w-full rounded-xl border border-zinc-200 px-3.5 text-sm text-zinc-900 outline-none transition focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-1.5">
+              Assigned Project
+            </label>
+            <select
+              value={editProjectId}
+              onChange={(e) => setEditProjectId(e.target.value)}
+              className="h-10 w-full rounded-xl border border-zinc-200 bg-white px-3 text-sm text-zinc-900 outline-none transition focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 cursor-pointer"
+            >
+              {projects.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-1.5">
+              Login PIN
+            </label>
+            <input
+              type="text"
+              required
+              maxLength={6}
+              value={editLoginId}
+              onChange={(e) => setEditLoginId(e.target.value.replace(/\D/g, ""))}
+              className="h-10 w-full rounded-xl border border-zinc-200 px-3.5 text-sm font-mono text-zinc-900 outline-none transition focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-1.5">
+              Status
+            </label>
+            <select
+              value={editStatus}
+              onChange={(e) => setEditStatus(e.target.value)}
+              className="h-10 w-full rounded-xl border border-zinc-200 bg-white px-3 text-sm text-zinc-900 outline-none transition focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 cursor-pointer"
+            >
+              <option value="active">Active</option>
+              <option value="disabled">Disabled</option>
+            </select>
+          </div>
+
+          {editError && (
+            <p className="text-xs text-rose-600 bg-rose-50 p-2.5 rounded-lg">
+              {editError}
+            </p>
+          )}
+        </form>
+      </Modal>
+
+      {/* Reset Password Modal */}
+      <Modal
+        isOpen={Boolean(resettingClient)}
+        onClose={() => setResettingClient(null)}
+        title="Reset Client Password"
+        description={`Set a new portal password for ${resettingClient?.name}.`}
+        footer={
+          resetSuccess ? (
+            <Button
+              variant="primary"
+              onClick={() => setResettingClient(null)}
+            >
+              Close
+            </Button>
+          ) : (
+            <>
+              <Button
+                variant="outline"
                 type="button"
-                onClick={() => setOpen(false)}
-                className="rounded-lg p-2 text-neutral-400 hover:bg-neutral-100 transition"
-                aria-label="Close modal"
+                onClick={() => setResettingClient(null)}
               >
-                <X size={18} />
-              </button>
+                Cancel
+              </Button>
+              <Button
+                variant="primary"
+                type="submit"
+                form="reset-pwd-form"
+                isLoading={resetting}
+              >
+                Reset password
+              </Button>
+            </>
+          )
+        }
+      >
+        {resetSuccess ? (
+          <div className="space-y-3">
+            <div className="rounded-xl border border-emerald-200 bg-emerald-50/50 p-4 text-center">
+              <p className="text-xs text-emerald-800 font-medium">New Password for {resettingClient?.name}:</p>
+              <p className="font-mono text-lg font-bold text-slate-900 mt-1">{resetSuccess}</p>
             </div>
-
-            {created ? (
-              <div>
-                <div className="rounded-2xl bg-emerald-50 p-5 border border-emerald-100">
-                  <p className="font-semibold text-emerald-800">Client created ✓</p>
-                  <p className="mt-1 text-sm text-emerald-700">
-                    Send these credentials to the client. The password is shown only now.
-                  </p>
-                  <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                    <Credential label="Login ID" value={created.login} />
-                    <Credential label="Password" value={created.password} />
-                  </div>
-                </div>
-                <p className="mt-4 rounded-xl bg-neutral-50 p-3 text-xs text-neutral-500">
-                  Portal: {typeof window !== "undefined" ? window.location.origin : ""}/client/login
-                </p>
-                <button
-                  type="button"
-                  onClick={() => setOpen(false)}
-                  className="mt-5 w-full rounded-xl bg-ink px-4 py-3 text-sm font-medium text-white hover:bg-neutral-800 transition"
-                >
-                  Done
-                </button>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                <div>
-                  <label className="text-sm font-medium text-neutral-800">Client name</label>
-                  <input
-                    value={name}
-                    onChange={e => setName(e.target.value)}
-                    placeholder="e.g. Acme Corp"
-                    className="mt-1.5 w-full rounded-xl border border-line px-4 py-2.5 text-sm outline-none focus:border-indigo-400"
-                  />
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-neutral-800">Project</label>
-                  <select
-                    value={projectId}
-                    onChange={e => setProjectId(e.target.value)}
-                    className="mt-1.5 w-full rounded-xl border border-line bg-white px-4 py-2.5 text-sm outline-none focus:border-indigo-400"
-                  >
-                    <option value="">Select a project</option>
-                    {projects.map(p => (
-                      <option key={p.id} value={p.id}>
-                        {p.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-neutral-800">Login ID</label>
-                  <div className="mt-1.5 flex gap-2">
-                    <input
-                      inputMode="numeric"
-                      maxLength={6}
-                      value={loginId}
-                      onChange={e => setLoginId(e.target.value.replace(/\D/g, ""))}
-                      placeholder="6 digits"
-                      className="w-full rounded-xl border border-line px-4 py-2.5 text-sm outline-none focus:border-indigo-400 font-mono"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => randomId(setLoginId)}
-                      className="shrink-0 rounded-xl border border-line px-3.5 text-sm font-medium text-neutral-700 hover:bg-neutral-50 transition"
-                    >
-                      Generate
-                    </button>
-                  </div>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-neutral-800">
-                    Password <span className="font-normal text-neutral-400">(optional)</span>
-                  </label>
-                  <input
-                    value={password}
-                    onChange={e => setPassword(e.target.value)}
-                    placeholder="Leave blank to auto-generate"
-                    className="mt-1.5 w-full rounded-xl border border-line px-4 py-2.5 text-sm outline-none focus:border-indigo-400 font-mono"
-                  />
-                </div>
-                {error && <p className="text-sm text-rose-600">{error}</p>}
-                <button
-                  type="button"
-                  onClick={create}
-                  disabled={!name.trim() || !projectId || loginId.length !== 6}
-                  className="mt-4 w-full rounded-xl bg-ink px-4 py-3 text-sm font-medium text-white hover:bg-neutral-800 transition disabled:opacity-50"
-                >
-                  Create client
-                </button>
-              </div>
-            )}
+            <Button
+              variant="secondary"
+              className="w-full"
+              leftIcon={<Copy size={14} />}
+              onClick={() => {
+                navigator.clipboard.writeText(resetSuccess);
+                alert("Password copied to clipboard.");
+              }}
+            >
+              Copy new password
+            </Button>
           </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-function Credential({ label, value }: { label: string; value: string }) {
-  const [copied, setCopied] = useState(false);
-
-  function copy() {
-    navigator.clipboard.writeText(value);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  }
-
-  return (
-    <div className="rounded-xl border border-emerald-200/80 bg-white p-3 shadow-xs">
-      <p className="text-[11px] font-semibold uppercase tracking-wider text-neutral-400">{label}</p>
-      <div className="mt-1 flex items-center justify-between gap-2">
-        <code className="text-sm font-mono font-medium text-neutral-900">{value}</code>
-        <button
-          type="button"
-          onClick={copy}
-          className="text-neutral-400 hover:text-neutral-900 transition p-1"
-          aria-label={`Copy ${label}`}
-        >
-          {copied ? <Check size={15} className="text-emerald-600" /> : <Copy size={15} />}
-        </button>
-      </div>
+        ) : (
+          <form id="reset-pwd-form" onSubmit={handleResetPassword} className="space-y-4">
+            <div>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
+                  New Password
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setNewPassword(generateRandomPassword())}
+                  className="text-xs text-indigo-600 hover:underline"
+                >
+                  Generate random
+                </button>
+              </div>
+              <input
+                type="text"
+                required
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                className="h-10 w-full rounded-xl border border-zinc-200 px-3.5 text-sm font-mono text-zinc-900 outline-none transition focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+              />
+            </div>
+            {resetError && (
+              <p className="text-xs text-rose-600 bg-rose-50 p-2.5 rounded-lg">
+                {resetError}
+              </p>
+            )}
+          </form>
+        )}
+      </Modal>
     </div>
   );
 }

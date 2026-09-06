@@ -1,76 +1,151 @@
 import { redirect } from "next/navigation";
-import { CheckCircle2, CircleAlert, Clock3, ChevronDown } from "lucide-react";
+import { ChevronDown, FolderKanban, Layers } from "lucide-react";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getAuthenticatedClient } from "@/lib/client-session";
-import { ClientActions } from "@/components/ClientActions";
+import { ClientStoryReview } from "@/components/ClientStoryReview";
 import { ClientSignOut } from "@/components/ClientSignOut";
+import { Badge, type BadgeVariant } from "@/components/ui/Badge";
+import { EmptyState } from "@/components/ui/EmptyState";
 import type { Story, Epic } from "@/lib/types";
 
 export default async function ClientPortal() {
-  const client = await getAuthenticatedClient(); 
+  const client = await getAuthenticatedClient();
   if (!client) redirect("/client/login");
-  
+
   const db = createAdminClient();
-  const { data: project } = await db.from("projects").select("name").eq("id", client.project_id).single();
-  const { data: stories } = await db.from("stories").select("id,epic_id,title,description,acceptance_criteria,assumptions,clarifications,status,updated_at").eq("project_id", client.project_id).order("created_at");
-  const { data: epicsData } = await db.from("epics").select("*").eq("project_id", client.project_id).order("sort_order", { ascending: true }).order("created_at", { ascending: true });
-  
+  const { data: project } = await db
+    .from("projects")
+    .select("name,description")
+    .eq("id", client.project_id)
+    .single();
+
+  const { data: stories } = await db
+    .from("stories")
+    .select("id,epic_id,title,description,acceptance_criteria,assumptions,clarifications,status,updated_at,team_review_status,team_approved_by_name")
+    .eq("project_id", client.project_id)
+    .order("created_at");
+
+  const { data: epicsData } = await db
+    .from("epics")
+    .select("*")
+    .eq("project_id", client.project_id)
+    .order("sort_order", { ascending: true })
+    .order("created_at", { ascending: true });
+
   const all = (stories ?? []) as Story[];
   const epics = (epicsData ?? []) as Epic[];
-  const approved = all.filter(s => s.status === "approved").length;
-  const clientWithProject = { ...client, projects: project };
+  const approvedCount = all.filter((s) => s.status === "approved").length;
+  const changesCount = all.filter((s) => s.status === "changes_requested").length;
+  const progressPercent = all.length
+    ? Math.round((approvedCount / all.length) * 100)
+    : 0;
+
+  const projectName = project?.name || "Project Requirements";
 
   return (
     <main className="min-h-screen bg-paper pb-20">
-      <header className="sticky top-0 z-20 border-b border-line bg-white/90 backdrop-blur-xl">
-        <div className="mx-auto flex h-[72px] max-w-5xl items-center justify-between px-5 lg:px-8">
-          <div className="flex items-center gap-3">
-            <div className="grid h-9 w-9 place-items-center rounded-xl bg-ink text-white">◆</div>
-            <div>
-              <p className="text-xs text-neutral-400">CLIENT PORTAL</p>
-              <p className="font-semibold">{clientWithProject.name}</p>
+      {/* Top Header */}
+      <header className="sticky top-0 z-20 border-b border-line bg-white/95 backdrop-blur-md">
+        <div className="mx-auto flex h-15 max-w-5xl items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-slate-900 text-white shadow-xs">
+              <span className="text-xs font-semibold">◆</span>
+            </div>
+            <div className="min-w-0">
+              <span className="text-sm font-semibold tracking-tight text-slate-900 truncate block">
+                StoryBoard
+              </span>
+              <span className="text-[10px] text-zinc-400 font-medium uppercase tracking-wider block -mt-0.5">
+                Client Review Portal
+              </span>
             </div>
           </div>
-          <ClientSignOut />
+
+          <div className="flex items-center gap-3">
+            <div className="hidden sm:block text-right">
+              <p className="text-xs font-semibold text-slate-900">{client.name}</p>
+              <p className="text-[11px] text-zinc-400 truncate max-w-[180px]">{projectName}</p>
+            </div>
+            <ClientSignOut />
+          </div>
         </div>
       </header>
-      
-      <div className="mx-auto max-w-5xl px-5 py-9 lg:px-8">
-        <div className="mb-10">
-          <p className="text-xs font-medium uppercase tracking-wider text-neutral-400">PROJECT</p>
-          <h1 className="mt-1 text-3xl font-semibold tracking-tight">{(clientWithProject.projects as { name?: string } | null)?.name ?? "Project"}</h1>
-          <p className="mt-2 text-sm text-neutral-500">Requirements Review</p>
-          
-          <div className="mt-5 max-w-xl">
-            <div className="mb-2 flex justify-between text-xs font-medium text-neutral-500">
-              <span>{approved} / {all.length} stories approved</span>
-              <span>{all.length ? Math.round((approved / all.length) * 100) : 0}%</span>
+
+      {/* Main Review Body */}
+      <div className="mx-auto max-w-5xl px-4 py-6 sm:px-6 sm:py-9 lg:px-8 space-y-6">
+        {/* Project Header & Review Progress Card */}
+        <div className="rounded-2xl border border-zinc-200/80 bg-white p-5 sm:p-7 shadow-card space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-2 border-b border-zinc-100 pb-4">
+            <div>
+              <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-wider text-indigo-600">
+                <FolderKanban size={13} />
+                <span>Project Scope Review</span>
+              </div>
+              <h1 className="mt-1 text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">
+                {projectName}
+              </h1>
+              {project?.description && (
+                <p className="mt-1.5 text-xs sm:text-sm text-zinc-500 max-w-2xl leading-relaxed">
+                  {project.description}
+                </p>
+              )}
             </div>
-            <div className="h-2 overflow-hidden rounded-full bg-neutral-200">
-              <div className="h-full rounded-full bg-indigo-500 transition-all duration-500" style={{ width: `${all.length ? (approved / all.length) * 100 : 0}%` }} />
+
+            <div className="flex items-center gap-3 text-xs font-medium shrink-0 pt-1">
+              <span className="text-zinc-600">{all.length} Stories</span>
+              <span className="text-zinc-300">•</span>
+              <span className="text-emerald-700 font-semibold">{approvedCount} Approved</span>
+              {changesCount > 0 && (
+                <>
+                  <span className="text-zinc-300">•</span>
+                  <span className="text-rose-700 font-semibold">{changesCount} Changes</span>
+                </>
+              )}
+            </div>
+          </div>
+
+          <div>
+            <div className="flex items-center justify-between text-xs text-zinc-500 mb-1.5 font-medium">
+              <span>Review Progress</span>
+              <span className="text-slate-900 font-semibold">{progressPercent}% Reviewed</span>
+            </div>
+            <div className="h-2 w-full overflow-hidden rounded-full bg-zinc-100">
+              <div
+                className="h-full rounded-full bg-slate-900 transition-all duration-500"
+                style={{ width: `${progressPercent}%` }}
+              />
             </div>
           </div>
         </div>
 
-        {epics.length === 0 && all.filter(s => s.epic_id === null).length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-neutral-300 p-12 text-center bg-white">
-            <p className="text-sm font-medium text-neutral-900">No requirements available</p>
-            <p className="mt-1 text-sm text-neutral-500">The developer has not shared any feature stories yet.</p>
-          </div>
+        {/* Epics & Stories Accordion */}
+        {epics.length === 0 && all.filter((s) => s.epic_id === null).length === 0 ? (
+          <EmptyState
+            icon={Layers}
+            title="No requirements available yet"
+            description="Your project team has not added any feature stories for review yet. You will be notified once stories are ready for sign-off."
+          />
         ) : (
-          <div className="space-y-6">
-            {epics.map(epic => {
-              const epicStories = all.filter(s => s.epic_id === epic.id);
+          <div className="space-y-4">
+            {epics.map((epic) => {
+              const epicStories = all.filter((s) => s.epic_id === epic.id);
               return <EpicBlock key={epic.id} epic={epic} stories={epicStories} />;
             })}
 
             {/* Uncategorized stories */}
-            {all.filter(s => s.epic_id === null).length > 0 && (
-               <EpicBlock 
-                 key="uncategorized" 
-                 epic={{ id: "uncategorized", name: "Uncategorized", project_id: client.project_id } as Epic} 
-                 stories={all.filter(s => s.epic_id === null)} 
-               />
+            {all.filter((s) => s.epic_id === null).length > 0 && (
+              <EpicBlock
+                key="uncategorized"
+                epic={
+                  {
+                    id: "uncategorized",
+                    name: "Additional Requirements",
+                    description: "Stories not grouped under a specific Epic",
+                    project_id: client.project_id,
+                  } as Epic
+                }
+                stories={all.filter((s) => s.epic_id === null)}
+              />
             )}
           </div>
         )}
@@ -79,36 +154,62 @@ export default async function ClientPortal() {
   );
 }
 
-function EpicBlock({ epic, stories }: { epic: Epic, stories: Story[] }) {
-  const approvedCount = stories.filter(s => s.status === "approved").length;
-  const progressPercent = stories.length ? Math.round((approvedCount / stories.length) * 100) : 0;
+function EpicBlock({ epic, stories }: { epic: Epic; stories: Story[] }) {
+  const approvedCount = stories.filter((s) => s.status === "approved").length;
+  const progressPercent = stories.length
+    ? Math.round((approvedCount / stories.length) * 100)
+    : 0;
 
   return (
-    <details className="group rounded-2xl border border-line bg-white shadow-sm overflow-hidden" open>
-      <summary className="flex cursor-pointer items-center justify-between bg-neutral-50/50 p-5 outline-none [&::-webkit-details-marker]:hidden select-none hover:bg-neutral-50 transition-colors">
-        <div className="flex-1">
-          <h2 className="text-xl font-semibold text-neutral-900">{epic.name}</h2>
-          <div className="mt-2 flex items-center gap-4">
-            <p className="text-sm text-neutral-500">{stories.length} stories · {approvedCount} approved</p>
-            {stories.length > 0 && (
-              <div className="flex items-center gap-2">
-                <div className="h-1.5 w-24 overflow-hidden rounded-full bg-neutral-200 hidden sm:block">
-                  <div className="h-full rounded-full bg-indigo-500 transition-all duration-500" style={{ width: `${progressPercent}%` }} />
-                </div>
-                <span className="text-xs font-medium text-neutral-500 hidden sm:inline-block">{progressPercent}%</span>
-              </div>
-            )}
+    <details
+      className="group rounded-2xl border border-zinc-200/80 bg-white shadow-card overflow-hidden"
+      open
+    >
+      <summary className="flex cursor-pointer items-center justify-between p-4 sm:p-5 outline-none [&::-webkit-details-marker]:hidden select-none hover:bg-zinc-50/70 transition-colors border-b border-transparent group-open:border-zinc-100">
+        <div className="flex-1 min-w-0 pr-3">
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400">
+              Epic
+            </span>
+            <span className="text-zinc-300">•</span>
+            <span className="text-xs text-zinc-500 font-medium">
+              {stories.length} {stories.length === 1 ? "story" : "stories"} · {approvedCount} approved
+            </span>
           </div>
+
+          <h2 className="text-base sm:text-lg font-semibold text-slate-900 tracking-tight truncate">
+            {epic.name}
+          </h2>
+
+          {epic.description && (
+            <p className="mt-1 text-xs text-zinc-500 line-clamp-1">
+              {epic.description}
+            </p>
+          )}
+
+          {stories.length > 0 && (
+            <div className="mt-2.5 flex items-center gap-2">
+              <div className="h-1 w-24 overflow-hidden rounded-full bg-zinc-100">
+                <div
+                  className="h-full rounded-full bg-slate-900 transition-all duration-300"
+                  style={{ width: `${progressPercent}%` }}
+                />
+              </div>
+              <span className="text-[11px] font-medium text-zinc-400">{progressPercent}%</span>
+            </div>
+          )}
         </div>
-        <ChevronDown className="text-neutral-400 transition-transform group-open:rotate-180 flex-shrink-0 ml-4" />
+
+        <div className="grid h-8 w-8 shrink-0 place-items-center rounded-lg text-zinc-400 group-hover:text-zinc-700 transition">
+          <ChevronDown className="transition-transform duration-200 group-open:rotate-180" size={16} />
+        </div>
       </summary>
-      <div className="border-t border-line p-5 flex flex-col gap-4 bg-neutral-50/30">
+
+      <div className="p-3 sm:p-5 space-y-3 bg-zinc-50/20">
         {stories.length === 0 ? (
-          <p className="text-sm text-neutral-500 py-2">No stories in this Epic yet.</p>
+          <p className="text-xs text-zinc-400 py-3 text-center">No stories in this Epic yet.</p>
         ) : (
-          stories.map(story => (
-            <StoryArticle key={story.id} story={story} />
-          ))
+          stories.map((story) => <StoryArticle key={story.id} story={story} />)
         )}
       </div>
     </details>
@@ -116,73 +217,54 @@ function EpicBlock({ epic, stories }: { epic: Epic, stories: Story[] }) {
 }
 
 function StoryArticle({ story }: { story: Story }) {
+  const statusVariant = (story.status || "review") as BadgeVariant;
+
   return (
-    <details className="group/story rounded-xl border border-line bg-white shadow-sm overflow-hidden transition-all">
-      <summary className="flex cursor-pointer items-center justify-between p-5 outline-none [&::-webkit-details-marker]:hidden hover:bg-neutral-50 transition-colors select-none">
-        <div className="flex-1 pr-4">
-          <h3 className="text-base font-medium text-neutral-900 group-open/story:text-indigo-600 transition-colors">{story.title}</h3>
-          <div className="mt-2 text-xs text-neutral-500">
-            {story.acceptance_criteria?.length ?? 0} acceptance criteria
+    <details className="group/story rounded-xl border border-zinc-200/80 bg-white shadow-xs overflow-hidden transition-all">
+      <summary className="flex cursor-pointer flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 sm:p-5 outline-none [&::-webkit-details-marker]:hidden hover:bg-zinc-50/50 transition-colors select-none">
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400">
+              Feature
+            </span>
+            <span className="text-zinc-300">•</span>
+            <span className="text-xs text-zinc-500">
+              {story.acceptance_criteria?.length ?? 0} criteria
+            </span>
           </div>
-        </div>
-        <div className="flex items-center gap-3">
-          <Status status={story.status} />
-          <ChevronDown className="text-neutral-400 transition-transform group-open/story:rotate-180" size={18} />
-        </div>
-      </summary>
-      <div className="border-t border-line p-5 bg-white">
-        {story.description && (
-          <div className="mb-6">
-            <h4 className="text-sm font-semibold text-neutral-900 mb-2">Description</h4>
-            <p className="text-sm leading-6 text-neutral-600 whitespace-pre-wrap">{story.description}</p>
-          </div>
-        )}
-        
-        <div className="mb-6">
-          <h4 className="text-sm font-semibold text-neutral-900 mb-2">Acceptance Criteria</h4>
-          {story.acceptance_criteria && story.acceptance_criteria.length > 0 ? (
-            <ul className="space-y-1 text-sm text-neutral-600">
-              {story.acceptance_criteria.map((c, i) => (
-                <li key={i} className="flex items-start gap-2">
-                  <span className="text-indigo-500 shrink-0 mt-0.5">✓</span>
-                  <span>{c}</span>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="text-sm text-neutral-500 italic">None specified</p>
+          <h3 className="text-sm sm:text-base font-semibold text-slate-900 group-open/story:text-indigo-600 transition-colors truncate">
+            {story.title}
+          </h3>
+          {story.description && (
+            <p className="mt-1 text-xs text-zinc-500 line-clamp-1">
+              {story.description}
+            </p>
           )}
         </div>
 
-        {story.assumptions && story.assumptions.length > 0 && (
-          <div className="mb-6">
-            <h4 className="text-sm font-semibold text-neutral-900 mb-2">Assumptions</h4>
-            <ul className="list-disc pl-5 space-y-1 text-sm text-neutral-600">
-              {story.assumptions.map((a, i) => <li key={i}>{a}</li>)}
-            </ul>
+        <div className="flex items-center justify-between sm:justify-end gap-3 shrink-0">
+          <Badge variant={statusVariant} size="sm" />
+          <div className="grid h-7 w-7 place-items-center rounded text-zinc-400 group-hover/story:text-zinc-700 transition">
+            <ChevronDown className="transition-transform duration-200 group-open/story:rotate-180" size={16} />
           </div>
-        )}
-
-        {story.clarifications && story.clarifications.length > 0 && (
-          <div className="mb-6">
-            <h4 className="text-sm font-semibold text-neutral-900 mb-2">Clarifications</h4>
-            <ul className="list-disc pl-5 space-y-1 text-sm text-neutral-600">
-              {story.clarifications.map((c, i) => <li key={i}>{c}</li>)}
-            </ul>
-          </div>
-        )}
-
-        <div className="pt-2">
-          <ClientActions storyId={story.id} status={story.status} />
         </div>
+      </summary>
+
+      <div className="border-t border-zinc-100 p-4 sm:p-6 bg-white space-y-5">
+        {story.description && (
+          <div>
+            <h4 className="text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-1">
+              Summary
+            </h4>
+            <p className="text-xs sm:text-sm leading-relaxed text-zinc-700 whitespace-pre-wrap">
+              {story.description}
+            </p>
+          </div>
+        )}
+
+        {/* Story details & Client review action flow */}
+        <ClientStoryReview story={story} />
       </div>
     </details>
   );
-}
-
-function Status({ status }: { status: string }) {
-  if (status === "approved") return <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-medium text-emerald-700 whitespace-nowrap"><CheckCircle2 size={12} /> Approved</span>;
-  if (status === "changes_requested") return <span className="inline-flex items-center gap-1.5 rounded-full bg-rose-50 px-2.5 py-1 text-[11px] font-medium text-rose-700 whitespace-nowrap"><CircleAlert size={12} /> Changes requested</span>;
-  if (status === "draft") return <span className="inline-flex items-center gap-1.5 rounded-full bg-neutral-100 px-2.5 py-1 text-[11px] font-medium text-neutral-700 whitespace-nowrap">Draft</span>;
-  return <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-2.5 py-1 text-[11px] font-medium text-amber-700 whitespace-nowrap"><Clock3 size={12} /> Awaiting review</span>;
 }

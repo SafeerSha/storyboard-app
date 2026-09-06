@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -9,33 +9,90 @@ import {
   LayoutDashboard,
   LogOut,
   Settings,
+  ShieldCheck,
   Users,
   X,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import type { DashboardUser } from "./FreelancerLayout";
 
 interface FreelancerSidebarProps {
   mobileOpen: boolean;
   setMobileOpen: (open: boolean) => void;
+  initialUser?: DashboardUser | null;
 }
 
-export function FreelancerSidebar({ mobileOpen, setMobileOpen }: FreelancerSidebarProps) {
+export function FreelancerSidebar({
+  mobileOpen,
+  setMobileOpen,
+  initialUser = null,
+}: FreelancerSidebarProps) {
   const pathname = usePathname();
-  const [userEmail, setUserEmail] = useState<string | null>(null);
-  const [userRole, setUserRole] = useState<string>("freelancer");
+  const [userEmail, setUserEmail] = useState<string | null>(initialUser?.email || null);
+  const [userRole, setUserRole] = useState<string>(initialUser?.role || "freelancer");
+  const [userNameState, setUserNameState] = useState<string>(initialUser?.name || "");
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const supabase = createClient();
-    supabase.auth.getUser().then(({ data }) => {
-      if (data?.user?.email) {
-        setUserEmail(data.user.email);
-        supabase.from("freelancer_profiles").select("role").eq("id", data.user.id).single().then((res) => {
-          if (res.data) setUserRole(res.data.role);
+    // If initialUser wasn't provided, fetch it
+    if (!initialUser) {
+      fetch("/api/auth/me")
+        .then((r) => r.json())
+        .then((data) => {
+          if (data?.authenticated && data?.user) {
+            setUserEmail(data.user.email);
+            setUserRole(data.user.role);
+            setUserNameState(data.user.name);
+          }
+        })
+        .catch(() => {
+          // Fallback to client-side supabase fetch
+          const supabase = createClient();
+          supabase.auth.getUser().then(({ data }) => {
+            if (data?.user?.email) {
+              setUserEmail(data.user.email);
+              supabase
+                .from("freelancer_profiles")
+                .select("name, role")
+                .eq("id", data.user.id)
+                .single()
+                .then((res) => {
+                  if (res.data?.role) setUserRole(res.data.role);
+                  if (res.data?.name) setUserNameState(res.data.name);
+                });
+            }
+          });
         });
+    }
+  }, [initialUser]);
+
+  // Lock body scroll and listen for Escape when mobile drawer is open
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setMobileOpen(false);
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = originalOverflow;
+    };
+  }, [mobileOpen, setMobileOpen]);
+
+  // Click away for user profile menu
+  useEffect(() => {
+    if (!showUserMenu) return;
+    function handleClickOutside(e: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setShowUserMenu(false);
       }
-    });
-  }, []);
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [showUserMenu]);
 
   async function handleSignOut() {
     const supabase = createClient();
@@ -51,28 +108,46 @@ export function FreelancerSidebar({ mobileOpen, setMobileOpen }: FreelancerSideb
 
   const closeMobile = () => setMobileOpen(false);
 
-  const userName = userEmail ? userEmail.split("@")[0] : "Freelancer";
-  const userInitials = userEmail
+  const userName =
+    userNameState ||
+    (userEmail
+      ? userEmail.split("@")[0]
+      : userRole === "super_admin"
+      ? "Super Admin"
+      : "Freelancer");
+  const roleDisplay = userRole === "super_admin" ? "Super Admin" : "Freelancer";
+  const userInitials = userName
+    ? userName.slice(0, 2).toUpperCase()
+    : userEmail
     ? userEmail.slice(0, 2).toUpperCase()
-    : "SP";
+    : "SB";
 
-  const renderSidebarContent = (isMobile = false) => (
-    <div className="flex h-full flex-col">
-      {/* Header / Logo */}
-      <div className="flex h-[72px] items-center justify-between border-b border-line px-5">
-        <div className="flex items-center">
-          <div className="grid h-9 w-9 place-items-center rounded-xl bg-ink text-white shadow-sm">
-            <span className="text-sm font-bold">◆</span>
+  const renderNav = (isMobile = false) => (
+    <div className="flex h-full flex-col bg-white">
+      {/* Brand Header */}
+      <div className="flex h-15 items-center justify-between border-b border-line px-4">
+        <Link
+          href="/"
+          onClick={closeMobile}
+          className="flex items-center gap-2.5 group focus-visible:outline-none"
+        >
+          <div className="grid h-8 w-8 place-items-center rounded-lg bg-slate-900 text-white shadow-xs">
+            <span className="text-xs font-semibold tracking-tighter">◆</span>
           </div>
-          <span className="ml-3 text-[17px] font-semibold tracking-tight text-neutral-950">
+          <span className="text-sm font-semibold tracking-tight text-slate-900 group-hover:text-indigo-600 transition">
             StoryBoard
           </span>
-        </div>
+          {userRole === "super_admin" && (
+            <span className="rounded-md bg-zinc-100 px-1.5 py-0.5 text-[10px] font-medium text-zinc-600">
+              Admin
+            </span>
+          )}
+        </Link>
         {isMobile && (
           <button
             type="button"
             onClick={closeMobile}
-            className="rounded-lg p-1.5 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-700"
+            className="grid h-8 w-8 place-items-center rounded-lg text-zinc-400 hover:bg-zinc-100 hover:text-zinc-800 transition"
             aria-label="Close sidebar"
           >
             <X size={18} />
@@ -80,135 +155,146 @@ export function FreelancerSidebar({ mobileOpen, setMobileOpen }: FreelancerSideb
         )}
       </div>
 
-      {/* Nav Content */}
-      <div className="flex-1 overflow-y-auto px-3 py-5">
-        {/* Workspace Selector */}
-        <button
-          type="button"
-          className="mb-5 flex w-full items-center justify-between rounded-xl border border-line bg-paper px-3 py-2.5 text-left transition hover:border-neutral-300"
-        >
-          <div className="flex min-w-0 items-center gap-2.5">
-            <div className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-indigo-100 text-xs font-semibold text-indigo-700">
-              S
-            </div>
-            <div className="min-w-0">
-              <p className="truncate text-sm font-medium text-neutral-900">Workspace</p>
-              <p className="text-[11px] text-neutral-400">Personal</p>
-            </div>
-          </div>
-          <ChevronDown size={15} className="text-neutral-400" />
-        </button>
-
-        {/* Workspace Group */}
-        <p className="px-3 pb-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-neutral-400">
-          Workspace
-        </p>
-        <nav className="space-y-1">
-          <Link
-            href="/"
-            onClick={closeMobile}
-            className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition ${
-              isOverviewActive
-                ? "bg-neutral-100 font-medium text-neutral-900"
-                : "text-neutral-500 hover:bg-neutral-50 hover:text-neutral-900"
-            }`}
-          >
-            <LayoutDashboard size={17} strokeWidth={isOverviewActive ? 2.2 : 1.8} />
-            Overview
-          </Link>
-          <Link
-            href="/projects"
-            onClick={closeMobile}
-            className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition ${
-              isProjectsActive
-                ? "bg-neutral-100 font-medium text-neutral-900"
-                : "text-neutral-500 hover:bg-neutral-50 hover:text-neutral-900"
-            }`}
-          >
-            <FolderKanban size={17} strokeWidth={isProjectsActive ? 2.2 : 1.8} />
-            Projects
-          </Link>
-        </nav>
-
-        {/* Manage Group */}
-        <p className="mt-7 px-3 pb-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-neutral-400">
-          Manage
-        </p>
-        <nav className="space-y-1">
-          <Link
-            href="/clients"
-            onClick={closeMobile}
-            className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition ${
-              isClientsActive
-                ? "bg-neutral-100 font-medium text-neutral-900"
-                : "text-neutral-500 hover:bg-neutral-50 hover:text-neutral-900"
-            }`}
-          >
-            <Users size={17} strokeWidth={isClientsActive ? 2.2 : 1.8} />
-            Clients
-          </Link>
-          <Link
-            href="/settings"
-            onClick={closeMobile}
-            className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition ${
-              isSettingsActive && !isUsersActive
-                ? "bg-neutral-100 font-medium text-neutral-900"
-                : "text-neutral-500 hover:bg-neutral-50 hover:text-neutral-900"
-            }`}
-          >
-            <Settings size={17} strokeWidth={isSettingsActive && !isUsersActive ? 2.2 : 1.8} />
-            Settings
-          </Link>
-          {userRole === "super_admin" && (
+      {/* Navigation Groups */}
+      <div className="flex-1 overflow-y-auto px-2.5 py-4 space-y-5">
+        {/* Workspace group */}
+        <div>
+          <p className="px-2.5 pb-1.5 text-[11px] font-semibold uppercase tracking-wider text-zinc-400">
+            Workspace
+          </p>
+          <nav className="space-y-0.5">
             <Link
-              href="/users"
+              href="/"
               onClick={closeMobile}
-              className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition ${
-                isUsersActive
-                  ? "bg-neutral-100 font-medium text-neutral-900"
-                  : "text-neutral-500 hover:bg-neutral-50 hover:text-neutral-900"
+              className={`flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-xs sm:text-sm transition-colors ${
+                isOverviewActive
+                  ? "bg-zinc-100 font-medium text-slate-900"
+                  : "text-zinc-600 hover:bg-zinc-50 hover:text-slate-900"
               }`}
             >
-              <Users size={17} strokeWidth={isUsersActive ? 2.2 : 1.8} />
-              Users / Freelancers
+              <LayoutDashboard
+                size={16}
+                className={isOverviewActive ? "text-slate-900" : "text-zinc-400"}
+              />
+              <span>Overview</span>
             </Link>
-          )}
-        </nav>
+            <Link
+              href="/projects"
+              onClick={closeMobile}
+              className={`flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-xs sm:text-sm transition-colors ${
+                isProjectsActive
+                  ? "bg-zinc-100 font-medium text-slate-900"
+                  : "text-zinc-600 hover:bg-zinc-50 hover:text-slate-900"
+              }`}
+            >
+              <FolderKanban
+                size={16}
+                className={isProjectsActive ? "text-slate-900" : "text-zinc-400"}
+              />
+              <span>Projects</span>
+            </Link>
+          </nav>
+        </div>
+
+        {/* Manage group */}
+        <div>
+          <p className="px-2.5 pb-1.5 text-[11px] font-semibold uppercase tracking-wider text-zinc-400">
+            Manage
+          </p>
+          <nav className="space-y-0.5">
+            <Link
+              href="/clients"
+              onClick={closeMobile}
+              className={`flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-xs sm:text-sm transition-colors ${
+                isClientsActive
+                  ? "bg-zinc-100 font-medium text-slate-900"
+                  : "text-zinc-600 hover:bg-zinc-50 hover:text-slate-900"
+              }`}
+            >
+              <Users
+                size={16}
+                className={isClientsActive ? "text-slate-900" : "text-zinc-400"}
+              />
+              <span>Clients</span>
+            </Link>
+            {userRole === "super_admin" && (
+              <Link
+                href="/users"
+                onClick={closeMobile}
+                className={`flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-xs sm:text-sm transition-colors ${
+                  isUsersActive
+                    ? "bg-zinc-100 font-medium text-slate-900"
+                    : "text-zinc-600 hover:bg-zinc-50 hover:text-slate-900"
+                }`}
+              >
+                <ShieldCheck
+                  size={16}
+                  className={isUsersActive ? "text-slate-900" : "text-zinc-400"}
+                />
+                <span>Users</span>
+              </Link>
+            )}
+            <Link
+              href="/settings"
+              onClick={closeMobile}
+              className={`flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-xs sm:text-sm transition-colors ${
+                isSettingsActive && !isUsersActive
+                  ? "bg-zinc-100 font-medium text-slate-900"
+                  : "text-zinc-600 hover:bg-zinc-50 hover:text-slate-900"
+              }`}
+            >
+              <Settings
+                size={16}
+                className={
+                  isSettingsActive && !isUsersActive ? "text-slate-900" : "text-zinc-400"
+                }
+              />
+              <span>Settings</span>
+            </Link>
+          </nav>
+        </div>
       </div>
 
-      {/* Footer / User Profile */}
-      <div className="relative mt-auto border-t border-line p-4">
+      {/* User Profile Pill & Popover Menu */}
+      <div className="relative border-t border-line p-3" ref={menuRef}>
         {showUserMenu && (
-          <div className="absolute bottom-full left-4 right-4 mb-2 overflow-hidden rounded-2xl border border-line bg-white p-2 shadow-lg animate-in fade-in slide-in-from-bottom-2 duration-150">
-            <div className="border-b border-line px-3 py-2">
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-neutral-400">Signed in as</p>
-              <p className="truncate text-xs font-medium text-neutral-900">{userEmail || "freelancer@storyboard"}</p>
+          <div className="absolute bottom-full left-3 right-3 mb-2 overflow-hidden rounded-xl border border-zinc-200/90 bg-white p-1 shadow-dropdown animate-in fade-in zoom-in-95 duration-100">
+            <div className="border-b border-zinc-100 px-3 py-2">
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400">
+                Signed in as
+              </p>
+              <p className="truncate text-xs font-medium text-zinc-900">
+                {userEmail || "freelancer@storyboard"}
+              </p>
             </div>
             <button
               type="button"
               onClick={handleSignOut}
-              className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-xs font-medium text-rose-600 transition hover:bg-rose-50 mt-1"
+              className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium text-rose-600 hover:bg-rose-50 transition"
             >
-              <LogOut size={14} /> Sign out
+              <LogOut size={14} />
+              <span>Sign out</span>
             </button>
           </div>
         )}
 
         <button
           type="button"
-          onClick={() => setShowUserMenu(prev => !prev)}
-          className="flex w-full items-center gap-3 rounded-xl p-2 text-left transition hover:bg-neutral-50"
+          onClick={() => setShowUserMenu((prev) => !prev)}
+          className="flex w-full items-center gap-2.5 rounded-lg p-1.5 text-left transition hover:bg-zinc-50"
         >
-          <div className="grid h-8 w-8 place-items-center rounded-full bg-neutral-900 text-xs font-semibold text-white">
+          <div className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-slate-900 text-[11px] font-semibold text-white">
             {userInitials}
           </div>
           <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-medium text-neutral-900">{userName}</p>
-            <p className="truncate text-xs text-neutral-400">Workspace</p>
+            <p className="truncate text-xs font-medium text-slate-900">{userName}</p>
+            <p className="truncate text-[11px] text-zinc-400 font-medium">{roleDisplay}</p>
           </div>
           <ChevronDown
             size={14}
-            className={`text-neutral-400 transition-transform duration-200 ${showUserMenu ? "rotate-180" : ""}`}
+            className={`text-zinc-400 transition-transform duration-150 ${
+              showUserMenu ? "rotate-180" : ""
+            }`}
           />
         </button>
       </div>
@@ -218,25 +304,28 @@ export function FreelancerSidebar({ mobileOpen, setMobileOpen }: FreelancerSideb
   return (
     <>
       {/* Desktop Persistent Sidebar */}
-      <aside className="fixed inset-y-0 left-0 z-30 hidden w-[248px] border-r border-line bg-white lg:flex lg:flex-col">
-        {renderSidebarContent(false)}
+      <aside className="fixed inset-y-0 left-0 z-30 hidden w-56 border-r border-line bg-white lg:flex lg:flex-col">
+        {renderNav(false)}
       </aside>
 
       {/* Mobile Drawer Overlay */}
       {mobileOpen && (
         <div
-          className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm lg:hidden transition-opacity"
+          className="fixed inset-0 z-40 bg-slate-900/40 backdrop-blur-xs transition-opacity lg:hidden"
           onClick={closeMobile}
         />
       )}
 
       {/* Mobile Drawer Slide-Out Panel */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex w-[248px] flex-col border-r border-line bg-white shadow-2xl transition-transform duration-200 ease-in-out lg:hidden ${
+        role="dialog"
+        aria-modal="true"
+        aria-label="Navigation Menu"
+        className={`fixed inset-y-0 left-0 z-50 flex w-64 max-w-[calc(100vw-3rem)] flex-col border-r border-line bg-white shadow-2xl transition-transform duration-200 ease-in-out lg:hidden pb-[env(safe-area-inset-bottom)] ${
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        {renderSidebarContent(true)}
+        {renderNav(true)}
       </aside>
     </>
   );

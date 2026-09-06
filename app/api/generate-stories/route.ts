@@ -3,62 +3,95 @@ import { generateStories } from "@/lib/ai/gemini";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { getAuthenticatedTeamUser } from "@/lib/team-session";
 
 export async function POST(request: Request) {
   try {
-    const cookieStore = await cookies();
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
-      {
-        cookies: {
-          getAll: () => cookieStore.getAll(),
-          setAll: () => {},
-        }
-      }
-    );
-
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
     const body = await request.json();
     const requirement = String(body.requirement || "").trim();
-    const projectId = String(body.projectId || "");
+    let projectId = String(body.projectId || "");
     const epicId = String(body.epicId || "");
 
     if (!requirement) return NextResponse.json({ error: "Requirement is required." }, { status: 400 });
-    if (!projectId || !epicId) return NextResponse.json({ error: "Project and Epic are required." }, { status: 400 });
+    if (!epicId) return NextResponse.json({ error: "Epic is required." }, { status: 400 });
     if (requirement.length > 5000) return NextResponse.json({ error: "Requirement is too long." }, { status: 400 });
 
-    // Validate ownership
-    const { data: project } = await supabase
-      .from("projects")
-      .select("id")
-      .eq("id", projectId)
-      .eq("owner_id", user.id)
-      .single();
+    const adminDb = createAdminClient();
+    let isAuthorized = false;
 
-    if (!project) return NextResponse.json({ error: "Project not found or unauthorized." }, { status: 403 });
+    // 1. Check if authenticated as Team User
+    const teamUser = await getAuthenticatedTeamUser();
+    if (teamUser) {
+      // Force projectId to assigned project
+      projectId = teamUser.project_id;
+      isAuthorized = true;
+    }
 
-    const { data: epic } = await supabase
+    // 2. Check if authenticated as Freelancer / Super Admin
+    if (!isAuthorized) {
+      const cookieStore = await cookies();
+      const supabase = createServerClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
+        {
+          cookies: {
+            getAll: () => cookieStore.getAll(),
+            setAll: () => {},
+          },
+        }
+      );
+
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (user) {
+        // Check super admin or project ownership
+        const { data: profile } = await adminDb
+          .from("freelancer_profiles")
+          .select("role")
+          .eq("id", user.id)
+          .maybeSingle();
+
+        if (profile?.role === "super_admin") {
+          isAuthorized = true;
+        } else {
+          const { data: project } = await adminDb
+            .from("projects")
+            .select("id")
+            .eq("id", projectId)
+            .eq("owner_id", user.id)
+            .maybeSingle();
+
+          if (project) isAuthorized = true;
+        }
+      }
+    }
+
+    if (!isAuthorized) {
+      return NextResponse.json({ error: "Unauthorized or project access denied." }, { status: 403 });
+    }
+
+    // Validate that the epic belongs to this project
+    const { data: epic } = await adminDb
       .from("epics")
       .select("id")
       .eq("id", epicId)
       .eq("project_id", projectId)
-      .single();
+      .maybeSingle();
 
-    if (!epic) return NextResponse.json({ error: "Epic not found or unauthorized." }, { status: 403 });
+    if (!epic) {
+      return NextResponse.json({ error: "Epic not found or does not belong to project." }, { status: 403 });
+    }
 
     // Generate stories using AI
     const result = await generateStories(requirement);
-    
+
     if (!result.stories || !Array.isArray(result.stories) || result.stories.length === 0) {
       return NextResponse.json({ error: "AI failed to generate stories." }, { status: 500 });
     }
 
     // Atomic Bulk Insert
-    const adminDb = createAdminClient();
-    
     const storiesToInsert = result.stories.map((story) => ({
       project_id: projectId,
       epic_id: epicId,
@@ -84,6 +117,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ stories: insertedStories });
   } catch (error) {
     console.error("Story generation error:", error);
-    return NextResponse.json({ error: "Could not generate the stories. Check your Gemini configuration and try again." }, { status: 500 });
+    return NextResponse.json(
+      { error: "Could not generate stories. Check your Gemini configuration and try again." },
+      { status: 500 }
+    );
   }
 }
