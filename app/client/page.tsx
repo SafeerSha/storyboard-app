@@ -8,7 +8,7 @@ import type { Story, Epic } from "@/lib/types";
 
 export default async function ClientPortal() {
   const client = await getAuthenticatedClient(); 
-  if (!client) redirect("/login");
+  if (!client) redirect("/client/login");
   
   const db = createAdminClient();
   const { data: project } = await db.from("projects").select("name").eq("id", client.project_id).single();
