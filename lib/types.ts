@@ -176,6 +176,73 @@ export type ProjectInboxAiThread = {
   messages?: ProjectInboxAiMessage[];
 };
 
+export type ProjectInboxMemberRole = "owner" | "collaborator";
+export type ProjectInboxUserType = "freelancer" | "team_user";
+
+export type ProjectInboxMember = {
+  id: string;
+  inbox_item_id: string;
+  user_id: string;
+  user_type: ProjectInboxUserType;
+  role: ProjectInboxMemberRole;
+  added_by: string | null;
+  created_at: string;
+  name?: string;
+  username?: string;
+  email?: string;
+};
+
+export type ProjectInboxConversation = {
+  id: string;
+  inbox_item_id: string;
+  title: string;
+  created_by: string | null;
+  created_at: string;
+  updated_at: string;
+  message_count?: number;
+};
+
+export type ProjectInboxMessage = {
+  id: string;
+  conversation_id: string;
+  sender_type: "user" | "ai";
+  user_id: string | null;
+  user_type?: ProjectInboxUserType | null;
+  user_name: string;
+  message: string;
+  created_at: string;
+};
+
+export type ProjectInboxInsightType =
+  | "insight"
+  | "research"
+  | "hook"
+  | "risk"
+  | "decision"
+  | "mvp_idea"
+  | "competitor"
+  | "technical_finding"
+  | "question"
+  | "reference";
+
+export type ProjectInboxInsight = {
+  id: string;
+  inbox_item_id: string;
+  conversation_id: string;
+  message_id: string;
+  type: ProjectInboxInsightType;
+  title: string;
+  question: string;
+  question_summary: string;
+  ai_response: string;
+  ai_response_summary: string;
+  saved_by: string;
+  saved_by_name: string;
+  saved_by_type: ProjectInboxUserType;
+  created_at: string;
+  updated_at: string;
+};
+
 export type ProjectInboxItem = {
   id: string;
   owner_id: string;
@@ -192,7 +259,13 @@ export type ProjectInboxItem = {
   updated_at: string;
   links?: ProjectInboxLink[];
   ai_threads?: ProjectInboxAiThread[];
+  conversations?: ProjectInboxConversation[];
+  members?: ProjectInboxMember[];
+  members_count?: number;
+  insights_count?: number;
+  currentUserRole?: ProjectInboxMemberRole;
   converted_project?: { id: string; name: string } | null;
 };
+
 
 

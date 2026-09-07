@@ -45,13 +45,13 @@ export default async function ProjectPage({
       .from("stories")
       .select("id,project_id,epic_id,title,description,acceptance_criteria,assumptions,clarifications,status,team_review_status,team_approved_by_id,team_approved_by_name,team_approved_at,client_review_status,client_approved_by_id,client_approved_by_name,client_approved_at,created_by_id,created_at,updated_at")
       .eq("project_id", id)
-      .order("created_at", { ascending: true }),
+      .order("updated_at", { ascending: false })
+      .order("created_at", { ascending: false }),
     db
       .from("epics")
       .select("id,project_id,name,description,status,sort_order,created_at,updated_at")
       .eq("project_id", id)
-      .order("sort_order", { ascending: true })
-      .order("created_at", { ascending: true }),
+      .order("created_at", { ascending: false }),
   ]);
 
   const storyList = (rawStories || []) as Story[];

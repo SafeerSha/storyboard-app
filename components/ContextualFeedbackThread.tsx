@@ -18,6 +18,8 @@ import type {
   FeedbackAuthorType,
 } from "@/lib/types";
 import { toast } from "@/lib/toast";
+import { VoiceTextarea } from "@/components/ui/VoiceTextarea";
+import { VoiceInput } from "@/components/ui/VoiceInput";
 
 interface ContextualFeedbackThreadProps {
   storyId: string;
@@ -294,8 +296,7 @@ export function ContextualFeedbackThread({
                     </div>
                   ) : (
                     <div className="flex gap-2">
-                      <input
-                        type="text"
+                      <VoiceInput
                         value={replyTextMap[thread.id] || ""}
                         onChange={(e) =>
                           setReplyTextMap((prev) => ({
@@ -377,7 +378,7 @@ export function ContextualFeedbackThread({
             </button>
           </div>
 
-          <textarea
+          <VoiceTextarea
             rows={2}
             autoFocus
             value={newComment}

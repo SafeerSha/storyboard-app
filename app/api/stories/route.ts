@@ -76,7 +76,8 @@ export async function GET(req: Request) {
     .from("stories")
     .select("id, project_id, epic_id, title, description, acceptance_criteria, assumptions, clarifications, status, team_review_status, team_approved_by_id, team_approved_by_name, team_approved_at, client_review_status, client_approved_by_id, client_approved_by_name, client_approved_at, created_by_id, created_at, updated_at")
     .eq("project_id", requestedProjectId)
-    .order("created_at", { ascending: true });
+    .order("updated_at", { ascending: false })
+    .order("created_at", { ascending: false });
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 

@@ -65,8 +65,21 @@ export default async function DashboardRootLayout({
         email: user.email || "",
         role,
       };
+    } else {
+      // Check if team member is logged in
+      const { getAuthenticatedTeamUser } = await import("@/lib/team-session");
+      const teamUser = await getAuthenticatedTeamUser();
+      if (teamUser) {
+        initialUser = {
+          id: teamUser.id,
+          name: teamUser.name,
+          email: teamUser.username,
+          role: "collaborator",
+        };
+      }
     }
   }
 
   return <FreelancerLayout initialUser={initialUser}>{children}</FreelancerLayout>;
 }
+

@@ -60,10 +60,9 @@ export async function GET() {
       // 6. Epics in project
       db
         .from("epics")
-        .select("id, name, sort_order")
+        .select("id, name, created_at")
         .eq("project_id", client.project_id)
-        .order("sort_order", { ascending: true })
-        .order("created_at", { ascending: true }),
+        .order("created_at", { ascending: false }),
 
       // 7. Story epic mapping for aggregate counts
       db
@@ -88,7 +87,7 @@ export async function GET() {
     if (epicCounts["uncategorized"]) {
       epics.push({
         id: "uncategorized",
-        name: "Additional Requirements",
+        name: "Uncategorized",
         storyCount: epicCounts["uncategorized"],
       });
     }

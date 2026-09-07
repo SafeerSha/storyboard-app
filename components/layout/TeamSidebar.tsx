@@ -29,6 +29,7 @@ export function TeamSidebar({
 }: TeamSidebarProps) {
   const pathname = usePathname();
   const [pendingReviewsCount, setPendingReviewsCount] = React.useState<number>(0);
+  const [epics, setEpics] = React.useState<Array<{ id: string; name: string; storyCount: number }>>([]);
 
   const fetchCount = React.useCallback(() => {
     fetch("/api/team/reviews/count")
@@ -41,14 +42,29 @@ export function TeamSidebar({
       .catch(() => {});
   }, []);
 
+  const fetchEpics = React.useCallback(() => {
+    fetch("/api/team/epics")
+      .then((r) => (r.ok ? r.json() : { epics: [] }))
+      .then((d) => {
+        if (Array.isArray(d.epics)) {
+          setEpics(d.epics);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
   useEffect(() => {
     fetchCount();
-    const handleUpdate = () => fetchCount();
+    fetchEpics();
+    const handleUpdate = () => {
+      fetchCount();
+      fetchEpics();
+    };
     window.addEventListener("storyboard:review-updated", handleUpdate);
     return () => {
       window.removeEventListener("storyboard:review-updated", handleUpdate);
     };
-  }, [fetchCount]);
+  }, [fetchCount, fetchEpics]);
 
   useEffect(() => {
     if (!mobileOpen) return;
@@ -176,8 +192,50 @@ export function TeamSidebar({
                 </span>
               )}
             </Link>
+            <Link
+              href="/inbox"
+              onClick={closeMobile}
+              className={`flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-xs sm:text-sm transition-colors ${
+                pathname.startsWith("/inbox")
+                  ? "bg-[rgba(184,148,78,0.09)] text-[#80642F] font-medium border border-[rgba(184,148,78,0.12)]"
+                  : "text-[#706C7D] font-medium hover:bg-[rgba(184,148,78,0.04)] hover:text-[#80642F] border border-transparent"
+              }`}
+            >
+              <Layers
+                size={16}
+                className={pathname.startsWith("/inbox") ? "text-[#B8944E]" : "text-[#9994A5]"}
+              />
+              <span className="truncate">Idea Inbox</span>
+            </Link>
           </nav>
         </div>
+
+        {/* EPICS group */}
+        {epics.length > 0 && (
+          <div>
+            <div className="px-2.5 pb-1.5 text-[11px] font-semibold uppercase tracking-wider text-[#9994A5] flex items-center justify-between">
+              <span>EPICS</span>
+              <span className="text-[10px] text-zinc-400 font-normal">{epics.length}</span>
+            </div>
+            <nav className="space-y-0.5">
+              {epics.map((epic) => (
+                <a
+                  key={epic.id}
+                  href={`/team#epic-folder-${epic.id}`}
+                  onClick={closeMobile}
+                  className="flex items-center justify-between rounded-lg px-2.5 py-1.5 text-xs text-[#706C7D] font-medium hover:bg-[rgba(184,148,78,0.04)] hover:text-[#80642F] border border-transparent transition-colors group"
+                  title={epic.name}
+                >
+                  <span className="truncate">{epic.name}</span>
+                  <span className="rounded-full bg-zinc-100 px-1.5 py-0.2 text-[10px] font-semibold text-zinc-500 group-hover:bg-[rgba(184,148,78,0.12)] group-hover:text-[#80642F]">
+                    {epic.storyCount}
+                  </span>
+                </a>
+              ))}
+            </nav>
+          </div>
+        )}
+
 
         {/* DISCUSSION group */}
         <div>

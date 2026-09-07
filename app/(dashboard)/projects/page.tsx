@@ -19,6 +19,7 @@ import { DropdownMenu } from "@/components/ui/DropdownMenu";
 import { ProjectCardSkeleton } from "@/components/ui/Skeleton";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { toast } from "@/lib/toast";
+import { VoiceTextarea } from "@/components/ui/VoiceTextarea";
 
 type Project = {
   id: string;
@@ -433,7 +434,7 @@ export default function ProjectsPage() {
             <label className="block text-xs font-semibold uppercase tracking-wider text-[#706C7D] mb-1.5">
               Short Description
             </label>
-            <textarea
+            <VoiceTextarea
               rows={3}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
@@ -495,7 +496,7 @@ export default function ProjectsPage() {
             <label className="block text-xs font-semibold uppercase tracking-wider text-[#706C7D] mb-1.5">
               Description
             </label>
-            <textarea
+            <VoiceTextarea
               rows={3}
               value={editDesc}
               onChange={(e) => setEditDesc(e.target.value)}

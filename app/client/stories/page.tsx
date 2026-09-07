@@ -18,6 +18,8 @@ import {
   type EnrichedClientStory,
 } from "@/components/clients/ClientStoryCard";
 import type { Epic } from "@/lib/types";
+import { EpicFolder } from "@/components/epics/EpicFolder";
+import { groupStoriesByEpic } from "@/lib/epic-story-utils";
 
 interface PaginatedResponse {
   stories: EnrichedClientStory[];
@@ -165,6 +167,53 @@ export default function ClientAllStoriesPage() {
   const pagination = data?.pagination || { page: 1, limit: 15, total: 0, totalPages: 1 };
   const epics = data?.epics || [];
 
+  const [collapsedEpicIds, setCollapsedEpicIds] = useState<Set<string>>(new Set());
+
+  const toggleEpic = useCallback((epicId: string) => {
+    setCollapsedEpicIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(epicId)) {
+        next.delete(epicId);
+      } else {
+        next.add(epicId);
+      }
+      return next;
+    });
+  }, []);
+
+  useEffect(() => {
+    if (targetStoryId && data) {
+      const foundStory = data.stories.find((s) => s.id === targetStoryId);
+      if (foundStory) {
+        const folderId = foundStory.epic_id || "uncategorized";
+        setCollapsedEpicIds((prev) => {
+          if (prev.has(folderId)) {
+            const next = new Set(prev);
+            next.delete(folderId);
+            return next;
+          }
+          return prev;
+        });
+      }
+    }
+  }, [targetStoryId, data]);
+
+  const epicGroups = React.useMemo(() => {
+    if (!data) return [];
+    const targetEpics =
+      currentEpicId === "all"
+        ? data.epics
+        : currentEpicId === "uncategorized"
+        ? []
+        : data.epics.filter((e) => e.id === currentEpicId);
+
+    const groups = groupStoriesByEpic(targetEpics, data.stories);
+    if (currentEpicId === "uncategorized") {
+      return groups.filter((g) => g.isUncategorized);
+    }
+    return groups;
+  }, [data, currentEpicId]);
+
   return (
     <div className="min-h-screen pb-16">
       {/* Header */}
@@ -258,7 +307,7 @@ export default function ClientAllStoriesPage() {
                       {e.name}
                     </option>
                   ))}
-                  <option value="uncategorized">Additional Requirements</option>
+                  <option value="uncategorized">Uncategorized</option>
                 </select>
               </div>
             )}
@@ -336,18 +385,38 @@ export default function ClientAllStoriesPage() {
           </div>
         )}
 
-        {/* Stories List */}
-        {!loading && stories.length > 0 && (
-          <div className="space-y-4">
-            {stories.map((story) => (
-              <ClientStoryCard
-                key={story.id}
-                story={story}
-                isOpen={openStoryId === story.id}
-                onToggle={() =>
-                  setOpenStoryId((prev) => (prev === story.id ? null : story.id))
+        {/* Stories Grouped by Epic Folders */}
+        {!loading && epicGroups.length > 0 && (
+          <div className="space-y-6">
+            {epicGroups.map((group) => (
+              <EpicFolder
+                key={group.id}
+                id={group.id}
+                name={group.name}
+                description={group.description}
+                storyCount={group.storyCount}
+                isExpanded={!collapsedEpicIds.has(group.id)}
+                onToggle={() => toggleEpic(group.id)}
+                isUncategorized={group.isUncategorized}
+                emptyMessage={
+                  group.isUncategorized
+                    ? "No uncategorized stories."
+                    : "No stories in this Epic yet."
                 }
-              />
+              >
+                <div className="space-y-4">
+                  {group.stories.map((story) => (
+                    <ClientStoryCard
+                      key={story.id}
+                      story={story}
+                      isOpen={openStoryId === story.id}
+                      onToggle={() =>
+                        setOpenStoryId((prev) => (prev === story.id ? null : story.id))
+                      }
+                    />
+                  ))}
+                </div>
+              </EpicFolder>
             ))}
           </div>
         )}

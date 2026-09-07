@@ -68,7 +68,7 @@ export async function GET(req: Request) {
     } else if (sortBy === "status") {
       query = query.order("status", { ascending: true }).order("updated_at", { ascending: false });
     } else {
-      query = query.order("updated_at", { ascending: false });
+      query = query.order("updated_at", { ascending: false }).order("created_at", { ascending: false });
     }
 
     // Pagination
@@ -79,10 +79,9 @@ export async function GET(req: Request) {
         query,
         db
           .from("epics")
-          .select("id, name, sort_order")
+          .select("id, name, description, created_at")
           .eq("project_id", client.project_id)
-          .order("sort_order", { ascending: true })
-          .order("created_at", { ascending: true }),
+          .order("created_at", { ascending: false }),
       ]);
 
     if (storiesError) {
@@ -112,7 +111,7 @@ export async function GET(req: Request) {
 
     const enrichedStories = storyList.map((s) => ({
       ...s,
-      epic_name: s.epic_id ? epicMap.get(s.epic_id) || "Epic" : "Additional Requirements",
+      epic_name: s.epic_id ? epicMap.get(s.epic_id) || "Epic" : "Uncategorized",
       open_feedback_count: feedbackCountsMap[s.id] || 0,
     }));
 

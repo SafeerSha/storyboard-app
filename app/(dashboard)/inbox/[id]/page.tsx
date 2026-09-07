@@ -4,29 +4,44 @@ import React, { useState, useEffect, use } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
-  Archive,
+  AlertCircle,
   ArrowLeft,
   ArrowRight,
   CheckCircle2,
   Compass,
   ExternalLink,
+  FileText,
   FolderKanban,
   Lightbulb,
   Link as LinkIcon,
   Loader2,
-  Pencil,
+  MessageSquare,
   Plus,
   Save,
   Trash2,
+  Users,
 } from "lucide-react";
 import { DashboardHeader } from "@/components/layout/DashboardHeader";
 import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
-import { InboxAiWorkspace } from "@/components/inbox/InboxAiWorkspace";
 import { ConvertToProjectModal } from "@/components/inbox/ConvertToProjectModal";
+import { InboxDiscussionWorkspace } from "@/components/inbox/InboxDiscussionWorkspace";
+import { InboxInsightsWorkspace } from "@/components/inbox/InboxInsightsWorkspace";
+import { InboxPeopleWorkspace } from "@/components/inbox/InboxPeopleWorkspace";
+import { AddCollaboratorModal } from "@/components/inbox/AddCollaboratorModal";
 import { toast } from "@/lib/toast";
-import type { InboxItemPriority, InboxItemStatus, InboxItemType, ProjectInboxItem, ProjectInboxLink } from "@/lib/types";
+import { VoiceTextarea } from "@/components/ui/VoiceTextarea";
+import type {
+  InboxItemPriority,
+  InboxItemStatus,
+  InboxItemType,
+  ProjectInboxItem,
+  ProjectInboxLink,
+  ProjectInboxMember,
+} from "@/lib/types";
+
+type InboxTab = "discussion" | "insights" | "details" | "people";
 
 export default function InboxItemDetailPage({
   params,
@@ -38,10 +53,13 @@ export default function InboxItemDetailPage({
 
   const [item, setItem] = useState<ProjectInboxItem | null>(null);
   const [links, setLinks] = useState<ProjectInboxLink[]>([]);
+  const [members, setMembers] = useState<ProjectInboxMember[]>([]);
+  const [insightsCount, setInsightsCount] = useState(0);
+  const [activeTab, setActiveTab] = useState<InboxTab>("discussion");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // Editable fields
+  // Editable fields in Details tab
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [type, setType] = useState<InboxItemType>("idea");
@@ -52,16 +70,19 @@ export default function InboxItemDetailPage({
   const [savingDetails, setSavingDetails] = useState(false);
   const [savedSuccess, setSavedSuccess] = useState(false);
 
-  // Link addition modal / form
+  // Link addition
   const [showAddLink, setShowAddLink] = useState(false);
   const [newLinkTitle, setNewLinkTitle] = useState("");
   const [newLinkUrl, setNewLinkUrl] = useState("");
   const [addingLink, setAddingLink] = useState(false);
 
-  // Conversion modal
+  // Conversion & Delete modals
   const [convertModalOpen, setConvertModalOpen] = useState(false);
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
   const [deletingIdea, setDeletingIdea] = useState(false);
+
+  // Quick add people modal from header
+  const [addPeopleOpen, setAddPeopleOpen] = useState(false);
 
   const loadItem = async () => {
     setLoading(true);
@@ -74,6 +95,9 @@ export default function InboxItemDetailPage({
       }
       setItem(data.item);
       setLinks(data.item.links || []);
+      setMembers(data.item.members || []);
+      setInsightsCount(data.item.insights_count || 0);
+
       setTitle(data.item.title || "");
       setDescription(data.item.description || "");
       setType(data.item.type || "idea");
@@ -91,6 +115,13 @@ export default function InboxItemDetailPage({
   useEffect(() => {
     loadItem();
   }, [id]);
+
+  const isOwner = Boolean(
+    item?.currentUserRole === "owner" || (item as any)?.isOwner
+  );
+  const canManageCollaborators = Boolean(
+    isOwner || (item as any)?.canManageCollaborators
+  );
 
   const handleSaveDetails = async () => {
     if (!title.trim()) {
@@ -224,6 +255,7 @@ export default function InboxItemDetailPage({
 
   return (
     <div>
+      {/* Top Header */}
       <DashboardHeader
         eyebrow="PROJECT INBOX"
         title={item.title}
@@ -242,14 +274,16 @@ export default function InboxItemDetailPage({
         actions={
           <div className="flex items-center gap-2">
             {!item.converted_project_id ? (
-              <Button
-                variant="primary"
-                size="md"
-                leftIcon={<FolderKanban size={14} />}
-                onClick={() => setConvertModalOpen(true)}
-              >
-                Convert to Project
-              </Button>
+              isOwner && (
+                <Button
+                  variant="primary"
+                  size="md"
+                  leftIcon={<FolderKanban size={14} />}
+                  onClick={() => setConvertModalOpen(true)}
+                >
+                  Convert to Project
+                </Button>
+              )
             ) : (
               <Link href={`/project/${item.converted_project_id}`}>
                 <Button variant="secondary" size="md" rightIcon={<ArrowRight size={14} />}>
@@ -258,46 +292,187 @@ export default function InboxItemDetailPage({
               </Link>
             )}
 
-            <Button
-              variant="secondary"
-              size="md"
-              leftIcon={<Save size={14} />}
-              isLoading={savingDetails}
-              onClick={handleSaveDetails}
-            >
-              {savedSuccess ? "Saved ✓" : "Save changes"}
-            </Button>
+            {activeTab === "details" && isOwner && (
+              <Button
+                variant="secondary"
+                size="md"
+                leftIcon={<Save size={14} />}
+                isLoading={savingDetails}
+                onClick={handleSaveDetails}
+              >
+                {savedSuccess ? "Saved ✓" : "Save changes"}
+              </Button>
+            )}
           </div>
         }
       />
 
-      <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
-        {/* Converted Alert Banner */}
-        {item.converted_project_id && (
-          <div className="mb-6 rounded-2xl border border-emerald-200 bg-emerald-50/70 p-4 text-emerald-950 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
-            <div className="flex items-center gap-2.5">
-              <CheckCircle2 size={18} className="text-emerald-600 shrink-0" />
-              <div>
-                <p className="text-sm font-semibold">Converted to Formal Project</p>
-                <p className="text-xs text-emerald-800">
-                  This concept has been promoted to a full StoryBoard project.
-                </p>
-              </div>
-            </div>
-            <Link
-              href={`/project/${item.converted_project_id}`}
-              className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-800 hover:text-emerald-950 underline shrink-0"
-            >
-              <span>View project requirements</span>
-              <ArrowRight size={13} />
-            </Link>
+      <main className="mx-auto max-w-6xl px-4 py-4 sm:px-6 sm:py-6 lg:px-8 space-y-6">
+        {/* Item Header Banner: Title, Description & People Stack */}
+        <div className="rounded-2xl border border-[#E2E6EF] bg-white p-5 sm:p-6 shadow-card space-y-4">
+          <div className="space-y-1">
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-[#111827]">
+              {item.title}
+            </h1>
+            {item.description ? (
+              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed max-w-3xl">
+                {item.description}
+              </p>
+            ) : (
+              <p className="text-xs text-slate-400 italic">No description provided yet.</p>
+            )}
           </div>
+
+          {/* People Row */}
+          <div className="pt-2 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-xs font-semibold uppercase tracking-wider text-slate-400 mr-1">
+                People:
+              </span>
+
+              {/* People Avatar Stack */}
+              {members.slice(0, 6).map((m) => (
+                <div
+                  key={m.id}
+                  className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium border ${
+                    m.role === "owner"
+                      ? "bg-indigo-50 text-indigo-800 border-indigo-200"
+                      : "bg-slate-100 text-slate-700 border-slate-200"
+                  }`}
+                  title={`${m.name || "Member"} (${m.role})`}
+                >
+                  <span className="font-semibold">{m.name || "Member"}</span>
+                  {m.role === "owner" && (
+                    <span className="text-[10px] uppercase font-bold text-indigo-600">(Owner)</span>
+                  )}
+                </div>
+              ))}
+
+              {members.length > 6 && (
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("people")}
+                  className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-semibold text-slate-600 hover:bg-slate-200"
+                >
+                  +{members.length - 6} more
+                </button>
+              )}
+
+              {canManageCollaborators && (
+                <button
+                  type="button"
+                  onClick={() => setAddPeopleOpen(true)}
+                  className="inline-flex items-center gap-1 rounded-full border border-dashed border-slate-300 bg-white px-2.5 py-1 text-xs font-semibold text-[#4F46E5] hover:bg-indigo-50/50 hover:border-indigo-300 transition"
+                >
+                  <Plus size={12} />
+                  <span>Add</span>
+                </button>
+              )}
+            </div>
+
+            <span className="text-xs text-slate-400">
+              Updated {new Date(item.updated_at).toLocaleDateString()}
+            </span>
+          </div>
+
+          {/* Tab Navigation */}
+          <div className="pt-2 flex items-center gap-2 border-t border-slate-100 overflow-x-auto scrollbar-none">
+            <button
+              type="button"
+              onClick={() => setActiveTab("discussion")}
+              className={`inline-flex items-center gap-2 rounded-xl px-4 py-2 text-xs sm:text-sm font-semibold transition ${
+                activeTab === "discussion"
+                  ? "bg-[#111827] text-white shadow-xs"
+                  : "bg-slate-50 text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+              }`}
+            >
+              <MessageSquare size={15} />
+              <span>Discussion</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setActiveTab("insights")}
+              className={`inline-flex items-center gap-2 rounded-xl px-4 py-2 text-xs sm:text-sm font-semibold transition ${
+                activeTab === "insights"
+                  ? "bg-[#111827] text-white shadow-xs"
+                  : "bg-slate-50 text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+              }`}
+            >
+              <Lightbulb size={15} />
+              <span>Insights</span>
+              {insightsCount > 0 && (
+                <span
+                  className={`rounded-full px-1.5 py-0.2 text-[10px] font-bold ${
+                    activeTab === "insights"
+                      ? "bg-[#B8944E] text-white"
+                      : "bg-slate-200 text-slate-700"
+                  }`}
+                >
+                  {insightsCount}
+                </span>
+              )}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setActiveTab("details")}
+              className={`inline-flex items-center gap-2 rounded-xl px-4 py-2 text-xs sm:text-sm font-semibold transition ${
+                activeTab === "details"
+                  ? "bg-[#111827] text-white shadow-xs"
+                  : "bg-slate-50 text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+              }`}
+            >
+              <FileText size={15} />
+              <span>Details</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setActiveTab("people")}
+              className={`inline-flex items-center gap-2 rounded-xl px-4 py-2 text-xs sm:text-sm font-semibold transition ${
+                activeTab === "people"
+                  ? "bg-[#111827] text-white shadow-xs"
+                  : "bg-slate-50 text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+              }`}
+            >
+              <Users size={15} />
+              <span>People</span>
+              <span
+                className={`rounded-full px-1.5 py-0.2 text-[10px] font-bold ${
+                  activeTab === "people"
+                    ? "bg-slate-700 text-white"
+                    : "bg-slate-200 text-slate-700"
+                }`}
+              >
+                {members.length}
+              </span>
+            </button>
+          </div>
+        </div>
+
+        {/* Tab 1: Discussion Workspace */}
+        {activeTab === "discussion" && (
+          <InboxDiscussionWorkspace
+            item={item}
+            onInsightSaved={() => {
+              setInsightsCount((prev) => prev + 1);
+            }}
+          />
         )}
 
-        {/* Two-Column Responsive Workspace */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          {/* Left Column: Core Idea & Research Workspace (7 cols) */}
-          <div className="lg:col-span-7 space-y-6">
+        {/* Tab 2: Saved Insights Workspace */}
+        {activeTab === "insights" && (
+          <InboxInsightsWorkspace
+            inboxItemId={item.id}
+            isOwner={isOwner}
+            onCountChange={(cnt) => setInsightsCount(cnt)}
+          />
+        )}
+
+        {/* Tab 3: Details & Research Workspace */}
+        {activeTab === "details" && (
+          <div className="space-y-6">
             {/* Overview & Metadata Card */}
             <section className="rounded-2xl border border-[#E2E6EF] bg-white p-5 sm:p-6 shadow-card space-y-4">
               <div className="flex items-center justify-between border-b border-slate-100 pb-3">
@@ -317,8 +492,9 @@ export default function InboxItemDetailPage({
                   <input
                     type="text"
                     value={title}
+                    disabled={!isOwner}
                     onChange={(e) => setTitle(e.target.value)}
-                    className="h-10 w-full rounded-xl border border-[#E2E6EF] bg-white px-3.5 text-sm font-semibold text-[#111827] outline-none transition focus:border-[#4F46E5] focus:ring-1 focus:ring-[#4F46E5]"
+                    className="h-10 w-full rounded-xl border border-[#E2E6EF] bg-white px-3.5 text-sm font-semibold text-[#111827] outline-none transition focus:border-[#4F46E5] focus:ring-1 focus:ring-[#4F46E5] disabled:bg-slate-50"
                   />
                 </div>
 
@@ -326,12 +502,13 @@ export default function InboxItemDetailPage({
                   <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">
                     Description & Context
                   </label>
-                  <textarea
+                  <VoiceTextarea
                     rows={3}
                     value={description}
+                    disabled={!isOwner}
                     onChange={(e) => setDescription(e.target.value)}
                     placeholder="What problem does this solve? Who is it for?"
-                    className="w-full rounded-xl border border-[#E2E6EF] bg-white p-3 text-xs sm:text-sm text-[#111827] outline-none transition focus:border-[#4F46E5] focus:ring-1 focus:ring-[#4F46E5] resize-none leading-relaxed"
+                    className="w-full rounded-xl border border-[#E2E6EF] bg-white p-3 text-xs sm:text-sm text-[#111827] outline-none transition focus:border-[#4F46E5] focus:ring-1 focus:ring-[#4F46E5] resize-none leading-relaxed disabled:bg-slate-50"
                   />
                 </div>
 
@@ -342,8 +519,9 @@ export default function InboxItemDetailPage({
                     </label>
                     <select
                       value={type}
+                      disabled={!isOwner}
                       onChange={(e) => setType(e.target.value as InboxItemType)}
-                      className="h-9 w-full rounded-xl border border-[#E2E6EF] bg-white px-2.5 text-xs font-medium text-slate-700 outline-none transition focus:border-[#4F46E5] cursor-pointer"
+                      className="h-9 w-full rounded-xl border border-[#E2E6EF] bg-white px-2.5 text-xs font-medium text-slate-700 outline-none transition focus:border-[#4F46E5] cursor-pointer disabled:bg-slate-50"
                     >
                       <option value="idea">Product Idea</option>
                       <option value="upcoming_project">Upcoming Project</option>
@@ -361,8 +539,9 @@ export default function InboxItemDetailPage({
                     </label>
                     <select
                       value={status}
+                      disabled={!isOwner}
                       onChange={(e) => setStatus(e.target.value as InboxItemStatus)}
-                      className="h-9 w-full rounded-xl border border-[#E2E6EF] bg-white px-2.5 text-xs font-medium text-slate-700 outline-none transition focus:border-[#4F46E5] cursor-pointer"
+                      className="h-9 w-full rounded-xl border border-[#E2E6EF] bg-white px-2.5 text-xs font-medium text-slate-700 outline-none transition focus:border-[#4F46E5] cursor-pointer disabled:bg-slate-50"
                     >
                       <option value="inbox">Inbox</option>
                       <option value="exploring">Exploring</option>
@@ -379,8 +558,9 @@ export default function InboxItemDetailPage({
                     </label>
                     <select
                       value={priority}
+                      disabled={!isOwner}
                       onChange={(e) => setPriority(e.target.value as InboxItemPriority)}
-                      className="h-9 w-full rounded-xl border border-[#E2E6EF] bg-white px-2.5 text-xs font-medium text-slate-700 outline-none transition focus:border-[#4F46E5] cursor-pointer"
+                      className="h-9 w-full rounded-xl border border-[#E2E6EF] bg-white px-2.5 text-xs font-medium text-slate-700 outline-none transition focus:border-[#4F46E5] cursor-pointer disabled:bg-slate-50"
                     >
                       <option value="high">High</option>
                       <option value="medium">Medium</option>
@@ -391,47 +571,47 @@ export default function InboxItemDetailPage({
               </div>
             </section>
 
-            {/* Private Notes Card */}
+            {/* Notes Card */}
             <section className="rounded-2xl border border-[#E2E6EF] bg-white p-5 sm:p-6 shadow-card space-y-3">
               <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                 <div>
                   <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-400">
-                    Private Notes
+                    Notes & Assumptions
                   </h3>
-                  <p className="text-xs text-[#64748B]">
-                    Jot down rough architecture thoughts, target audiences, or pricing models.
+                  <p className="text-xs text-slate-500">
+                    Rough architecture thoughts, target audiences, or pricing models.
                   </p>
                 </div>
               </div>
 
-              <textarea
-                rows={5}
+              <VoiceTextarea
+                rows={4}
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                placeholder="Write your personal notes here... (e.g. Target users: independent freelancers; Possible pricing: $19/mo; Must validate: OCR accuracy on invoices)."
-                className="w-full rounded-xl border border-[#E2E6EF] bg-slate-50/40 p-3 text-xs sm:text-sm text-[#111827] outline-none transition focus:bg-white focus:border-[#4F46E5] focus:ring-1 focus:ring-[#4F46E5] font-mono leading-relaxed"
+                placeholder="Write your notes here..."
+                className="w-full rounded-xl border border-[#E2E6EF] bg-slate-50/40 p-3 text-xs sm:text-sm text-[#111827] outline-none transition focus:bg-white focus:border-[#4F46E5] leading-relaxed font-mono"
               />
             </section>
 
-            {/* Research & Validation Card */}
+            {/* Research Notes Card */}
             <section className="rounded-2xl border border-[#E2E6EF] bg-white p-5 sm:p-6 shadow-card space-y-3">
               <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                 <div>
                   <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-400">
-                    Research & Questions
+                    Research Questions
                   </h3>
-                  <p className="text-xs text-[#64748B]">
-                    Key assumptions to test or technical questions to investigate.
+                  <p className="text-xs text-slate-500">
+                    Key assumptions to test or technical feasibility checks.
                   </p>
                 </div>
               </div>
 
-              <textarea
+              <VoiceTextarea
                 rows={4}
                 value={researchNotes}
                 onChange={(e) => setResearchNotes(e.target.value)}
-                placeholder="☐ Are existing invoice solutions too expensive?&#10;☐ Can Document AI handle multi-currency tables?&#10;☐ Is there strong freelance agency demand?"
-                className="w-full rounded-xl border border-[#E2E6EF] bg-slate-50/40 p-3 text-xs sm:text-sm text-[#111827] outline-none transition focus:bg-white focus:border-[#4F46E5] focus:ring-1 focus:ring-[#4F46E5] leading-relaxed"
+                placeholder="Key questions to validate..."
+                className="w-full rounded-xl border border-[#E2E6EF] bg-slate-50/40 p-3 text-xs sm:text-sm text-[#111827] outline-none transition focus:bg-white focus:border-[#4F46E5] leading-relaxed"
               />
             </section>
 
@@ -442,8 +622,8 @@ export default function InboxItemDetailPage({
                   <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-400">
                     References & Links
                   </h3>
-                  <p className="text-xs text-[#64748B]">
-                    Competitors, documentation, APIs, and inspiring articles.
+                  <p className="text-xs text-slate-500">
+                    Competitors, APIs, and inspiring articles.
                   </p>
                 </div>
                 <Button
@@ -456,7 +636,6 @@ export default function InboxItemDetailPage({
                 </Button>
               </div>
 
-              {/* Inline Link Form */}
               {showAddLink && (
                 <form
                   onSubmit={handleAddLink}
@@ -466,14 +645,14 @@ export default function InboxItemDetailPage({
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     <input
                       type="text"
-                      placeholder="Title (e.g. Google Document AI)"
+                      placeholder="Title"
                       value={newLinkTitle}
                       onChange={(e) => setNewLinkTitle(e.target.value)}
                       className="h-8 rounded-lg border border-[#E2E6EF] bg-white px-2.5 text-xs text-[#111827] outline-none focus:border-[#4F46E5]"
                     />
                     <input
                       type="text"
-                      placeholder="URL (e.g. cloud.google.com/document-ai)"
+                      placeholder="URL"
                       value={newLinkUrl}
                       onChange={(e) => setNewLinkUrl(e.target.value)}
                       className="h-8 rounded-lg border border-[#E2E6EF] bg-white px-2.5 text-xs text-[#111827] outline-none focus:border-[#4F46E5]"
@@ -501,7 +680,6 @@ export default function InboxItemDetailPage({
                 </form>
               )}
 
-              {/* Links list */}
               {links.length === 0 ? (
                 <p className="text-xs text-slate-400 italic py-2">No reference links saved yet.</p>
               ) : (
@@ -509,7 +687,7 @@ export default function InboxItemDetailPage({
                   {links.map((link) => (
                     <div
                       key={link.id}
-                      className="flex items-center justify-between py-2.5 group"
+                      className="flex items-center justify-between py-2.5"
                     >
                       <div className="flex items-center gap-2.5 min-w-0 pr-3">
                         <LinkIcon size={14} className="text-slate-400 shrink-0" />
@@ -521,9 +699,6 @@ export default function InboxItemDetailPage({
                         >
                           {link.title}
                         </a>
-                        <span className="text-[11px] text-slate-400 truncate max-w-[180px] hidden sm:inline">
-                          {link.url}
-                        </span>
                       </div>
 
                       <div className="flex items-center gap-2 shrink-0">
@@ -532,7 +707,6 @@ export default function InboxItemDetailPage({
                           target="_blank"
                           rel="noopener noreferrer"
                           className="text-slate-400 hover:text-slate-600"
-                          title="Open link"
                         >
                           <ExternalLink size={13} />
                         </a>
@@ -540,7 +714,6 @@ export default function InboxItemDetailPage({
                           type="button"
                           onClick={() => handleDeleteLink(link.id)}
                           className="text-slate-400 hover:text-rose-600 transition"
-                          title="Delete link"
                         >
                           <Trash2 size={13} />
                         </button>
@@ -551,27 +724,34 @@ export default function InboxItemDetailPage({
               )}
             </section>
 
-            {/* Danger Zone */}
-            <div className="pt-2 flex items-center justify-between text-xs text-slate-400">
-              <span>Delete idea permanently</span>
-              <button
-                type="button"
-                onClick={() => setConfirmDeleteOpen(true)}
-                className="text-rose-600 hover:underline font-medium"
-              >
-                Delete Idea
-              </button>
-            </div>
+            {/* Danger Zone (Owner Only) */}
+            {isOwner && (
+              <div className="pt-2 flex items-center justify-between text-xs text-slate-400">
+                <span>Delete idea permanently</span>
+                <button
+                  type="button"
+                  onClick={() => setConfirmDeleteOpen(true)}
+                  className="text-rose-600 hover:underline font-medium"
+                >
+                  Delete Idea
+                </button>
+              </div>
+            )}
           </div>
+        )}
 
-          {/* Right Column: AI Assistant Thinking Partner (5 cols, sticky desktop) */}
-          <div className="lg:col-span-5 lg:sticky lg:top-24">
-            <InboxAiWorkspace item={item} />
-          </div>
-        </div>
+        {/* Tab 4: People Workspace */}
+        {activeTab === "people" && (
+          <InboxPeopleWorkspace
+            inboxItemId={item.id}
+            members={members}
+            canManageCollaborators={canManageCollaborators}
+            onRefresh={loadItem}
+          />
+        )}
       </main>
 
-      {/* Convert to Project Modal */}
+      {/* Convert Modal */}
       <ConvertToProjectModal
         open={convertModalOpen}
         item={item}
@@ -579,6 +759,7 @@ export default function InboxItemDetailPage({
         onConverted={() => loadItem()}
       />
 
+      {/* Delete Confirmation */}
       <ConfirmDialog
         isOpen={confirmDeleteOpen}
         title="Delete Idea"
@@ -588,6 +769,14 @@ export default function InboxItemDetailPage({
         isLoading={deletingIdea}
         onConfirm={handleConfirmDeleteItem}
         onClose={() => setConfirmDeleteOpen(false)}
+      />
+
+      {/* Add People Modal from Header */}
+      <AddCollaboratorModal
+        isOpen={addPeopleOpen}
+        onClose={() => setAddPeopleOpen(false)}
+        inboxItemId={item.id}
+        onAdded={loadItem}
       />
     </div>
   );

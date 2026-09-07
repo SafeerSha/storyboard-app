@@ -50,22 +50,27 @@ export async function middleware(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   // Protect Freelancer routes
+  const isInboxPath = pathname === "/inbox" || pathname.startsWith("/inbox/");
   const protectedFreelancerPath =
     pathname === "/" ||
     pathname.startsWith("/clients") ||
     pathname.startsWith("/projects") ||
     pathname.startsWith("/project") ||
     pathname.startsWith("/settings") ||
-    pathname.startsWith("/users") ||
-    pathname.startsWith("/inbox");
+    pathname.startsWith("/users");
 
-  if (protectedFreelancerPath && !user) {
+  if (isInboxPath) {
+    if (!user && !hasTeamSession) {
+      return NextResponse.redirect(new URL("/login", request.url));
+    }
+  } else if (protectedFreelancerPath && !user) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
   if (pathname === "/login" && user) {
     return NextResponse.redirect(new URL("/", request.url));
   }
+
 
   // Super Admin & Profile verification
   let isSuperAdmin = false;

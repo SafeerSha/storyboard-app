@@ -87,10 +87,9 @@ export default async function ClientOverviewPage() {
     // Epics
     db
       .from("epics")
-      .select("id, name, description, sort_order")
+      .select("id, name, description, created_at")
       .eq("project_id", client.project_id)
-      .order("sort_order", { ascending: true })
-      .order("created_at", { ascending: true }),
+      .order("created_at", { ascending: false }),
 
     // All story IDs + epic IDs + status for epic progress aggregation
     db

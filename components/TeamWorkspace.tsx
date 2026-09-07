@@ -29,6 +29,9 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { DropdownMenu } from "@/components/ui/DropdownMenu";
 import { toast } from "@/lib/toast";
 import type { Story, Epic, FeedbackThread } from "@/lib/types";
+import { EpicFolder } from "@/components/epics/EpicFolder";
+import { sortEpics, sortStories } from "@/lib/epic-story-utils";
+import { VoiceTextarea } from "@/components/ui/VoiceTextarea";
 
 interface TeamWorkspaceProps {
   teamUser: {
@@ -57,6 +60,20 @@ export function TeamWorkspace({
   const [stories, setStories] = useState<Story[]>(initialStories);
   const [epics, setEpics] = useState<Epic[]>(initialEpics);
   const [activeEpicTab, setActiveEpicTab] = useState<string>("all");
+  const [collapsedEpicIds, setCollapsedEpicIds] = useState<Set<string>>(new Set());
+
+  const toggleEpic = useCallback((epicId: string) => {
+    setCollapsedEpicIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(epicId)) {
+        next.delete(epicId);
+      } else {
+        next.add(epicId);
+      }
+      return next;
+    });
+  }, []);
+
   const [feedbackCounts, setFeedbackCounts] = useState<Record<string, number>>({});
   const [storyThreadsMap, setStoryThreadsMap] = useState<Record<string, FeedbackThread[]>>({});
 
@@ -289,7 +306,7 @@ export function TeamWorkspace({
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || "Failed to create Epic.");
 
-        setEpics((prev) => [...prev, data]);
+        setEpics((prev) => [data, ...prev]);
         toast.success("Epic created successfully");
       }
 
@@ -549,7 +566,8 @@ export function TeamWorkspace({
     }
   }
 
-  // Uncategorized legacy stories
+  // Sorted Epics and Uncategorized legacy stories
+  const sortedEpics = React.useMemo(() => sortEpics(epics), [epics]);
   const uncategorizedStories = stories.filter((s) => !s.epic_id);
 
   // Review statistics
@@ -892,141 +910,89 @@ export function TeamWorkspace({
     );
   };
 
-  // Render Epic Section Card
+  // Render Epic Section Card as Collapsible Folder
   const renderEpicSection = (epic: Epic, epicStories: Story[]) => {
+    const sortedStories = sortStories(epicStories);
     return (
-      <div
+      <EpicFolder
         key={epic.id}
-        className="rounded-[18px] border border-[rgba(74,61,100,0.08)] bg-white/85 shadow-[0_8px_30px_rgba(70,55,95,0.055)] backdrop-blur-[16px] overflow-hidden"
+        id={epic.id}
+        name={epic.name}
+        description={epic.description}
+        storyCount={sortedStories.length}
+        isExpanded={!collapsedEpicIds.has(epic.id)}
+        onToggle={() => toggleEpic(epic.id)}
+        actions={
+          <>
+            <Button
+              variant="secondary"
+              size="sm"
+              leftIcon={<Plus size={13} />}
+              onClick={() => openAddStoryModal(epic)}
+            >
+              Add Story
+            </Button>
+            <DropdownMenu
+              items={[
+                {
+                  label: "Edit Epic",
+                  icon: <Edit2 size={13} />,
+                  onClick: () => {
+                    setEditingEpic(epic);
+                    setEpicName(epic.name);
+                    setEpicDesc(epic.description || "");
+                    setEpicError("");
+                    setShowEpicModal(true);
+                  },
+                },
+                {
+                  label: "Delete Epic",
+                  icon: <Trash2 size={13} />,
+                  variant: "danger",
+                  onClick: () => handleDeleteEpic(epic.id),
+                },
+              ]}
+              align="right"
+              ariaLabel={`Actions for ${epic.name}`}
+            />
+          </>
+        }
+        emptyMessage="No stories in this Epic yet."
+        emptyAction={
+          <Button
+            variant="secondary"
+            size="sm"
+            leftIcon={<Plus size={13} />}
+            onClick={() => openAddStoryModal(epic)}
+          >
+            Add Story
+          </Button>
+        }
       >
-        {/* Epic Card Header: Shows ONLY Epic Name, count, Add Story, and Actions Dropdown */}
-        <div className="border-b border-[rgba(74,61,100,0.06)] bg-[#FAF9FC]/90 p-4 sm:p-5">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
-            {/* Epic Details */}
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-2 mb-1">
-                <span className="flex h-6 w-6 items-center justify-center rounded-md bg-[rgba(184,148,78,0.10)] text-[#80642F] border border-[rgba(184,148,78,0.15)]">
-                  <Layers size={13} />
-                </span>
-                <h3 className="text-base font-semibold text-[#252331] truncate">
-                  {epic.name}
-                </h3>
-              </div>
-              <div className="flex flex-wrap items-center gap-2 text-xs text-zinc-500">
-                <span className="font-semibold text-zinc-700">
-                  {epicStories.length} {epicStories.length === 1 ? "story" : "stories"}
-                </span>
-                {epic.description && (
-                  <>
-                    <span>•</span>
-                    <span className="text-zinc-600 line-clamp-1">{epic.description}</span>
-                  </>
-                )}
-              </div>
-            </div>
-
-            {/* Epic Scoped Actions: Add Story & ⋯ Menu ONLY */}
-            <div className="flex items-center gap-2 shrink-0">
-              <Button
-                variant="secondary"
-                size="sm"
-                leftIcon={<Plus size={13} />}
-                onClick={() => openAddStoryModal(epic)}
-              >
-                Add Story
-              </Button>
-              <DropdownMenu
-                items={[
-                  {
-                    label: "Edit Epic",
-                    icon: <Edit2 size={13} />,
-                    onClick: () => {
-                      setEditingEpic(epic);
-                      setEpicName(epic.name);
-                      setEpicDesc(epic.description || "");
-                      setEpicError("");
-                      setShowEpicModal(true);
-                    },
-                  },
-                  {
-                    label: "Delete Epic",
-                    icon: <Trash2 size={13} />,
-                    variant: "danger",
-                    onClick: () => handleDeleteEpic(epic.id),
-                  },
-                ]}
-                align="right"
-                ariaLabel={`Actions for ${epic.name}`}
-              />
-            </div>
-          </div>
+        <div className="space-y-3 sm:space-y-4">
+          {sortedStories.map((story) => renderStoryCard(story))}
         </div>
-
-        {/* Epic Stories List / Empty state */}
-        <div className="p-4 sm:p-5">
-          {epicStories.length === 0 ? (
-            <div className="rounded-xl border border-dashed border-zinc-200 bg-zinc-50/50 py-8 px-4 text-center">
-              <div className="mx-auto flex h-9 w-9 items-center justify-center rounded-lg bg-white border border-zinc-200 shadow-2xs mb-2.5">
-                <FileText className="h-4 w-4 text-zinc-400" />
-              </div>
-              <h4 className="text-sm font-semibold text-zinc-800">
-                No stories in this Epic yet.
-              </h4>
-              <p className="text-xs text-zinc-500 mt-1 max-w-sm mx-auto">
-                Add your first story to this Epic.
-              </p>
-              <div className="mt-4 flex items-center justify-center">
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  leftIcon={<Plus size={13} />}
-                  onClick={() => openAddStoryModal(epic)}
-                >
-                  Add Story
-                </Button>
-              </div>
-            </div>
-          ) : (
-            <div className="space-y-3 sm:space-y-4">
-              {epicStories.map((story) => renderStoryCard(story))}
-            </div>
-          )}
-        </div>
-      </div>
+      </EpicFolder>
     );
   };
 
-  // Render Uncategorized Section
+  // Render Uncategorized Section as Collapsible Folder
   const renderUncategorizedSection = (uncatStories: Story[]) => {
+    const sortedStories = sortStories(uncatStories);
     return (
-      <div className="rounded-2xl border border-amber-200/90 bg-white shadow-xs overflow-hidden">
-        {/* Uncategorized Header */}
-        <div className="border-b border-amber-200/70 bg-amber-50/50 p-4 sm:p-5">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-            <div>
-              <div className="flex items-center gap-2 mb-1">
-                <span className="flex h-6 w-6 items-center justify-center rounded-md bg-amber-100 text-amber-800 border border-amber-200">
-                  <AlertCircle size={13} />
-                </span>
-                <h3 className="text-base font-bold text-amber-950">
-                  Uncategorized Stories
-                </h3>
-                <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-900 border border-amber-200">
-                  {uncatStories.length} {uncatStories.length === 1 ? "story" : "stories"}
-                </span>
-              </div>
-              <p className="text-xs text-amber-800 leading-relaxed">
-                Stories must belong to an Epic. Use <strong>Edit</strong> on a story below to assign it to an Epic.
-              </p>
-            </div>
-          </div>
+      <EpicFolder
+        id="uncategorized"
+        name="Uncategorized"
+        description="Stories must belong to an Epic. Use Edit on a story below to assign it to an Epic."
+        storyCount={sortedStories.length}
+        isExpanded={!collapsedEpicIds.has("uncategorized")}
+        onToggle={() => toggleEpic("uncategorized")}
+        isUncategorized={true}
+      >
+        <div className="space-y-3 sm:space-y-4">
+          {sortedStories.map((story) => renderStoryCard(story, true))}
         </div>
-
-        {/* Stories List */}
-        <div className="p-4 sm:p-5 space-y-3 sm:space-y-4">
-          {uncatStories.map((story) => renderStoryCard(story, true))}
-        </div>
-      </div>
+      </EpicFolder>
     );
   };
 
@@ -1245,7 +1211,7 @@ export function TeamWorkspace({
             <div className="space-y-6">
               {activeEpicTab === "all" ? (
                 <>
-                  {epics.map((epic) => {
+                  {sortedEpics.map((epic) => {
                     const epicStories = stories.filter((s) => s.epic_id === epic.id);
                     return renderEpicSection(epic, epicStories);
                   })}
@@ -1256,7 +1222,7 @@ export function TeamWorkspace({
                 renderUncategorizedSection(uncategorizedStories)
               ) : (
                 (() => {
-                  const currentEpic = epics.find((e) => e.id === activeEpicTab);
+                  const currentEpic = sortedEpics.find((e) => e.id === activeEpicTab);
                   if (!currentEpic) return null;
                   const epicStories = stories.filter((s) => s.epic_id === currentEpic.id);
                   return renderEpicSection(currentEpic, epicStories);
@@ -1407,7 +1373,7 @@ export function TeamWorkspace({
                     <label className="block text-[11px] font-semibold text-zinc-500 mb-1">
                       Description
                     </label>
-                    <textarea
+                    <VoiceTextarea
                       rows={2}
                       value={story.description || ""}
                       onChange={(e) => {
@@ -1557,7 +1523,7 @@ export function TeamWorkspace({
               <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-1.5">
                 Description <span className="text-zinc-400 font-normal normal-case">(optional context for AI or team)</span>
               </label>
-              <textarea
+              <VoiceTextarea
                 rows={3}
                 value={newStoryDesc}
                 onChange={(e) => setNewStoryDesc(e.target.value)}
@@ -1786,7 +1752,7 @@ export function TeamWorkspace({
             <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-1.5">
               Description
             </label>
-            <textarea
+            <VoiceTextarea
               rows={3}
               value={epicDesc}
               onChange={(e) => setEpicDesc(e.target.value)}

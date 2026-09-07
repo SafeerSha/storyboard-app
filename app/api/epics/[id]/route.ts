@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getAuthenticatedTeamUser } from "@/lib/team-session";
+import { isTeamUserProjectMember } from "@/lib/story-reviewer-auth";
 
 export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -24,8 +25,13 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
 
     // 1. Team User authorization
     const teamUser = await getAuthenticatedTeamUser();
-    if (teamUser && teamUser.project_id === epic.project_id) {
-      isAuthorized = true;
+    if (teamUser) {
+      const isMember =
+        teamUser.project_id === epic.project_id ||
+        (await isTeamUserProjectMember(teamUser.id, epic.project_id));
+      if (isMember) {
+        isAuthorized = true;
+      }
     }
 
     // 2. Freelancer / Super Admin authorization
@@ -101,8 +107,13 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
 
     // 1. Team User authorization
     const teamUser = await getAuthenticatedTeamUser();
-    if (teamUser && teamUser.project_id === epic.project_id) {
-      isAuthorized = true;
+    if (teamUser) {
+      const isMember =
+        teamUser.project_id === epic.project_id ||
+        (await isTeamUserProjectMember(teamUser.id, epic.project_id));
+      if (isMember) {
+        isAuthorized = true;
+      }
     }
 
     // 2. Freelancer / Super Admin authorization

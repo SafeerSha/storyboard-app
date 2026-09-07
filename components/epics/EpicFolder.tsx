@@ -1,0 +1,148 @@
+"use client";
+
+import React from "react";
+import { ChevronDown, ChevronRight, Layers, AlertCircle } from "lucide-react";
+
+export interface EpicFolderProps {
+  id: string;
+  name: string;
+  description?: string | null;
+  storyCount: number;
+  isExpanded: boolean;
+  onToggle: () => void;
+  actions?: React.ReactNode;
+  headerExtra?: React.ReactNode;
+  emptyMessage?: string;
+  emptyAction?: React.ReactNode;
+  children?: React.ReactNode;
+  isUncategorized?: boolean;
+}
+
+export function EpicFolder({
+  id,
+  name,
+  description,
+  storyCount,
+  isExpanded,
+  onToggle,
+  actions,
+  headerExtra,
+  emptyMessage = "No stories in this Epic yet.",
+  emptyAction,
+  children,
+  isUncategorized = false,
+}: EpicFolderProps) {
+  const contentId = `epic-folder-content-${id}`;
+
+  return (
+    <div
+      id={`epic-folder-${id}`}
+      className={`rounded-[18px] border transition-all duration-200 overflow-hidden ${
+        isUncategorized
+          ? "border-amber-200/90 bg-white/90 shadow-[0_8px_30px_rgba(180,120,40,0.06)] backdrop-blur-[16px]"
+          : "border-[rgba(74,61,100,0.08)] bg-white/88 shadow-[0_8px_30px_rgba(70,55,95,0.055)] backdrop-blur-[16px]"
+      }`}
+    >
+      {/* Epic Header / Accordion Button */}
+      <div
+        className={`border-b transition-colors ${
+          isUncategorized
+            ? "border-amber-200/70 bg-amber-50/40"
+            : "border-[rgba(74,61,100,0.06)] bg-[#FAF9FC]/90"
+        } p-3.5 sm:p-4`}
+      >
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          {/* Clickable Header Button */}
+          <button
+            type="button"
+            onClick={onToggle}
+            aria-expanded={isExpanded}
+            aria-controls={contentId}
+            aria-label={`${isExpanded ? "Collapse" : "Expand"} ${name} folder`}
+            className="flex items-center gap-3 text-left min-w-0 flex-1 group focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B8944E] rounded-xl py-1 px-1 -ml-1 transition cursor-pointer"
+          >
+            {/* Expand / Collapse Chevron */}
+            <span
+              className={`grid h-7 w-7 shrink-0 place-items-center rounded-lg border transition ${
+                isUncategorized
+                  ? "border-amber-200 bg-amber-100/70 text-amber-800 group-hover:bg-amber-100"
+                  : "border-[rgba(74,61,100,0.10)] bg-white text-[#706C7D] group-hover:text-[#252331] group-hover:border-[rgba(184,148,78,0.3)] shadow-2xs"
+              }`}
+            >
+              {isExpanded ? (
+                <ChevronDown size={16} className="transition-transform" />
+              ) : (
+                <ChevronRight size={16} className="transition-transform" />
+              )}
+            </span>
+
+            {/* Folder Title + Count */}
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-2 flex-wrap">
+                {isUncategorized ? (
+                  <span className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-amber-800 bg-amber-100/80 px-1.5 py-0.5 rounded border border-amber-200">
+                    <AlertCircle size={11} />
+                    Uncategorized
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-[#9994A5]">
+                    <Layers size={11} className="text-[#B8944E]" />
+                    Epic
+                  </span>
+                )}
+
+                <h3 className="text-sm sm:text-base font-semibold text-[#252331] tracking-tight truncate group-hover:text-[#80642F] transition-colors">
+                  {name}
+                </h3>
+
+                {/* Story Count Badge */}
+                <span
+                  className={`rounded-full px-2 py-0.5 text-xs font-semibold tabular-nums border ${
+                    isUncategorized
+                      ? "bg-amber-100 text-amber-900 border-amber-200"
+                      : "bg-[rgba(184,148,78,0.10)] text-[#80642F] border-[rgba(184,148,78,0.16)]"
+                  }`}
+                  title={`${storyCount} ${storyCount === 1 ? "story" : "stories"}`}
+                >
+                  {storyCount}
+                </span>
+
+                {headerExtra}
+              </div>
+
+              {description && (
+                <p className="mt-0.5 text-xs text-[#706C7D] line-clamp-1 leading-relaxed">
+                  {description}
+                </p>
+              )}
+            </div>
+          </button>
+
+          {/* Action buttons (isolated from toggle click) */}
+          {actions && (
+            <div
+              className="flex items-center gap-2 shrink-0 self-end sm:self-center pl-10 sm:pl-0"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {actions}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Folder Contents */}
+      {isExpanded && (
+        <div id={contentId} className="p-3 sm:p-4 bg-transparent animate-in fade-in-50 duration-150">
+          {storyCount === 0 ? (
+            <div className="rounded-xl border border-dashed border-[rgba(74,61,100,0.12)] bg-[#FAF9FC]/60 py-7 px-4 text-center">
+              <p className="text-xs text-[#706C7D]">{emptyMessage}</p>
+              {emptyAction && <div className="mt-3 flex justify-center">{emptyAction}</div>}
+            </div>
+          ) : (
+            <div className="space-y-3">{children}</div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}

@@ -12,6 +12,8 @@ import {
 } from "lucide-react";
 import { ContextualFeedbackThread } from "@/components/ContextualFeedbackThread";
 import { Button } from "@/components/ui/Button";
+import { VoiceTextarea } from "@/components/ui/VoiceTextarea";
+import { VoiceInput } from "@/components/ui/VoiceInput";
 import type {
   GeneratedStory,
   Epic,
@@ -244,7 +246,7 @@ export function StoryEditor({
         <label className="block text-xs font-semibold uppercase tracking-wider text-[#9994A5] mb-1.5">
           Description
         </label>
-        <textarea
+        <VoiceTextarea
           rows={3}
           value={value.description}
           onChange={(e) => setValue({ ...value, description: e.target.value })}
@@ -383,7 +385,7 @@ export function StoryEditor({
                   <span className="font-mono text-[11px] font-bold text-[#80642F] bg-[rgba(184,148,78,0.10)] border border-[rgba(184,148,78,0.15)] rounded px-1.5 py-0.5 shrink-0 mt-0.5">
                     {String(i + 1).padStart(2, "0")}
                   </span>
-                  <textarea
+                  <VoiceTextarea
                     rows={2}
                     value={item}
                     onChange={(e) => updateList("acceptance_criteria", i, e.target.value)}
@@ -470,8 +472,7 @@ export function StoryEditor({
               >
                 <div className="flex items-center gap-2">
                   <span className="text-[#9994A5] font-bold text-sm shrink-0">•</span>
-                  <input
-                    type="text"
+                  <VoiceInput
                     value={item}
                     onChange={(e) => updateList("assumptions", i, e.target.value)}
                     placeholder="e.g. Users already have an account."
@@ -556,8 +557,7 @@ export function StoryEditor({
               >
                 <div className="flex items-center gap-2">
                   <HelpCircle size={14} className="text-[#A87936] shrink-0" />
-                  <input
-                    type="text"
+                  <VoiceInput
                     value={item}
                     onChange={(e) => updateList("clarifications", i, e.target.value)}
                     placeholder="e.g. Should email changes require verification?"

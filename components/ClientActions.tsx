@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { Check, MessageSquare, Send } from "lucide-react";
 import { toast } from "@/lib/toast";
+import { VoiceTextarea } from "@/components/ui/VoiceTextarea";
 
 export function ClientActions({ storyId, status }: { storyId: string; status: string }) {
   const [comment, setComment] = useState("");
@@ -67,7 +68,7 @@ export function ClientActions({ storyId, status }: { storyId: string; status: st
       </div>
       {open && (
         <div className="mt-4 rounded-xl bg-neutral-50 p-3 sm:p-4">
-          <textarea
+          <VoiceTextarea
             value={comment}
             onChange={e => setComment(e.target.value)}
             placeholder="Tell the freelancer what needs to change..."

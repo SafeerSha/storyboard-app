@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getAuthenticatedTeamUser } from "@/lib/team-session";
+import { isTeamUserProjectMember } from "@/lib/story-reviewer-auth";
 
 export async function POST(req: Request) {
   try {
@@ -22,9 +23,14 @@ export async function POST(req: Request) {
     // 1. Team User authorization
     const teamUser = await getAuthenticatedTeamUser();
     if (teamUser) {
-      // Force projectId to assigned project
-      projectId = teamUser.project_id;
-      isAuthorized = true;
+      const targetProjectId = projectId || teamUser.project_id;
+      const isMember =
+        targetProjectId === teamUser.project_id ||
+        (await isTeamUserProjectMember(teamUser.id, targetProjectId));
+      if (isMember) {
+        projectId = targetProjectId;
+        isAuthorized = true;
+      }
     }
 
     // 2. Freelancer / Super Admin authorization

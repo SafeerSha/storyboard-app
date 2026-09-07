@@ -5,6 +5,7 @@ import { Lightbulb, Sparkles } from "lucide-react";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
 import { toast } from "@/lib/toast";
+import { VoiceTextarea } from "@/components/ui/VoiceTextarea";
 import type { InboxItemPriority, InboxItemStatus, InboxItemType, ProjectInboxItem } from "@/lib/types";
 
 interface CaptureIdeaModalProps {
@@ -96,7 +97,7 @@ export function CaptureIdeaModal({ open, onClose, onCaptured }: CaptureIdeaModal
           <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1.5">
             What is on your mind?
           </label>
-          <textarea
+          <VoiceTextarea
             autoFocus
             rows={4}
             value={ideaText}

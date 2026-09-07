@@ -1,13 +1,13 @@
 import { NextResponse } from "next/server";
-import { verifySuperAdmin } from "@/lib/super-admin";
+import { getAuthenticatedInboxActor } from "@/lib/inbox-auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(req: Request) {
-  const admin = await verifySuperAdmin();
-  if (!admin) {
-    return new NextResponse("Unauthorized. Super Admin access required.", { status: 403 });
+  const actor = await getAuthenticatedInboxActor();
+  if (!actor) {
+    return NextResponse.json({ error: "Unauthorized. Please log in." }, { status: 401 });
   }
 
   const { searchParams } = new URL(req.url);
@@ -20,12 +20,48 @@ export async function GET(req: Request) {
   const db = createAdminClient();
 
   try {
+    // 1. Determine accessible item IDs
+    let allowedItemIds: string[] | null = null;
+
+    if (!actor.isSuperAdmin) {
+      // Find items where user is an explicit collaborator in project_inbox_members
+      const { data: memberships } = await db
+        .from("project_inbox_members")
+        .select("inbox_item_id")
+        .eq("user_id", actor.id);
+
+      const memberItemIds = (memberships || []).map((m: any) => m.inbox_item_id);
+
+      if (actor.type === "freelancer") {
+        // Freelancers see items they own OR are members of
+        const { data: ownedItems } = await db
+          .from("project_inbox_items")
+          .select("id")
+          .eq("owner_id", actor.id);
+
+        const ownedItemIds = (ownedItems || []).map((o: any) => o.id);
+        allowedItemIds = Array.from(new Set([...ownedItemIds, ...memberItemIds]));
+      } else {
+        // Team users see ONLY items where they are explicitly added as members
+        allowedItemIds = memberItemIds;
+      }
+
+      if (allowedItemIds.length === 0) {
+        return NextResponse.json({ items: [] });
+      }
+    }
+
     let query = db
       .from("project_inbox_items")
-      .select("id, owner_id, title, description, type, status, priority, converted_project_id, converted_at, created_at, updated_at, converted_project:projects(id, name)")
-      .eq("owner_id", admin.id);
+      .select(
+        "id, owner_id, title, description, type, status, priority, converted_project_id, converted_at, created_at, updated_at, converted_project:projects(id, name)"
+      );
 
-    // Status filter: by default "active" shows non-archived items
+    if (allowedItemIds !== null) {
+      query = query.in("id", allowedItemIds);
+    }
+
+    // Status filter
     if (statusParam === "active") {
       query = query.neq("status", "archived");
     } else if (statusParam !== "all") {
@@ -40,7 +76,7 @@ export async function GET(req: Request) {
       query = query.eq("priority", priorityParam);
     }
 
-    // Database-level text search across title and description
+    // Text search
     if (searchParam) {
       query = query.or(`title.ilike.%${searchParam}%,description.ilike.%${searchParam}%`);
     }
@@ -56,7 +92,6 @@ export async function GET(req: Request) {
       query = query.order("updated_at", { ascending: false });
     }
 
-    // Bound maximum items to protect free-tier memory and egress
     query = query.limit(100);
 
     const { data: items, error } = await query;
@@ -65,16 +100,51 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    return NextResponse.json({ items: items || [] });
+    // Attach role for the current actor on each item
+    const itemIds = (items || []).map((i) => i.id);
+    const memberRoleMap: Record<string, "owner" | "collaborator"> = {};
+
+    if (itemIds.length > 0) {
+      const { data: actorMemberships } = await db
+        .from("project_inbox_members")
+        .select("inbox_item_id, role")
+        .in("inbox_item_id", itemIds)
+        .eq("user_id", actor.id);
+
+      (actorMemberships || []).forEach((m: any) => {
+        memberRoleMap[m.inbox_item_id] = m.role;
+      });
+    }
+
+    const enrichedItems = (items || []).map((item) => {
+      let role: "owner" | "collaborator" = "collaborator";
+      if (actor.isSuperAdmin || item.owner_id === actor.id || memberRoleMap[item.id] === "owner") {
+        role = "owner";
+      }
+      return {
+        ...item,
+        currentUserRole: role,
+      };
+    });
+
+    return NextResponse.json({ items: enrichedItems });
   } catch (err: any) {
     return NextResponse.json({ error: err.message || "Failed to fetch inbox items." }, { status: 500 });
   }
 }
 
 export async function POST(req: Request) {
-  const admin = await verifySuperAdmin();
-  if (!admin) {
-    return new NextResponse("Unauthorized. Super Admin access required.", { status: 403 });
+  const actor = await getAuthenticatedInboxActor();
+  if (!actor) {
+    return NextResponse.json({ error: "Unauthorized. Please log in." }, { status: 401 });
+  }
+
+  // Collaborators cannot create new root inbox items; only owners / super admins / freelancers
+  if (actor.type !== "freelancer" && !actor.isSuperAdmin) {
+    return NextResponse.json(
+      { error: "Forbidden. Collaborators cannot create new inbox items." },
+      { status: 403 }
+    );
   }
 
   try {
@@ -86,7 +156,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Idea title or text is required." }, { status: 400 });
     }
 
-    // If title has newline or is long, split title and description gracefully
     let resolvedTitle = rawText;
     let resolvedDescription = (description || "").trim();
 
@@ -96,7 +165,6 @@ export async function POST(req: Request) {
       resolvedDescription = parts.slice(1).join("\n");
     }
 
-    // Restrict title length comfortably
     if (resolvedTitle.length > 120 && !resolvedDescription) {
       resolvedDescription = resolvedTitle;
       resolvedTitle = resolvedTitle.slice(0, 80) + "...";
@@ -107,7 +175,7 @@ export async function POST(req: Request) {
     const { data: newItem, error } = await db
       .from("project_inbox_items")
       .insert({
-        owner_id: admin.id,
+        owner_id: actor.id,
         title: resolvedTitle,
         description: resolvedDescription,
         type: type || "idea",
@@ -124,17 +192,44 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    // Automatically create a default AI thread for this inbox item
+    // 1. Add owner to project_inbox_members
     try {
-      await db.from("project_inbox_ai_threads").insert({
+      await db.from("project_inbox_members").insert({
         inbox_item_id: newItem.id,
-        title: "General Discussion",
+        user_id: actor.id,
+        user_type: actor.type,
+        role: "owner",
       });
     } catch {
-      // Non-blocking if threads table is pending
+      // Non-blocking if table pending
     }
 
-    return NextResponse.json({ item: newItem }, { status: 201 });
+    // 2. Automatically create default "General Discussion" conversation
+    try {
+      await db.from("project_inbox_conversations").insert({
+        inbox_item_id: newItem.id,
+        title: "General Discussion",
+        created_by: actor.id,
+      });
+    } catch {
+      // Fallback to legacy project_inbox_ai_threads if exists
+      try {
+        await db.from("project_inbox_ai_threads").insert({
+          inbox_item_id: newItem.id,
+          title: "General Discussion",
+        });
+      } catch {}
+    }
+
+    return NextResponse.json(
+      {
+        item: {
+          ...newItem,
+          currentUserRole: "owner",
+        },
+      },
+      { status: 201 }
+    );
   } catch (err: any) {
     return NextResponse.json({ error: err.message || "Failed to create inbox item." }, { status: 500 });
   }

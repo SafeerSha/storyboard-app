@@ -116,12 +116,13 @@ export async function POST(
     // 5. Query Gemini Thinking Partner
     let aiResponseText: string;
     try {
-      aiResponseText = await generateInboxAiChatResponse({
+      const aiResult = await generateInboxAiChatResponse({
         item,
         links: links || [],
         history,
         prompt,
       });
+      aiResponseText = typeof aiResult === "string" ? aiResult : aiResult.response;
     } catch (aiErr: any) {
       console.error("Gemini AI error:", aiErr);
       return NextResponse.json(

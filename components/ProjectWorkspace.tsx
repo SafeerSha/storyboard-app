@@ -27,6 +27,9 @@ import { DropdownMenu } from "@/components/ui/DropdownMenu";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { toast } from "@/lib/toast";
 import type { Story, Epic } from "@/lib/types";
+import { EpicFolder } from "@/components/epics/EpicFolder";
+import { VoiceTextarea } from "@/components/ui/VoiceTextarea";
+import { sortEpics, sortStories } from "@/lib/epic-story-utils";
 
 type ProjectWorkspaceProps = {
   projectId: string;
@@ -64,6 +67,19 @@ export function ProjectWorkspace({
   const [aiError, setAiError] = useState("");
 
   const [epicFilter, setEpicFilter] = useState<string>("all");
+  const [collapsedEpicIds, setCollapsedEpicIds] = useState<Set<string>>(new Set());
+
+  const toggleEpic = useCallback((epicId: string) => {
+    setCollapsedEpicIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(epicId)) {
+        next.delete(epicId);
+      } else {
+        next.add(epicId);
+      }
+      return next;
+    });
+  }, []);
 
   // ConfirmDialog states for deletions
   const [deletingStoryId, setDeletingStoryId] = useState<string | null>(null);
@@ -162,7 +178,7 @@ export function ProjectWorkspace({
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || "Failed to create Epic");
-        setEpics((v) => [...v, data]);
+        setEpics((v) => [data, ...v]);
         toast.success("Epic created successfully");
       }
       setEpicModalOpen(false);
@@ -286,8 +302,15 @@ export function ProjectWorkspace({
     ? Math.round((approvedStoriesCount / totalStoriesCount) * 100)
     : 0;
 
-  const filteredEpics =
-    epicFilter === "all" ? epics : epics.filter((e) => e.id === epicFilter);
+  const sortedEpics = useMemo(() => sortEpics(epics), [epics]);
+  const filteredEpics = useMemo(
+    () => (epicFilter === "all" ? sortedEpics : sortedEpics.filter((e) => e.id === epicFilter)),
+    [sortedEpics, epicFilter]
+  );
+  const uncategorizedStories = useMemo(
+    () => sortStories(stories.filter((s) => !s.epic_id)),
+    [stories]
+  );
 
   return (
     <div>
@@ -417,159 +440,116 @@ export function ProjectWorkspace({
             ) : (
               <>
                 {filteredEpics.map((epic) => {
-                  const epicStories = stories.filter((s) => s.epic_id === epic.id);
+                  const epicStories = sortStories(stories.filter((s) => s.epic_id === epic.id));
                   const approvedCount = epicStories.filter((s) => s.status === "approved").length;
                   const changesCount = epicStories.filter((s) => s.status === "changes_requested").length;
-                  const epicProgress = epicStories.length
-                    ? Math.round((approvedCount / epicStories.length) * 100)
-                    : 0;
 
                   return (
-                    <div
+                    <EpicFolder
                       key={epic.id}
-                      className="rounded-[18px] border border-[rgba(74,61,100,0.08)] bg-white/85 shadow-[0_8px_30px_rgba(70,55,95,0.055)] backdrop-blur-[16px] overflow-hidden"
-                    >
-                      {/* Epic Header */}
-                      <div className="p-4 sm:p-5 border-b border-[rgba(74,61,100,0.06)] bg-[#FAF9FC]/90 rounded-t-[18px]">
-                        <div className="flex items-start justify-between gap-3">
-                          <div className="min-w-0 flex-1">
-                            <div className="flex items-center gap-2">
-                              <span className="text-[10px] font-semibold uppercase tracking-wider text-[#9994A5]">
-                                Epic
-                              </span>
+                      id={epic.id}
+                      name={epic.name}
+                      description={epic.description}
+                      storyCount={epicStories.length}
+                      isExpanded={!collapsedEpicIds.has(epic.id)}
+                      onToggle={() => toggleEpic(epic.id)}
+                      headerExtra={
+                        <div className="flex items-center gap-1.5 text-[11px] font-medium">
+                          <span className="text-[rgba(74,61,100,0.2)]">•</span>
+                          <span className="text-[#2E8B70]">{approvedCount} approved</span>
+                          {changesCount > 0 && (
+                            <>
                               <span className="text-[rgba(74,61,100,0.2)]">•</span>
-                              <span className="text-[11px] font-medium text-[#706C7D]">
-                                {epicStories.length} {epicStories.length === 1 ? "story" : "stories"}
-                              </span>
-                              <span className="text-[rgba(74,61,100,0.2)]">•</span>
-                              <span className="text-[11px] font-medium text-[#2E8B70]">
-                                {approvedCount} approved
-                              </span>
-                              {changesCount > 0 && (
-                                <>
-                                  <span className="text-[rgba(74,61,100,0.2)]">•</span>
-                                  <span className="text-[11px] font-medium text-[#C25D72]">
-                                    {changesCount} changes
-                                  </span>
-                                </>
-                              )}
-                            </div>
-
-                            <h3 className="mt-1 text-base font-semibold text-[#252331] tracking-tight truncate">
-                              {epic.name}
-                            </h3>
-
-                            {epic.description && (
-                              <p className="mt-1 text-xs text-[#706C7D] line-clamp-2 leading-relaxed">
-                                {epic.description}
-                              </p>
-                            )}
-
-                            {epicStories.length > 0 && (
-                              <div className="mt-3 h-1 w-full bg-[rgba(74,61,100,0.06)] rounded-full overflow-hidden">
-                                <div
-                                  className="h-full bg-[#B8944E] rounded-full transition-all duration-300"
-                                  style={{ width: `${epicProgress}%` }}
-                                />
-                              </div>
-                            )}
-                          </div>
-
-                          <div className="flex items-center gap-1 shrink-0">
-                            <Button
-                              variant="secondary"
-                              size="sm"
-                              leftIcon={<Sparkles size={13} className="text-[#B8944E]" />}
-                              onClick={() => setGeneratingEpicId(epic.id)}
-                            >
-                              Generate
-                            </Button>
-
-                            <DropdownMenu
-                              ariaLabel={`Actions for ${epic.name}`}
-                              items={[
-                                {
-                                  label: "Edit Epic",
-                                  icon: <Edit2 size={14} />,
-                                  onClick: () => openEditEpic(epic),
-                                },
-                                {
-                                  label: "Delete Epic",
-                                  icon: <Trash2 size={14} />,
-                                  variant: "danger",
-                                  onClick: () => deleteEpic(epic.id),
-                                },
-                              ]}
-                            />
-                          </div>
+                              <span className="text-[#C25D72]">{changesCount} changes</span>
+                            </>
+                          )}
                         </div>
-                      </div>
+                      }
+                      actions={
+                        <>
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            leftIcon={<Sparkles size={13} className="text-[#B8944E]" />}
+                            onClick={() => setGeneratingEpicId(epic.id)}
+                          >
+                            Generate
+                          </Button>
 
-                      {/* Stories inside Epic */}
-                      <div className="p-3 sm:p-4 space-y-2.5 bg-transparent rounded-b-[18px]">
-                        {epicStories.length === 0 ? (
-                          <div className="py-6 text-center">
-                            <p className="text-xs text-[#706C7D]">No stories in this Epic yet.</p>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="mt-2 text-[#80642F]"
-                              leftIcon={<Sparkles size={13} />}
-                              onClick={() => setGeneratingEpicId(epic.id)}
-                            >
-                              Generate stories with AI
-                            </Button>
-                          </div>
-                        ) : (
-                          epicStories.map((story) => (
-                            <StoryCard
-                              key={story.id}
-                              story={story}
-                              isSelected={editing?.id === story.id}
-                              openFeedbackCount={feedbackCounts[story.id] || 0}
-                              onClick={() => {
-                                setEditing(story);
-                                if (typeof window !== "undefined" && window.innerWidth < 1024) {
-                                  setTimeout(() => {
-                                    document
-                                      .getElementById("story-editor-section")
-                                      ?.scrollIntoView({ behavior: "smooth" });
-                                  }, 100);
-                                }
-                              }}
-                            />
-                          ))
-                        )}
-                      </div>
-                    </div>
+                          <DropdownMenu
+                            ariaLabel={`Actions for ${epic.name}`}
+                            items={[
+                              {
+                                label: "Edit Epic",
+                                icon: <Edit2 size={14} />,
+                                onClick: () => openEditEpic(epic),
+                              },
+                              {
+                                label: "Delete Epic",
+                                icon: <Trash2 size={14} />,
+                                variant: "danger",
+                                onClick: () => deleteEpic(epic.id),
+                              },
+                            ]}
+                          />
+                        </>
+                      }
+                      emptyMessage="No stories in this Epic yet."
+                      emptyAction={
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="text-[#80642F]"
+                          leftIcon={<Sparkles size={13} />}
+                          onClick={() => setGeneratingEpicId(epic.id)}
+                        >
+                          Generate stories with AI
+                        </Button>
+                      }
+                    >
+                      {epicStories.map((story) => (
+                        <StoryCard
+                          key={story.id}
+                          story={story}
+                          isSelected={editing?.id === story.id}
+                          openFeedbackCount={feedbackCounts[story.id] || 0}
+                          onClick={() => {
+                            setEditing(story);
+                            if (typeof window !== "undefined" && window.innerWidth < 1024) {
+                              setTimeout(() => {
+                                document
+                                  .getElementById("story-editor-section")
+                                  ?.scrollIntoView({ behavior: "smooth" });
+                              }, 100);
+                            }
+                          }}
+                        />
+                      ))}
+                    </EpicFolder>
                   );
                 })}
 
                 {/* Uncategorized Stories */}
-                {epicFilter === "all" && stories.some((s) => s.epic_id === null) && (
-                  <div className="rounded-[18px] border border-[rgba(74,61,100,0.08)] bg-white/85 shadow-[0_8px_30px_rgba(70,55,95,0.055)] backdrop-blur-[16px] overflow-hidden">
-                    <div className="p-4 border-b border-[rgba(74,61,100,0.06)] bg-[#FAF9FC]/90">
-                      <h3 className="text-sm font-semibold text-[#252331] tracking-tight">
-                        Uncategorized Stories
-                      </h3>
-                      <p className="text-xs text-[#706C7D] mt-0.5">
-                        Requirements not assigned to an Epic
-                      </p>
-                    </div>
-                    <div className="p-3 sm:p-4 space-y-2.5 bg-transparent">
-                      {stories
-                        .filter((s) => s.epic_id === null)
-                        .map((story) => (
-                          <StoryCard
-                            key={story.id}
-                            story={story}
-                            isSelected={editing?.id === story.id}
-                            openFeedbackCount={feedbackCounts[story.id] || 0}
-                            onClick={() => setEditing(story)}
-                          />
-                        ))}
-                    </div>
-                  </div>
+                {epicFilter === "all" && uncategorizedStories.length > 0 && (
+                  <EpicFolder
+                    id="uncategorized"
+                    name="Uncategorized"
+                    description="Requirements not assigned to an Epic"
+                    storyCount={uncategorizedStories.length}
+                    isExpanded={!collapsedEpicIds.has("uncategorized")}
+                    onToggle={() => toggleEpic("uncategorized")}
+                    isUncategorized={true}
+                  >
+                    {uncategorizedStories.map((story) => (
+                      <StoryCard
+                        key={story.id}
+                        story={story}
+                        isSelected={editing?.id === story.id}
+                        openFeedbackCount={feedbackCounts[story.id] || 0}
+                        onClick={() => setEditing(story)}
+                      />
+                    ))}
+                  </EpicFolder>
                 )}
               </>
             )}
@@ -706,7 +686,7 @@ export function ProjectWorkspace({
             <label className="block text-xs font-semibold uppercase tracking-wider text-[#9994A5] mb-1.5">
               Description
             </label>
-            <textarea
+            <VoiceTextarea
               rows={3}
               value={epicForm.description}
               onChange={(e) =>
