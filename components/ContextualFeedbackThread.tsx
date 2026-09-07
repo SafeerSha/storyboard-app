@@ -28,6 +28,7 @@ interface ContextualFeedbackThreadProps {
   actionLabel?: string;
   viewerType: FeedbackAuthorType;
   threads: FeedbackThread[];
+  isReadOnly?: boolean;
   onThreadCreated?: (thread: FeedbackThread) => void;
   onMessageAdded?: (threadId: string, message: FeedbackMessage) => void;
   onStatusUpdated?: (threadId: string, status: FeedbackThreadStatus) => void;
@@ -42,6 +43,7 @@ export function ContextualFeedbackThread({
   actionLabel = "Request change",
   viewerType,
   threads,
+  isReadOnly = false,
   onThreadCreated,
   onMessageAdded,
   onStatusUpdated,
@@ -88,6 +90,9 @@ export function ContextualFeedbackThread({
       setIsOpenInput(false);
       if (onThreadCreated && data.thread) {
         onThreadCreated(data.thread);
+      }
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new CustomEvent("storyboard:review-updated"));
       }
       toast.success("Comment added");
     } catch {
@@ -149,6 +154,9 @@ export function ContextualFeedbackThread({
       if (onStatusUpdated) {
         onStatusUpdated(threadId, nextStatus);
       }
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new CustomEvent("storyboard:review-updated"));
+      }
       toast.success(nextStatus === "resolved" ? "Comment thread resolved" : "Comment thread reopened");
     } catch {
       toast.error("Unable to update status");
@@ -193,28 +201,30 @@ export function ContextualFeedbackThread({
                     )}
                   </div>
 
-                  <button
-                    type="button"
-                    disabled={loading}
-                    onClick={() => handleToggleStatus(thread.id, thread.status)}
-                    className={`inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium transition ${
-                      isOpen
-                        ? "text-emerald-700 hover:bg-emerald-100/70"
-                        : "text-zinc-600 hover:bg-zinc-200/60"
-                    }`}
-                  >
-                    {isOpen ? (
-                      <>
-                        <CheckCircle2 size={12} className="stroke-[2.5]" />
-                        <span>Resolve</span>
-                      </>
-                    ) : (
-                      <>
-                        <RotateCcw size={12} />
-                        <span>Reopen</span>
-                      </>
-                    )}
-                  </button>
+                  {!isReadOnly && (
+                    <button
+                      type="button"
+                      disabled={loading}
+                      onClick={() => handleToggleStatus(thread.id, thread.status)}
+                      className={`inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium transition ${
+                        isOpen
+                          ? "text-emerald-700 hover:bg-emerald-100/70"
+                          : "text-zinc-600 hover:bg-zinc-200/60"
+                      }`}
+                    >
+                      {isOpen ? (
+                        <>
+                          <CheckCircle2 size={12} className="stroke-[2.5]" />
+                          <span>Resolve</span>
+                        </>
+                      ) : (
+                        <>
+                          <RotateCcw size={12} />
+                          <span>Reopen</span>
+                        </>
+                      )}
+                    </button>
+                  )}
                 </div>
 
                 {/* Messages in thread */}
@@ -234,7 +244,7 @@ export function ContextualFeedbackThread({
                             ? "bg-emerald-50/50 border-emerald-100"
                             : isClient
                             ? "bg-white border-zinc-200/80 shadow-2xs"
-                            : "bg-indigo-50/50 border-indigo-100"
+                            : "bg-[rgba(184,148,78,0.06)] border-[rgba(184,148,78,0.15)]"
                         }`}
                       >
                         <div className="flex items-center justify-between text-xs mb-1">
@@ -251,7 +261,7 @@ export function ContextualFeedbackThread({
                                   ? "bg-emerald-100 text-emerald-800"
                                   : isClient
                                   ? "bg-amber-100 text-amber-800"
-                                  : "bg-indigo-100 text-indigo-800"
+                                  : "bg-[rgba(184,148,78,0.12)] text-[#80642F]"
                               }`}
                             >
                               {isTeamUser
@@ -278,36 +288,42 @@ export function ContextualFeedbackThread({
 
                 {/* Reply Composer */}
                 <div className="mt-2.5 pt-2 border-t border-zinc-200/60">
-                  <div className="flex gap-2">
-                    <input
-                      type="text"
-                      value={replyTextMap[thread.id] || ""}
-                      onChange={(e) =>
-                        setReplyTextMap((prev) => ({
-                          ...prev,
-                          [thread.id]: e.target.value,
-                        }))
-                      }
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" && !e.shiftKey) {
-                          e.preventDefault();
-                          handleSendReply(thread.id);
+                  {isReadOnly ? (
+                    <div className="text-[11px] text-zinc-400 italic px-1">
+                      Read-only: only assigned reviewers can reply.
+                    </div>
+                  ) : (
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={replyTextMap[thread.id] || ""}
+                        onChange={(e) =>
+                          setReplyTextMap((prev) => ({
+                            ...prev,
+                            [thread.id]: e.target.value,
+                          }))
                         }
-                      }}
-                      placeholder="Write a reply..."
-                      className="h-8 flex-1 rounded-lg border border-zinc-200 bg-white px-2.5 text-xs text-zinc-900 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
-                      disabled={loading}
-                    />
-                    <button
-                      type="button"
-                      disabled={loading || !replyTextMap[thread.id]?.trim()}
-                      onClick={() => handleSendReply(thread.id)}
-                      className="inline-flex h-8 items-center justify-center gap-1 rounded-lg bg-slate-900 px-3 text-xs font-medium text-white disabled:opacity-40 hover:bg-slate-800 transition"
-                    >
-                      <Send size={11} />
-                      <span>Reply</span>
-                    </button>
-                  </div>
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" && !e.shiftKey) {
+                            e.preventDefault();
+                            handleSendReply(thread.id);
+                          }
+                        }}
+                        placeholder="Write a reply..."
+                        className="h-8 flex-1 rounded-lg border border-zinc-200 bg-white px-2.5 text-xs text-zinc-900 outline-none focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)]"
+                        disabled={loading}
+                      />
+                      <button
+                        type="button"
+                        disabled={loading || !replyTextMap[thread.id]?.trim()}
+                        onClick={() => handleSendReply(thread.id)}
+                        className="inline-flex h-8 items-center justify-center gap-1 rounded-lg bg-slate-900 px-3 text-xs font-medium text-white disabled:opacity-40 hover:bg-slate-800 transition"
+                      >
+                        <Send size={11} />
+                        <span>Reply</span>
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             );
@@ -316,12 +332,12 @@ export function ContextualFeedbackThread({
       )}
 
       {/* Action / Trigger Row */}
-      {!isOpenInput ? (
+      {!isReadOnly && !isOpenInput && (
         <div className="flex items-center gap-2">
           <button
             type="button"
             onClick={() => setIsOpenInput(true)}
-            className="inline-flex items-center gap-1 text-xs font-medium text-indigo-600 hover:text-indigo-800 transition p-1 rounded hover:bg-indigo-50/60"
+            className="inline-flex items-center gap-1 text-xs font-medium text-[#80642F] hover:text-[#B8944E] transition p-1 rounded hover:bg-[rgba(184,148,78,0.06)]"
           >
             <MessageSquare size={13} />
             <span>{actionLabel}</span>
@@ -333,11 +349,12 @@ export function ContextualFeedbackThread({
             </span>
           )}
         </div>
-      ) : (
-        /* New Thread Composer */
-        <div className="rounded-xl border border-indigo-200 bg-white p-3 shadow-xs space-y-2.5">
+      )}
+
+      {!isReadOnly && isOpenInput && (
+        <div className="rounded-xl border border-[rgba(184,148,78,0.2)] bg-white p-3 shadow-xs space-y-2.5">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-indigo-900">
+            <span className="text-xs font-semibold text-[#80642F]">
               {pointNumber !== undefined
                 ? `${
                     sectionType === "acceptance_criteria"
@@ -370,7 +387,7 @@ export function ContextualFeedbackThread({
                 ? "Describe what should be adjusted or clarified..."
                 : "Add a discussion note or feedback item..."
             }
-            className="w-full rounded-lg border border-zinc-200 p-2.5 text-xs sm:text-sm text-zinc-900 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 resize-none"
+            className="w-full rounded-lg border border-zinc-200 p-2.5 text-xs sm:text-sm text-zinc-900 outline-none focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)] resize-none"
           />
 
           <div className="flex items-center justify-end gap-2">
@@ -395,6 +412,12 @@ export function ContextualFeedbackThread({
             </button>
           </div>
         </div>
+      )}
+
+      {isReadOnly && openThreads.length > 0 && !hasThreads && (
+        <span className="text-xs text-amber-700 font-medium">
+          💬 {openThreads.length} open discussion
+        </span>
       )}
     </div>
   );

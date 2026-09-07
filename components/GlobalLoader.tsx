@@ -157,7 +157,7 @@ export function GlobalLoader() {
         style={{ opacity: visible ? 1 : 0 }}
       >
         <div
-          className="h-full bg-gradient-to-r from-indigo-500 via-indigo-600 to-purple-600 shadow-[0_0_10px_rgba(99,102,241,0.6)] transition-all duration-200 ease-out"
+          className="h-full bg-[#B8944E] shadow-[0_0_8px_rgba(184,148,78,0.35)] transition-all duration-200 ease-out"
           style={{ width: `${progress}%` }}
         />
       </div>
@@ -168,14 +168,14 @@ export function GlobalLoader() {
           visible ? "translate-y-0 opacity-100" : "-translate-y-4 opacity-0"
         }`}
       >
-        <div className="flex items-center gap-2.5 rounded-full border border-indigo-100/80 bg-white/95 px-4 py-1.5 shadow-soft backdrop-blur-md">
-          <Loader2 className="h-3.5 w-3.5 animate-spin text-indigo-600" />
+        <div className="flex items-center gap-2.5 rounded-full border border-[rgba(184,148,78,0.2)] bg-white/95 px-4 py-1.5 shadow-soft backdrop-blur-md">
+          <Loader2 className="h-3.5 w-3.5 animate-spin text-[#B8944E]" />
           <span className="text-xs font-medium text-neutral-700">
             {isNavigating ? "Navigating..." : "Updating..."}
           </span>
           <span className="relative flex h-2 w-2">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-indigo-400 opacity-75" />
-            <span className="relative inline-flex h-2 w-2 rounded-full bg-indigo-600" />
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#D6BD88] opacity-75" />
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-[#B8944E]" />
           </span>
         </div>
       </div>

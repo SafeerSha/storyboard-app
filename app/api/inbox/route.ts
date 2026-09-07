@@ -22,7 +22,7 @@ export async function GET(req: Request) {
   try {
     let query = db
       .from("project_inbox_items")
-      .select("*, converted_project:projects(id, name)")
+      .select("id, owner_id, title, description, type, status, priority, converted_project_id, converted_at, created_at, updated_at, converted_project:projects(id, name)")
       .eq("owner_id", admin.id);
 
     // Status filter: by default "active" shows non-archived items
@@ -40,11 +40,15 @@ export async function GET(req: Request) {
       query = query.eq("priority", priorityParam);
     }
 
+    // Database-level text search across title and description
+    if (searchParam) {
+      query = query.or(`title.ilike.%${searchParam}%,description.ilike.%${searchParam}%`);
+    }
+
     // Sort order
     if (sortParam === "created_at") {
       query = query.order("created_at", { ascending: false });
     } else if (sortParam === "priority") {
-      // Manual or custom ordering, standard desc
       query = query.order("priority", { ascending: false }).order("updated_at", { ascending: false });
     } else if (sortParam === "status") {
       query = query.order("status", { ascending: true }).order("updated_at", { ascending: false });
@@ -52,25 +56,16 @@ export async function GET(req: Request) {
       query = query.order("updated_at", { ascending: false });
     }
 
+    // Bound maximum items to protect free-tier memory and egress
+    query = query.limit(100);
+
     const { data: items, error } = await query;
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    let filteredItems = items || [];
-
-    // Client-side / in-memory text search across title, description, notes
-    if (searchParam) {
-      filteredItems = filteredItems.filter((item) => {
-        const titleMatch = item.title?.toLowerCase().includes(searchParam);
-        const descMatch = item.description?.toLowerCase().includes(searchParam);
-        const notesMatch = item.notes?.toLowerCase().includes(searchParam);
-        return titleMatch || descMatch || notesMatch;
-      });
-    }
-
-    return NextResponse.json({ items: filteredItems });
+    return NextResponse.json({ items: items || [] });
   } catch (err: any) {
     return NextResponse.json({ error: err.message || "Failed to fetch inbox items." }, { status: 500 });
   }

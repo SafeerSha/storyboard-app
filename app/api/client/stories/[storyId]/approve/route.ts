@@ -44,11 +44,12 @@ export async function POST(req: Request, { params }: { params: Promise<{ storyId
     client_approved_by_name: client.name,
     client_approved_at: now,
     updated_at: now,
-    approved_at: now,
-    approved_by_client_id: client.id
   }).eq("id", story.id);
 
-  if (error) return NextResponse.json({ error: "Action failed." }, { status: 400 });
+  if (error) {
+    console.error("Failed to approve story:", error);
+    return NextResponse.json({ error: error.message || "Action failed." }, { status: 400 });
+  }
 
   await logAudit({
     action: "story_approved",

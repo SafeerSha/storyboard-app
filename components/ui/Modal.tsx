@@ -57,22 +57,22 @@ export function Modal({
     >
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs transition-opacity animate-in fade-in duration-150"
+        className="fixed inset-0 bg-[rgba(40,32,55,0.20)] backdrop-blur-xs transition-opacity animate-in fade-in duration-150"
         onClick={onClose}
       />
 
       {/* Dialog Surface */}
       <div
-        className={`relative flex w-full ${widthClasses} flex-col rounded-2xl border border-zinc-200/90 bg-white shadow-modal animate-in zoom-in-95 duration-150 max-h-[90vh] overflow-hidden`}
+        className={`relative flex w-full ${widthClasses} flex-col rounded-2xl border border-white/90 bg-white/94 backdrop-blur-[24px] shadow-[0_25px_70px_rgba(70,55,95,0.16)] animate-in zoom-in-95 duration-150 max-h-[90vh] overflow-hidden`}
       >
         {/* Header */}
-        <div className="flex items-start justify-between border-b border-zinc-100 px-5 sm:px-6 py-4">
+        <div className="flex items-start justify-between border-b border-[rgba(74,61,100,0.08)] px-5 sm:px-6 py-4">
           <div className="min-w-0 pr-4">
-            <h2 id="modal-title" className="text-base sm:text-lg font-semibold tracking-tight text-zinc-900">
+            <h2 id="modal-title" className="text-base sm:text-lg font-semibold tracking-tight text-[#252331]">
               {title}
             </h2>
             {description && (
-              <p className="mt-0.5 text-xs sm:text-sm text-zinc-500 line-clamp-2">
+              <p className="mt-0.5 text-xs sm:text-sm text-[#706C7D] line-clamp-2">
                 {description}
               </p>
             )}
@@ -81,7 +81,7 @@ export function Modal({
             type="button"
             onClick={onClose}
             aria-label="Close dialog"
-            className="grid h-8 w-8 shrink-0 place-items-center rounded-lg text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700 transition"
+            className="grid h-8 w-8 shrink-0 place-items-center rounded-lg text-[#9994A5] hover:bg-[#E9E3F4]/30 hover:text-[#252331] transition"
           >
             <X size={16} />
           </button>
@@ -94,7 +94,7 @@ export function Modal({
 
         {/* Footer */}
         {footer && (
-          <div className="flex flex-col-reverse sm:flex-row items-center justify-end gap-2.5 border-t border-zinc-100 bg-zinc-50/50 px-5 sm:px-6 py-3.5">
+          <div className="flex flex-col-reverse sm:flex-row items-center justify-end gap-2.5 border-t border-[rgba(74,61,100,0.08)] bg-[#FAF9FC]/60 px-5 sm:px-6 py-3.5">
             {footer}
           </div>
         )}

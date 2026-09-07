@@ -44,7 +44,7 @@ export default function UsersPage() {
   const [createName, setCreateName] = useState("");
   const [createUsername, setCreateUsername] = useState("");
   const [createPassword, setCreatePassword] = useState("");
-  const [createProjectId, setCreateProjectId] = useState("");
+  const [createProjectIds, setCreateProjectIds] = useState<string[]>([]);
   const [createStatus, setCreateStatus] = useState<"active" | "disabled">("active");
   const [creating, setCreating] = useState(false);
   const [createError, setCreateError] = useState("");
@@ -53,7 +53,7 @@ export default function UsersPage() {
   const [createdSuccess, setCreatedSuccess] = useState<{
     name: string;
     username: string;
-    projectName: string;
+    projectNames: string[];
     passwordEntered: string;
   } | null>(null);
   const [copiedCreds, setCopiedCreds] = useState(false);
@@ -61,7 +61,7 @@ export default function UsersPage() {
   // Edit user modal state
   const [editingUser, setEditingUser] = useState<TeamUser | null>(null);
   const [editName, setEditName] = useState("");
-  const [editProjectId, setEditProjectId] = useState("");
+  const [editProjectIds, setEditProjectIds] = useState<string[]>([]);
   const [editStatus, setEditStatus] = useState<"active" | "disabled">("active");
   const [savingEdit, setSavingEdit] = useState(false);
   const [editError, setEditError] = useState("");
@@ -107,8 +107,8 @@ export default function UsersPage() {
           name: p.name,
         }));
         setProjects(projs);
-        if (projs.length > 0 && !createProjectId) {
-          setCreateProjectId(projs[0].id);
+        if (projs.length > 0) {
+          setCreateProjectIds((prev) => (prev.length === 0 ? [projs[0].id] : prev));
         }
       }
     } catch (e: any) {
@@ -129,7 +129,8 @@ export default function UsersPage() {
 
   async function handleCreateUser(e: React.FormEvent) {
     e.preventDefault();
-    if (!createName.trim() || !createUsername.trim() || !createPassword.trim() || !createProjectId) {
+    if (!createName.trim() || !createUsername.trim() || !createPassword.trim() || createProjectIds.length === 0) {
+      if (createProjectIds.length === 0) setCreateError("Please select at least one project.");
       return;
     }
 
@@ -144,15 +145,17 @@ export default function UsersPage() {
           name: createName.trim(),
           username: createUsername.trim().toLowerCase(),
           password: createPassword,
-          projectId: createProjectId,
+          projectIds: createProjectIds,
+          status: createStatus,
         }),
       });
 
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to create team user.");
 
-      const selectedProj = projects.find((p) => p.id === createProjectId);
-      const projName = selectedProj?.name || "Assigned Project";
+      const selectedProjNames = projects
+        .filter((p) => createProjectIds.includes(p.id))
+        .map((p) => p.name);
 
       setUsers((prev) => [data.user, ...prev]);
       setShowCreate(false);
@@ -160,13 +163,15 @@ export default function UsersPage() {
       setCreatedSuccess({
         name: createName,
         username: createUsername,
-        projectName: projName,
+        projectNames: selectedProjNames.length > 0 ? selectedProjNames : ["Assigned Projects"],
         passwordEntered: createPassword,
       });
 
       setCreateName("");
       setCreateUsername("");
       setCreatePassword("");
+      if (projects.length > 0) setCreateProjectIds([projects[0].id]);
+      setCreateStatus("active");
     } catch (err: any) {
       const msg = err.message || "Failed to create team user.";
       setCreateError(msg);
@@ -179,6 +184,10 @@ export default function UsersPage() {
   async function handleSaveEdit(e: React.FormEvent) {
     e.preventDefault();
     if (!editingUser) return;
+    if (editProjectIds.length === 0) {
+      setEditError("Please select at least one project.");
+      return;
+    }
     setSavingEdit(true);
     setEditError("");
     try {
@@ -187,7 +196,7 @@ export default function UsersPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: editName,
-          projectId: editProjectId,
+          projectIds: editProjectIds,
           status: editStatus,
         }),
       });
@@ -289,8 +298,11 @@ export default function UsersPage() {
       const q = search.toLowerCase();
       const matchesSearch =
         u.name.toLowerCase().includes(q) || u.username.toLowerCase().includes(q);
+      const userProjIds = (u.project_ids && u.project_ids.length > 0)
+        ? u.project_ids
+        : (u.assigned_projects ? u.assigned_projects.map((p) => p.id) : (u.project_id ? [u.project_id] : []));
       const matchesProject =
-        projectFilter === "all" || u.project_id === projectFilter;
+        projectFilter === "all" || userProjIds.includes(projectFilter);
       return matchesSearch && matchesProject;
     });
   }, [users, search, projectFilter]);
@@ -326,6 +338,7 @@ export default function UsersPage() {
               setCreateUsername("");
               setCreatePassword(generateRandomPassword());
               setCreateError("");
+              if (projects.length > 0) setCreateProjectIds([projects[0].id]);
               setShowCreate(true);
             }}
           >
@@ -340,14 +353,14 @@ export default function UsersPage() {
           <div className="relative flex-1 max-w-sm">
             <Search
               size={15}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400"
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-[#9994A5]"
             />
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search by name or username..."
-              className="h-9 w-full rounded-xl border border-zinc-200/90 bg-white pl-9 pr-3.5 text-xs sm:text-sm text-zinc-900 outline-none transition focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+              className="h-9 w-full rounded-xl border border-[#EBE7F2] bg-white/90 pl-9 pr-3.5 text-xs sm:text-sm text-[#252331] placeholder:text-[#9994A5] outline-none transition focus:bg-white focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)] shadow-xs"
             />
           </div>
 
@@ -355,7 +368,7 @@ export default function UsersPage() {
             <select
               value={projectFilter}
               onChange={(e) => setProjectFilter(e.target.value)}
-              className="h-9 rounded-xl border border-zinc-200/90 bg-white px-3 text-xs sm:text-sm font-medium text-zinc-700 outline-none transition focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 cursor-pointer"
+              className="h-9 rounded-xl border border-[#EBE7F2] bg-white/90 px-3 text-xs sm:text-sm font-medium text-[#353140] outline-none transition focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)] cursor-pointer shadow-xs"
             >
               <option value="all">All Projects</option>
               {projects.map((p) => (
@@ -368,14 +381,14 @@ export default function UsersPage() {
         </div>
 
         {error && (
-          <div className="rounded-xl border border-rose-200 bg-rose-50 p-4 text-xs sm:text-sm text-rose-700">
+          <div className="rounded-xl border border-rose-200 bg-rose-50/80 p-4 text-xs sm:text-sm text-[#C25D72]">
             {error}
           </div>
         )}
 
         {/* Users List */}
         {loading ? (
-          <div className="rounded-2xl border border-zinc-200/80 bg-white shadow-card p-4 space-y-3">
+          <div className="rounded-2xl border border-[#EBE7F2] bg-[#FAF9FC]/88 shadow-card p-4 space-y-3">
             <TableRowSkeleton cols={4} />
             <TableRowSkeleton cols={4} />
             <TableRowSkeleton cols={4} />
@@ -397,9 +410,9 @@ export default function UsersPage() {
               }
             />
           ) : (
-            <div className="rounded-2xl border border-dashed border-zinc-200 bg-white/50 p-8 text-center">
-              <p className="text-sm font-medium text-zinc-800">No team members match your search</p>
-              <p className="mt-1 text-xs text-zinc-400">Try changing your search term or filter.</p>
+            <div className="rounded-2xl border border-dashed border-[#EBE7F2] bg-[#FAF9FC]/60 p-8 text-center">
+              <p className="text-sm font-medium text-[#252331]">No team members match your search</p>
+              <p className="mt-1 text-xs text-[#9994A5]">Try changing your search term or filter.</p>
               <Button
                 variant="outline"
                 size="sm"
@@ -414,27 +427,31 @@ export default function UsersPage() {
             </div>
           )
         ) : (
-          <div className="rounded-2xl border border-zinc-200/80 bg-white shadow-card divide-y divide-zinc-100">
+          <div className="rounded-2xl border border-[#EBE7F2] bg-[#FAF9FC]/88 shadow-card backdrop-blur-xl divide-y divide-[#EBE7F2]">
             {filteredUsers.map((u) => {
               const initials = u.name ? u.name.slice(0, 2).toUpperCase() : "TU";
-              const proj = projects.find((p) => p.id === u.project_id);
+              const userProjects = (u.assigned_projects && u.assigned_projects.length > 0)
+                ? u.assigned_projects
+                : (u.project_ids && u.project_ids.length > 0)
+                ? projects.filter((p) => u.project_ids?.includes(p.id))
+                : (u.project_id ? projects.filter((p) => p.id === u.project_id) : []);
 
               return (
                 <div
                   key={u.id}
-                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 sm:p-5 hover:bg-zinc-50/50 transition first:rounded-t-2xl last:rounded-b-2xl"
+                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 sm:p-5 hover:bg-white/60 transition first:rounded-t-2xl last:rounded-b-2xl"
                 >
                   <div className="flex items-center gap-3.5 min-w-0 flex-1">
-                    <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-slate-900 text-xs font-semibold text-white">
+                    <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-[rgba(184,148,78,0.10)] border border-[rgba(184,148,78,0.15)] text-xs font-semibold text-[#80642F]">
                       {initials}
                     </div>
 
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-2">
-                        <span className="text-sm font-semibold text-slate-900 truncate">
+                        <span className="text-sm font-semibold text-[#252331] truncate">
                           {u.name}
                         </span>
-                        <span className="font-mono text-xs text-zinc-400">
+                        <span className="font-mono text-xs text-[#9994A5]">
                           @{u.username}
                         </span>
                         <Badge
@@ -446,14 +463,23 @@ export default function UsersPage() {
                         </Badge>
                       </div>
 
-                      <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-zinc-500">
-                        <span className="flex items-center gap-1 font-medium text-zinc-700">
-                          <FolderKanban size={12} className="text-zinc-400" />
-                          {proj?.name || "Assigned Project"}
-                        </span>
+                      <div className="mt-1.5 flex flex-wrap items-center gap-1.5 text-xs text-[#706C7D]">
+                        <FolderKanban size={12} className="text-[#9994A5] shrink-0" />
+                        {userProjects.length > 0 ? (
+                          userProjects.map((p) => (
+                            <span
+                              key={p.id}
+                              className="inline-flex items-center rounded-md bg-[rgba(184,148,78,0.08)] px-2 py-0.5 text-[11px] font-medium text-[#80642F] border border-[rgba(184,148,78,0.18)]"
+                            >
+                              {p.name}
+                            </span>
+                          ))
+                        ) : (
+                          <span className="italic text-zinc-400">No projects assigned</span>
+                        )}
                         {u.created_at && (
                           <>
-                            <span className="text-zinc-300">•</span>
+                            <span className="text-[#EBE7F2]">•</span>
                             <span>Added {new Date(u.created_at).toLocaleDateString()}</span>
                           </>
                         )}
@@ -462,7 +488,7 @@ export default function UsersPage() {
                   </div>
 
                   {/* Actions Menu */}
-                  <div className="flex items-center justify-end gap-1 shrink-0 border-t border-zinc-100 sm:border-t-0 pt-2 sm:pt-0">
+                  <div className="flex items-center justify-end gap-1 shrink-0 border-t border-[#EBE7F2] sm:border-t-0 pt-2 sm:pt-0">
                     <DropdownMenu
                       ariaLabel={`Actions for ${u.name}`}
                       items={[
@@ -472,7 +498,10 @@ export default function UsersPage() {
                           onClick: () => {
                             setEditingUser(u);
                             setEditName(u.name);
-                            setEditProjectId(u.project_id);
+                            const userProjIds = (u.project_ids && u.project_ids.length > 0)
+                              ? u.project_ids
+                              : (u.assigned_projects ? u.assigned_projects.map((p) => p.id) : (u.project_id ? [u.project_id] : []));
+                            setEditProjectIds(userProjIds);
                             setEditStatus(u.status || "active");
                             setEditError("");
                           },
@@ -528,7 +557,7 @@ export default function UsersPage() {
               type="submit"
               form="create-user-form"
               isLoading={creating}
-              disabled={!createName.trim() || !createUsername.trim() || !createProjectId}
+              disabled={!createName.trim() || !createUsername.trim() || createProjectIds.length === 0}
             >
               Create member
             </Button>
@@ -537,7 +566,7 @@ export default function UsersPage() {
       >
         <form id="create-user-form" onSubmit={handleCreateUser} className="space-y-4">
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-1.5">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-[#706C7D] mb-1.5">
               Full Name <span className="text-rose-500">*</span>
             </label>
             <input
@@ -547,12 +576,12 @@ export default function UsersPage() {
               value={createName}
               onChange={(e) => setCreateName(e.target.value)}
               placeholder="e.g. Alex Rivera"
-              className="h-10 w-full rounded-xl border border-zinc-200 px-3.5 text-sm text-zinc-900 outline-none transition focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+              className="h-10 w-full rounded-xl border border-[#EBE7F2] bg-white px-3.5 text-sm text-[#252331] outline-none transition focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)]"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-1.5">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-[#706C7D] mb-1.5">
               Username <span className="text-rose-500">*</span>
             </label>
             <input
@@ -565,37 +594,72 @@ export default function UsersPage() {
                 setCreateUsername(e.target.value.toLowerCase().replace(/\s+/g, ""))
               }
               placeholder="e.g. alex.rivera"
-              className="h-10 w-full rounded-xl border border-zinc-200 px-3.5 text-sm font-mono text-zinc-900 outline-none transition focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+              className="h-10 w-full rounded-xl border border-[#EBE7F2] bg-white px-3.5 text-sm font-mono text-[#252331] outline-none transition focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)]"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-1.5">
-              Assigned Project <span className="text-rose-500">*</span>
-            </label>
-            <select
-              required
-              value={createProjectId}
-              onChange={(e) => setCreateProjectId(e.target.value)}
-              className="h-10 w-full rounded-xl border border-zinc-200 bg-white px-3 text-sm text-zinc-900 outline-none transition focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 cursor-pointer"
-            >
-              {projects.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.name}
-                </option>
-              ))}
-            </select>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="block text-xs font-semibold uppercase tracking-wider text-[#706C7D]">
+                Assigned Projects <span className="text-rose-500">*</span>
+              </label>
+              <span className="text-xs text-[#80642F] font-medium">
+                {createProjectIds.length} {createProjectIds.length === 1 ? "project" : "projects"} selected
+              </span>
+            </div>
+            <div className="rounded-xl border border-[#EBE7F2] bg-[#FAF9FC] p-2 max-h-44 overflow-y-auto space-y-1.5">
+              {projects.length === 0 ? (
+                <p className="text-xs text-[#9994A5] p-2">No projects found.</p>
+              ) : (
+                projects.map((p) => {
+                  const isSelected = createProjectIds.includes(p.id);
+                  return (
+                    <button
+                      key={p.id}
+                      type="button"
+                      onClick={() => {
+                        setCreateProjectIds((prev) =>
+                          isSelected ? prev.filter((id) => id !== p.id) : [...prev, p.id]
+                        );
+                      }}
+                      className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition cursor-pointer ${
+                        isSelected
+                          ? "bg-[rgba(184,148,78,0.12)] border border-[#B8944E] text-[#80642F]"
+                          : "bg-white border border-[#EBE7F2] text-[#252331] hover:bg-white/80"
+                      }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        <FolderKanban size={13} className={isSelected ? "text-[#80642F]" : "text-[#9994A5]"} />
+                        <span>{p.name}</span>
+                      </div>
+                      <div
+                        className={`h-4 w-4 rounded flex items-center justify-center border transition ${
+                          isSelected
+                            ? "bg-[#80642F] border-[#80642F] text-white"
+                            : "border-zinc-300 bg-white"
+                        }`}
+                      >
+                        {isSelected && <Check size={11} strokeWidth={3} />}
+                      </div>
+                    </button>
+                  );
+                })
+              )}
+            </div>
+            {createProjectIds.length === 0 && (
+              <p className="text-[11px] text-rose-500 mt-1">Please select at least one project.</p>
+            )}
           </div>
 
           <div>
             <div className="flex items-center justify-between mb-1.5">
-              <label className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
+              <label className="text-xs font-semibold uppercase tracking-wider text-[#706C7D]">
                 Initial Password
               </label>
               <button
                 type="button"
                 onClick={() => setCreatePassword(generateRandomPassword())}
-                className="text-xs text-indigo-600 hover:underline"
+                className="text-xs text-[#80642F] hover:underline"
               >
                 Regenerate
               </button>
@@ -605,18 +669,18 @@ export default function UsersPage() {
               required
               value={createPassword}
               onChange={(e) => setCreatePassword(e.target.value)}
-              className="h-10 w-full rounded-xl border border-zinc-200 px-3.5 text-sm font-mono text-zinc-900 outline-none transition focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+              className="h-10 w-full rounded-xl border border-[#EBE7F2] bg-white px-3.5 text-sm font-mono text-[#252331] outline-none transition focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)]"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-1.5">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-[#706C7D] mb-1.5">
               Account Status
             </label>
             <select
               value={createStatus}
               onChange={(e) => setCreateStatus(e.target.value as "active" | "disabled")}
-              className="h-10 w-full rounded-xl border border-zinc-200 bg-white px-3 text-sm text-zinc-900 outline-none transition focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 cursor-pointer"
+              className="h-10 w-full rounded-xl border border-[#EBE7F2] bg-white px-3 text-sm text-[#252331] outline-none transition focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)] cursor-pointer"
             >
               <option value="active">Active (Permitted to log in)</option>
               <option value="disabled">Disabled (Blocked from logging in)</option>
@@ -648,22 +712,22 @@ export default function UsersPage() {
       >
         {createdSuccess && (
           <div className="space-y-4">
-            <div className="rounded-xl border border-emerald-200 bg-emerald-50/50 p-4 space-y-2">
-              <div className="flex items-center justify-between text-xs text-emerald-800 font-medium">
+            <div className="rounded-xl border border-[#C5E8DB] bg-[#E3F4ED]/60 p-4 space-y-2">
+              <div className="flex items-center justify-between text-xs text-[#2E8B70] font-medium">
                 <span>Full Name:</span>
-                <span className="font-semibold text-slate-900">{createdSuccess.name}</span>
+                <span className="font-semibold text-[#252331]">{createdSuccess.name}</span>
               </div>
-              <div className="flex items-center justify-between text-xs text-emerald-800 font-medium">
+              <div className="flex items-center justify-between text-xs text-[#2E8B70] font-medium">
                 <span>Username:</span>
-                <span className="font-mono font-bold text-slate-900">@{createdSuccess.username}</span>
+                <span className="font-mono font-bold text-[#252331]">@{createdSuccess.username}</span>
               </div>
-              <div className="flex items-center justify-between text-xs text-emerald-800 font-medium">
-                <span>Assigned Project:</span>
-                <span className="font-semibold text-slate-900">{createdSuccess.projectName}</span>
+              <div className="flex items-center justify-between text-xs text-[#2E8B70] font-medium">
+                <span>Assigned Projects:</span>
+                <span className="font-semibold text-[#252331]">{createdSuccess.projectNames.join(", ")}</span>
               </div>
-              <div className="flex items-center justify-between text-xs text-emerald-800 font-medium">
+              <div className="flex items-center justify-between text-xs text-[#2E8B70] font-medium">
                 <span>Password:</span>
-                <span className="font-mono font-bold text-slate-900">{createdSuccess.passwordEntered}</span>
+                <span className="font-mono font-bold text-[#252331]">{createdSuccess.passwordEntered}</span>
               </div>
             </div>
 
@@ -672,7 +736,7 @@ export default function UsersPage() {
               className="w-full"
               leftIcon={copiedCreds ? <Check size={14} className="text-emerald-600" /> : <Copy size={14} />}
               onClick={() => {
-                const text = `StoryBoard Team Portal Login:\nURL: ${window.location.origin}/team/login\nProject: ${createdSuccess.projectName}\nUsername: ${createdSuccess.username}\nPassword: ${createdSuccess.passwordEntered}`;
+                const text = `StoryBoard Team Portal Login:\nURL: ${window.location.origin}/team/login\nProjects: ${createdSuccess.projectNames.join(", ")}\nUsername: ${createdSuccess.username}\nPassword: ${createdSuccess.passwordEntered}`;
                 navigator.clipboard.writeText(text);
                 setCopiedCreds(true);
                 setTimeout(() => setCopiedCreds(false), 2000);
@@ -690,7 +754,7 @@ export default function UsersPage() {
         isOpen={Boolean(editingUser)}
         onClose={() => setEditingUser(null)}
         title="Edit team member"
-        description="Update member details or change project assignment."
+        description="Update member details or change project assignments."
         footer={
           <>
             <Button
@@ -705,7 +769,7 @@ export default function UsersPage() {
               type="submit"
               form="edit-user-form"
               isLoading={savingEdit}
-              disabled={!editName.trim()}
+              disabled={!editName.trim() || editProjectIds.length === 0}
             >
               Save changes
             </Button>
@@ -714,7 +778,7 @@ export default function UsersPage() {
       >
         <form id="edit-user-form" onSubmit={handleSaveEdit} className="space-y-4">
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-1.5">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-[#706C7D] mb-1.5">
               Full Name <span className="text-rose-500">*</span>
             </label>
             <input
@@ -722,35 +786,71 @@ export default function UsersPage() {
               required
               value={editName}
               onChange={(e) => setEditName(e.target.value)}
-              className="h-10 w-full rounded-xl border border-zinc-200 px-3.5 text-sm text-zinc-900 outline-none transition focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+              className="h-10 w-full rounded-xl border border-[#EBE7F2] bg-white px-3.5 text-sm text-[#252331] outline-none transition focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)]"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-1.5">
-              Assigned Project
-            </label>
-            <select
-              value={editProjectId}
-              onChange={(e) => setEditProjectId(e.target.value)}
-              className="h-10 w-full rounded-xl border border-zinc-200 bg-white px-3 text-sm text-zinc-900 outline-none transition focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 cursor-pointer"
-            >
-              {projects.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.name}
-                </option>
-              ))}
-            </select>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="block text-xs font-semibold uppercase tracking-wider text-[#706C7D]">
+                Assigned Projects <span className="text-rose-500">*</span>
+              </label>
+              <span className="text-xs text-[#80642F] font-medium">
+                {editProjectIds.length} {editProjectIds.length === 1 ? "project" : "projects"} selected
+              </span>
+            </div>
+            <div className="rounded-xl border border-[#EBE7F2] bg-[#FAF9FC] p-2 max-h-44 overflow-y-auto space-y-1.5">
+              {projects.length === 0 ? (
+                <p className="text-xs text-[#9994A5] p-2">No projects found.</p>
+              ) : (
+                projects.map((p) => {
+                  const isSelected = editProjectIds.includes(p.id);
+                  return (
+                    <button
+                      key={p.id}
+                      type="button"
+                      onClick={() => {
+                        setEditProjectIds((prev) =>
+                          isSelected ? prev.filter((id) => id !== p.id) : [...prev, p.id]
+                        );
+                      }}
+                      className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition cursor-pointer ${
+                        isSelected
+                          ? "bg-[rgba(184,148,78,0.12)] border border-[#B8944E] text-[#80642F]"
+                          : "bg-white border border-[#EBE7F2] text-[#252331] hover:bg-white/80"
+                      }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        <FolderKanban size={13} className={isSelected ? "text-[#80642F]" : "text-[#9994A5]"} />
+                        <span>{p.name}</span>
+                      </div>
+                      <div
+                        className={`h-4 w-4 rounded flex items-center justify-center border transition ${
+                          isSelected
+                            ? "bg-[#80642F] border-[#80642F] text-white"
+                            : "border-zinc-300 bg-white"
+                        }`}
+                      >
+                        {isSelected && <Check size={11} strokeWidth={3} />}
+                      </div>
+                    </button>
+                  );
+                })
+              )}
+            </div>
+            {editProjectIds.length === 0 && (
+              <p className="text-[11px] text-rose-500 mt-1">Please select at least one project.</p>
+            )}
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-1.5">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-[#706C7D] mb-1.5">
               Status
             </label>
             <select
               value={editStatus}
               onChange={(e) => setEditStatus(e.target.value as any)}
-              className="h-10 w-full rounded-xl border border-zinc-200 bg-white px-3 text-sm text-zinc-900 outline-none transition focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 cursor-pointer"
+              className="h-10 w-full rounded-xl border border-[#EBE7F2] bg-white px-3 text-sm text-[#252331] outline-none transition focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)] cursor-pointer"
             >
               <option value="active">Active</option>
               <option value="disabled">Disabled</option>
@@ -802,9 +902,9 @@ export default function UsersPage() {
       >
         {resetSuccessMessage ? (
           <div className="space-y-3">
-            <div className="rounded-xl border border-emerald-200 bg-emerald-50/50 p-4 text-center">
-              <p className="text-xs text-emerald-800 font-medium">New Password for {resettingUser?.name}:</p>
-              <p className="font-mono text-lg font-bold text-slate-900 mt-1">{resetSuccessMessage}</p>
+            <div className="rounded-xl border border-[#C5E8DB] bg-[#E3F4ED]/60 p-4 text-center">
+              <p className="text-xs text-[#2E8B70] font-medium">New Password for {resettingUser?.name}:</p>
+              <p className="font-mono text-lg font-bold text-[#252331] mt-1">{resetSuccessMessage}</p>
             </div>
             <Button
               variant="secondary"
@@ -822,13 +922,13 @@ export default function UsersPage() {
           <form id="reset-pwd-user-form" onSubmit={handleResetPassword} className="space-y-4">
             <div>
               <div className="flex items-center justify-between mb-1.5">
-                <label className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
+                <label className="text-xs font-semibold uppercase tracking-wider text-[#706C7D]">
                   New Password
                 </label>
                 <button
                   type="button"
                   onClick={() => setNewPassword(generateRandomPassword())}
-                  className="text-xs text-indigo-600 hover:underline"
+                  className="text-xs text-[#80642F] hover:underline"
                 >
                   Generate random
                 </button>
@@ -839,7 +939,7 @@ export default function UsersPage() {
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 placeholder="Leave blank to auto-generate"
-                className="h-10 w-full rounded-xl border border-zinc-200 px-3.5 text-sm font-mono text-zinc-900 outline-none transition focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+                className="h-10 w-full rounded-xl border border-[#EBE7F2] bg-white px-3.5 text-sm font-mono text-[#252331] outline-none transition focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)]"
               />
             </div>
             {resetError && (

@@ -351,14 +351,14 @@ export default function ClientsPage() {
           <div className="relative flex-1 max-w-sm">
             <Search
               size={15}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400"
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-[#9994A5]"
             />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search clients by name or PIN..."
-              className="h-9 w-full rounded-xl border border-zinc-200/90 bg-white pl-9 pr-3.5 text-xs sm:text-sm text-zinc-900 outline-none transition focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+              className="h-9 w-full rounded-xl border border-[#EBE7F2] bg-white/90 pl-9 pr-3.5 text-xs sm:text-sm text-[#252331] placeholder:text-[#9994A5] outline-none transition focus:bg-white focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)] shadow-xs"
             />
           </div>
 
@@ -366,7 +366,7 @@ export default function ClientsPage() {
             <select
               value={projectFilter}
               onChange={(e) => setProjectFilter(e.target.value)}
-              className="h-9 rounded-xl border border-zinc-200/90 bg-white px-3 text-xs sm:text-sm font-medium text-zinc-700 outline-none transition focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 cursor-pointer"
+              className="h-9 rounded-xl border border-[#EBE7F2] bg-white/90 px-3 text-xs sm:text-sm font-medium text-[#353140] outline-none transition focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)] cursor-pointer shadow-xs"
             >
               <option value="all">All Projects</option>
               {projects.map((p) => (
@@ -379,14 +379,14 @@ export default function ClientsPage() {
         </div>
 
         {error && (
-          <div className="rounded-xl border border-rose-200 bg-rose-50 p-4 text-xs sm:text-sm text-rose-700">
+          <div className="rounded-xl border border-rose-200 bg-rose-50/80 p-4 text-xs sm:text-sm text-[#C25D72]">
             {error}
           </div>
         )}
 
         {/* Clients Table / Cards */}
         {loading ? (
-          <div className="rounded-2xl border border-zinc-200/80 bg-white shadow-card p-4 space-y-3">
+          <div className="rounded-2xl border border-[#EBE7F2] bg-[#FAF9FC]/88 shadow-card p-4 space-y-3">
             <TableRowSkeleton cols={4} />
             <TableRowSkeleton cols={4} />
             <TableRowSkeleton cols={4} />
@@ -408,9 +408,9 @@ export default function ClientsPage() {
               }
             />
           ) : (
-            <div className="rounded-2xl border border-dashed border-zinc-200 bg-white/50 p-8 text-center">
-              <p className="text-sm font-medium text-zinc-800">No clients match your filter</p>
-              <p className="mt-1 text-xs text-zinc-400">Try searching with a different term.</p>
+            <div className="rounded-2xl border border-dashed border-[#EBE7F2] bg-[#FAF9FC]/60 p-8 text-center">
+              <p className="text-sm font-medium text-[#252331]">No clients match your filter</p>
+              <p className="mt-1 text-xs text-[#9994A5]">Try searching with a different term.</p>
               <Button
                 variant="outline"
                 size="sm"
@@ -425,7 +425,7 @@ export default function ClientsPage() {
             </div>
           )
         ) : (
-          <div className="rounded-2xl border border-zinc-200/80 bg-white shadow-card divide-y divide-zinc-100">
+          <div className="rounded-2xl border border-[#EBE7F2] bg-[#FAF9FC]/88 shadow-card backdrop-blur-xl divide-y divide-[#EBE7F2]">
             {filteredClients.map((client) => {
               const initials = client.name ? client.name.slice(0, 2).toUpperCase() : "CL";
               const projectName = client.projects?.name || "Assigned Project";
@@ -434,16 +434,16 @@ export default function ClientsPage() {
               return (
                 <div
                   key={client.id}
-                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 sm:p-5 hover:bg-zinc-50/50 transition first:rounded-t-2xl last:rounded-b-2xl"
+                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 sm:p-5 hover:bg-white/60 transition first:rounded-t-2xl last:rounded-b-2xl"
                 >
                   <div className="flex items-center gap-3.5 min-w-0 flex-1">
-                    <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-slate-900 text-xs font-semibold text-white">
+                    <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-[rgba(184,148,78,0.10)] border border-[rgba(184,148,78,0.15)] text-xs font-semibold text-[#80642F]">
                       {initials}
                     </div>
 
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-2">
-                        <span className="text-sm font-semibold text-slate-900 truncate">
+                        <span className="text-sm font-semibold text-[#252331] truncate">
                           {client.name}
                         </span>
                         {client.status === "disabled" ? (
@@ -451,37 +451,37 @@ export default function ClientsPage() {
                             Disabled
                           </Badge>
                         ) : client.is_password_changed === false ? (
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-50 text-amber-700 border border-amber-200/80">
-                            <span className="h-1.5 w-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#F8E4D7]/60 text-[#A87936] border border-[#F8E4D7]">
+                            <span className="h-1.5 w-1.5 rounded-full bg-[#A87936] animate-pulse"></span>
                             Password setup pending
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200/80">
-                            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#E3F4ED] text-[#2E8B70] border border-[#C5E8DB]">
+                            <span className="h-1.5 w-1.5 rounded-full bg-[#2E8B70]"></span>
                             Active
                           </span>
                         )}
                       </div>
 
-                      <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-zinc-500">
-                        <span className="flex items-center gap-1 font-medium text-zinc-700">
-                          <FolderKanban size={12} className="text-zinc-400" />
+                      <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-[#706C7D]">
+                        <span className="flex items-center gap-1 font-medium text-[#4D4959]">
+                          <FolderKanban size={12} className="text-[#9994A5]" />
                           {projectName}
                         </span>
-                        <span className="text-zinc-300">•</span>
+                        <span className="text-[#EBE7F2]">•</span>
                         <span className="flex items-center gap-1">
-                          <span className="text-zinc-400">PIN:</span>
+                          <span className="text-[#9994A5]">PIN:</span>
                           <button
                             type="button"
                             onClick={() => handleCopyLoginId(client.login_id)}
-                            className="font-mono text-xs font-semibold text-indigo-700 hover:underline inline-flex items-center gap-1"
+                            className="font-mono text-xs font-semibold text-[#80642F] hover:underline inline-flex items-center gap-1"
                             title="Click to copy login PIN"
                           >
                             {client.login_id}
                             {isCopied ? (
-                              <Check size={11} className="text-emerald-600" />
+                              <Check size={11} className="text-[#2E8B70]" />
                             ) : (
-                              <Copy size={11} className="text-zinc-400" />
+                              <Copy size={11} className="text-[#9994A5]" />
                             )}
                           </button>
                         </span>
@@ -490,7 +490,7 @@ export default function ClientsPage() {
                   </div>
 
                   {/* Actions Menu */}
-                  <div className="flex items-center justify-end gap-2 shrink-0 border-t border-zinc-100 sm:border-t-0 pt-2 sm:pt-0">
+                  <div className="flex items-center justify-end gap-2 shrink-0 border-t border-[#EBE7F2] sm:border-t-0 pt-2 sm:pt-0">
                     <Button
                       variant="ghost"
                       size="sm"
@@ -568,7 +568,7 @@ export default function ClientsPage() {
       >
         <form id="create-client-form" onSubmit={handleCreate} className="space-y-4">
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-1.5">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-[#706C7D] mb-1.5">
               Client Name <span className="text-rose-500">*</span>
             </label>
             <input
@@ -578,19 +578,19 @@ export default function ClientsPage() {
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g. Sarah Jenkins"
-              className="h-10 w-full rounded-xl border border-zinc-200 px-3.5 text-sm text-zinc-900 outline-none transition focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+              className="h-10 w-full rounded-xl border border-[#EBE7F2] bg-white px-3.5 text-sm text-[#252331] outline-none transition focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)]"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-1.5">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-[#706C7D] mb-1.5">
               Assigned Project <span className="text-rose-500">*</span>
             </label>
             <select
               required
               value={projectId}
               onChange={(e) => setProjectId(e.target.value)}
-              className="h-10 w-full rounded-xl border border-zinc-200 bg-white px-3 text-sm text-zinc-900 outline-none transition focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 cursor-pointer"
+              className="h-10 w-full rounded-xl border border-[#EBE7F2] bg-white px-3 text-sm text-[#252331] outline-none transition focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)] cursor-pointer"
             >
               {projects.map((p) => (
                 <option key={p.id} value={p.id}>
@@ -603,13 +603,13 @@ export default function ClientsPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <div className="flex items-center justify-between mb-1.5">
-                <label className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
+                <label className="text-xs font-semibold uppercase tracking-wider text-[#706C7D]">
                   6-Digit Login PIN
                 </label>
                 <button
                   type="button"
                   onClick={() => setLoginId(generateRandomPin())}
-                  className="text-xs text-indigo-600 hover:underline"
+                  className="text-xs text-[#80642F] hover:underline"
                 >
                   Regenerate
                 </button>
@@ -621,19 +621,19 @@ export default function ClientsPage() {
                 value={loginId}
                 onChange={(e) => setLoginId(e.target.value.replace(/\D/g, ""))}
                 placeholder="6-digit PIN"
-                className="h-10 w-full rounded-xl border border-zinc-200 px-3.5 text-sm font-mono text-zinc-900 outline-none transition focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+                className="h-10 w-full rounded-xl border border-[#EBE7F2] bg-white px-3.5 text-sm font-mono text-[#252331] outline-none transition focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)]"
               />
             </div>
 
             <div>
               <div className="flex items-center justify-between mb-1.5">
-                <label className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
+                <label className="text-xs font-semibold uppercase tracking-wider text-[#706C7D]">
                   Initial Password
                 </label>
                 <button
                   type="button"
                   onClick={() => setPassword(generateRandomPassword())}
-                  className="text-xs text-indigo-600 hover:underline"
+                  className="text-xs text-[#80642F] hover:underline"
                 >
                   Regenerate
                 </button>
@@ -644,7 +644,7 @@ export default function ClientsPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Password"
-                className="h-10 w-full rounded-xl border border-zinc-200 px-3.5 text-sm font-mono text-zinc-900 outline-none transition focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+                className="h-10 w-full rounded-xl border border-[#EBE7F2] bg-white px-3.5 text-sm font-mono text-[#252331] outline-none transition focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)]"
               />
             </div>
           </div>
@@ -656,8 +656,6 @@ export default function ClientsPage() {
           )}
         </form>
       </Modal>
-
-
 
       {/* Edit Client Modal */}
       <Modal
@@ -688,7 +686,7 @@ export default function ClientsPage() {
       >
         <form id="edit-client-form" onSubmit={handleUpdate} className="space-y-4">
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-1.5">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-[#706C7D] mb-1.5">
               Client Name <span className="text-rose-500">*</span>
             </label>
             <input
@@ -696,18 +694,18 @@ export default function ClientsPage() {
               required
               value={editName}
               onChange={(e) => setEditName(e.target.value)}
-              className="h-10 w-full rounded-xl border border-zinc-200 px-3.5 text-sm text-zinc-900 outline-none transition focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+              className="h-10 w-full rounded-xl border border-[#EBE7F2] bg-white px-3.5 text-sm text-[#252331] outline-none transition focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)]"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-1.5">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-[#706C7D] mb-1.5">
               Assigned Project
             </label>
             <select
               value={editProjectId}
               onChange={(e) => setEditProjectId(e.target.value)}
-              className="h-10 w-full rounded-xl border border-zinc-200 bg-white px-3 text-sm text-zinc-900 outline-none transition focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 cursor-pointer"
+              className="h-10 w-full rounded-xl border border-[#EBE7F2] bg-white px-3 text-sm text-[#252331] outline-none transition focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)] cursor-pointer"
             >
               {projects.map((p) => (
                 <option key={p.id} value={p.id}>
@@ -718,7 +716,7 @@ export default function ClientsPage() {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-1.5">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-[#706C7D] mb-1.5">
               Login PIN
             </label>
             <input
@@ -727,18 +725,18 @@ export default function ClientsPage() {
               maxLength={6}
               value={editLoginId}
               onChange={(e) => setEditLoginId(e.target.value.replace(/\D/g, ""))}
-              className="h-10 w-full rounded-xl border border-zinc-200 px-3.5 text-sm font-mono text-zinc-900 outline-none transition focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+              className="h-10 w-full rounded-xl border border-[#EBE7F2] bg-white px-3.5 text-sm font-mono text-[#252331] outline-none transition focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)]"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-1.5">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-[#706C7D] mb-1.5">
               Status
             </label>
             <select
               value={editStatus}
               onChange={(e) => setEditStatus(e.target.value)}
-              className="h-10 w-full rounded-xl border border-zinc-200 bg-white px-3 text-sm text-zinc-900 outline-none transition focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 cursor-pointer"
+              className="h-10 w-full rounded-xl border border-[#EBE7F2] bg-white px-3 text-sm text-[#252331] outline-none transition focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)] cursor-pointer"
             >
               <option value="active">Active</option>
               <option value="disabled">Disabled</option>

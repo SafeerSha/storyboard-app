@@ -4,6 +4,7 @@ import React, { useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
+  ClipboardCheck,
   FolderKanban,
   Layers,
   LayoutDashboard,
@@ -27,6 +28,27 @@ export function TeamSidebar({
   setMobileOpen,
 }: TeamSidebarProps) {
   const pathname = usePathname();
+  const [pendingReviewsCount, setPendingReviewsCount] = React.useState<number>(0);
+
+  const fetchCount = React.useCallback(() => {
+    fetch("/api/team/reviews/count")
+      .then((r) => (r.ok ? r.json() : { count: 0 }))
+      .then((d) => {
+        if (typeof d.count === "number") {
+          setPendingReviewsCount(d.count);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    fetchCount();
+    const handleUpdate = () => fetchCount();
+    window.addEventListener("storyboard:review-updated", handleUpdate);
+    return () => {
+      window.removeEventListener("storyboard:review-updated", handleUpdate);
+    };
+  }, [fetchCount]);
 
   useEffect(() => {
     if (!mobileOpen) return;
@@ -56,17 +78,17 @@ export function TeamSidebar({
   const initials = userName ? userName.slice(0, 2).toUpperCase() : "TU";
 
   const renderNavContent = (isMobile = false) => (
-    <div className="flex h-full flex-col bg-[#F8F9FC]">
+    <div className="flex h-full flex-col bg-transparent">
       {/* Brand Header */}
-      <div className="flex h-[72px] sm:h-[80px] items-center justify-between border-b border-[#E2E6EF] px-5 bg-[#F8F9FC]">
+      <div className="flex h-[76px] items-center justify-between border-b border-[rgba(74,61,100,0.08)] px-5 bg-transparent">
         <div className="flex items-center gap-2.5">
-          <div className="grid h-8 w-8 place-items-center rounded-lg bg-slate-900 text-white shadow-xs">
+          <div className="grid h-8 w-8 place-items-center rounded-lg bg-[#B8944E] text-white shadow-xs">
             <span className="text-xs font-semibold tracking-tighter">◆</span>
           </div>
-          <span className="text-sm font-semibold tracking-tight text-slate-900">
+          <span className="text-sm font-semibold tracking-tight text-[#252331]">
             StoryBoard
           </span>
-          <span className="rounded-md bg-emerald-50 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-700 border border-emerald-200/70">
+          <span className="rounded-md bg-[rgba(184,148,78,0.10)] px-1.5 py-0.5 text-[10px] font-medium text-[#80642F] border border-[rgba(184,148,78,0.14)]">
             Team
           </span>
         </div>
@@ -74,7 +96,7 @@ export function TeamSidebar({
           <button
             type="button"
             onClick={closeMobile}
-            className="grid h-8 w-8 place-items-center rounded-lg text-zinc-400 hover:bg-zinc-100 hover:text-zinc-800 transition"
+            className="grid h-8 w-8 place-items-center rounded-lg text-[#9994A5] hover:bg-[rgba(184,148,78,0.08)] hover:text-[#252331] transition"
             aria-label="Close sidebar"
           >
             <X size={18} />
@@ -84,16 +106,16 @@ export function TeamSidebar({
 
       {/* Assigned Project Scope Indicator */}
       <div className="px-3 pt-4 pb-2">
-        <div className="rounded-xl border border-zinc-200/80 bg-zinc-50/70 p-3">
+        <div className="rounded-xl border border-[rgba(74,61,100,0.08)] bg-white/80 p-3 shadow-glass backdrop-blur-md">
           <div className="flex items-center gap-2.5">
-            <div className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-emerald-100 text-[11px] font-bold text-emerald-800">
+            <div className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-[rgba(46,139,112,0.12)] text-[11px] font-bold text-[#2E8B70]">
               {projectName.slice(0, 1).toUpperCase()}
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400">
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-[#9994A5]">
                 Assigned Project
               </p>
-              <p className="truncate text-xs sm:text-sm font-semibold text-slate-900">
+              <p className="truncate text-xs sm:text-sm font-semibold text-[#252331]">
                 {projectName}
               </p>
             </div>
@@ -105,7 +127,7 @@ export function TeamSidebar({
       <div className="flex-1 overflow-y-auto px-2.5 py-3 space-y-4">
         {/* TEAM group */}
         <div>
-          <p className="px-2.5 pb-1.5 text-[11px] font-semibold uppercase tracking-wider text-zinc-400">
+          <p className="px-2.5 pb-1.5 text-[11px] font-semibold uppercase tracking-wider text-[#9994A5]">
             TEAM
           </p>
           <nav className="space-y-0.5">
@@ -114,39 +136,61 @@ export function TeamSidebar({
               onClick={closeMobile}
               className={`flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-xs sm:text-sm transition-colors ${
                 pathname === "/team"
-                  ? "bg-zinc-100 font-medium text-slate-900"
-                  : "text-zinc-600 hover:bg-zinc-50 hover:text-slate-900"
+                  ? "bg-[rgba(184,148,78,0.09)] text-[#80642F] font-medium border border-[rgba(184,148,78,0.12)]"
+                  : "text-[#706C7D] font-medium hover:bg-[rgba(184,148,78,0.04)] hover:text-[#80642F] border border-transparent"
               }`}
             >
               <LayoutDashboard
                 size={16}
-                className={pathname === "/team" ? "text-slate-900" : "text-zinc-400"}
+                className={pathname === "/team" ? "text-[#B8944E]" : "text-[#9994A5]"}
               />
               <span>Overview</span>
             </Link>
             <a
-              href="#project-details"
+              href="/team#project-details"
               onClick={closeMobile}
-              className="flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-xs sm:text-sm text-zinc-600 hover:bg-zinc-50 hover:text-slate-900 transition-colors"
+              className="flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-xs sm:text-sm text-[#706C7D] font-medium hover:bg-[rgba(184,148,78,0.04)] hover:text-[#80642F] border border-transparent transition-colors"
             >
-              <FolderKanban size={16} className="text-zinc-400" />
+              <FolderKanban size={16} className="text-[#9994A5]" />
               <span>Project</span>
             </a>
+            <Link
+              href="/team/reviews"
+              onClick={closeMobile}
+              className={`flex items-center justify-between rounded-lg px-2.5 py-1.5 text-xs sm:text-sm transition-colors ${
+                pathname === "/team/reviews"
+                  ? "bg-[rgba(184,148,78,0.09)] text-[#80642F] font-medium border border-[rgba(184,148,78,0.12)]"
+                  : "text-[#706C7D] font-medium hover:bg-[rgba(184,148,78,0.04)] hover:text-[#80642F] border border-transparent"
+              }`}
+            >
+              <div className="flex items-center gap-2.5 min-w-0">
+                <ClipboardCheck
+                  size={16}
+                  className={pathname === "/team/reviews" ? "text-[#B8944E]" : "text-[#9994A5]"}
+                />
+                <span className="truncate">My Reviews</span>
+              </div>
+              {pendingReviewsCount > 0 && (
+                <span className="rounded-full bg-[#80642F] px-1.5 py-0.2 text-[10px] font-bold text-white shadow-2xs">
+                  {pendingReviewsCount}
+                </span>
+              )}
+            </Link>
           </nav>
         </div>
 
         {/* DISCUSSION group */}
         <div>
-          <p className="px-2.5 pb-1.5 text-[11px] font-semibold uppercase tracking-wider text-zinc-400">
+          <p className="px-2.5 pb-1.5 text-[11px] font-semibold uppercase tracking-wider text-[#9994A5]">
             DISCUSSION
           </p>
           <nav className="space-y-0.5">
             <a
               href="#feedback-section"
               onClick={closeMobile}
-              className="flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-xs sm:text-sm text-zinc-600 hover:bg-zinc-50 hover:text-slate-900 transition-colors"
+              className="flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-xs sm:text-sm text-[#706C7D] font-medium hover:bg-[rgba(184,148,78,0.04)] hover:text-[#80642F] border border-transparent transition-colors"
             >
-              <MessageSquare size={16} className="text-zinc-400" />
+              <MessageSquare size={16} className="text-[#9994A5]" />
               <span>Feedback</span>
             </a>
           </nav>
@@ -154,15 +198,15 @@ export function TeamSidebar({
       </div>
 
       {/* User Footer */}
-      <div className="mt-auto border-t border-line p-3">
+      <div className="mt-auto border-t border-[rgba(74,61,100,0.08)] p-3">
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2 min-w-0">
-            <div className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-slate-900 text-[11px] font-semibold text-white">
+            <div className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-[#B8944E] text-[11px] font-semibold text-white">
               {initials}
             </div>
             <div className="min-w-0">
-              <p className="truncate text-xs font-semibold text-slate-900">{userName}</p>
-              <p className="text-[10px] text-emerald-700 font-medium">Team Member</p>
+              <p className="truncate text-xs font-semibold text-[#252331]">{userName}</p>
+              <p className="text-[10px] text-[#2E8B70] font-medium bg-[rgba(46,139,112,0.08)] px-1.5 py-0.2 rounded border border-[rgba(46,139,112,0.14)] inline-block">Team Member</p>
             </div>
           </div>
           <button
@@ -170,7 +214,7 @@ export function TeamSidebar({
             onClick={handleSignOut}
             title="Sign out"
             aria-label="Sign out"
-            className="grid h-7 w-7 shrink-0 place-items-center rounded-lg text-zinc-400 hover:bg-rose-50 hover:text-rose-600 transition"
+            className="grid h-7 w-7 shrink-0 place-items-center rounded-lg text-[#9994A5] hover:bg-rose-50/80 hover:text-[#C25D72] transition"
           >
             <LogOut size={14} />
           </button>
@@ -182,7 +226,7 @@ export function TeamSidebar({
   return (
     <>
       {/* Desktop Sidebar */}
-      <aside className="hidden md:flex md:w-56 md:flex-col fixed inset-y-0 left-0 z-30 border-r border-[#E2E6EF] bg-[#F8F9FC]">
+      <aside className="hidden md:flex md:w-56 md:flex-col fixed inset-y-0 left-0 z-30 border-r border-[rgba(74,61,100,0.08)] bg-[rgba(250,249,252,0.80)] backdrop-blur-[20px]">
         {renderNavContent(false)}
       </aside>
 
@@ -190,10 +234,10 @@ export function TeamSidebar({
       {mobileOpen && (
         <div className="fixed inset-0 z-50 md:hidden">
           <div
-            className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs transition-opacity"
+            className="fixed inset-0 bg-[rgba(40,32,55,0.25)] backdrop-blur-xs transition-opacity"
             onClick={closeMobile}
           />
-          <div className="fixed inset-y-0 left-0 w-64 max-w-[80vw] bg-[#F8F9FC] border-r border-[#E2E6EF] shadow-2xl animate-in slide-in-from-left duration-200">
+          <div className="fixed inset-y-0 left-0 w-64 max-w-[80vw] bg-[rgba(250,249,252,0.94)] backdrop-blur-[20px] border-r border-[rgba(74,61,100,0.08)] shadow-modal animate-in slide-in-from-left duration-200">
             {renderNavContent(true)}
           </div>
         </div>

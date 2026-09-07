@@ -19,6 +19,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ storyId
 
     const { error } = await db.from("stories").update({ 
       status: "changes_requested", 
+      client_review_status: "changes_requested",
       updated_at: new Date().toISOString() 
     }).eq("id", story.id);
 

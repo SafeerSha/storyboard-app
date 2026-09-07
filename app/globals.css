@@ -4,6 +4,23 @@
 
 :root {
   color-scheme: light;
+  --background: #F5F2F7;
+  --surface: #FAF9FC;
+  --surface-elevated: #FFFFFF;
+  --lavender: #E9E3F4;
+  --rose: #F1DDE8;
+  --blue: #DFE9F5;
+  --champagne: #F3E8D7;
+  --primary: #B8944E;
+  --primary-hover: #9F7D3E;
+  --primary-light: #D6BD88;
+  --primary-dark: #80642F;
+  --primary-tint: rgba(184, 148, 78, 0.10);
+  --primary-focus: rgba(184, 148, 78, 0.14);
+  --text-primary: #252331;
+  --text-secondary: #706C7D;
+  --text-muted: #9994A5;
+  --border: rgba(74, 61, 100, 0.10);
 }
 
 * {
@@ -20,10 +37,19 @@ html {
 body {
   margin: 0;
   min-width: 320px;
-  background-color: #F4F6FA;
-  color: #0f172a;
+  background-color: #F5F2F7;
+  background-image: 
+    radial-gradient(circle at 15% 10%, rgba(210, 193, 235, 0.30), transparent 35%),
+    radial-gradient(circle at 85% 15%, rgba(239, 207, 222, 0.22), transparent 32%),
+    radial-gradient(circle at 85% 85%, rgba(202, 220, 240, 0.22), transparent 35%),
+    radial-gradient(circle at 15% 85%, rgba(243, 232, 215, 0.25), transparent 35%);
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  color: #252331;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
   letter-spacing: -0.011em;
+  position: relative;
+  min-height: 100vh;
 }
 
 button, input, textarea, select {
@@ -31,13 +57,13 @@ button, input, textarea, select {
 }
 
 ::selection {
-  background: #e0e7ff;
-  color: #3730a3;
+  background: rgba(184, 148, 78, 0.18);
+  color: #80642F;
 }
 
 /* Accessible focus visible rings */
 :focus-visible {
-  outline: 2px solid #4f46e5;
+  outline: 2px solid #B8944E;
   outline-offset: 2px;
 }
 
@@ -50,9 +76,9 @@ button, input, textarea, select {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #e4e4e7;
+  background: rgba(74, 61, 100, 0.15);
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #d4d4d8;
+  background: rgba(74, 61, 100, 0.25);
 }

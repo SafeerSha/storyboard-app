@@ -42,11 +42,11 @@ export function ConfirmDialog({
 
   const iconBadge =
     variant === "danger" ? (
-      <div className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-rose-50 text-rose-600 border border-rose-200/70">
+      <div className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-status-error/15 text-status-error border border-status-error/20">
         <Trash2 size={18} strokeWidth={2} />
       </div>
     ) : variant === "warning" ? (
-      <div className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-amber-50 text-amber-600 border border-amber-200/70">
+      <div className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-status-warning/15 text-status-warning border border-status-warning/20">
         <AlertTriangle size={18} strokeWidth={2} />
       </div>
     ) : null;

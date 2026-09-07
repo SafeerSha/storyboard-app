@@ -5,6 +5,9 @@ import { ProjectWorkspace } from "@/components/ProjectWorkspace";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Button } from "@/components/ui/Button";
 
+import { Story } from "@/lib/types";
+import { getReviewersForStories } from "@/lib/story-reviewer-auth";
+
 export default async function ProjectPage({
   params,
 }: {
@@ -37,18 +40,29 @@ export default async function ProjectPage({
     );
   }
 
-  const { data: stories } = await db
-    .from("stories")
-    .select("*")
-    .eq("project_id", id)
-    .order("created_at", { ascending: true });
+  const [{ data: rawStories }, { data: epics }] = await Promise.all([
+    db
+      .from("stories")
+      .select("id,project_id,epic_id,title,description,acceptance_criteria,assumptions,clarifications,status,team_review_status,team_approved_by_id,team_approved_by_name,team_approved_at,client_review_status,client_approved_by_id,client_approved_by_name,client_approved_at,created_by_id,created_at,updated_at")
+      .eq("project_id", id)
+      .order("created_at", { ascending: true }),
+    db
+      .from("epics")
+      .select("id,project_id,name,description,status,sort_order,created_at,updated_at")
+      .eq("project_id", id)
+      .order("sort_order", { ascending: true })
+      .order("created_at", { ascending: true }),
+  ]);
 
-  const { data: epics } = await db
-    .from("epics")
-    .select("*")
-    .eq("project_id", id)
-    .order("sort_order", { ascending: true })
-    .order("created_at", { ascending: true });
+  const storyList = (rawStories || []) as Story[];
+  const storyIds = storyList.map((s) => s.id);
+  const reviewersMap = await getReviewersForStories(storyIds);
+
+  const initialStories: Story[] = storyList.map((s) => ({
+    ...s,
+    reviewer_ids: (reviewersMap[s.id] || []).map((r) => r.user_id),
+    reviewers: reviewersMap[s.id] || [],
+  }));
 
   return (
     <ProjectWorkspace
@@ -56,7 +70,7 @@ export default async function ProjectPage({
       projectName={project.name}
       projectDescription={project.description || undefined}
       projectStatus={project.status || "active"}
-      initialStories={stories ?? []}
+      initialStories={initialStories}
       initialEpics={epics ?? []}
     />
   );

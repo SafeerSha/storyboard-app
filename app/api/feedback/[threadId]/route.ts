@@ -5,6 +5,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { getAuthenticatedClient } from "@/lib/client-session";
 import { getAuthenticatedTeamUser } from "@/lib/team-session";
 import { updateFeedbackThreadStatus } from "@/lib/feedback-store";
+import { isTeamUserReviewer } from "@/lib/story-reviewer-auth";
 
 const patchSchema = z.object({
   storyId: z.string().uuid(),
@@ -29,10 +30,13 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ thread
 
     let isAuthorized = false;
 
-    // 1. Check Team User
+    // 1. Check Team User: must be assigned reviewer
     const teamUser = await getAuthenticatedTeamUser();
     if (teamUser && teamUser.project_id === story.project_id) {
-      isAuthorized = true;
+      const isReviewer = await isTeamUserReviewer(story.id, teamUser.id);
+      if (isReviewer) {
+        isAuthorized = true;
+      }
     }
 
     // 2. Check Freelancer / Super Admin

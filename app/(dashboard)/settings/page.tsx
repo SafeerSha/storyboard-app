@@ -64,35 +64,35 @@ export default function SettingsPage() {
 
       <main className="mx-auto max-w-4xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8 space-y-6">
         {/* Account Profile Card */}
-        <section className="rounded-2xl border border-zinc-200/80 bg-white p-5 sm:p-6 shadow-card space-y-4">
-          <div className="flex items-center gap-3 border-b border-zinc-100 pb-4">
-            <div className="grid h-9 w-9 place-items-center rounded-xl bg-slate-900 text-white shrink-0 shadow-xs">
+        <section className="rounded-2xl border border-[#EBE7F2] bg-[#FAF9FC]/88 p-5 sm:p-6 shadow-card backdrop-blur-xl space-y-4">
+          <div className="flex items-center gap-3 border-b border-[#EBE7F2] pb-4">
+            <div className="grid h-9 w-9 place-items-center rounded-xl bg-[rgba(184,148,78,0.10)] border border-[rgba(184,148,78,0.15)] text-[#80642F] shrink-0 shadow-xs">
               <User size={17} />
             </div>
             <div>
-              <h3 className="text-base font-semibold text-slate-900 tracking-tight">
+              <h3 className="text-base font-semibold text-[#252331] tracking-tight">
                 {roleTitle}
               </h3>
-              <p className="text-xs text-zinc-400">{roleSubtitle}</p>
+              <p className="text-xs text-[#706C7D]">{roleSubtitle}</p>
             </div>
           </div>
 
           <div className="space-y-4 max-w-md">
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-1">
+              <label className="block text-xs font-semibold uppercase tracking-wider text-[#9994A5] mb-1">
                 Email Address
               </label>
-              <p className="text-sm font-semibold text-slate-900">
+              <p className="text-sm font-semibold text-[#252331]">
                 {loading ? "Loading account..." : email || "freelancer@storyboard"}
               </p>
             </div>
 
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-1">
+              <label className="block text-xs font-semibold uppercase tracking-wider text-[#9994A5] mb-1">
                 Authentication Method
               </label>
-              <div className="flex items-center gap-2 text-xs text-zinc-600">
-                <CheckCircle2 size={14} className="text-emerald-600" />
+              <div className="flex items-center gap-2 text-xs text-[#4D4959]">
+                <CheckCircle2 size={14} className="text-[#2E8B70]" />
                 <span>Supabase Secure Auth Session</span>
               </div>
             </div>
@@ -111,57 +111,57 @@ export default function SettingsPage() {
         </section>
 
         {/* AI Engine Card */}
-        <section className="rounded-2xl border border-zinc-200/80 bg-white p-5 sm:p-6 shadow-card space-y-4">
-          <div className="flex items-center gap-3 border-b border-zinc-100 pb-4">
-            <div className="grid h-9 w-9 place-items-center rounded-xl bg-indigo-50 text-indigo-600 shrink-0">
+        <section className="rounded-2xl border border-[#EBE7F2] bg-[#FAF9FC]/88 p-5 sm:p-6 shadow-card backdrop-blur-xl space-y-4">
+          <div className="flex items-center gap-3 border-b border-[#EBE7F2] pb-4">
+            <div className="grid h-9 w-9 place-items-center rounded-xl bg-[rgba(184,148,78,0.10)] border border-[rgba(184,148,78,0.15)] text-[#80642F] shrink-0">
               <Bot size={18} />
             </div>
             <div>
-              <h3 className="text-base font-semibold text-slate-900 tracking-tight">
+              <h3 className="text-base font-semibold text-[#252331] tracking-tight">
                 AI Requirements Engine
               </h3>
-              <p className="text-xs text-zinc-400">Powered by Google Gemini</p>
+              <p className="text-xs text-[#706C7D]">Powered by Google Gemini</p>
             </div>
           </div>
 
           <div className="grid gap-3 sm:gap-4 sm:grid-cols-2">
-            <div className="rounded-xl border border-zinc-200/80 p-4">
+            <div className="rounded-xl border border-[#EBE7F2] bg-white/70 p-4 shadow-xs">
               <div className="flex items-center justify-between">
-                <span className="text-xs text-zinc-400 font-medium">Model</span>
+                <span className="text-xs text-[#9994A5] font-medium">Model</span>
                 <Badge variant="approved" size="sm" showIcon={false}>
                   Active
                 </Badge>
               </div>
-              <p className="mt-2 text-sm font-semibold text-slate-900">Gemini 2.5 Flash</p>
-              <p className="mt-1 text-xs text-zinc-500">Fast structured JSON output schema</p>
+              <p className="mt-2 text-sm font-semibold text-[#252331]">Gemini 2.5 Flash</p>
+              <p className="mt-1 text-xs text-[#706C7D]">Fast structured JSON output schema</p>
             </div>
 
-            <div className="rounded-xl border border-zinc-200/80 p-4">
+            <div className="rounded-xl border border-[#EBE7F2] bg-white/70 p-4 shadow-xs">
               <div className="flex items-center justify-between">
-                <span className="text-xs text-zinc-400 font-medium">Features</span>
-                <Sparkles size={14} className="text-indigo-600" />
+                <span className="text-xs text-[#9994A5] font-medium">Features</span>
+                <Sparkles size={14} className="text-[#B8944E]" />
               </div>
-              <p className="mt-2 text-sm font-semibold text-slate-900">Story Decomposition</p>
-              <p className="mt-1 text-xs text-zinc-500">Criteria, assumptions & Epic correction</p>
+              <p className="mt-2 text-sm font-semibold text-[#252331]">Story Decomposition</p>
+              <p className="mt-1 text-xs text-[#706C7D]">Criteria, assumptions & Epic correction</p>
             </div>
           </div>
         </section>
 
         {/* Security Architecture Card */}
-        <section className="rounded-2xl border border-zinc-200/80 bg-white p-5 sm:p-6 shadow-card space-y-4">
-          <div className="flex items-center gap-3 border-b border-zinc-100 pb-4">
-            <div className="grid h-9 w-9 place-items-center rounded-xl bg-emerald-50 text-emerald-700 shrink-0">
+        <section className="rounded-2xl border border-[#EBE7F2] bg-[#FAF9FC]/88 p-5 sm:p-6 shadow-card backdrop-blur-xl space-y-4">
+          <div className="flex items-center gap-3 border-b border-[#EBE7F2] pb-4">
+            <div className="grid h-9 w-9 place-items-center rounded-xl bg-[#E3F4ED] border border-[#C5E8DB] text-[#2E8B70] shrink-0">
               <ShieldCheck size={18} />
             </div>
             <div>
-              <h3 className="text-base font-semibold text-slate-900 tracking-tight">
+              <h3 className="text-base font-semibold text-[#252331] tracking-tight">
                 Role & Session Isolation
               </h3>
-              <p className="text-xs text-zinc-400">Client vs Team vs Admin Boundary</p>
+              <p className="text-xs text-[#706C7D]">Client vs Team vs Admin Boundary</p>
             </div>
           </div>
 
-          <p className="text-xs sm:text-sm text-zinc-600 leading-relaxed max-w-2xl">
+          <p className="text-xs sm:text-sm text-[#4D4959] leading-relaxed max-w-2xl">
             Freelancers authenticate via Supabase Auth. Clients authenticate via custom, project-scoped 6-digit credential PINs. Team members authenticate via assigned user sessions. All API routes enforce strict role boundaries and project authorization.
           </p>
         </section>

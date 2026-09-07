@@ -83,11 +83,11 @@ export function ConvertToProjectModal({
   return (
     <Modal isOpen={open} onClose={onClose} title="Convert Idea to Project" maxWidth="md">
       <form onSubmit={handleConvert} className="space-y-4">
-        <div className="rounded-xl border border-indigo-100 bg-indigo-50/50 p-3.5 text-xs text-indigo-950 flex items-start gap-3">
-          <FolderKanban size={18} className="text-indigo-600 shrink-0 mt-0.5" />
+        <div className="rounded-xl border border-[rgba(184,148,78,0.15)] bg-[rgba(184,148,78,0.06)] p-3.5 text-xs text-[#252331] flex items-start gap-3">
+          <FolderKanban size={18} className="text-[#B8944E] shrink-0 mt-0.5" />
           <div>
             <p className="font-semibold">Formalizing Idea</p>
-            <p className="mt-0.5 text-indigo-700/90 leading-relaxed">
+            <p className="mt-0.5 text-[#706C7D] leading-relaxed">
               This will initialize an authoritative StoryBoard Project from your idea. The original inbox item will remain as historical thinking context.
             </p>
           </div>
@@ -108,7 +108,7 @@ export function ConvertToProjectModal({
             required
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="h-10 w-full rounded-xl border border-[#E2E6EF] bg-white px-3.5 text-sm font-medium text-[#111827] outline-none transition focus:border-[#4F46E5] focus:ring-1 focus:ring-[#4F46E5]"
+            className="h-10 w-full rounded-xl border border-[#E2E6EF] bg-white px-3.5 text-sm font-medium text-[#111827] outline-none transition focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)]"
           />
         </div>
 
@@ -120,7 +120,7 @@ export function ConvertToProjectModal({
             rows={3}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            className="w-full rounded-xl border border-[#E2E6EF] bg-white p-3 text-sm text-[#111827] outline-none transition focus:border-[#4F46E5] focus:ring-1 focus:ring-[#4F46E5] resize-none"
+            className="w-full rounded-xl border border-[#E2E6EF] bg-white p-3 text-sm text-[#111827] outline-none transition focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)] resize-none"
           />
         </div>
 

@@ -1,23 +1,71 @@
 import { redirect } from "next/navigation";
 import { getAuthenticatedTeamUser } from "@/lib/team-session";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { getReviewersForStories, isTeamUserProjectMember } from "@/lib/story-reviewer-auth";
 import { TeamWorkspace } from "@/components/TeamWorkspace";
 import type { Story, Epic } from "@/lib/types";
 
-export default async function TeamDashboardPage() {
+export default async function TeamDashboardPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ projectId?: string; storyId?: string }>;
+}) {
   const teamUser = await getAuthenticatedTeamUser();
   if (!teamUser) {
     redirect("/team/login");
   }
 
+  const resolvedParams = searchParams ? await searchParams : {};
+  const requestedProjectId = typeof resolvedParams.projectId === "string" ? resolvedParams.projectId : undefined;
+  const initialTargetStoryId = typeof resolvedParams.storyId === "string" ? resolvedParams.storyId : undefined;
+
   const admin = createAdminClient();
 
-  // Fetch the assigned project ONLY
-  const { data: project } = await admin
-    .from("projects")
-    .select("id, name, description")
-    .eq("id", teamUser.project_id)
-    .maybeSingle();
+  // Resolve active project ID: check requestedProjectId or fallback to user default / memberships
+  let activeProjectId = teamUser.project_id;
+  if (requestedProjectId) {
+    const isMember =
+      requestedProjectId === teamUser.project_id ||
+      (await isTeamUserProjectMember(teamUser.id, requestedProjectId));
+    if (isMember) {
+      activeProjectId = requestedProjectId;
+    }
+  }
+
+  // If user has no activeProjectId, find first membership
+  if (!activeProjectId) {
+    const { data: firstMembership } = await admin
+      .from("project_team_members")
+      .select("project_id")
+      .eq("team_user_id", teamUser.id)
+      .limit(1)
+      .maybeSingle();
+    activeProjectId = firstMembership?.project_id || "";
+  }
+
+  // Fetch project, epics, and stories in parallel
+  const [
+    { data: project },
+    { data: epicsData },
+    { data: storiesData },
+  ] = await Promise.all([
+    admin
+      .from("projects")
+      .select("id, name, description")
+      .eq("id", activeProjectId)
+      .maybeSingle(),
+    admin
+      .from("epics")
+      .select("id, project_id, name, description, status, sort_order, created_at, updated_at")
+      .eq("project_id", activeProjectId)
+      .order("sort_order", { ascending: true })
+      .order("created_at", { ascending: true }),
+    admin
+      .from("stories")
+      .select("id, project_id, epic_id, title, description, acceptance_criteria, assumptions, clarifications, status, team_review_status, team_approved_by_id, team_approved_by_name, team_approved_at, client_review_status, client_approved_by_id, client_approved_by_name, client_approved_at, created_by_id, created_at, updated_at")
+      .eq("project_id", activeProjectId)
+      .order("created_at", { ascending: true }),
+  ]);
 
   if (!project) {
     return (
@@ -33,22 +81,16 @@ export default async function TeamDashboardPage() {
     );
   }
 
-  // Fetch Epics for this project
-  const { data: epicsData } = await admin
-    .from("epics")
-    .select("*")
-    .eq("project_id", teamUser.project_id)
-    .order("sort_order", { ascending: true })
-    .order("created_at", { ascending: true });
+  const storyList = (storiesData || []) as Story[];
+  const storyIds = storyList.map((s) => s.id);
+  const reviewersMap = await getReviewersForStories(storyIds);
 
-  // Fetch Stories for this project
-  const { data: storiesData } = await admin
-    .from("stories")
-    .select("*")
-    .eq("project_id", teamUser.project_id)
-    .order("created_at", { ascending: true });
+  const initialStories: Story[] = storyList.map((s) => ({
+    ...s,
+    reviewer_ids: (reviewersMap[s.id] || []).map((r) => r.user_id),
+    reviewers: reviewersMap[s.id] || [],
+  }));
 
-  const initialStories = (storiesData || []) as Story[];
   const initialEpics = (epicsData || []) as Epic[];
 
   return (
@@ -57,6 +99,7 @@ export default async function TeamDashboardPage() {
       project={project}
       initialStories={initialStories}
       initialEpics={initialEpics}
+      initialTargetStoryId={initialTargetStoryId}
     />
   );
 }

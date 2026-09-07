@@ -139,7 +139,7 @@ export function InboxCard({
       ? [
           {
             label: "Convert to Project",
-            icon: <FolderKanban size={14} className="text-[#4F46E5]" />,
+            icon: <FolderKanban size={14} className="text-[#B8944E]" />,
             onClick: () => onConvert(item),
           },
         ]
@@ -207,8 +207,8 @@ export function InboxCard({
         </div>
 
         {/* Title */}
-        <Link href={`/inbox/${item.id}`} className="block mt-3 group-hover:text-[#4F46E5] transition">
-          <h3 className="text-base font-semibold tracking-tight text-[#111827] group-hover:text-[#4F46E5] transition line-clamp-1">
+        <Link href={`/inbox/${item.id}`} className="block mt-3 group-hover:text-[#80642F] transition">
+          <h3 className="text-base font-semibold tracking-tight text-[#111827] group-hover:text-[#80642F] transition line-clamp-1">
             {item.title}
           </h3>
         </Link>
@@ -243,7 +243,7 @@ export function InboxCard({
 
         <Link
           href={`/inbox/${item.id}`}
-          className="inline-flex items-center gap-1 text-xs font-semibold text-[#4F46E5] hover:text-[#4338CA] transition ml-auto"
+          className="inline-flex items-center gap-1 text-xs font-semibold text-[#80642F] hover:text-[#9F7D3E] transition ml-auto"
         >
           <span>Explore</span>
           <ArrowRight size={13} />

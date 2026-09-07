@@ -327,36 +327,36 @@ export function ProjectWorkspace({
 
       <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8 space-y-6">
         {/* Project Summary & Progress Bar */}
-        <div className="rounded-xl border border-zinc-200/80 bg-white p-5 sm:p-6 shadow-card space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-2 border-b border-zinc-100 pb-3">
+        <div className="rounded-[18px] border border-[rgba(74,61,100,0.08)] bg-white/88 p-5 sm:p-6 shadow-[0_8px_30px_rgba(70,55,95,0.055)] backdrop-blur-[16px]">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[rgba(74,61,100,0.06)] pb-5">
             <div>
-              <h2 className="text-lg font-semibold tracking-tight text-slate-900">
+              <h2 className="text-base font-semibold tracking-tight text-[#252331]">
                 Requirements Hierarchy
               </h2>
-              <p className="text-xs text-zinc-500">
+              <p className="mt-1 text-xs text-[#706C7D]">
                 Epics group focused product areas. Stories contain criteria and discussions.
               </p>
             </div>
-            <div className="flex items-center gap-4 text-xs font-medium">
-              <span className="text-zinc-700">{totalStoriesCount} Stories</span>
-              <span className="text-emerald-700 font-semibold">{approvedStoriesCount} Approved</span>
+            <div className="flex items-center gap-3 sm:gap-4 text-xs font-medium flex-wrap">
+              <span className="text-[#706C7D]">{totalStoriesCount} Stories</span>
+              <span className="text-[#2E8B70] font-semibold">{approvedStoriesCount} Approved</span>
               {changesRequestedCount > 0 && (
-                <span className="text-rose-700 font-semibold">
+                <span className="text-[#C25D72] font-semibold">
                   {changesRequestedCount} Changes Requested
                 </span>
               )}
-              <span className="text-zinc-400">{draftStoriesCount} In Review</span>
+              <span className="text-[#9994A5]">{draftStoriesCount} In Review</span>
             </div>
           </div>
 
-          <div>
-            <div className="flex items-center justify-between text-xs text-zinc-500 mb-1.5 font-medium">
+          <div className="pt-4">
+            <div className="flex items-center justify-between text-xs text-[#706C7D] mb-1.5 font-medium">
               <span>Overall Client Sign-off</span>
-              <span className="text-slate-900 font-semibold">{progressPercent}%</span>
+              <span className="text-[#252331] font-semibold">{progressPercent}%</span>
             </div>
-            <div className="h-2 w-full overflow-hidden rounded-full bg-zinc-100">
+            <div className="h-2 w-full overflow-hidden rounded-full bg-[rgba(74,61,100,0.06)]">
               <div
-                className="h-full rounded-full bg-slate-900 transition-all duration-500"
+                className="h-full rounded-full bg-[#B8944E] transition-all duration-500"
                 style={{ width: `${progressPercent}%` }}
               />
             </div>
@@ -364,7 +364,7 @@ export function ProjectWorkspace({
         </div>
 
         {error && (
-          <div className="rounded-xl border border-rose-200 bg-rose-50 p-4 text-xs sm:text-sm text-rose-700">
+          <div className="rounded-xl border border-rose-200/80 bg-rose-50/80 p-4 text-xs sm:text-sm text-[#C25D72]">
             {error}
           </div>
         )}
@@ -372,13 +372,13 @@ export function ProjectWorkspace({
         {/* Filter & Workspace Layout */}
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
+            <span className="text-xs font-semibold uppercase tracking-wider text-[#9994A5]">
               Filter:
             </span>
             <select
               value={epicFilter}
               onChange={(e) => setEpicFilter(e.target.value)}
-              className="h-8 rounded-lg border border-zinc-200 bg-white px-2.5 text-xs font-medium text-zinc-700 outline-none transition focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 cursor-pointer"
+              className="h-9 rounded-xl border border-[rgba(74,61,100,0.11)] bg-white/85 px-3 text-xs font-medium text-[#252331] outline-none transition focus:border-[#B8944E] cursor-pointer"
             >
               <option value="all">All Epics ({epics.length})</option>
               {epics.map((e) => (
@@ -389,7 +389,7 @@ export function ProjectWorkspace({
             </select>
           </div>
 
-          <span className="text-xs text-zinc-400">
+          <span className="text-xs text-[#706C7D]">
             {stories.length} {stories.length === 1 ? "story" : "stories"} total
           </span>
         </div>
@@ -427,48 +427,48 @@ export function ProjectWorkspace({
                   return (
                     <div
                       key={epic.id}
-                      className="rounded-xl border border-zinc-200/80 bg-white shadow-card"
+                      className="rounded-[18px] border border-[rgba(74,61,100,0.08)] bg-white/85 shadow-[0_8px_30px_rgba(70,55,95,0.055)] backdrop-blur-[16px] overflow-hidden"
                     >
                       {/* Epic Header */}
-                      <div className="p-4 sm:p-5 border-b border-zinc-100 bg-zinc-50/40 rounded-t-xl">
+                      <div className="p-4 sm:p-5 border-b border-[rgba(74,61,100,0.06)] bg-[#FAF9FC]/90 rounded-t-[18px]">
                         <div className="flex items-start justify-between gap-3">
                           <div className="min-w-0 flex-1">
                             <div className="flex items-center gap-2">
-                              <span className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400">
+                              <span className="text-[10px] font-semibold uppercase tracking-wider text-[#9994A5]">
                                 Epic
                               </span>
-                              <span className="text-zinc-300">•</span>
-                              <span className="text-[11px] font-medium text-zinc-500">
+                              <span className="text-[rgba(74,61,100,0.2)]">•</span>
+                              <span className="text-[11px] font-medium text-[#706C7D]">
                                 {epicStories.length} {epicStories.length === 1 ? "story" : "stories"}
                               </span>
-                              <span className="text-zinc-300">•</span>
-                              <span className="text-[11px] font-medium text-emerald-700">
+                              <span className="text-[rgba(74,61,100,0.2)]">•</span>
+                              <span className="text-[11px] font-medium text-[#2E8B70]">
                                 {approvedCount} approved
                               </span>
                               {changesCount > 0 && (
                                 <>
-                                  <span className="text-zinc-300">•</span>
-                                  <span className="text-[11px] font-medium text-rose-700">
+                                  <span className="text-[rgba(74,61,100,0.2)]">•</span>
+                                  <span className="text-[11px] font-medium text-[#C25D72]">
                                     {changesCount} changes
                                   </span>
                                 </>
                               )}
                             </div>
 
-                            <h3 className="mt-1 text-base font-semibold text-slate-900 tracking-tight truncate">
+                            <h3 className="mt-1 text-base font-semibold text-[#252331] tracking-tight truncate">
                               {epic.name}
                             </h3>
 
                             {epic.description && (
-                              <p className="mt-1 text-xs text-zinc-500 line-clamp-2 leading-relaxed">
+                              <p className="mt-1 text-xs text-[#706C7D] line-clamp-2 leading-relaxed">
                                 {epic.description}
                               </p>
                             )}
 
                             {epicStories.length > 0 && (
-                              <div className="mt-3 h-1 w-full bg-zinc-200/70 rounded-full overflow-hidden">
+                              <div className="mt-3 h-1 w-full bg-[rgba(74,61,100,0.06)] rounded-full overflow-hidden">
                                 <div
-                                  className="h-full bg-slate-900 rounded-full transition-all duration-300"
+                                  className="h-full bg-[#B8944E] rounded-full transition-all duration-300"
                                   style={{ width: `${epicProgress}%` }}
                                 />
                               </div>
@@ -479,7 +479,7 @@ export function ProjectWorkspace({
                             <Button
                               variant="secondary"
                               size="sm"
-                              leftIcon={<Sparkles size={13} className="text-indigo-600" />}
+                              leftIcon={<Sparkles size={13} className="text-[#B8944E]" />}
                               onClick={() => setGeneratingEpicId(epic.id)}
                             >
                               Generate
@@ -506,14 +506,14 @@ export function ProjectWorkspace({
                       </div>
 
                       {/* Stories inside Epic */}
-                      <div className="p-3 sm:p-4 space-y-2.5 bg-zinc-50/20 rounded-b-xl">
+                      <div className="p-3 sm:p-4 space-y-2.5 bg-transparent rounded-b-[18px]">
                         {epicStories.length === 0 ? (
                           <div className="py-6 text-center">
-                            <p className="text-xs text-zinc-400">No stories in this Epic yet.</p>
+                            <p className="text-xs text-[#706C7D]">No stories in this Epic yet.</p>
                             <Button
                               variant="ghost"
                               size="sm"
-                              className="mt-2 text-indigo-600"
+                              className="mt-2 text-[#80642F]"
                               leftIcon={<Sparkles size={13} />}
                               onClick={() => setGeneratingEpicId(epic.id)}
                             >
@@ -547,16 +547,16 @@ export function ProjectWorkspace({
 
                 {/* Uncategorized Stories */}
                 {epicFilter === "all" && stories.some((s) => s.epic_id === null) && (
-                  <div className="rounded-xl border border-zinc-200/80 bg-white shadow-card overflow-hidden">
-                    <div className="p-4 border-b border-zinc-100 bg-zinc-50/40">
-                      <h3 className="text-sm font-semibold text-slate-900 tracking-tight">
+                  <div className="rounded-[18px] border border-[rgba(74,61,100,0.08)] bg-white/85 shadow-[0_8px_30px_rgba(70,55,95,0.055)] backdrop-blur-[16px] overflow-hidden">
+                    <div className="p-4 border-b border-[rgba(74,61,100,0.06)] bg-[#FAF9FC]/90">
+                      <h3 className="text-sm font-semibold text-[#252331] tracking-tight">
                         Uncategorized Stories
                       </h3>
-                      <p className="text-xs text-zinc-500 mt-0.5">
+                      <p className="text-xs text-[#706C7D] mt-0.5">
                         Requirements not assigned to an Epic
                       </p>
                     </div>
-                    <div className="p-3 sm:p-4 space-y-2.5 bg-zinc-50/20">
+                    <div className="p-3 sm:p-4 space-y-2.5 bg-transparent">
                       {stories
                         .filter((s) => s.epic_id === null)
                         .map((story) => (
@@ -595,20 +595,21 @@ export function ProjectWorkspace({
                     clarifications: updated.clarifications,
                     raw_requirement: updated.raw_requirement,
                     epic_id: updated.epic_id,
+                    reviewer_ids: updated.reviewer_ids,
                   });
                 }}
                 onCreateEpic={openCreateEpic}
                 onDelete={() => deleteStory(editing.id)}
               />
             ) : (
-              <div className="rounded-2xl border border-dashed border-zinc-200/90 bg-white/70 p-8 sm:p-12 text-center">
-                <div className="mx-auto grid h-10 w-10 place-items-center rounded-xl bg-zinc-100 text-zinc-400 mb-3">
+              <div className="rounded-[18px] border border-dashed border-[rgba(74,61,100,0.12)] bg-white/80 backdrop-blur-[16px] p-8 sm:p-12 text-center shadow-[0_8px_30px_rgba(70,55,95,0.04)]">
+                <div className="mx-auto grid h-10 w-10 place-items-center rounded-xl bg-[rgba(184,148,78,0.10)] text-[#B8944E] mb-3 shadow-sm border border-[rgba(184,148,78,0.15)]">
                   <Layers size={18} />
                 </div>
-                <h4 className="text-sm font-semibold text-zinc-900">
+                <h4 className="text-sm font-semibold text-[#252331]">
                   Select a feature story
                 </h4>
-                <p className="mt-1 text-xs text-zinc-500 max-w-xs mx-auto">
+                <p className="mt-1 text-xs text-[#706C7D] max-w-xs mx-auto">
                   Click any story on the left to review criteria, inspect assumptions, and participate in discussion threads.
                 </p>
               </div>
@@ -656,14 +657,14 @@ export function ProjectWorkspace({
         >
           <div>
             <div className="flex items-center justify-between mb-1.5">
-              <label className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
-                Epic Name <span className="text-rose-500">*</span>
+              <label className="text-xs font-semibold uppercase tracking-wider text-[#9994A5]">
+                Epic Name <span className="text-[#C25D72]">*</span>
               </label>
               <button
                 type="button"
                 disabled={aiCorrecting || !epicForm.name.trim()}
                 onClick={handleAiCorrectEpicName}
-                className="inline-flex items-center gap-1 text-xs font-medium text-indigo-600 hover:text-indigo-800 disabled:opacity-40 transition"
+                className="inline-flex items-center gap-1 text-xs font-medium text-[#80642F] hover:text-[#9F7D3E] disabled:opacity-40 transition"
               >
                 <Sparkles size={12} />
                 <span>{aiCorrecting ? "Enhancing..." : "Auto-format name"}</span>
@@ -678,12 +679,12 @@ export function ProjectWorkspace({
                 setEpicForm((prev) => ({ ...prev, name: e.target.value }))
               }
               placeholder="e.g. User Authentication & Security"
-              className="h-10 w-full rounded-xl border border-zinc-200 px-3.5 text-sm text-zinc-900 outline-none transition focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+              className="h-10 w-full rounded-xl border border-[#EBE7F2] px-3.5 text-sm text-[#252331] outline-none transition focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)]"
             />
 
             {aiSuggestions && aiSuggestions.length > 1 && (
               <div className="mt-2 flex flex-wrap gap-1.5 items-center">
-                <span className="text-[10px] text-zinc-400">Suggestions:</span>
+                <span className="text-[10px] text-[#9994A5]">Suggestions:</span>
                 {aiSuggestions.map((sug) => (
                   <button
                     key={sug}
@@ -691,18 +692,18 @@ export function ProjectWorkspace({
                     onClick={() =>
                       setEpicForm((prev) => ({ ...prev, name: sug }))
                     }
-                    className="text-[11px] rounded-md bg-indigo-50 px-2 py-0.5 text-indigo-700 hover:bg-indigo-100 transition"
+                    className="text-[11px] rounded-md bg-[rgba(184,148,78,0.08)] px-2 py-0.5 text-[#80642F] hover:bg-[rgba(184,148,78,0.15)] transition"
                   >
                     {sug}
                   </button>
                 ))}
               </div>
             )}
-            {aiError && <p className="text-xs text-rose-600 mt-1">{aiError}</p>}
+            {aiError && <p className="text-xs text-[#C25D72] mt-1">{aiError}</p>}
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-1.5">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-[#9994A5] mb-1.5">
               Description
             </label>
             <textarea
@@ -712,7 +713,7 @@ export function ProjectWorkspace({
                 setEpicForm((prev) => ({ ...prev, description: e.target.value }))
               }
               placeholder="Describe the scope and purpose of this Epic..."
-              className="w-full rounded-xl border border-zinc-200 p-3 text-sm text-zinc-900 outline-none transition focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 resize-none"
+              className="w-full rounded-xl border border-[#EBE7F2] p-3 text-sm text-[#252331] outline-none transition focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)] resize-none"
             />
           </div>
         </form>

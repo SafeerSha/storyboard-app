@@ -5,27 +5,62 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        ink: "#0f172a", // refined slate/ink
-        paper: "#F4F6FA", // app background
-        line: "#E2E6EF", // subtle border
-        accent: "#4F46E5", // primary indigo
-        app: "#F4F6FA", // explicit app background
-        sidebar: "#F8F9FC", // explicit sidebar/header layer
-        surface: "#FFFFFF", // white content surfaces
-        border: "#E2E6EF", // explicit border token
-        brand: {
-          50: "#eef2ff",
-          100: "#e0e7ff",
-          500: "#6366f1",
-          600: "#4F46E5",
-          700: "#4338CA",
+        ink: {
+          DEFAULT: "#252331",
+          secondary: "#706C7D",
+          muted: "#9994A5",
+        },
+        paper: "#F5F2F7",
+        surface: {
+          DEFAULT: "rgba(255, 255, 255, 0.82)",
+          elevated: "rgba(255, 255, 255, 0.94)",
+          pure: "#FFFFFF",
+          pearl: "#FAF9FC",
+        },
+        sidebar: "rgba(250, 249, 252, 0.80)",
+        border: "rgba(74, 61, 100, 0.10)",
+        primary: {
+          DEFAULT: "#B8944E",
+          hover: "#9F7D3E",
+          light: "#D6BD88",
+          dark: "#80642F",
+          tint: "rgba(184, 148, 78, 0.10)",
+          focus: "rgba(184, 148, 78, 0.14)",
+          subtle: "rgba(184, 148, 78, 0.09)",
+        },
+        accent: {
+          DEFAULT: "#B8944E",
+          hover: "#9F7D3E",
+          secondary: "#F1DDE8",
+          blue: "#DFE9F5",
+        },
+        lavender: {
+          DEFAULT: "#E9E3F4",
+          light: "rgba(233, 227, 244, 0.50)",
+        },
+        rose: {
+          DEFAULT: "#F1DDE8",
+        },
+        blue: {
+          subtle: "#DFE9F5",
+        },
+        champagne: {
+          DEFAULT: "#F3E8D7",
+        },
+        status: {
+          success: "#2E8B70",
+          error: "#C25D72",
+          warning: "#A87936",
+          info: "#557CB4",
         },
       },
       boxShadow: {
-        soft: "0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.04)",
-        card: "0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03)",
-        dropdown: "0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04)",
-        modal: "0 20px 35px -10px rgba(0, 0, 0, 0.12), 0 10px 15px -5px rgba(0, 0, 0, 0.05)",
+        glass: "0 8px 30px rgba(70, 55, 95, 0.055)",
+        "glass-elevated": "0 12px 35px rgba(70, 55, 95, 0.08)",
+        toast: "0 12px 35px rgba(70, 55, 95, 0.12)",
+        modal: "0 25px 70px rgba(70, 55, 95, 0.16)",
+        dropdown: "0 15px 40px rgba(70, 55, 95, 0.12)",
+        card: "0 8px 30px rgba(70, 55, 95, 0.055)",
       },
       borderRadius: {
         xl: "0.75rem",

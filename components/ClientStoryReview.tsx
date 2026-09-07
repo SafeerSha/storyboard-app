@@ -60,6 +60,9 @@ export function ClientStoryReview({
     setThreads((prev) => [...prev, newThread]);
     setStoryStatus("changes_requested");
     if (onStatusChange) onStatusChange("changes_requested");
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("storyboard:client-review-updated"));
+    }
   }
 
   function handleMessageAdded(threadId: string, newMsg: FeedbackMessage) {
@@ -68,6 +71,9 @@ export function ClientStoryReview({
         t.id === threadId ? { ...t, messages: [...t.messages, newMsg] } : t
       )
     );
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("storyboard:client-review-updated"));
+    }
   }
 
   function handleStatusUpdated(
@@ -77,6 +83,9 @@ export function ClientStoryReview({
     setThreads((prev) =>
       prev.map((t) => (t.id === threadId ? { ...t, status: nextStatus } : t))
     );
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("storyboard:client-review-updated"));
+    }
   }
 
   async function handleApprove(confirmWithUnresolved = false) {
@@ -103,6 +112,9 @@ export function ClientStoryReview({
       setShowConfirmModal(false);
       setThreads((prev) => prev.map((t) => ({ ...t, status: "resolved" })));
       if (onStatusChange) onStatusChange("approved");
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new CustomEvent("storyboard:client-review-updated"));
+      }
       toast.success("Story approved");
     } catch (e) {
       const msg = e instanceof Error ? e.message : "Approval failed";
@@ -302,7 +314,7 @@ export function ClientStoryReview({
           </div>
         ) : (
           <div className="rounded-xl border border-zinc-200/80 bg-white p-4 shadow-xs space-y-3">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-wrap items-center justify-between gap-2">
               <div>
                 <h4 className="text-sm font-semibold text-slate-900">
                   Ready to approve?

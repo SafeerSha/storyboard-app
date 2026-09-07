@@ -46,31 +46,31 @@ function ToastElement({ item, onDismiss }: ToastItemProps) {
     switch (item.type) {
       case "success":
         return (
-          <div className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200/70">
+          <div className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-status-success/15 text-status-success border border-status-success/20">
             <Check size={13} strokeWidth={2.5} />
           </div>
         );
       case "error":
         return (
-          <div className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-rose-50 text-rose-600 border border-rose-200/70">
+          <div className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-status-error/15 text-status-error border border-status-error/20">
             <AlertCircle size={13} strokeWidth={2.5} />
           </div>
         );
       case "warning":
         return (
-          <div className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-amber-50 text-amber-600 border border-amber-200/70">
+          <div className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-status-warning/15 text-status-warning border border-status-warning/20">
             <AlertTriangle size={13} strokeWidth={2.5} />
           </div>
         );
       case "info":
         return (
-          <div className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-indigo-50 text-indigo-600 border border-indigo-200/70">
+          <div className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-status-info/15 text-status-info border border-status-info/20">
             <Info size={13} strokeWidth={2.5} />
           </div>
         );
       case "loading":
         return (
-          <div className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-indigo-50 text-indigo-600 border border-indigo-200/70">
+          <div className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-status-info/15 text-status-info border border-status-info/20">
             <Loader2 size={13} className="animate-spin" />
           </div>
         );
@@ -81,15 +81,15 @@ function ToastElement({ item, onDismiss }: ToastItemProps) {
     <div
       role={isAlert ? "alert" : "status"}
       aria-live={isAlert ? "assertive" : "polite"}
-      className="pointer-events-auto flex items-start gap-3 rounded-2xl border border-[#E2E6EF] bg-white p-3.5 sm:px-4 sm:py-3.5 shadow-dropdown backdrop-blur-md transition-all animate-in fade-in slide-in-from-bottom-3 duration-200 motion-reduce:transition-none motion-reduce:animate-none w-full select-none"
+      className="pointer-events-auto flex items-start gap-3 rounded-2xl border border-white/90 bg-white/92 p-3.5 sm:px-4 sm:py-3.5 shadow-[0_12px_35px_rgba(70,55,95,0.12)] backdrop-blur-[20px] transition-all animate-in fade-in slide-in-from-bottom-3 duration-200 motion-reduce:transition-none motion-reduce:animate-none w-full select-none"
     >
       <div className="mt-0.5">{renderIcon()}</div>
       <div className="min-w-0 flex-1 pt-0.5">
-        <p className="text-xs sm:text-sm font-semibold tracking-tight text-[#111827] leading-snug break-words">
+        <p className="text-xs sm:text-sm font-semibold tracking-tight text-[#252331] leading-snug break-words">
           {item.message}
         </p>
         {item.description && (
-          <p className="mt-0.5 text-xs text-[#64748B] leading-relaxed break-words">
+          <p className="mt-0.5 text-xs text-[#706C7D] leading-relaxed break-words">
             {item.description}
           </p>
         )}
@@ -98,7 +98,7 @@ function ToastElement({ item, onDismiss }: ToastItemProps) {
         type="button"
         onClick={() => onDismiss(item.id)}
         aria-label="Dismiss notification"
-        className="ml-1 -mr-1 -mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition"
+        className="ml-1 -mr-1 -mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-lg text-[#9994A5] hover:bg-[#E9E3F4]/30 hover:text-[#252331] transition"
       >
         <X size={14} />
       </button>

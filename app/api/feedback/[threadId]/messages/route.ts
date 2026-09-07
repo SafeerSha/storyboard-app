@@ -5,6 +5,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { getAuthenticatedClient } from "@/lib/client-session";
 import { getAuthenticatedTeamUser } from "@/lib/team-session";
 import { addFeedbackMessage, updateFeedbackThreadStatus } from "@/lib/feedback-store";
+import { isTeamUserReviewer } from "@/lib/story-reviewer-auth";
 import type { FeedbackAuthorType } from "@/lib/types";
 
 const postSchema = z.object({
@@ -95,6 +96,17 @@ export async function POST(req: Request, { params }: { params: Promise<{ threadI
     const auth = await resolveSessionForStory(input.storyId);
     if ("error" in auth) {
       return NextResponse.json({ error: auth.error }, { status: auth.status });
+    }
+
+    // Enforce story-level reviewer access control for team users
+    if (auth.authorType === "team_user") {
+      const isReviewer = await isTeamUserReviewer(input.storyId, auth.authorId);
+      if (!isReviewer) {
+        return NextResponse.json(
+          { error: "Forbidden. Only assigned reviewers can participate in story discussion." },
+          { status: 403 }
+        );
+      }
     }
 
     const message = await addFeedbackMessage({

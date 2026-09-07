@@ -40,27 +40,27 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 
     const variantStyles: Record<ButtonVariant, string> = {
       primary:
-        "bg-[#4F46E5] text-white hover:bg-[#4338CA] active:scale-[0.99] shadow-xs focus-visible:outline-[#4F46E5]",
+        "bg-[#B8944E] text-white hover:bg-[#9F7D3E] active:scale-[0.99] shadow-xs focus-visible:outline-[#B8944E]",
       secondary:
-        "bg-white text-zinc-800 border border-zinc-200/90 hover:bg-zinc-50/80 active:scale-[0.99] shadow-xs focus-visible:outline-zinc-500",
+        "bg-white/85 text-[#353140] border border-[rgba(74,61,100,0.10)] hover:bg-white active:scale-[0.99] shadow-xs focus-visible:outline-[#B8944E]",
       outline:
-        "bg-transparent text-zinc-700 border border-zinc-200 hover:bg-zinc-50 focus-visible:outline-zinc-500",
+        "bg-transparent text-[#706C7D] border border-[rgba(74,61,100,0.12)] hover:bg-white/60 hover:text-[#252331] focus-visible:outline-[#B8944E]",
       ghost:
-        "bg-transparent text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 focus-visible:outline-zinc-500",
+        "bg-transparent text-[#706C7D] hover:bg-[rgba(184,148,78,0.06)] hover:text-[#252331] focus-visible:outline-[#B8944E]",
       danger:
-        "bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100/80 focus-visible:outline-rose-500",
+        "bg-rose-50/80 text-[#C25D72] border border-rose-200/70 hover:bg-rose-100/70 focus-visible:outline-[#C25D72]",
       "danger-solid":
-        "bg-rose-600 text-white hover:bg-rose-700 focus-visible:outline-rose-600 shadow-xs",
+        "bg-[#C25D72] text-white hover:bg-[#B14E63] focus-visible:outline-[#C25D72] shadow-xs",
       brand:
-        "bg-[#4F46E5] text-white hover:bg-[#4338CA] focus-visible:outline-[#4F46E5] shadow-xs active:scale-[0.99]",
+        "bg-[#B8944E] text-white hover:bg-[#9F7D3E] active:scale-[0.99] shadow-xs focus-visible:outline-[#B8944E]",
     };
 
     const sizeStyles: Record<ButtonSize, string> = {
-      sm: "h-8 px-3 text-xs rounded-lg gap-1.5",
-      md: "h-10 px-4 py-2.5 text-xs sm:text-sm rounded-lg gap-2",
-      lg: "h-11 px-5 text-sm rounded-lg gap-2",
-      icon: "h-10 w-10 rounded-lg p-0",
-      "icon-sm": "h-8 w-8 rounded-lg p-0",
+      sm: "h-8 px-3 text-xs rounded-xl gap-1.5",
+      md: "h-10 px-4 py-2 text-xs sm:text-sm rounded-xl gap-2",
+      lg: "h-11 px-5 text-sm rounded-xl gap-2",
+      icon: "h-10 w-10 rounded-xl p-0",
+      "icon-sm": "h-8 w-8 rounded-xl p-0",
     };
 
     return (

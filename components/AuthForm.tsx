@@ -38,29 +38,29 @@ export function AuthForm() {
   return (
     <div className="w-full max-w-md">
       <div className="mb-6 sm:mb-8 text-center">
-        <div className="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-slate-900 text-white shadow-card">
+        <div className="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-[#B8944E] text-white shadow-md">
           <span className="text-base font-bold">◆</span>
         </div>
-        <h1 className="mt-4 text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
+        <h1 className="mt-4 text-xl sm:text-2xl font-bold tracking-tight text-[#252331]">
           StoryBoard
         </h1>
-        <p className="mt-1.5 text-xs sm:text-sm text-zinc-500">
+        <p className="mt-1.5 text-xs sm:text-sm text-[#706C7D]">
           Sign in to manage client requirements, feature stories, and approvals.
         </p>
       </div>
 
       <form
         onSubmit={submit}
-        className="rounded-2xl border border-zinc-200/80 bg-white p-6 sm:p-8 shadow-card space-y-4"
+        className="rounded-2xl border border-[rgba(74,61,100,0.08)] bg-white/90 backdrop-blur-[20px] p-6 sm:p-8 shadow-[0_20px_60px_rgba(70,55,95,0.08)] space-y-4"
       >
         <div>
-          <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-1.5">
+          <label className="block text-xs font-semibold uppercase tracking-wider text-[#9994A5] mb-1.5">
             Email Address
           </label>
           <div className="relative">
             <Mail
               size={15}
-              className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400"
+              className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#9994A5]"
             />
             <input
               type="email"
@@ -69,19 +69,19 @@ export function AuthForm() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="name@company.com"
-              className="h-10 w-full rounded-xl border border-zinc-200 pl-10 pr-3.5 text-sm text-zinc-900 outline-none transition focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+              className="h-10 w-full rounded-xl border border-[rgba(74,61,100,0.11)] bg-white/85 pl-10 pr-3.5 text-sm text-[#252331] placeholder-[#9994A5] outline-none transition focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)]"
             />
           </div>
         </div>
 
         <div>
-          <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-1.5">
+          <label className="block text-xs font-semibold uppercase tracking-wider text-[#9994A5] mb-1.5">
             Password
           </label>
           <div className="relative">
             <Lock
               size={15}
-              className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400"
+              className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#9994A5]"
             />
             <input
               type="password"
@@ -90,13 +90,13 @@ export function AuthForm() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
-              className="h-10 w-full rounded-xl border border-zinc-200 pl-10 pr-3.5 text-sm text-zinc-900 outline-none transition focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+              className="h-10 w-full rounded-xl border border-[rgba(74,61,100,0.11)] bg-white/85 pl-10 pr-3.5 text-sm text-[#252331] placeholder-[#9994A5] outline-none transition focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)]"
             />
           </div>
         </div>
 
         {error && (
-          <div className="rounded-xl bg-rose-50 border border-rose-200 p-3 text-xs text-rose-700">
+          <div className="rounded-xl bg-rose-50/80 border border-rose-200/80 p-3 text-xs text-[#C25D72]">
             {error}
           </div>
         )}

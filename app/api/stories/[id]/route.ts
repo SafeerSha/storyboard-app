@@ -3,6 +3,12 @@ import { createClient } from "@/lib/supabase/server";
 import { z } from "zod";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getAuthenticatedTeamUser } from "@/lib/team-session";
+import {
+  isTeamUserReviewer,
+  isTeamUserProjectMember,
+  canManageStoryReviewers,
+  getStoryReviewers,
+} from "@/lib/story-reviewer-auth";
 
 const patchSchema = z.object({
   epic_id: z.string().uuid().nullable().optional(),
@@ -12,6 +18,7 @@ const patchSchema = z.object({
   assumptions: z.array(z.string()).optional(),
   clarifications: z.array(z.string()).optional(),
   raw_requirement: z.string().max(10000).optional(),
+  reviewer_ids: z.array(z.string().uuid()).optional(),
   status: z
     .enum(["draft", "review", "changes_requested", "approved", "in_development", "completed"])
     .optional(),
@@ -35,10 +42,11 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     let isAuthorized = false;
     let actorId = "system";
 
-    // 1. Team User check
+    // 1. Team User check (multi-project membership verified)
     const teamUser = await getAuthenticatedTeamUser();
     if (teamUser) {
-      if (teamUser.project_id === story.project_id) {
+      const isMember = await isTeamUserProjectMember(teamUser.id, story.project_id);
+      if (isMember) {
         isAuthorized = true;
         actorId = teamUser.id;
       } else {
@@ -83,6 +91,73 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
       return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
     }
 
+    // If team member is changing review status, verify they are an assigned reviewer
+    if (body.team_review_status && teamUser) {
+      const isReviewer = await isTeamUserReviewer(id, teamUser.id);
+      if (!isReviewer) {
+        return NextResponse.json(
+          { error: "Forbidden. Only assigned reviewers can update story review status." },
+          { status: 403 }
+        );
+      }
+    }
+
+    // If updating reviewer assignments, verify caller can manage reviewers and validate memberships
+    if (body.reviewer_ids !== undefined) {
+      const canManage = await canManageStoryReviewers(story);
+      if (!canManage.authorized) {
+        return NextResponse.json(
+          { error: "Forbidden. Only the project owner, super admin, or story creator can modify reviewer assignments." },
+          { status: 403 }
+        );
+      }
+
+      if (body.reviewer_ids.length > 0) {
+        const { data: ptmMembers } = await admin
+          .from("project_team_members")
+          .select("team_user_id, team_users!inner(id, status)")
+          .eq("project_id", story.project_id)
+          .in("team_user_id", body.reviewer_ids)
+          .eq("team_users.status", "active");
+
+        const validIds = new Set((ptmMembers || []).map((m: any) => m.team_user_id || m.team_users?.id));
+
+        // Backwards compatibility fallback
+        const missingIds = body.reviewer_ids.filter((rid) => !validIds.has(rid));
+        if (missingIds.length > 0) {
+          const { data: legacyMembers } = await admin
+            .from("team_users")
+            .select("id")
+            .eq("project_id", story.project_id)
+            .eq("status", "active")
+            .in("id", missingIds);
+          (legacyMembers || []).forEach((m) => validIds.add(m.id));
+        }
+
+        const hasInvalid = body.reviewer_ids.some((rid) => !validIds.has(rid));
+        if (hasInvalid) {
+          return NextResponse.json(
+            { error: "One or more selected reviewers do not belong to this project or are disabled." },
+            { status: 400 }
+          );
+        }
+      }
+
+      await admin.from("story_reviewers").delete().eq("story_id", id);
+      if (body.reviewer_ids.length > 0) {
+        const rows = body.reviewer_ids.map((uid) => ({
+          story_id: id,
+          team_user_id: uid,
+          assigned_by: actorId.includes("-") ? actorId : null,
+        }));
+        const { error: insErr } = await admin.from("story_reviewers").insert(rows);
+        if (insErr) {
+          console.error("Failed to insert story reviewers:", insErr);
+          throw insErr;
+        }
+      }
+    }
+
     // If changing epic, verify epic belongs to this story's project
     if (body.epic_id) {
       const { data: epic } = await admin
@@ -110,6 +185,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     }
 
     const updateData: any = { ...body, updated_at: new Date().toISOString() };
+    delete updateData.reviewer_ids;
 
     // If approved and materially changed, reset status to review
     if (story.status === "approved" && isMaterialChange && !body.status) {
@@ -147,7 +223,14 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
 
     if (error) return NextResponse.json({ error: error.message }, { status: 400 });
 
-    return NextResponse.json({ story: updated });
+    const reviewers = await getStoryReviewers(id);
+    const enrichedStory = {
+      ...updated,
+      reviewer_ids: reviewers.map((r) => r.user_id),
+      reviewers,
+    };
+
+    return NextResponse.json({ story: enrichedStory });
   } catch (err: any) {
     return NextResponse.json({ error: err.message || "Failed to update story." }, { status: 400 });
   }

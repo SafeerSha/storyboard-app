@@ -43,32 +43,43 @@ export default function TeamLoginPage() {
   }
 
   return (
-    <main className="grid min-h-screen place-items-center bg-paper px-4 py-8 sm:px-6">
+    <main 
+      className="grid min-h-screen place-items-center px-4 py-8 sm:px-6"
+      style={{
+        backgroundColor: "#F5F2F7",
+        backgroundImage: `
+          radial-gradient(circle at 15% 15%, rgba(210, 193, 235, 0.35), transparent 40%),
+          radial-gradient(circle at 85% 20%, rgba(239, 207, 222, 0.30), transparent 35%),
+          radial-gradient(circle at 80% 80%, rgba(202, 220, 240, 0.30), transparent 40%),
+          radial-gradient(circle at 20% 85%, rgba(243, 232, 215, 0.30), transparent 35%)
+        `,
+      }}
+    >
       <div className="w-full max-w-md">
         <div className="mb-6 sm:mb-8 text-center">
-          <div className="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-slate-900 text-white shadow-card">
+          <div className="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-[#B8944E] text-white shadow-md">
             <span className="text-base font-bold">◆</span>
           </div>
-          <h1 className="mt-4 text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
+          <h1 className="mt-4 text-xl sm:text-2xl font-bold tracking-tight text-[#252331]">
             Team Member Portal
           </h1>
-          <p className="mt-1.5 text-xs sm:text-sm text-zinc-500">
+          <p className="mt-1.5 text-xs sm:text-sm text-[#706C7D]">
             Sign in to collaborate on your assigned project requirements.
           </p>
         </div>
 
         <form
           onSubmit={handleSubmit}
-          className="rounded-2xl border border-zinc-200/80 bg-white p-6 sm:p-8 shadow-card space-y-4"
+          className="rounded-2xl border border-[rgba(74,61,100,0.08)] bg-white/90 backdrop-blur-[20px] p-6 sm:p-8 shadow-[0_20px_60px_rgba(70,55,95,0.08)] space-y-4"
         >
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-1.5">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-[#9994A5] mb-1.5">
               Username
             </label>
             <div className="relative">
               <User
                 size={15}
-                className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400"
+                className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#9994A5]"
               />
               <input
                 type="text"
@@ -80,19 +91,19 @@ export default function TeamLoginPage() {
                 value={username}
                 onChange={(e) => setUsername(e.target.value.replace(/\s+/g, ""))}
                 placeholder="Enter your username"
-                className="h-10 w-full rounded-xl border border-zinc-200 pl-10 pr-3.5 font-mono text-sm text-zinc-900 outline-none transition focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+                className="h-10 w-full rounded-xl border border-[rgba(74,61,100,0.11)] bg-white/85 pl-10 pr-3.5 font-mono text-sm text-[#252331] placeholder-[#9994A5] outline-none transition focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)]"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-1.5">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-[#9994A5] mb-1.5">
               Password
             </label>
             <div className="relative">
               <Lock
                 size={15}
-                className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400"
+                className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#9994A5]"
               />
               <input
                 type="password"
@@ -100,13 +111,13 @@ export default function TeamLoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter your password"
-                className="h-10 w-full rounded-xl border border-zinc-200 pl-10 pr-3.5 text-sm text-zinc-900 outline-none transition focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+                className="h-10 w-full rounded-xl border border-[rgba(74,61,100,0.11)] bg-white/85 pl-10 pr-3.5 text-sm text-[#252331] placeholder-[#9994A5] outline-none transition focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)]"
               />
             </div>
           </div>
 
           {error && (
-            <div className="rounded-xl border border-rose-200 bg-rose-50 p-3 text-xs text-rose-700">
+            <div className="rounded-xl border border-rose-200/80 bg-rose-50/80 p-3 text-xs text-[#C25D72]">
               {error}
             </div>
           )}
@@ -119,7 +130,7 @@ export default function TeamLoginPage() {
             isLoading={loading}
             rightIcon={<ArrowRight size={15} />}
           >
-            Sign in to team workspace
+            Sign in to team portal
           </Button>
 
           <div className="mt-4 pt-4 border-t border-zinc-100 flex items-center justify-center gap-1.5 text-xs text-zinc-400">

@@ -172,7 +172,7 @@ export function DropdownMenu({
             openUpward
               ? "bottom-full mb-1.5 origin-bottom-right"
               : "top-full mt-1.5 origin-top-right"
-          } z-50 min-w-[165px] max-w-[calc(100vw-2rem)] rounded-xl border border-zinc-200/90 bg-white p-1 shadow-dropdown animate-in fade-in zoom-in-95 duration-100`}
+          } z-50 min-w-[165px] max-w-[calc(100vw-2rem)] rounded-xl border border-[rgba(74,61,100,0.10)] bg-white/94 backdrop-blur-[20px] p-1 shadow-[0_15px_40px_rgba(70,55,95,0.12)] animate-in fade-in zoom-in-95 duration-100`}
         >
           <div className="space-y-0.5">
             {items.map((item, idx) => (
@@ -191,11 +191,11 @@ export function DropdownMenu({
                 }}
                 className={`flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-xs sm:text-sm font-medium transition text-left disabled:opacity-40 disabled:cursor-not-allowed focus:outline-none ${
                   item.variant === "danger"
-                    ? "text-rose-600 hover:bg-rose-50 focus:bg-rose-50 focus:text-rose-700"
-                    : "text-zinc-700 hover:bg-zinc-100 hover:text-zinc-900 focus:bg-zinc-100 focus:text-zinc-900"
+                    ? "text-[#C25D72] hover:bg-rose-50/80 focus:bg-rose-50/80"
+                    : "text-[#252331] hover:bg-[rgba(184,148,78,0.06)] hover:text-[#80642F] focus:bg-[rgba(184,148,78,0.06)] focus:text-[#80642F]"
                 }`}
               >
-                {item.icon && <span className="shrink-0 text-zinc-400">{item.icon}</span>}
+                {item.icon && <span className="shrink-0 text-[#9994A5]">{item.icon}</span>}
                 <span className="truncate">{item.label}</span>
               </button>
             ))}

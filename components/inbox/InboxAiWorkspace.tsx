@@ -202,18 +202,18 @@ export function InboxAiWorkspace({ item }: InboxAiWorkspaceProps) {
   const activeThread = threads.find((t) => t.id === activeThreadId);
 
   return (
-    <div className="flex flex-col h-[640px] rounded-2xl border border-[#E2E6EF] bg-white shadow-card overflow-hidden">
+    <div className="flex flex-col h-[640px] rounded-2xl border border-[#EBE7F2] bg-[#FAF9FC]/88 shadow-glass-elevated backdrop-blur-[20px] overflow-hidden">
       {/* AI Header */}
-      <div className="flex items-center justify-between border-b border-[#E2E6EF] bg-[#F8F9FC] px-4 py-3 shrink-0">
+      <div className="flex items-center justify-between border-b border-[#EBE7F2] bg-white/60 px-4 py-3 shrink-0">
         <div className="flex items-center gap-2.5 min-w-0">
-          <div className="grid h-8 w-8 place-items-center rounded-lg bg-[#7C3AED] text-white shadow-xs shrink-0">
+          <div className="grid h-8 w-8 place-items-center rounded-lg bg-[#B8944E] text-white shadow-xs shrink-0">
             <Sparkles size={16} />
           </div>
           <div className="min-w-0">
-            <h3 className="text-sm font-semibold tracking-tight text-[#111827] truncate">
+            <h3 className="text-sm font-semibold tracking-tight text-[#252331] truncate">
               AI Thinking Partner
             </h3>
-            <p className="text-[11px] text-[#64748B] truncate">
+            <p className="text-[11px] text-[#706C7D] truncate">
               Contextual brainstorming for &ldquo;{item.title}&rdquo;
             </p>
           </div>
@@ -224,16 +224,16 @@ export function InboxAiWorkspace({ item }: InboxAiWorkspaceProps) {
           <button
             type="button"
             onClick={() => setShowThreadDropdown((prev) => !prev)}
-            className="flex items-center gap-1.5 rounded-lg border border-[#E2E6EF] bg-white px-2.5 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50 transition"
+            className="flex items-center gap-1.5 rounded-lg border border-[#EBE7F2] bg-white px-2.5 py-1 text-xs font-medium text-[#4D4959] hover:bg-[#FAF9FC] transition shadow-xs"
           >
-            <MessageSquare size={13} className="text-slate-400" />
+            <MessageSquare size={13} className="text-[#9994A5]" />
             <span className="max-w-[110px] truncate">{activeThread?.title || "Conversations"}</span>
-            <ChevronDown size={12} className="text-slate-400" />
+            <ChevronDown size={12} className="text-[#9994A5]" />
           </button>
 
           {showThreadDropdown && (
-            <div className="absolute right-0 top-full mt-1.5 w-56 rounded-xl border border-[#E2E6EF] bg-white p-1 shadow-dropdown z-30 animate-in fade-in zoom-in-95 duration-100">
-              <div className="px-2.5 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-400 border-b border-slate-100 flex items-center justify-between">
+            <div className="absolute right-0 top-full mt-1.5 w-56 rounded-xl border border-[#EBE7F2] bg-[#FAF9FC]/95 p-1 shadow-dropdown backdrop-blur-xl z-30 animate-in fade-in zoom-in-95 duration-100">
+              <div className="px-2.5 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-[#9994A5] border-b border-[#EBE7F2] flex items-center justify-between">
                 <span>Threads</span>
                 <button
                   type="button"
@@ -241,7 +241,7 @@ export function InboxAiWorkspace({ item }: InboxAiWorkspaceProps) {
                     setShowThreadDropdown(false);
                     setNewThreadModal(true);
                   }}
-                  className="text-[#4F46E5] hover:underline font-semibold"
+                  className="text-[#80642F] hover:underline font-semibold"
                 >
                   + New
                 </button>
@@ -258,8 +258,8 @@ export function InboxAiWorkspace({ item }: InboxAiWorkspaceProps) {
                     }}
                     className={`flex w-full items-center justify-between rounded-lg px-2.5 py-1.5 text-xs text-left transition ${
                       t.id === activeThreadId
-                        ? "bg-[#EEF2FF] font-semibold text-[#4F46E5]"
-                        : "text-slate-700 hover:bg-slate-50"
+                        ? "bg-[rgba(184,148,78,0.09)] font-semibold text-[#80642F]"
+                        : "text-[#353140] hover:bg-white"
                     }`}
                   >
                     <span className="truncate">{t.title}</span>
@@ -272,27 +272,27 @@ export function InboxAiWorkspace({ item }: InboxAiWorkspaceProps) {
       </div>
 
       {/* Messages Stream */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50/30">
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-transparent">
         {loadingMessages ? (
-          <div className="flex h-full items-center justify-center text-xs text-slate-400 gap-2">
-            <Loader2 size={16} className="animate-spin text-[#4F46E5]" />
+          <div className="flex h-full items-center justify-center text-xs text-[#9994A5] gap-2">
+            <Loader2 size={16} className="animate-spin text-[#B8944E]" />
             <span>Loading discussion...</span>
           </div>
         ) : messages.length === 0 ? (
           <div className="flex h-full flex-col justify-center items-center text-center p-4">
-            <div className="grid h-10 w-10 place-items-center rounded-xl bg-purple-50 text-[#7C3AED] mb-3">
+            <div className="grid h-10 w-10 place-items-center rounded-xl bg-[rgba(184,148,78,0.10)] text-[#B8944E] mb-3">
               <Sparkles size={20} />
             </div>
-            <h4 className="text-sm font-semibold text-[#111827]">
+            <h4 className="text-sm font-semibold text-[#252331]">
               Explore this idea with AI
             </h4>
-            <p className="mt-1 text-xs text-[#64748B] max-w-xs leading-relaxed">
+            <p className="mt-1 text-xs text-[#706C7D] max-w-xs leading-relaxed">
               Ask about technical risks, MVP scope, alternatives, or competitor landscapes.
             </p>
 
             {/* Starter Prompts */}
             <div className="mt-5 w-full max-w-sm space-y-1.5 text-left">
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-1">
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-[#9994A5] mb-1">
                 Suggested exploration
               </p>
               {STARTER_PROMPTS.map((prompt, i) => (
@@ -301,10 +301,10 @@ export function InboxAiWorkspace({ item }: InboxAiWorkspaceProps) {
                   type="button"
                   onClick={() => handleSendMessage(prompt)}
                   disabled={sending}
-                  className="flex w-full items-center justify-between rounded-xl border border-[#E2E6EF] bg-white p-2.5 text-xs font-medium text-slate-700 hover:border-[#4F46E5] hover:text-[#4F46E5] hover:bg-[#EEF2FF]/40 transition group text-left"
+                  className="flex w-full items-center justify-between rounded-xl border border-[#EBE7F2] bg-white/90 p-2.5 text-xs font-medium text-[#353140] hover:border-[#B8944E] hover:text-[#80642F] hover:bg-[#FAF9FC] transition group text-left shadow-xs"
                 >
                   <span>{prompt}</span>
-                  <CornerDownLeft size={12} className="text-slate-300 group-hover:text-[#4F46E5]" />
+                  <CornerDownLeft size={12} className="text-[#9994A5] group-hover:text-[#80642F]" />
                 </button>
               ))}
             </div>
@@ -320,7 +320,7 @@ export function InboxAiWorkspace({ item }: InboxAiWorkspaceProps) {
                 }`}
               >
                 {!isUser && (
-                  <div className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-[#7C3AED] text-white shadow-xs mt-0.5">
+                  <div className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-[#B8944E] text-white shadow-xs mt-0.5">
                     <Sparkles size={13} />
                   </div>
                 )}
@@ -328,8 +328,8 @@ export function InboxAiWorkspace({ item }: InboxAiWorkspaceProps) {
                 <div
                   className={`max-w-[85%] rounded-2xl px-4 py-2.5 leading-relaxed ${
                     isUser
-                      ? "bg-[#4F46E5] text-white rounded-br-sm shadow-xs"
-                      : "bg-white border border-[#E2E6EF] text-[#111827] rounded-bl-sm shadow-xs"
+                      ? "bg-[#B8944E] text-white rounded-br-sm shadow-xs"
+                      : "bg-white border border-[#EBE7F2] text-[#252331] rounded-bl-sm shadow-xs"
                   }`}
                 >
                   <p className="text-[10px] font-semibold uppercase tracking-wider mb-1 opacity-70">
@@ -339,7 +339,7 @@ export function InboxAiWorkspace({ item }: InboxAiWorkspaceProps) {
                 </div>
 
                 {isUser && (
-                  <div className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-slate-900 text-white shadow-xs mt-0.5">
+                  <div className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-[#353140] text-white shadow-xs mt-0.5">
                     <User size={13} />
                   </div>
                 )}
@@ -351,11 +351,11 @@ export function InboxAiWorkspace({ item }: InboxAiWorkspaceProps) {
         {/* Thinking Indicator */}
         {sending && (
           <div className="flex gap-3 text-xs items-start">
-            <div className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-[#7C3AED] text-white shadow-xs mt-0.5 animate-pulse">
+            <div className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-[#B8944E] text-white shadow-xs mt-0.5 animate-pulse">
               <Sparkles size={13} />
             </div>
-            <div className="rounded-2xl border border-[#E2E6EF] bg-white px-4 py-2.5 shadow-xs text-slate-500 flex items-center gap-2">
-              <Loader2 size={13} className="animate-spin text-[#7C3AED]" />
+            <div className="rounded-2xl border border-[#EBE7F2] bg-white px-4 py-2.5 shadow-xs text-[#706C7D] flex items-center gap-2">
+              <Loader2 size={13} className="animate-spin text-[#B8944E]" />
               <span className="text-xs">StoryBoard AI is analyzing your idea...</span>
             </div>
           </div>
@@ -363,7 +363,7 @@ export function InboxAiWorkspace({ item }: InboxAiWorkspaceProps) {
 
         {/* Error State */}
         {error && (
-          <div className="rounded-xl border border-rose-200 bg-rose-50 p-3 text-xs text-rose-700 flex items-center justify-between gap-2">
+          <div className="rounded-xl border border-rose-200 bg-rose-50/80 p-3 text-xs text-[#C25D72] flex items-center justify-between gap-2">
             <div className="flex items-center gap-2">
               <AlertCircle size={15} className="shrink-0" />
               <span>{error}</span>
@@ -371,7 +371,7 @@ export function InboxAiWorkspace({ item }: InboxAiWorkspaceProps) {
             <button
               type="button"
               onClick={() => handleSendMessage()}
-              className="font-semibold text-rose-800 hover:underline shrink-0"
+              className="font-semibold text-[#A84358] hover:underline shrink-0"
             >
               Retry
             </button>
@@ -382,7 +382,7 @@ export function InboxAiWorkspace({ item }: InboxAiWorkspaceProps) {
       </div>
 
       {/* Input Bar */}
-      <div className="p-3 border-t border-[#E2E6EF] bg-white shrink-0">
+      <div className="p-3 border-t border-[#EBE7F2] bg-white/70 backdrop-blur-md shrink-0">
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -396,7 +396,7 @@ export function InboxAiWorkspace({ item }: InboxAiWorkspaceProps) {
             onChange={(e) => setInputPrompt(e.target.value)}
             placeholder="Ask anything about this idea..."
             disabled={sending}
-            className="h-10 flex-1 rounded-xl border border-[#E2E6EF] bg-slate-50/50 px-3.5 text-xs sm:text-sm text-[#111827] outline-none transition focus:bg-white focus:border-[#4F46E5] focus:ring-1 focus:ring-[#4F46E5]"
+            className="h-10 flex-1 rounded-xl border border-[#EBE7F2] bg-[#FAF9FC] px-3.5 text-xs sm:text-sm text-[#252331] placeholder:text-[#9994A5] outline-none transition focus:bg-white focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)]"
           />
           <Button
             type="submit"
@@ -412,10 +412,10 @@ export function InboxAiWorkspace({ item }: InboxAiWorkspaceProps) {
 
       {/* New Thread Modal */}
       {newThreadModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs">
-          <div className="w-full max-w-sm rounded-2xl border border-[#E2E6EF] bg-white p-5 shadow-2xl space-y-4">
-            <h4 className="text-sm font-semibold text-[#111827]">New Discussion Thread</h4>
-            <p className="text-xs text-[#64748B]">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#14121B]/40 backdrop-blur-sm">
+          <div className="w-full max-w-sm rounded-2xl border border-[#EBE7F2] bg-[#FAF9FC] p-5 shadow-2xl space-y-4">
+            <h4 className="text-sm font-semibold text-[#252331]">New Discussion Thread</h4>
+            <p className="text-xs text-[#706C7D]">
               Create a focused sub-conversation (e.g. &ldquo;MVP Planning&rdquo;, &ldquo;Technical Architecture&rdquo;).
             </p>
             <input
@@ -424,7 +424,7 @@ export function InboxAiWorkspace({ item }: InboxAiWorkspaceProps) {
               placeholder="e.g. Competitor Research"
               value={newThreadTitle}
               onChange={(e) => setNewThreadTitle(e.target.value)}
-              className="h-9 w-full rounded-lg border border-[#E2E6EF] px-3 text-xs sm:text-sm outline-none focus:border-[#4F46E5]"
+              className="h-9 w-full rounded-lg border border-[#EBE7F2] bg-white px-3 text-xs sm:text-sm text-[#252331] outline-none focus:border-[#B8944E]"
             />
             <div className="flex justify-end gap-2 pt-2">
               <Button

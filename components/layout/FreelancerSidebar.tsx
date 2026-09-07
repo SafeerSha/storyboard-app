@@ -127,22 +127,22 @@ export function FreelancerSidebar({
     : "SB";
 
   const renderNav = (isMobile = false) => (
-    <div className="flex h-full flex-col bg-[#F8F9FC]">
+    <div className="flex h-full flex-col bg-transparent">
       {/* Brand Header */}
-      <div className="flex h-[72px] sm:h-[80px] items-center justify-between border-b border-[#E2E6EF] px-5 bg-[#F8F9FC]">
+      <div className="flex h-[76px] items-center justify-between border-b border-[rgba(74,61,100,0.08)] px-5 bg-transparent">
         <Link
           href="/"
           onClick={closeMobile}
           className="flex items-center gap-2.5 group focus-visible:outline-none"
         >
-          <div className="grid h-8 w-8 place-items-center rounded-lg bg-slate-900 text-white shadow-xs">
+          <div className="grid h-8 w-8 place-items-center rounded-lg bg-[#B8944E] text-white shadow-xs">
             <span className="text-xs font-semibold tracking-tighter">◆</span>
           </div>
-          <span className="text-sm font-semibold tracking-tight text-slate-900 group-hover:text-indigo-600 transition">
+          <span className="text-sm font-semibold tracking-tight text-[#252331] group-hover:text-[#80642F] transition">
             StoryBoard
           </span>
           {userRole === "super_admin" && (
-            <span className="rounded-md bg-zinc-100 px-1.5 py-0.5 text-[10px] font-medium text-zinc-600">
+            <span className="rounded-md bg-[rgba(184,148,78,0.10)] px-1.5 py-0.5 text-[10px] font-medium text-[#80642F] border border-[rgba(184,148,78,0.14)]">
               Admin
             </span>
           )}
@@ -151,7 +151,7 @@ export function FreelancerSidebar({
           <button
             type="button"
             onClick={closeMobile}
-            className="grid h-8 w-8 place-items-center rounded-lg text-zinc-400 hover:bg-zinc-100 hover:text-zinc-800 transition"
+            className="grid h-8 w-8 place-items-center rounded-lg text-[#9994A5] hover:bg-[rgba(184,148,78,0.08)] hover:text-[#252331] transition"
             aria-label="Close sidebar"
           >
             <X size={18} />
@@ -163,7 +163,7 @@ export function FreelancerSidebar({
       <div className="flex-1 overflow-y-auto px-2.5 py-4 space-y-5">
         {/* Workspace group */}
         <div>
-          <p className="px-2.5 pb-1.5 text-[11px] font-semibold uppercase tracking-wider text-zinc-400">
+          <p className="px-2.5 pb-1.5 text-[11px] font-semibold uppercase tracking-wider text-[#9994A5]">
             Workspace
           </p>
           <nav className="space-y-0.5">
@@ -172,13 +172,13 @@ export function FreelancerSidebar({
               onClick={closeMobile}
               className={`flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-xs sm:text-sm transition-colors ${
                 isOverviewActive
-                  ? "bg-zinc-100 font-medium text-slate-900"
-                  : "text-zinc-600 hover:bg-zinc-50 hover:text-slate-900"
+                  ? "bg-[rgba(184,148,78,0.09)] border border-[rgba(184,148,78,0.12)] text-[#80642F] font-medium"
+                  : "text-[#706C7D] hover:bg-[rgba(184,148,78,0.04)] hover:text-[#80642F] border border-transparent font-medium"
               }`}
             >
               <LayoutDashboard
                 size={16}
-                className={isOverviewActive ? "text-slate-900" : "text-zinc-400"}
+                className={isOverviewActive ? "text-[#B8944E]" : "text-[#9994A5]"}
               />
               <span>Overview</span>
             </Link>
@@ -187,13 +187,13 @@ export function FreelancerSidebar({
               onClick={closeMobile}
               className={`flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-xs sm:text-sm transition-colors ${
                 isProjectsActive
-                  ? "bg-zinc-100 font-medium text-slate-900"
-                  : "text-zinc-600 hover:bg-zinc-50 hover:text-slate-900"
+                  ? "bg-[rgba(184,148,78,0.09)] border border-[rgba(184,148,78,0.12)] text-[#80642F] font-medium"
+                  : "text-[#706C7D] hover:bg-[rgba(184,148,78,0.04)] hover:text-[#80642F] border border-transparent font-medium"
               }`}
             >
               <FolderKanban
                 size={16}
-                className={isProjectsActive ? "text-slate-900" : "text-zinc-400"}
+                className={isProjectsActive ? "text-[#B8944E]" : "text-[#9994A5]"}
               />
               <span>Projects</span>
             </Link>
@@ -204,8 +204,8 @@ export function FreelancerSidebar({
                 onClick={closeMobile}
                 className={`flex items-center justify-between rounded-lg px-2.5 py-1.5 text-xs sm:text-sm transition-colors group ${
                   isInboxActive
-                    ? "bg-[#EEF2FF] font-semibold text-[#4F46E5]"
-                    : "text-zinc-600 hover:bg-zinc-50 hover:text-slate-900"
+                    ? "bg-[rgba(184,148,78,0.09)] border border-[rgba(184,148,78,0.12)] text-[#80642F] font-medium"
+                    : "text-[#706C7D] hover:bg-[rgba(184,148,78,0.04)] hover:text-[#80642F] border border-transparent font-medium"
                 }`}
               >
                 <div className="flex items-center gap-2.5 min-w-0">
@@ -213,13 +213,13 @@ export function FreelancerSidebar({
                     size={16}
                     className={
                       isInboxActive
-                        ? "text-[#4F46E5]"
-                        : "text-amber-500 group-hover:text-amber-600"
+                        ? "text-[#B8944E]"
+                        : "text-[#9994A5] group-hover:text-[#B8944E]"
                     }
                   />
                   <span className="truncate">Project Inbox</span>
                 </div>
-                <span className="rounded bg-indigo-50 px-1.5 py-0.5 text-[10px] font-semibold text-indigo-600 border border-indigo-200/70">
+                <span className="rounded bg-[rgba(184,148,78,0.10)] px-1.5 py-0.5 text-[10px] font-semibold text-[#80642F] border border-[rgba(184,148,78,0.14)]">
                   Ideas
                 </span>
               </Link>
@@ -229,7 +229,7 @@ export function FreelancerSidebar({
 
         {/* Manage group */}
         <div>
-          <p className="px-2.5 pb-1.5 text-[11px] font-semibold uppercase tracking-wider text-zinc-400">
+          <p className="px-2.5 pb-1.5 text-[11px] font-semibold uppercase tracking-wider text-[#9994A5]">
             Manage
           </p>
           <nav className="space-y-0.5">
@@ -238,13 +238,13 @@ export function FreelancerSidebar({
               onClick={closeMobile}
               className={`flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-xs sm:text-sm transition-colors ${
                 isClientsActive
-                  ? "bg-zinc-100 font-medium text-slate-900"
-                  : "text-zinc-600 hover:bg-zinc-50 hover:text-slate-900"
+                  ? "bg-[rgba(184,148,78,0.09)] border border-[rgba(184,148,78,0.12)] text-[#80642F] font-medium"
+                  : "text-[#706C7D] hover:bg-[rgba(184,148,78,0.04)] hover:text-[#80642F] border border-transparent font-medium"
               }`}
             >
               <Users
                 size={16}
-                className={isClientsActive ? "text-slate-900" : "text-zinc-400"}
+                className={isClientsActive ? "text-[#B8944E]" : "text-[#9994A5]"}
               />
               <span>Clients</span>
             </Link>
@@ -254,13 +254,13 @@ export function FreelancerSidebar({
                 onClick={closeMobile}
                 className={`flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-xs sm:text-sm transition-colors ${
                   isUsersActive
-                    ? "bg-zinc-100 font-medium text-slate-900"
-                    : "text-zinc-600 hover:bg-zinc-50 hover:text-slate-900"
+                    ? "bg-[rgba(184,148,78,0.09)] border border-[rgba(184,148,78,0.12)] text-[#80642F] font-medium"
+                    : "text-[#706C7D] hover:bg-[rgba(184,148,78,0.04)] hover:text-[#80642F] border border-transparent font-medium"
                 }`}
               >
                 <ShieldCheck
                   size={16}
-                  className={isUsersActive ? "text-slate-900" : "text-zinc-400"}
+                  className={isUsersActive ? "text-[#B8944E]" : "text-[#9994A5]"}
                 />
                 <span>Users</span>
               </Link>
@@ -270,14 +270,14 @@ export function FreelancerSidebar({
               onClick={closeMobile}
               className={`flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-xs sm:text-sm transition-colors ${
                 isSettingsActive && !isUsersActive
-                  ? "bg-zinc-100 font-medium text-slate-900"
-                  : "text-zinc-600 hover:bg-zinc-50 hover:text-slate-900"
+                  ? "bg-[rgba(184,148,78,0.09)] border border-[rgba(184,148,78,0.12)] text-[#80642F] font-medium"
+                  : "text-[#706C7D] hover:bg-[rgba(184,148,78,0.04)] hover:text-[#80642F] border border-transparent font-medium"
               }`}
             >
               <Settings
                 size={16}
                 className={
-                  isSettingsActive && !isUsersActive ? "text-slate-900" : "text-zinc-400"
+                  isSettingsActive && !isUsersActive ? "text-[#B8944E]" : "text-[#9994A5]"
                 }
               />
               <span>Settings</span>
@@ -287,21 +287,21 @@ export function FreelancerSidebar({
       </div>
 
       {/* User Profile Pill & Popover Menu */}
-      <div className="relative border-t border-[#E2E6EF] p-3" ref={menuRef}>
+      <div className="relative border-t border-[rgba(74,61,100,0.08)] p-3" ref={menuRef}>
         {showUserMenu && (
-          <div className="absolute bottom-full left-3 right-3 mb-2 overflow-hidden rounded-xl border border-zinc-200/90 bg-white p-1 shadow-dropdown animate-in fade-in zoom-in-95 duration-100">
-            <div className="border-b border-zinc-100 px-3 py-2">
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400">
+          <div className="absolute bottom-full left-3 right-3 mb-2 overflow-hidden rounded-xl border border-[rgba(74,61,100,0.10)] bg-white/94 backdrop-blur-[20px] p-1 shadow-[0_15px_40px_rgba(70,55,95,0.12)] animate-in fade-in zoom-in-95 duration-100">
+            <div className="border-b border-[rgba(74,61,100,0.08)] px-3 py-2">
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-[#9994A5]">
                 Signed in as
               </p>
-              <p className="truncate text-xs font-medium text-zinc-900">
+              <p className="truncate text-xs font-medium text-[#252331]">
                 {userEmail || "freelancer@storyboard"}
               </p>
             </div>
             <button
               type="button"
               onClick={handleSignOut}
-              className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium text-rose-600 hover:bg-rose-50 transition"
+              className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium text-[#C25D72] hover:bg-rose-50/80 transition"
             >
               <LogOut size={14} />
               <span>Sign out</span>
@@ -312,18 +312,18 @@ export function FreelancerSidebar({
         <button
           type="button"
           onClick={() => setShowUserMenu((prev) => !prev)}
-          className="flex w-full items-center gap-2.5 rounded-lg p-1.5 text-left transition hover:bg-zinc-50"
+          className="flex w-full items-center gap-2.5 rounded-lg p-1.5 text-left transition hover:bg-[rgba(184,148,78,0.05)]"
         >
-          <div className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-slate-900 text-[11px] font-semibold text-white">
+          <div className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-[#B8944E] text-[11px] font-semibold text-white">
             {userInitials}
           </div>
           <div className="min-w-0 flex-1">
-            <p className="truncate text-xs font-medium text-slate-900">{userName}</p>
-            <p className="truncate text-[11px] text-zinc-400 font-medium">{roleDisplay}</p>
+            <p className="truncate text-xs font-medium text-[#252331]">{userName}</p>
+            <p className="truncate text-[11px] text-[#706C7D] font-medium">{roleDisplay}</p>
           </div>
           <ChevronDown
             size={14}
-            className={`text-zinc-400 transition-transform duration-150 ${
+            className={`text-[#9994A5] transition-transform duration-150 ${
               showUserMenu ? "rotate-180" : ""
             }`}
           />
@@ -335,14 +335,14 @@ export function FreelancerSidebar({
   return (
     <>
       {/* Desktop Persistent Sidebar */}
-      <aside className="fixed inset-y-0 left-0 z-30 hidden w-56 border-r border-[#E2E6EF] bg-[#F8F9FC] lg:flex lg:flex-col">
+      <aside className="fixed inset-y-0 left-0 z-30 hidden w-56 border-r border-[rgba(74,61,100,0.08)] bg-[rgba(250,249,252,0.80)] backdrop-blur-[20px] lg:flex lg:flex-col">
         {renderNav(false)}
       </aside>
 
       {/* Mobile Drawer Overlay */}
       {mobileOpen && (
         <div
-          className="fixed inset-0 z-40 bg-slate-900/40 backdrop-blur-xs transition-opacity lg:hidden"
+          className="fixed inset-0 z-40 bg-[rgba(40,32,55,0.25)] backdrop-blur-xs transition-opacity lg:hidden"
           onClick={closeMobile}
         />
       )}
@@ -352,7 +352,7 @@ export function FreelancerSidebar({
         role="dialog"
         aria-modal="true"
         aria-label="Navigation Menu"
-        className={`fixed inset-y-0 left-0 z-50 flex w-64 max-w-[calc(100vw-3rem)] flex-col border-r border-[#E2E6EF] bg-[#F8F9FC] shadow-2xl transition-transform duration-200 ease-in-out lg:hidden pb-[env(safe-area-inset-bottom)] ${
+        className={`fixed inset-y-0 left-0 z-50 flex w-64 max-w-[calc(100vw-3rem)] flex-col border-r border-[rgba(74,61,100,0.08)] bg-[rgba(250,249,252,0.94)] backdrop-blur-[20px] shadow-2xl transition-transform duration-200 ease-in-out lg:hidden pb-[env(safe-area-inset-bottom)] ${
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >

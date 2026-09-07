@@ -40,7 +40,7 @@ export function FreelancerLayout({
     <DashboardContext.Provider
       value={{ mobileOpen, setMobileOpen, toggleMobile, user: initialUser }}
     >
-      <div className="min-h-screen bg-paper">
+      <div className="min-h-screen bg-transparent">
         {/* Canonical Persistent Freelancer / Super Admin Sidebar */}
         <FreelancerSidebar
           mobileOpen={mobileOpen}

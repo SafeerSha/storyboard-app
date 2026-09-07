@@ -199,14 +199,14 @@ export default function ProjectsPage() {
           <div className="relative flex-1 max-w-sm">
             <Search
               size={15}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400"
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-[#9994A5]"
             />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search projects..."
-              className="h-9 w-full rounded-xl border border-zinc-200/90 bg-white pl-9 pr-3.5 text-xs sm:text-sm text-zinc-900 outline-none transition focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+              className="h-9 w-full rounded-xl border border-[rgba(74,61,100,0.11)] bg-white/85 pl-9 pr-3.5 text-xs sm:text-sm text-[#252331] placeholder-[#9994A5] outline-none transition focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)]"
             />
           </div>
 
@@ -214,7 +214,7 @@ export default function ProjectsPage() {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="h-9 rounded-xl border border-zinc-200/90 bg-white px-3 text-xs sm:text-sm font-medium text-zinc-700 outline-none transition focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 cursor-pointer"
+              className="h-9 rounded-xl border border-[rgba(74,61,100,0.11)] bg-white/85 px-3 text-xs sm:text-sm font-medium text-[#252331] outline-none transition focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)] cursor-pointer"
             >
               <option value="all">All statuses</option>
               <option value="active">Active</option>
@@ -225,7 +225,7 @@ export default function ProjectsPage() {
         </div>
 
         {error && (
-          <div className="rounded-xl border border-rose-200 bg-rose-50 p-4 text-xs sm:text-sm text-rose-700">
+          <div className="rounded-xl border border-rose-200/80 bg-rose-50/80 p-4 text-xs sm:text-sm text-[#C25D72]">
             {error}
           </div>
         )}
@@ -254,9 +254,9 @@ export default function ProjectsPage() {
               }
             />
           ) : (
-            <div className="rounded-2xl border border-dashed border-zinc-200 bg-white/50 p-8 text-center">
-              <p className="text-sm font-medium text-zinc-800">No projects match your filter</p>
-              <p className="mt-1 text-xs text-zinc-400">
+            <div className="rounded-[18px] border border-dashed border-[rgba(74,61,100,0.14)] bg-white/50 p-8 text-center">
+              <p className="text-sm font-medium text-[#252331]">No projects found</p>
+              <p className="mt-1 text-xs text-[#9994A5]">
                 Try searching with a different term or reset the status filter.
               </p>
               <Button
@@ -289,28 +289,35 @@ export default function ProjectsPage() {
               return (
                 <div
                   key={project.id}
-                  className="group relative flex flex-col justify-between rounded-xl border border-zinc-200/80 bg-white p-5 shadow-card transition-all hover:border-zinc-300 hover:shadow-md"
+                  className="group relative flex flex-col justify-between rounded-[18px] border border-[rgba(74,61,100,0.08)] bg-white/82 p-5 shadow-[0_8px_30px_rgba(70,55,95,0.055)] backdrop-blur-[16px] transition-all hover:border-[rgba(74,61,100,0.16)] hover:shadow-[0_12px_35px_rgba(70,55,95,0.08)]"
                 >
                   <div>
                     {/* Top Row: Title, Status Badge, & Menu */}
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="min-w-0 flex-1">
-                        <Link
-                          href={`/project/${project.id}`}
-                          className="block text-base font-semibold tracking-tight text-slate-900 group-hover:text-indigo-600 transition truncate"
-                        >
-                          {project.name}
-                        </Link>
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-center gap-3 min-w-0 flex-1">
+                        <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-[#FAF9FC] border border-[rgba(184,148,78,0.16)] text-xs font-semibold text-[#80642F]">
+                          {project.name.slice(0, 1).toUpperCase()}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <Link
+                            href={`/project/${project.id}`}
+                            className="block text-base font-semibold tracking-tight text-[#252331] group-hover:text-[#80642F] transition truncate"
+                          >
+                            {project.name}
+                          </Link>
+                          <div className="mt-1">
+                            <Badge
+                              variant={badgeVariant}
+                              size="sm"
+                              showIcon={false}
+                            >
+                              {project.status || "Active"}
+                            </Badge>
+                          </div>
+                        </div>
                       </div>
 
-                      <div className="flex items-center gap-1.5 shrink-0">
-                        <Badge
-                          variant={badgeVariant}
-                          size="sm"
-                          showIcon={false}
-                        >
-                          {project.status || "Active"}
-                        </Badge>
+                      <div className="flex items-center shrink-0">
                         <DropdownMenu
                           ariaLabel={`Options for ${project.name}`}
                           items={[
@@ -337,36 +344,36 @@ export default function ProjectsPage() {
                     </div>
 
                     {/* Description */}
-                    <p className="mt-2 text-xs sm:text-sm text-zinc-500 line-clamp-2 leading-relaxed min-h-[2.5rem]">
+                    <p className="mt-3 text-xs sm:text-sm text-[#706C7D] line-clamp-2 leading-relaxed min-h-[2.5rem]">
                       {project.description || "No project description provided."}
                     </p>
 
                     {/* Stats Hierarchy */}
-                    <div className="mt-4 flex items-center gap-3 text-xs text-zinc-500 font-medium">
+                    <div className="mt-4 flex items-center gap-3 text-xs text-[#706C7D] font-medium">
                       <span>{project.epics || 0} Epics</span>
-                      <span className="text-zinc-300">•</span>
+                      <span className="text-[rgba(74,61,100,0.2)]">•</span>
                       <span>{project.total || 0} Stories</span>
-                      <span className="text-zinc-300">•</span>
-                      <span className="text-emerald-700">
+                      <span className="text-[rgba(74,61,100,0.2)]">•</span>
+                      <span className="text-[#2E8B70] font-semibold">
                         {project.approved || 0} Approved
                       </span>
                     </div>
 
                     {/* Progress Bar */}
-                    <div className="mt-2.5 h-1.5 w-full overflow-hidden rounded-full bg-zinc-100">
+                    <div className="mt-2.5 h-1.5 w-full overflow-hidden rounded-full bg-[rgba(74,61,100,0.06)]">
                       <div
-                        className="h-full rounded-full bg-slate-900 transition-all duration-300"
+                        className="h-full rounded-full bg-[#B8944E] transition-all duration-300"
                         style={{ width: `${progress}%` }}
                       />
                     </div>
                   </div>
 
                   {/* Card Footer */}
-                  <div className="mt-4 pt-3 border-t border-zinc-100 flex items-center justify-between text-xs text-zinc-400">
+                  <div className="mt-4 pt-3 border-t border-[rgba(74,61,100,0.06)] flex items-center justify-between text-xs text-[#706C7D]">
                     <span>{progress}% reviewed</span>
                     <Link
                       href={`/project/${project.id}`}
-                      className="inline-flex items-center gap-1 font-medium text-slate-900 group-hover:text-indigo-600 transition"
+                      className="inline-flex items-center gap-1 font-medium text-[#252331] group-hover:text-[#80642F] transition"
                     >
                       <span>Open</span>
                       <ArrowRight size={13} className="transition-transform group-hover:translate-x-0.5" />
@@ -418,12 +425,12 @@ export default function ProjectsPage() {
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g. OfferNearU, Customer Portal"
-              className="h-10 w-full rounded-xl border border-zinc-200 px-3.5 text-sm text-zinc-900 outline-none transition focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+              className="h-10 w-full rounded-xl border border-[rgba(74,61,100,0.11)] bg-white px-3.5 text-sm text-[#252331] outline-none transition focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)]"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-1.5">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-[#706C7D] mb-1.5">
               Short Description
             </label>
             <textarea
@@ -431,7 +438,7 @@ export default function ProjectsPage() {
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Brief description of the product or initiative..."
-              className="w-full rounded-xl border border-zinc-200 p-3 text-sm text-zinc-900 outline-none transition focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 resize-none"
+              className="w-full rounded-xl border border-[rgba(74,61,100,0.11)] bg-white p-3 text-sm text-[#252331] outline-none transition focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)] resize-none"
             />
           </div>
 
@@ -472,7 +479,7 @@ export default function ProjectsPage() {
       >
         <form id="edit-project-form" onSubmit={handleUpdate} className="space-y-4">
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-1.5">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-[#706C7D] mb-1.5">
               Project Name <span className="text-rose-500">*</span>
             </label>
             <input
@@ -480,30 +487,30 @@ export default function ProjectsPage() {
               required
               value={editName}
               onChange={(e) => setEditName(e.target.value)}
-              className="h-10 w-full rounded-xl border border-zinc-200 px-3.5 text-sm text-zinc-900 outline-none transition focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+              className="h-10 w-full rounded-xl border border-[rgba(74,61,100,0.11)] bg-white px-3.5 text-sm text-[#252331] outline-none transition focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)]"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-1.5">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-[#706C7D] mb-1.5">
               Description
             </label>
             <textarea
               rows={3}
               value={editDesc}
               onChange={(e) => setEditDesc(e.target.value)}
-              className="w-full rounded-xl border border-zinc-200 p-3 text-sm text-zinc-900 outline-none transition focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 resize-none"
+              className="w-full rounded-xl border border-[rgba(74,61,100,0.11)] bg-white p-3 text-sm text-[#252331] outline-none transition focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)] resize-none"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-1.5">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-[#706C7D] mb-1.5">
               Status
             </label>
             <select
               value={editStatus}
               onChange={(e) => setEditStatus(e.target.value)}
-              className="h-10 w-full rounded-xl border border-zinc-200 bg-white px-3 text-sm text-zinc-900 outline-none transition focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 cursor-pointer"
+              className="h-10 w-full rounded-xl border border-[rgba(74,61,100,0.11)] bg-white px-3 text-sm text-[#252331] outline-none transition focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)] cursor-pointer"
             >
               <option value="active">Active</option>
               <option value="completed">Completed</option>

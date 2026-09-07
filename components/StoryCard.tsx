@@ -25,38 +25,50 @@ export function StoryCard({
     <button
       type="button"
       onClick={onClick}
-      className={`group w-full text-left rounded-xl border p-4 transition-all duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900 cursor-pointer ${
+      className={`group w-full text-left rounded-xl border p-4 transition-all duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#B8944E] cursor-pointer ${
         isSelected
-          ? "border-indigo-500 bg-indigo-50/20 shadow-xs ring-1 ring-indigo-500/20"
-          : "border-zinc-200/80 bg-white hover:border-zinc-300 hover:shadow-card"
+          ? "border-[#B8944E] bg-[rgba(184,148,78,0.06)] shadow-xs ring-1 ring-[#B8944E]/25"
+          : "border-[rgba(74,61,100,0.08)] bg-white hover:border-[#B8944E]/30 hover:shadow-[0_4px_20px_rgba(70,55,95,0.05)]"
       }`}
     >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
           {/* Metadata Row */}
           <div className="flex flex-wrap items-center gap-2 mb-1.5">
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-[#9994A5]">
               Story
             </span>
-            <span className="text-zinc-300 text-xs">•</span>
-            <span className="text-[11px] font-medium text-zinc-500">
+            <span className="text-[rgba(74,61,100,0.2)] text-xs">•</span>
+            <span className="text-[11px] font-medium text-[#706C7D]">
               {criteriaCount} {criteriaCount === 1 ? "criterion" : "criteria"}
             </span>
 
             {story.team_review_status === "approved" && (
               <>
-                <span className="text-zinc-300 text-xs">•</span>
-                <span className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-700 bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-200/60">
+                <span className="text-[rgba(74,61,100,0.2)] text-xs">•</span>
+                <span className="inline-flex items-center gap-1 text-[11px] font-medium text-[#2E8B70] bg-[rgba(46,139,112,0.08)] px-1.5 py-0.2 rounded border border-[rgba(46,139,112,0.16)]">
                   <CheckCircle2 size={11} className="stroke-[2.5]" />
                   Team Approved
                 </span>
               </>
             )}
 
+            {story.reviewers && story.reviewers.length > 0 && (
+              <>
+                <span className="text-[rgba(74,61,100,0.2)] text-xs">•</span>
+                <span
+                  className="text-[11px] font-medium text-[#706C7D] bg-zinc-100 px-1.5 py-0.2 rounded border border-zinc-200"
+                  title={`Reviewers: ${story.reviewers.map((r) => `${r.name || r.username}${r.role && r.role !== "member" ? ` (${r.role})` : ""}`).join(", ")}`}
+                >
+                  {story.reviewers.length} {story.reviewers.length === 1 ? "reviewer" : "reviewers"}
+                </span>
+              </>
+            )}
+
             {openFeedbackCount !== undefined && openFeedbackCount > 0 && (
               <>
-                <span className="text-zinc-300 text-xs">•</span>
-                <span className="inline-flex items-center gap-1 text-[11px] font-medium text-amber-800 bg-amber-50 px-1.5 py-0.2 rounded border border-amber-200/80">
+                <span className="text-[rgba(74,61,100,0.2)] text-xs">•</span>
+                <span className="inline-flex items-center gap-1 text-[11px] font-medium text-[#A87936] bg-[rgba(168,121,54,0.08)] px-1.5 py-0.2 rounded border border-[rgba(168,121,54,0.16)]">
                   <MessageSquare size={11} />
                   {openFeedbackCount} open feedback
                 </span>
@@ -65,13 +77,13 @@ export function StoryCard({
           </div>
 
           {/* Title */}
-          <h4 className="text-sm font-semibold text-slate-900 tracking-tight group-hover:text-indigo-600 transition truncate">
+          <h4 className="text-sm font-semibold text-[#252331] tracking-tight group-hover:text-[#80642F] transition truncate">
             {story.title}
           </h4>
 
           {/* Description */}
           {story.description && (
-            <p className="mt-1 text-xs text-zinc-500 line-clamp-2 leading-relaxed">
+            <p className="mt-1 text-xs text-[#706C7D] line-clamp-2 leading-relaxed">
               {story.description}
             </p>
           )}
@@ -83,7 +95,7 @@ export function StoryCard({
 
       {/* Subtle counts summary if assumptions or clarifications exist */}
       {(assumptionsCount > 0 || clarificationsCount > 0) && (
-        <div className="mt-2.5 pt-2 border-t border-zinc-100 flex items-center gap-3 text-[11px] text-zinc-400">
+        <div className="mt-2.5 pt-2 border-t border-[rgba(74,61,100,0.06)] flex items-center gap-3 text-[11px] text-[#9994A5]">
           {assumptionsCount > 0 && (
             <span>
               • {assumptionsCount} {assumptionsCount === 1 ? "assumption" : "assumptions"}

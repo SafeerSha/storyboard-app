@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getAuthenticatedTeamUser } from "@/lib/team-session";
 import { getStoryFeedback, updateFeedbackThreadStatus } from "@/lib/feedback-store";
+import { isTeamUserReviewer } from "@/lib/story-reviewer-auth";
 import { logAudit } from "@/lib/audit";
 
 export async function POST(
@@ -28,6 +29,15 @@ export async function POST(
     return NextResponse.json(
       { error: "Story not found or does not belong to your assigned project." },
       { status: 404 }
+    );
+  }
+
+  // Enforce story-level reviewer access control
+  const isReviewer = await isTeamUserReviewer(story.id, teamUser.id);
+  if (!isReviewer) {
+    return NextResponse.json(
+      { error: "Forbidden. Only assigned reviewers can approve this story." },
+      { status: 403 }
     );
   }
 

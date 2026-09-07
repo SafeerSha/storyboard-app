@@ -19,8 +19,17 @@ export async function GET() {
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
-  const { data: stories } = await supabase.from("stories").select("project_id,status").in("project_id", (projects ?? []).map(p => p.id));
-  const { data: epics } = await supabase.from("epics").select("project_id").in("project_id", (projects ?? []).map(p => p.id));
+  const projectList = projects ?? [];
+  const projectIds = projectList.map((p) => p.id);
+
+  const [{ data: stories }, { data: epics }] = await Promise.all([
+    projectIds.length > 0
+      ? supabase.from("stories").select("project_id,status").in("project_id", projectIds)
+      : Promise.resolve({ data: [] }),
+    projectIds.length > 0
+      ? supabase.from("epics").select("project_id").in("project_id", projectIds)
+      : Promise.resolve({ data: [] }),
+  ]);
 
   const counts: Record<string, { total: number; approved: number; review: number; epics: number }> = {};
   for (const s of stories ?? []) {

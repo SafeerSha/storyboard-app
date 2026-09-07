@@ -12,10 +12,12 @@ import {
   FileText,
   HelpCircle,
   Layers,
+  Lock,
   MessageSquare,
   Plus,
   Sparkles,
   Trash2,
+  Users,
   X,
 } from "lucide-react";
 import { StoryEditor } from "@/components/StoryEditor";
@@ -42,6 +44,7 @@ interface TeamWorkspaceProps {
   };
   initialStories: Story[];
   initialEpics: Epic[];
+  initialTargetStoryId?: string;
 }
 
 export function TeamWorkspace({
@@ -49,6 +52,7 @@ export function TeamWorkspace({
   project,
   initialStories,
   initialEpics,
+  initialTargetStoryId,
 }: TeamWorkspaceProps) {
   const [stories, setStories] = useState<Story[]>(initialStories);
   const [epics, setEpics] = useState<Epic[]>(initialEpics);
@@ -72,6 +76,14 @@ export function TeamWorkspace({
   const [multiStoryReview, setMultiStoryReview] = useState<Story[] | null>(null);
   const [savingMultiStories, setSavingMultiStories] = useState(false);
 
+  // Reviewer assignment state
+  const [projectTeamMembers, setProjectTeamMembers] = useState<
+    Array<{ id: string; name: string; username: string }>
+  >([]);
+  const [newStoryReviewerIds, setNewStoryReviewerIds] = useState<string[]>([
+    teamUser.id,
+  ]);
+
   // Epic create/edit modal
   const [showEpicModal, setShowEpicModal] = useState(false);
   const [editingEpic, setEditingEpic] = useState<Epic | null>(null);
@@ -90,14 +102,36 @@ export function TeamWorkspace({
   } | null>(null);
 
   // Collapsed / Expanded stories
-  const [expandedStoryIds, setExpandedStoryIds] = useState<Set<string>>(new Set());
+  const [expandedStoryIds, setExpandedStoryIds] = useState<Set<string>>(
+    () => new Set(initialTargetStoryId ? [initialTargetStoryId] : [])
+  );
+
+  // Auto-expand and scroll to target story when opened from Review Queue
+  useEffect(() => {
+    if (initialTargetStoryId) {
+      setExpandedStoryIds((prev) => new Set([...prev, initialTargetStoryId]));
+      const timer = setTimeout(() => {
+        const el = document.getElementById(`story-${initialTargetStoryId}`);
+        if (el) {
+          el.scrollIntoView({ behavior: "smooth", block: "center" });
+          el.classList.add("ring-2", "ring-[#B8944E]", "ring-offset-2");
+          setTimeout(() => {
+            el.classList.remove("ring-2", "ring-[#B8944E]", "ring-offset-2");
+          }, 3500);
+        }
+      }, 350);
+      return () => clearTimeout(timer);
+    }
+  }, [initialTargetStoryId]);
 
   const toggleExpand = (id: string) => {
     setExpandedStoryIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
+      if (prev.has(id)) {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      }
+      return new Set([id]);
     });
   };
 
@@ -109,10 +143,20 @@ export function TeamWorkspace({
     setNewStoryCriteria([]);
     setNewStoryAssumptions([]);
     setNewStoryClarifications([]);
+    setNewStoryReviewerIds([teamUser.id]);
     setTitleValidationError("");
     setAddStoryError("");
     setMultiStoryReview(null);
     setShowAddStory(true);
+
+    if (projectTeamMembers.length === 0) {
+      fetch(`/api/projects/${project.id}/team-members`)
+        .then((r) => (r.ok ? r.json() : { teamMembers: [] }))
+        .then((d) => {
+          if (d.teamMembers) setProjectTeamMembers(d.teamMembers);
+        })
+        .catch(() => {});
+    }
   }
 
   // Close Add Story modal
@@ -124,6 +168,7 @@ export function TeamWorkspace({
     setNewStoryCriteria([]);
     setNewStoryAssumptions([]);
     setNewStoryClarifications([]);
+    setNewStoryReviewerIds([teamUser.id]);
     setTitleValidationError("");
     setAddStoryError("");
     setMultiStoryReview(null);
@@ -198,6 +243,9 @@ export function TeamWorkspace({
       );
       setConfirmUnresolved(null);
       loadFeedbackCounts();
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new CustomEvent("storyboard:review-updated"));
+      }
       toast.success("Story approved");
     } catch {
       toast.error("Unable to approve story");
@@ -410,6 +458,7 @@ export function TeamWorkspace({
           assumptions: newStoryAssumptions.filter((a) => a.trim()),
           clarifications: newStoryClarifications.filter((cl) => cl.trim()),
           status: "review",
+          reviewer_ids: newStoryReviewerIds,
         }),
       });
 
@@ -520,6 +569,7 @@ export function TeamWorkspace({
   // Reusable Story Card Renderer
   const renderStoryCard = (story: Story, showEpicBadge = false) => {
     const isExpanded = expandedStoryIds.has(story.id);
+    const isReviewer = (story.reviewer_ids || []).includes(teamUser.id);
     const isTeamApproved = story.team_review_status === "approved";
     const isClientApproved =
       story.client_review_status === "approved" || story.status === "approved";
@@ -530,10 +580,11 @@ export function TeamWorkspace({
     return (
       <div
         key={story.id}
-        className={`rounded-xl border bg-white transition shadow-xs overflow-hidden ${
+        id={`story-${story.id}`}
+        className={`rounded-[18px] border transition overflow-hidden ${
           isTeamApproved
-            ? "border-emerald-200/80"
-            : "border-zinc-200/80 hover:border-zinc-300"
+            ? "bg-[rgba(46,139,112,0.06)] border-[rgba(46,139,112,0.18)] shadow-[0_8px_30px_rgba(70,55,95,0.04)]"
+            : "bg-white/88 border-[rgba(74,61,100,0.08)] hover:border-[#B8944E]/30 shadow-[0_8px_30px_rgba(70,55,95,0.055)] backdrop-blur-[16px]"
         }`}
       >
         {/* Story Header Summary */}
@@ -551,6 +602,26 @@ export function TeamWorkspace({
                   </>
                 )}
                 <span>{story.acceptance_criteria?.length ?? 0} criteria</span>
+
+                {/* Reviewers pill */}
+                {story.reviewers && story.reviewers.length > 0 ? (
+                  <>
+                    <span>•</span>
+                    <span
+                      className="inline-flex items-center gap-1 rounded-full bg-zinc-100 px-2 py-0.5 text-[11px] font-medium text-zinc-700 border border-zinc-200"
+                      title={`Reviewers: ${story.reviewers.map((r) => `${r.name || r.username}${r.role && r.role !== "member" ? ` (${r.role})` : ""}`).join(", ")}`}
+                    >
+                      <Users size={11} className="text-zinc-500" />
+                      {story.reviewers.length} {story.reviewers.length === 1 ? "reviewer" : "reviewers"}
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <span>•</span>
+                    <span className="text-[11px] text-zinc-400 italic">No reviewers assigned</span>
+                  </>
+                )}
+
                 {openThreadCount > 0 && (
                   <>
                     <span>•</span>
@@ -634,21 +705,44 @@ export function TeamWorkspace({
                     </>
                   )}
                 </span>
+
+                {/* Access Level Badge */}
+                {!isReviewer ? (
+                  <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200">
+                    <Lock size={12} />
+                    <span>Read Only (Non-Reviewer)</span>
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">
+                    <CheckCircle2 size={12} className="stroke-[2.5]" />
+                    <span>Assigned Reviewer</span>
+                  </span>
+                )}
               </div>
             </div>
 
             {/* Action buttons on card */}
             <div className="flex items-center gap-2 self-end sm:self-start shrink-0 pt-1">
               {!isTeamApproved && (
-                <Button
-                  variant="primary"
-                  size="sm"
-                  isLoading={isApprovingThis}
-                  leftIcon={<Check size={13} />}
-                  onClick={() => handleApproveStory(story.id)}
-                >
-                  Approve
-                </Button>
+                isReviewer ? (
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    isLoading={isApprovingThis}
+                    leftIcon={<Check size={13} />}
+                    onClick={() => handleApproveStory(story.id)}
+                  >
+                    Approve
+                  </Button>
+                ) : (
+                  <span
+                    className="inline-flex items-center gap-1 rounded-lg border border-zinc-200 bg-zinc-50 px-2.5 py-1.5 text-xs font-medium text-zinc-400 cursor-not-allowed"
+                    title="Only assigned reviewers can approve this story"
+                  >
+                    <Lock size={12} className="opacity-40" />
+                    <span>Reviewer Only</span>
+                  </span>
+                )
               )}
 
               <Button
@@ -663,7 +757,7 @@ export function TeamWorkspace({
               <button
                 type="button"
                 onClick={() => toggleExpand(story.id)}
-                className="grid h-8 w-8 place-items-center rounded-lg border border-zinc-200 bg-white text-zinc-500 hover:bg-zinc-50 transition cursor-pointer"
+                className="grid h-8 w-8 place-items-center rounded-lg border border-white/60 bg-white/50 text-zinc-500 hover:bg-white/70 transition cursor-pointer"
                 aria-label={isExpanded ? "Collapse story" : "Expand story details"}
               >
                 {isExpanded ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
@@ -675,6 +769,17 @@ export function TeamWorkspace({
         {/* Expandable Story Details: Acceptance Criteria & Feedback Threads */}
         {isExpanded && (
           <div className="border-t border-zinc-100 bg-zinc-50/40 p-4 sm:p-5 space-y-5 animate-in fade-in duration-150">
+            {/* Read-Only Banner for Non-Reviewers */}
+            {!isReviewer && (
+              <div className="rounded-xl border border-amber-200/80 bg-amber-50/70 p-3.5 flex items-center gap-2.5 text-xs text-amber-900">
+                <AlertCircle size={15} className="shrink-0 text-amber-600" />
+                <div>
+                  <span className="font-semibold">Read-only access: </span>
+                  You can view this story. Only assigned reviewers can participate in review discussions, request changes, or approve this story.
+                </div>
+              </div>
+            )}
+
             {/* Acceptance Criteria */}
             <div>
               <h4 className="text-xs font-bold uppercase tracking-wider text-zinc-500 mb-2.5">
@@ -687,7 +792,7 @@ export function TeamWorkspace({
                     return (
                       <div
                         key={i}
-                        className="rounded-xl border border-zinc-200/70 bg-white p-3 shadow-2xs"
+                        className="rounded-xl border border-[rgba(74,61,100,0.08)] bg-white p-3 shadow-xs"
                       >
                         <div className="flex items-start gap-2">
                           <span className="font-mono text-[10px] font-bold text-indigo-600 bg-indigo-50 border border-indigo-100 rounded px-1.5 py-0.5 shrink-0 mt-0.5">
@@ -708,6 +813,7 @@ export function TeamWorkspace({
                             pointNumber={i}
                             actionLabel="Discuss criterion"
                             viewerType="team_user"
+                            isReadOnly={!isReviewer}
                             threads={threads}
                             onThreadCreated={(t) => {
                               setStoryThreadsMap((prev) => ({
@@ -791,18 +897,18 @@ export function TeamWorkspace({
     return (
       <div
         key={epic.id}
-        className="rounded-2xl border border-zinc-200/90 bg-white shadow-xs overflow-hidden"
+        className="rounded-[18px] border border-[rgba(74,61,100,0.08)] bg-white/85 shadow-[0_8px_30px_rgba(70,55,95,0.055)] backdrop-blur-[16px] overflow-hidden"
       >
         {/* Epic Card Header: Shows ONLY Epic Name, count, Add Story, and Actions Dropdown */}
-        <div className="border-b border-zinc-200/70 bg-[#F8F9FC] p-4 sm:p-5">
+        <div className="border-b border-[rgba(74,61,100,0.06)] bg-[#FAF9FC]/90 p-4 sm:p-5">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
             {/* Epic Details */}
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2 mb-1">
-                <span className="flex h-6 w-6 items-center justify-center rounded-md bg-indigo-50 text-indigo-600 border border-indigo-100/60">
+                <span className="flex h-6 w-6 items-center justify-center rounded-md bg-[rgba(184,148,78,0.10)] text-[#80642F] border border-[rgba(184,148,78,0.15)]">
                   <Layers size={13} />
                 </span>
-                <h3 className="text-base font-bold text-slate-900 truncate">
+                <h3 className="text-base font-semibold text-[#252331] truncate">
                   {epic.name}
                 </h3>
               </div>
@@ -1577,6 +1683,54 @@ export function TeamWorkspace({
               </div>
             )}
 
+            {/* Reviewer Assignment Selection */}
+            {projectTeamMembers.length > 0 && (
+              <div className="space-y-1.5 pt-2 border-t border-zinc-100">
+                <div className="flex items-center justify-between">
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-500">
+                    Assign Story Reviewers
+                  </label>
+                  <span className="text-[11px] text-zinc-400">
+                    {newStoryReviewerIds.length} selected
+                  </span>
+                </div>
+                <p className="text-[11px] text-zinc-500">
+                  Select team members who can review, discuss, and approve this story.
+                </p>
+                <div className="flex flex-wrap gap-2 pt-1">
+                  {projectTeamMembers.map((tm) => {
+                    const isSelected = newStoryReviewerIds.includes(tm.id);
+                    return (
+                      <button
+                        key={tm.id}
+                        type="button"
+                        onClick={() => {
+                          setNewStoryReviewerIds((prev) =>
+                            isSelected
+                              ? prev.filter((id) => id !== tm.id)
+                              : [...prev, tm.id]
+                          );
+                        }}
+                        className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium transition cursor-pointer ${
+                          isSelected
+                            ? "bg-[#80642F] text-white shadow-2xs"
+                            : "border border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-50"
+                        }`}
+                      >
+                        <span
+                          className={`h-2 w-2 rounded-full ${
+                            isSelected ? "bg-emerald-300" : "bg-zinc-300"
+                          }`}
+                        />
+                        <span>{tm.name}</span>
+                        <span className="text-[10px] opacity-75">(@{tm.username})</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
             {addStoryError && (
               <p className="text-xs text-rose-600 bg-rose-50 p-2.5 rounded-lg">
                 {addStoryError}
@@ -1660,6 +1814,58 @@ export function TeamWorkspace({
         variant="danger"
         isLoading={deletingEpicLoading}
       />
+
+      {/* Edit Story Modal */}
+      {editingStory && (
+        <Modal
+          isOpen={Boolean(editingStory)}
+          onClose={() => setEditingStory(null)}
+          title="Edit Story"
+          maxWidth="xl"
+        >
+          <StoryEditor
+            story={editingStory}
+            epics={epics}
+            viewerType="team_user"
+            currentUserId={teamUser.id}
+            isReviewer={(editingStory.reviewer_ids || []).includes(teamUser.id)}
+            onCancel={() => setEditingStory(null)}
+            onFeedbackChange={loadFeedbackCounts}
+            onSave={async (updated) => {
+              try {
+                const res = await fetch(`/api/stories/${editingStory.id}`, {
+                  method: "PATCH",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    title: updated.title,
+                    description: updated.description,
+                    acceptance_criteria: updated.acceptance_criteria,
+                    assumptions: updated.assumptions,
+                    clarifications: updated.clarifications,
+                    epic_id: updated.epic_id,
+                    reviewer_ids: (updated as any).reviewer_ids,
+                  }),
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || "Failed to update story");
+                setStories((prev) =>
+                  prev.map((s) => (s.id === editingStory.id ? data.story : s))
+                );
+                setEditingStory(null);
+                toast.success("Story updated successfully");
+              } catch (err: any) {
+                toast.error(err.message || "Unable to update story");
+              }
+            }}
+            onCreateEpic={(name) => {
+              setEpicName(name);
+              setEpicDesc("");
+              setEditingEpic(null);
+              setShowEpicModal(true);
+            }}
+          />
+        </Modal>
+      )}
     </div>
   );
 }

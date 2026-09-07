@@ -30,19 +30,58 @@ export type Story = {
   client_approved_by_name?: string | null;
   client_approved_at?: string | null;
   raw_requirement?: string | null;
+  created_by_id?: string | null;
+  reviewer_ids?: string[];
+  reviewers?: Array<{ id: string; team_user_id: string; user_id?: string; name: string; username: string; role?: string }>;
   created_at?: string;
   updated_at?: string;
 };
 
-export type TeamUser = {
+export type StoryReviewer = {
+  id: string;
+  story_id: string;
+  team_user_id: string;
+  user_id?: string; // backwards compatibility
+  assigned_by?: string | null;
+  created_at: string;
+  name?: string;
+  username?: string;
+  role?: string;
+  user?: {
+    id: string;
+    name: string;
+    username: string;
+    role?: string;
+  };
+};
+
+export type ProjectTeamMember = {
   id: string;
   project_id: string;
+  team_user_id: string;
+  assigned_at: string;
+  assigned_by?: string | null;
+  team_user?: {
+    id: string;
+    name: string;
+    username: string;
+    role?: string;
+    status: "active" | "disabled";
+  };
+};
+
+export type TeamUser = {
+  id: string;
   name: string;
   username: string;
+  role?: string;
   status: "active" | "disabled";
   created_at: string;
   updated_at: string;
-  projects?: { name: string } | null;
+  project_id?: string | null;
+  project_ids?: string[];
+  assigned_projects?: Array<{ id: string; name: string }>;
+  projects?: { name: string } | Array<{ id: string; name: string }> | null;
 };
 
 export type GeneratedStory = Omit<Story, "id" | "project_id" | "epic_id" | "created_at" | "updated_at"> & {

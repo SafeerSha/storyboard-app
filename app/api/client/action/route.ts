@@ -15,11 +15,15 @@ export async function POST(req: Request) {
     if (!story) return NextResponse.json({ error: "Story not found." }, { status: 404 });
     const status = input.action === "approve" ? "approved" : "changes_requested";
     
-    // Add approved_by_client_id if needed, but not required by schema yet, leaving as is
-    const updateData: any = { status, updated_at: new Date().toISOString() };
+    const now = new Date().toISOString();
+    const updateData: any = { status, updated_at: now };
     if (status === "approved") {
-        updateData.approved_at = new Date().toISOString();
-        updateData.approved_by_client_id = client.id;
+      updateData.client_review_status = "approved";
+      updateData.client_approved_by_id = client.id;
+      updateData.client_approved_by_name = client.name;
+      updateData.client_approved_at = now;
+    } else {
+      updateData.client_review_status = "changes_requested";
     }
     
     const { error } = await db.from("stories").update(updateData).eq("id", story.id);

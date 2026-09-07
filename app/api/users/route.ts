@@ -1,39 +1,8 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { createServerClient } from "@supabase/ssr";
-import { cookies } from "next/headers";
+import { verifySuperAdmin } from "@/lib/super-admin";
 
 export const dynamic = "force-dynamic";
-
-async function verifySuperAdmin() {
-  const cookieStore = await cookies();
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
-    {
-      cookies: {
-        getAll: () => cookieStore.getAll(),
-        setAll: () => {},
-      }
-    }
-  );
-
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return null;
-
-  const adminClient = createAdminClient();
-  const { data: profile } = await adminClient
-    .from("freelancer_profiles")
-    .select("role, status")
-    .eq("id", user.id)
-    .single();
-
-  if (profile?.role !== "super_admin" || profile?.status !== "active") {
-    return null;
-  }
-
-  return user;
-}
 
 export async function GET() {
   const admin = await verifySuperAdmin();
@@ -42,7 +11,7 @@ export async function GET() {
   const adminClient = createAdminClient();
   const { data: users, error } = await adminClient
     .from("freelancer_profiles")
-    .select("*")
+    .select("id, name, email, role, status, created_at, updated_at")
     .order("created_at", { ascending: false });
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
