@@ -42,7 +42,17 @@ export async function createClientSession(clientId: string) {
   });
 }
 
-export async function getAuthenticatedClient() {
+export interface AuthenticatedClient {
+  id: string;
+  name: string;
+  project_id: string;
+  login_id: string;
+  is_password_changed: boolean;
+}
+
+export async function getAuthenticatedClient(options?: {
+  allowPendingPasswordChange?: boolean;
+}): Promise<AuthenticatedClient | null> {
   const store = await cookies();
   const token = store.get(COOKIE)?.value;
   if (!token) return null;
@@ -60,7 +70,8 @@ export async function getAuthenticatedClient() {
         name,
         project_id,
         login_id,
-        status
+        status,
+        is_password_changed
       )
     `)
     .eq("token_hash", tokenHash)
@@ -74,15 +85,23 @@ export async function getAuthenticatedClient() {
   }
 
   // The join returns an object or array depending on relation, Supabase returns object for one-to-one or many-to-one
-  const client = Array.isArray(session.clients) ? session.clients[0] : session.clients;
+  const client: any = Array.isArray(session.clients) ? session.clients[0] : session.clients;
 
   if (!client || client.status !== "active") return null;
+
+  // In unmigrated environments, fallback to true if undefined. When explicitly false, requires password setup.
+  const isPasswordChanged = client.is_password_changed !== false;
+
+  if (!options?.allowPendingPasswordChange && !isPasswordChanged) {
+    return null;
+  }
 
   return {
     id: client.id,
     name: client.name,
     project_id: client.project_id,
-    login_id: client.login_id
+    login_id: client.login_id,
+    is_password_changed: isPasswordChanged,
   };
 }
 
@@ -96,3 +115,4 @@ export async function deleteClientSession() {
   }
   store.delete(COOKIE);
 }
+

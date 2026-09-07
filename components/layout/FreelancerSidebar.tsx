@@ -7,6 +7,7 @@ import {
   ChevronDown,
   FolderKanban,
   LayoutDashboard,
+  Lightbulb,
   LogOut,
   Settings,
   ShieldCheck,
@@ -14,6 +15,7 @@ import {
   X,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { toast } from "@/lib/toast";
 import type { DashboardUser } from "./FreelancerLayout";
 
 interface FreelancerSidebarProps {
@@ -97,11 +99,13 @@ export function FreelancerSidebar({
   async function handleSignOut() {
     const supabase = createClient();
     await supabase.auth.signOut();
+    toast.flash("success", "Signed out successfully");
     window.location.href = "/login";
   }
 
   const isOverviewActive = pathname === "/";
   const isProjectsActive = pathname.startsWith("/project") || pathname.startsWith("/projects");
+  const isInboxActive = pathname.startsWith("/inbox");
   const isClientsActive = pathname.startsWith("/clients");
   const isSettingsActive = pathname.startsWith("/settings");
   const isUsersActive = pathname.startsWith("/users");
@@ -123,9 +127,9 @@ export function FreelancerSidebar({
     : "SB";
 
   const renderNav = (isMobile = false) => (
-    <div className="flex h-full flex-col bg-white">
+    <div className="flex h-full flex-col bg-[#F8F9FC]">
       {/* Brand Header */}
-      <div className="flex h-15 items-center justify-between border-b border-line px-4">
+      <div className="flex h-[72px] sm:h-[80px] items-center justify-between border-b border-[#E2E6EF] px-5 bg-[#F8F9FC]">
         <Link
           href="/"
           onClick={closeMobile}
@@ -193,6 +197,33 @@ export function FreelancerSidebar({
               />
               <span>Projects</span>
             </Link>
+
+            {userRole === "super_admin" && (
+              <Link
+                href="/inbox"
+                onClick={closeMobile}
+                className={`flex items-center justify-between rounded-lg px-2.5 py-1.5 text-xs sm:text-sm transition-colors group ${
+                  isInboxActive
+                    ? "bg-[#EEF2FF] font-semibold text-[#4F46E5]"
+                    : "text-zinc-600 hover:bg-zinc-50 hover:text-slate-900"
+                }`}
+              >
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <Lightbulb
+                    size={16}
+                    className={
+                      isInboxActive
+                        ? "text-[#4F46E5]"
+                        : "text-amber-500 group-hover:text-amber-600"
+                    }
+                  />
+                  <span className="truncate">Project Inbox</span>
+                </div>
+                <span className="rounded bg-indigo-50 px-1.5 py-0.5 text-[10px] font-semibold text-indigo-600 border border-indigo-200/70">
+                  Ideas
+                </span>
+              </Link>
+            )}
           </nav>
         </div>
 
@@ -256,7 +287,7 @@ export function FreelancerSidebar({
       </div>
 
       {/* User Profile Pill & Popover Menu */}
-      <div className="relative border-t border-line p-3" ref={menuRef}>
+      <div className="relative border-t border-[#E2E6EF] p-3" ref={menuRef}>
         {showUserMenu && (
           <div className="absolute bottom-full left-3 right-3 mb-2 overflow-hidden rounded-xl border border-zinc-200/90 bg-white p-1 shadow-dropdown animate-in fade-in zoom-in-95 duration-100">
             <div className="border-b border-zinc-100 px-3 py-2">
@@ -304,7 +335,7 @@ export function FreelancerSidebar({
   return (
     <>
       {/* Desktop Persistent Sidebar */}
-      <aside className="fixed inset-y-0 left-0 z-30 hidden w-56 border-r border-line bg-white lg:flex lg:flex-col">
+      <aside className="fixed inset-y-0 left-0 z-30 hidden w-56 border-r border-[#E2E6EF] bg-[#F8F9FC] lg:flex lg:flex-col">
         {renderNav(false)}
       </aside>
 
@@ -321,7 +352,7 @@ export function FreelancerSidebar({
         role="dialog"
         aria-modal="true"
         aria-label="Navigation Menu"
-        className={`fixed inset-y-0 left-0 z-50 flex w-64 max-w-[calc(100vw-3rem)] flex-col border-r border-line bg-white shadow-2xl transition-transform duration-200 ease-in-out lg:hidden pb-[env(safe-area-inset-bottom)] ${
+        className={`fixed inset-y-0 left-0 z-50 flex w-64 max-w-[calc(100vw-3rem)] flex-col border-r border-[#E2E6EF] bg-[#F8F9FC] shadow-2xl transition-transform duration-200 ease-in-out lg:hidden pb-[env(safe-area-inset-bottom)] ${
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >

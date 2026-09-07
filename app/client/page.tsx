@@ -9,8 +9,9 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import type { Story, Epic } from "@/lib/types";
 
 export default async function ClientPortal() {
-  const client = await getAuthenticatedClient();
+  const client = await getAuthenticatedClient({ allowPendingPasswordChange: true });
   if (!client) redirect("/client/login");
+  if (!client.is_password_changed) redirect("/client/set-password");
 
   const db = createAdminClient();
   const { data: project } = await db
@@ -45,17 +46,17 @@ export default async function ClientPortal() {
   return (
     <main className="min-h-screen bg-paper pb-20">
       {/* Top Header */}
-      <header className="sticky top-0 z-20 border-b border-line bg-white/95 backdrop-blur-md">
-        <div className="mx-auto flex h-15 max-w-5xl items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-2.5 min-w-0">
-            <div className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-slate-900 text-white shadow-xs">
+      <header className="sticky top-0 z-20 border-b border-[#E2E6EF] bg-[#F8F9FC]/95 backdrop-blur-md">
+        <div className="mx-auto flex min-h-[72px] sm:min-h-[80px] py-4 max-w-5xl items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-slate-900 text-white shadow-xs">
               <span className="text-xs font-semibold">◆</span>
             </div>
             <div className="min-w-0">
-              <span className="text-sm font-semibold tracking-tight text-slate-900 truncate block">
+              <span className="text-base font-semibold tracking-tight text-[#111827] truncate block">
                 StoryBoard
               </span>
-              <span className="text-[10px] text-zinc-400 font-medium uppercase tracking-wider block -mt-0.5">
+              <span className="text-[11px] text-[#64748B] font-medium uppercase tracking-wider block">
                 Client Review Portal
               </span>
             </div>

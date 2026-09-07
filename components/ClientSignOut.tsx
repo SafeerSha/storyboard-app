@@ -2,6 +2,7 @@
 
 import { LogOut } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { toast } from "@/lib/toast";
 
 export function ClientSignOut() {
   async function handleSignOut() {
@@ -10,6 +11,7 @@ export function ClientSignOut() {
     } catch {
       // Proceed
     }
+    toast.flash("success", "Signed out successfully");
     window.location.href = "/client/login";
   }
 

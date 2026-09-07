@@ -91,22 +91,27 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "AI failed to generate stories." }, { status: 500 });
     }
 
-    // Atomic Bulk Insert
-    const storiesToInsert = result.stories.map((story) => ({
+    // Mapped stories for current epic
+    const storiesToProcess = result.stories.map((story) => ({
       project_id: projectId,
       epic_id: epicId,
       title: story.title,
       description: story.description,
-      acceptance_criteria: story.acceptanceCriteria,
-      assumptions: story.assumptions,
-      clarifications: story.clarifications,
+      acceptance_criteria: story.acceptanceCriteria || [],
+      assumptions: story.assumptions || [],
+      clarifications: story.clarifications || [],
       status: story.status || "draft",
       raw_requirement: requirement,
     }));
 
+    // If caller requested preview without saving immediately
+    if (body.save === false) {
+      return NextResponse.json({ stories: storiesToProcess });
+    }
+
     const { data: insertedStories, error: insertError } = await adminDb
       .from("stories")
-      .insert(storiesToInsert)
+      .insert(storiesToProcess)
       .select();
 
     if (insertError) {

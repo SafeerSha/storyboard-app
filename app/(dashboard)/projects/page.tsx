@@ -14,9 +14,11 @@ import { DashboardHeader } from "@/components/layout/DashboardHeader";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { DropdownMenu } from "@/components/ui/DropdownMenu";
 import { ProjectCardSkeleton } from "@/components/ui/Skeleton";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { toast } from "@/lib/toast";
 
 type Project = {
   id: string;
@@ -52,6 +54,10 @@ export default function ProjectsPage() {
   const [editStatus, setEditStatus] = useState("active");
   const [updating, setUpdating] = useState(false);
   const [editError, setEditError] = useState("");
+
+  // Delete Project Confirmation Dialog State
+  const [deletingProject, setDeletingProject] = useState<{ id: string; name: string } | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   async function load() {
     setLoading(true);
@@ -89,8 +95,11 @@ export default function ProjectsPage() {
       setName("");
       setDescription("");
       setCreateModalOpen(false);
+      toast.success("Project created successfully");
     } catch (e) {
-      setCreateError(e instanceof Error ? e.message : "Failed to create project");
+      const msg = e instanceof Error ? e.message : "Failed to create project";
+      setCreateError(msg);
+      toast.error("Unable to create project");
     } finally {
       setCreating(false);
     }
@@ -117,30 +126,36 @@ export default function ProjectsPage() {
         v.map((p) => (p.id === editing.id ? { ...p, ...data.project } : p))
       );
       setEditing(null);
+      toast.success("Project updated successfully");
     } catch (e) {
-      setEditError(e instanceof Error ? e.message : "Failed to update project");
+      const msg = e instanceof Error ? e.message : "Failed to update project";
+      setEditError(msg);
+      toast.error("Unable to update project");
     } finally {
       setUpdating(false);
     }
   }
 
-  async function handleRemove(id: string, projectName: string) {
-    if (
-      !confirm(
-        `Are you sure you want to delete "${projectName}"? This action cannot be undone and will remove associated epics, stories, and client access.`
-      )
-    )
-      return;
-    setLoading(true);
+  function handleRemove(id: string, projectName: string) {
+    setDeletingProject({ id, name: projectName });
+  }
+
+  async function confirmDeleteProject() {
+    if (!deletingProject) return;
+    setDeleting(true);
     try {
-      const res = await fetch(`/api/projects/${id}`, { method: "DELETE" });
+      const res = await fetch(`/api/projects/${deletingProject.id}`, { method: "DELETE" });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to delete project");
-      setProjects((v) => v.filter((p) => p.id !== id));
+      setProjects((v) => v.filter((p) => p.id !== deletingProject.id));
+      toast.success("Project deleted");
+      setDeletingProject(null);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to delete project");
+      const msg = e instanceof Error ? e.message : "Failed to delete project";
+      setError(msg);
+      toast.error("Unable to delete project");
     } finally {
-      setLoading(false);
+      setDeleting(false);
     }
   }
 
@@ -503,6 +518,18 @@ export default function ProjectsPage() {
           )}
         </form>
       </Modal>
+
+      {/* Delete Project Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={Boolean(deletingProject)}
+        onClose={() => setDeletingProject(null)}
+        onConfirm={confirmDeleteProject}
+        title="Delete project"
+        description={`Are you sure you want to delete "${deletingProject?.name}"? This action cannot be undone and will permanently remove associated epics, stories, and client access.`}
+        confirmLabel="Delete project"
+        variant="danger"
+        isLoading={deleting}
+      />
     </div>
   );
 }

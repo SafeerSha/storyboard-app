@@ -22,13 +22,17 @@ import { StoryCard } from "@/components/StoryCard";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { DropdownMenu } from "@/components/ui/DropdownMenu";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { toast } from "@/lib/toast";
 import type { Story, Epic } from "@/lib/types";
 
 type ProjectWorkspaceProps = {
   projectId: string;
   projectName: string;
+  projectDescription?: string;
+  projectStatus?: string;
   initialStories: Story[];
   initialEpics: Epic[];
 };
@@ -36,6 +40,8 @@ type ProjectWorkspaceProps = {
 export function ProjectWorkspace({
   projectId,
   projectName,
+  projectDescription,
+  projectStatus = "active",
   initialStories,
   initialEpics,
 }: ProjectWorkspaceProps) {
@@ -58,6 +64,10 @@ export function ProjectWorkspace({
   const [aiError, setAiError] = useState("");
 
   const [epicFilter, setEpicFilter] = useState<string>("all");
+
+  // ConfirmDialog states for deletions
+  const [deletingStoryId, setDeletingStoryId] = useState<string | null>(null);
+  const [deletingEpicItem, setDeletingEpicItem] = useState<Epic | null>(null);
 
   const loadFeedbackCounts = useCallback(async () => {
     try {
@@ -91,27 +101,38 @@ export function ProjectWorkspace({
       if (!res.ok) throw new Error(data.error || "Failed to update story");
       setStories((v) => v.map((s) => (s.id === id ? data.story : s)));
       setEditing(null);
+      toast.success("Story updated successfully");
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to update story");
+      const msg = e instanceof Error ? e.message : "Failed to update story";
+      setError(msg);
+      toast.error("Unable to update story");
     } finally {
       setLoading(false);
     }
   }
 
-  async function deleteStory(id: string) {
-    if (!confirm("Are you sure you want to delete this story?")) return;
+  function deleteStory(id: string) {
+    setDeletingStoryId(id);
+  }
+
+  async function confirmDeleteStory() {
+    if (!deletingStoryId) return;
     setLoading(true);
     setError("");
     try {
-      const res = await fetch(`/api/stories/${id}`, { method: "DELETE" });
+      const res = await fetch(`/api/stories/${deletingStoryId}`, { method: "DELETE" });
       if (!res.ok) {
         const data = await res.json();
         throw new Error(data.error || "Failed to delete story");
       }
-      setStories((v) => v.filter((s) => s.id !== id));
+      setStories((v) => v.filter((s) => s.id !== deletingStoryId));
       setEditing(null);
+      toast.success("Story deleted");
+      setDeletingStoryId(null);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to delete story");
+      const msg = e instanceof Error ? e.message : "Failed to delete story";
+      setError(msg);
+      toast.error("Unable to delete story");
     } finally {
       setLoading(false);
     }
@@ -132,6 +153,7 @@ export function ProjectWorkspace({
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || "Failed to save Epic");
         setEpics((v) => v.map((e) => (e.id === editingEpic.id ? data : e)));
+        toast.success("Epic updated successfully");
       } else {
         const res = await fetch(`/api/epics`, {
           method: "POST",
@@ -141,35 +163,48 @@ export function ProjectWorkspace({
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || "Failed to create Epic");
         setEpics((v) => [...v, data]);
+        toast.success("Epic created successfully");
       }
       setEpicModalOpen(false);
       setEditingEpic(null);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to save Epic");
+      const msg = e instanceof Error ? e.message : "Failed to save Epic";
+      setError(msg);
+      toast.error(editingEpic ? "Unable to update epic" : "Unable to create epic");
     } finally {
       setLoading(false);
     }
   }
 
-  async function deleteEpic(id: string) {
+  function deleteEpic(id: string) {
     if (stories.some((s) => s.epic_id === id)) {
-      alert("This Epic contains stories. Reassign or remove its stories before deleting the Epic.");
+      toast.warning("Cannot delete an Epic that contains stories. Please delete or reassign its stories first.");
       return;
     }
-    if (!confirm("Are you sure you want to delete this Epic?")) return;
+    const targetEpic = epics.find((e) => e.id === id);
+    if (targetEpic) {
+      setDeletingEpicItem(targetEpic);
+    }
+  }
 
+  async function confirmDeleteEpic() {
+    if (!deletingEpicItem) return;
     setLoading(true);
     setError("");
     try {
-      const res = await fetch(`/api/epics/${id}`, { method: "DELETE" });
+      const res = await fetch(`/api/epics/${deletingEpicItem.id}`, { method: "DELETE" });
       if (!res.ok) {
         const data = await res.json();
         throw new Error(data.error || "Failed to delete Epic");
       }
-      setEpics((v) => v.filter((e) => e.id !== id));
-      if (epicFilter === id) setEpicFilter("all");
+      setEpics((v) => v.filter((e) => e.id !== deletingEpicItem.id));
+      if (epicFilter === deletingEpicItem.id) setEpicFilter("all");
+      toast.success("Epic deleted");
+      setDeletingEpicItem(null);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to delete Epic");
+      const msg = e instanceof Error ? e.message : "Failed to delete Epic";
+      setError(msg);
+      toast.error("Unable to delete epic");
     } finally {
       setLoading(false);
     }
@@ -236,6 +271,7 @@ export function ProjectWorkspace({
     navigator.clipboard.writeText(url);
     setCopiedLink(true);
     setTimeout(() => setCopiedLink(false), 2000);
+    toast.success("Portal link copied");
   }
 
   // Progress metrics
@@ -258,7 +294,15 @@ export function ProjectWorkspace({
       <DashboardHeader
         eyebrow="PROJECT"
         title={projectName}
+        description={projectDescription}
+        badge={
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-medium text-emerald-700 border border-emerald-200">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+            {projectStatus ? projectStatus.charAt(0).toUpperCase() + projectStatus.slice(1) : "Active"}
+          </span>
+        }
         backHref="/projects"
+        backLabel="Projects"
         actions={
           <div className="flex items-center gap-2">
             <Button
@@ -383,10 +427,10 @@ export function ProjectWorkspace({
                   return (
                     <div
                       key={epic.id}
-                      className="rounded-xl border border-zinc-200/80 bg-white shadow-card overflow-hidden"
+                      className="rounded-xl border border-zinc-200/80 bg-white shadow-card"
                     >
                       {/* Epic Header */}
-                      <div className="p-4 sm:p-5 border-b border-zinc-100 bg-zinc-50/40">
+                      <div className="p-4 sm:p-5 border-b border-zinc-100 bg-zinc-50/40 rounded-t-xl">
                         <div className="flex items-start justify-between gap-3">
                           <div className="min-w-0 flex-1">
                             <div className="flex items-center gap-2">
@@ -462,7 +506,7 @@ export function ProjectWorkspace({
                       </div>
 
                       {/* Stories inside Epic */}
-                      <div className="p-3 sm:p-4 space-y-2.5 bg-zinc-50/20">
+                      <div className="p-3 sm:p-4 space-y-2.5 bg-zinc-50/20 rounded-b-xl">
                         {epicStories.length === 0 ? (
                           <div className="py-6 text-center">
                             <p className="text-xs text-zinc-400">No stories in this Epic yet.</p>
@@ -686,9 +730,38 @@ export function ProjectWorkspace({
             if (newStories[0]) {
               setEditing(newStories[0]);
             }
+            toast.success(
+              newStories.length > 1
+                ? `${newStories.length} stories created successfully`
+                : "Story created successfully"
+            );
           }}
         />
       )}
+
+      {/* Delete Story Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={Boolean(deletingStoryId)}
+        onClose={() => setDeletingStoryId(null)}
+        onConfirm={confirmDeleteStory}
+        title="Delete story"
+        description="Are you sure you want to delete this story? This action cannot be undone."
+        confirmLabel="Delete story"
+        variant="danger"
+        isLoading={loading}
+      />
+
+      {/* Delete Epic Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={Boolean(deletingEpicItem)}
+        onClose={() => setDeletingEpicItem(null)}
+        onConfirm={confirmDeleteEpic}
+        title="Delete epic"
+        description={`Are you sure you want to delete "${deletingEpicItem?.name}"? This action cannot be undone.`}
+        confirmLabel="Delete epic"
+        variant="danger"
+        isLoading={loading}
+      />
     </div>
   );
 }

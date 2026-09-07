@@ -90,14 +90,22 @@ export function StoryEditor({
   const suggestedEpicExists = epics.some((e) => e.name === story.suggestedEpic);
   const openFeedbackCount = threads.filter((t) => t.status === "open").length;
 
+  const assignedEpic = epics.find((e) => e.id === value.epic_id);
+  const statusLabel =
+    value.status === "approved"
+      ? "Story · Approved"
+      : value.status === "changes_requested"
+      ? "Story · Changes Requested"
+      : "Story · In Review";
+
   return (
     <div className="rounded-2xl border border-zinc-200/90 bg-white p-5 sm:p-7 shadow-card space-y-6">
       {/* Header */}
       <div className="flex items-start justify-between gap-4 border-b border-zinc-100 pb-4">
         <div className="min-w-0">
-          <div className="flex items-center gap-2">
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-indigo-600">
-              {storyId ? "Story Document" : "New Story"}
+          <div className="flex flex-wrap items-center gap-2 mb-1">
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+              {assignedEpic ? `← ${assignedEpic.name}` : "REQUIREMENTS"}
             </span>
             {openFeedbackCount > 0 && (
               <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-[11px] font-semibold text-amber-800 border border-amber-200/80">
@@ -106,9 +114,12 @@ export function StoryEditor({
               </span>
             )}
           </div>
-          <h3 className="mt-1 text-base sm:text-lg font-semibold tracking-tight text-slate-900 truncate">
+          <h3 className="text-lg font-semibold tracking-tight text-[#111827] truncate">
             {value.title || "Untitled Story"}
           </h3>
+          <p className="mt-0.5 text-xs text-[#64748B] font-medium">
+            {statusLabel}
+          </p>
         </div>
 
         <button

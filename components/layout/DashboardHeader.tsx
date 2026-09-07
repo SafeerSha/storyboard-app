@@ -11,7 +11,10 @@ interface DashboardHeaderProps {
   title: string;
   description?: string;
   backHref?: string;
+  backLabel?: string;
+  badge?: React.ReactNode;
   actions?: React.ReactNode;
+  maxWidth?: string;
 }
 
 export function DashboardHeader({
@@ -20,58 +23,68 @@ export function DashboardHeader({
   title,
   description,
   backHref,
+  backLabel,
+  badge,
   actions,
+  maxWidth = "max-w-6xl",
 }: DashboardHeaderProps) {
   const { toggleMobile } = useDashboard();
   const label = eyebrow || category;
 
   return (
-    <header className="sticky top-0 z-20 flex min-h-15 flex-wrap sm:flex-nowrap items-center justify-between gap-y-2 gap-x-4 border-b border-line bg-paper/95 px-4 sm:px-6 lg:px-8 py-2.5 backdrop-blur-md">
-      <div className="flex min-w-0 items-center gap-2.5 sm:gap-3 flex-1">
-        {/* Mobile menu trigger */}
-        <button
-          type="button"
-          onClick={toggleMobile}
-          className="grid h-8 w-8 shrink-0 place-items-center rounded-lg text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 transition lg:hidden"
-          aria-label="Toggle navigation menu"
-        >
-          <Menu size={18} />
-        </button>
-
-        {backHref && (
-          <Link
-            href={backHref}
-            className="grid h-8 w-8 shrink-0 place-items-center rounded-lg text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 transition"
-            aria-label="Go back"
+    <header className="sticky top-0 z-20 border-b border-[#E2E6EF] bg-[#F8F9FC]/95 backdrop-blur-md transition-colors">
+      <div
+        className={`mx-auto ${maxWidth} px-4 sm:px-6 lg:px-8 min-h-[72px] sm:min-h-[80px] py-4 sm:py-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4`}
+      >
+        <div className="flex items-start gap-3 min-w-0 flex-1">
+          {/* Mobile navigation trigger */}
+          <button
+            type="button"
+            onClick={toggleMobile}
+            className="mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-lg text-slate-500 hover:bg-slate-200/60 hover:text-slate-900 transition-colors lg:hidden"
+            aria-label="Toggle navigation menu"
           >
-            <ArrowLeft size={16} />
-          </Link>
-        )}
+            <Menu size={20} />
+          </button>
 
-        <div className="min-w-0 flex-1">
-          {label && (
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400 truncate">
-              {label}
-            </p>
-          )}
-          <div className="flex items-baseline gap-2 truncate">
-            <h1 className="text-base font-semibold tracking-tight text-slate-900 truncate">
-              {title}
-            </h1>
+          <div className="min-w-0 flex-1">
+            {backHref && (
+              <Link
+                href={backHref}
+                className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-500 hover:text-[#4F46E5] transition-colors mb-1.5 group"
+              >
+                <ArrowLeft size={13} className="transition-transform group-hover:-translate-x-0.5" />
+                <span>{backLabel || (backHref === "/projects" ? "Projects" : "Back")}</span>
+              </Link>
+            )}
+
+            {label && (
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-1">
+                {label}
+              </p>
+            )}
+
+            <div className="flex flex-wrap items-center gap-2.5">
+              <h1 className="text-xl sm:text-2xl font-semibold tracking-tight text-[#111827] leading-tight">
+                {title}
+              </h1>
+              {badge && <div className="shrink-0">{badge}</div>}
+            </div>
+
             {description && (
-              <span className="hidden md:inline text-xs text-zinc-400 truncate font-normal">
-                — {description}
-              </span>
+              <p className="mt-1 text-xs sm:text-sm text-[#64748B] font-normal leading-relaxed max-w-2xl">
+                {description}
+              </p>
             )}
           </div>
         </div>
-      </div>
 
-      {actions && (
-        <div className="flex items-center gap-2 shrink-0 flex-wrap max-sm:w-full max-sm:justify-end">
-          {actions}
-        </div>
-      )}
+        {actions && (
+          <div className="flex items-center gap-2.5 shrink-0 flex-wrap sm:flex-nowrap pt-1 sm:pt-0 pl-12 sm:pl-0">
+            {actions}
+          </div>
+        )}
+      </div>
     </header>
   );
 }

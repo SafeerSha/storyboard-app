@@ -3,6 +3,8 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 
+export const dynamic = "force-dynamic";
+
 async function verifySuperAdmin() {
   const cookieStore = await cookies();
   const supabase = createServerClient(

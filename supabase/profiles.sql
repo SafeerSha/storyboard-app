@@ -16,10 +16,7 @@ create policy "users can view own profile" on freelancer_profiles for select usi
 
 -- Super admins can read all profiles
 create policy "super_admins can view all profiles" on freelancer_profiles for select using (
-  exists (
-    select 1 from freelancer_profiles
-    where id = auth.uid() and role = 'super_admin'
-  )
+  public.is_super_admin()
 );
 
 -- Note: We do NOT allow insert/update/delete via RLS. These operations will be done via server-side admin client.

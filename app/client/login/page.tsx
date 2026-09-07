@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowRight, KeyRound, Lock, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { toast } from "@/lib/toast";
 
 export default function ClientLogin() {
   const router = useRouter();
@@ -24,10 +25,14 @@ export default function ClientLogin() {
       });
       const d = await r.json();
       if (!r.ok) throw new Error(d.error || "Unable to sign in");
-      router.push("/client");
+      toast.success("Login successful");
+      const targetPath = d.redirectTo || (d.isPasswordChanged === false ? "/client/set-password" : "/client");
+      router.push(targetPath);
       router.refresh();
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Unable to sign in. Please verify your PIN and password.");
+    } catch {
+      const userMessage = "Unable to sign in. Please verify your PIN and password.";
+      setError(userMessage);
+      toast.error("Unable to sign in", "Please check your PIN and password.");
     } finally {
       setLoading(false);
     }

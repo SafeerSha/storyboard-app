@@ -40,7 +40,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 
     const variantStyles: Record<ButtonVariant, string> = {
       primary:
-        "bg-slate-900 text-white hover:bg-slate-800 active:scale-[0.99] shadow-xs focus-visible:outline-slate-900",
+        "bg-[#4F46E5] text-white hover:bg-[#4338CA] active:scale-[0.99] shadow-xs focus-visible:outline-[#4F46E5]",
       secondary:
         "bg-white text-zinc-800 border border-zinc-200/90 hover:bg-zinc-50/80 active:scale-[0.99] shadow-xs focus-visible:outline-zinc-500",
       outline:
@@ -52,14 +52,14 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       "danger-solid":
         "bg-rose-600 text-white hover:bg-rose-700 focus-visible:outline-rose-600 shadow-xs",
       brand:
-        "bg-indigo-600 text-white hover:bg-indigo-700 focus-visible:outline-indigo-600 shadow-xs active:scale-[0.99]",
+        "bg-[#4F46E5] text-white hover:bg-[#4338CA] focus-visible:outline-[#4F46E5] shadow-xs active:scale-[0.99]",
     };
 
     const sizeStyles: Record<ButtonSize, string> = {
-      sm: "h-8 px-2.5 text-xs rounded-lg gap-1.5",
-      md: "h-9 px-3.5 text-xs sm:text-sm rounded-xl gap-2",
-      lg: "h-10 px-4 text-sm rounded-xl gap-2",
-      icon: "h-9 w-9 rounded-xl p-0",
+      sm: "h-8 px-3 text-xs rounded-lg gap-1.5",
+      md: "h-10 px-4 py-2.5 text-xs sm:text-sm rounded-lg gap-2",
+      lg: "h-11 px-5 text-sm rounded-lg gap-2",
+      icon: "h-10 w-10 rounded-lg p-0",
       "icon-sm": "h-8 w-8 rounded-lg p-0",
     };
 

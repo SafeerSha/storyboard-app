@@ -14,7 +14,7 @@ export default async function ProjectPage({
   const db = createAdminClient();
   const { data: project } = await db
     .from("projects")
-    .select("id,name,description")
+    .select("id,name,description,status")
     .eq("id", id)
     .maybeSingle();
 
@@ -54,6 +54,8 @@ export default async function ProjectPage({
     <ProjectWorkspace
       projectId={id}
       projectName={project.name}
+      projectDescription={project.description || undefined}
+      projectStatus={project.status || "active"}
       initialStories={stories ?? []}
       initialEpics={epics ?? []}
     />

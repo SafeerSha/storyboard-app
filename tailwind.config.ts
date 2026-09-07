@@ -6,15 +6,19 @@ const config: Config = {
     extend: {
       colors: {
         ink: "#0f172a", // refined slate/ink
-        paper: "#fafaf9", // warm neutral paper
-        line: "#e4e4e7", // crisp zinc-200 line
-        accent: "#4f46e5", // refined indigo
+        paper: "#F4F6FA", // app background
+        line: "#E2E6EF", // subtle border
+        accent: "#4F46E5", // primary indigo
+        app: "#F4F6FA", // explicit app background
+        sidebar: "#F8F9FC", // explicit sidebar/header layer
+        surface: "#FFFFFF", // white content surfaces
+        border: "#E2E6EF", // explicit border token
         brand: {
           50: "#eef2ff",
           100: "#e0e7ff",
           500: "#6366f1",
-          600: "#4f46e5",
-          700: "#4338ca",
+          600: "#4F46E5",
+          700: "#4338CA",
         },
       },
       boxShadow: {

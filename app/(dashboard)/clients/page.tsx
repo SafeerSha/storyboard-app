@@ -22,12 +22,17 @@ import { DropdownMenu } from "@/components/ui/DropdownMenu";
 import { TableRowSkeleton } from "@/components/ui/Skeleton";
 import { EmptyState } from "@/components/ui/EmptyState";
 
+import { ClientPortalShareModal } from "@/components/clients/ClientPortalShareModal";
+import { generateTemporaryPassword } from "@/lib/client-credentials";
+import { toast } from "@/lib/toast";
+
 type Client = {
   id: string;
   name: string;
   login_id: string;
   status: string;
   project_id: string;
+  is_password_changed?: boolean;
   projects?: { name: string } | null;
 };
 
@@ -55,14 +60,19 @@ export default function ClientsPage() {
   const [creating, setCreating] = useState(false);
   const [createError, setCreateError] = useState("");
 
-  // One-time credential display modal
-  const [createdCredentials, setCreatedCredentials] = useState<{
-    name: string;
-    loginId: string;
-    passwordEntered: string;
+  // Dedicated Client Portal Share Modal state
+  const [sharingModalData, setSharingModalData] = useState<{
+    client: Client;
     projectName: string;
+    initialPassword?: string;
   } | null>(null);
-  const [copiedCreds, setCopiedCreds] = useState(false);
+
+  // In-memory cache of initial passwords generated/provided during this session
+  const [recentInitialPasswords, setRecentInitialPasswords] = useState<Record<string, string>>({});
+
+  // Delete Client Confirmation State
+  const [deletingClient, setDeletingClient] = useState<Client | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   // Edit Client Modal State
   const [editing, setEditing] = useState<Client | null>(null);
@@ -73,11 +83,9 @@ export default function ClientsPage() {
   const [updating, setUpdating] = useState(false);
   const [editError, setEditError] = useState("");
 
-  // Reset Password Modal State
-  const [resettingClient, setResettingClient] = useState<Client | null>(null);
-  const [newPassword, setNewPassword] = useState("");
+  // Reset Password Confirmation State
+  const [confirmResetClient, setConfirmResetClient] = useState<Client | null>(null);
   const [resetting, setResetting] = useState(false);
-  const [resetSuccess, setResetSuccess] = useState<string | null>(null);
   const [resetError, setResetError] = useState("");
 
   // Quick copied notification
@@ -131,7 +139,7 @@ export default function ClientsPage() {
     setCreateError("");
 
     const effectivePin = loginId.trim() || generateRandomPin();
-    const effectivePwd = password || generateRandomPassword();
+    const effectivePwd = password || generateTemporaryPassword();
 
     try {
       const res = await fetch("/api/clients", {
@@ -148,20 +156,39 @@ export default function ClientsPage() {
       if (!res.ok) throw new Error(data.error || "Failed to create client");
 
       const assignedProj = projects.find((p) => p.id === projectId);
-      setClients((prev) => [data.client, ...prev]);
+      const projName = assignedProj?.name || "Assigned Project";
+      const newClient = {
+        ...data.client,
+        projects: assignedProj ? { name: assignedProj.name } : null,
+      };
+      setClients((prev) => [newClient, ...prev]);
       setShowCreate(false);
-      setCreatedCredentials({
-        name: data.client.name,
-        loginId: data.client.login_id,
-        passwordEntered: data.generatedPassword || effectivePwd,
-        projectName: assignedProj?.name || "Assigned Project",
+      toast.success("Client created successfully");
+
+      const createdPwd = data.initialPassword || data.generatedPassword || effectivePwd;
+
+      // Cache the initial plaintext password in memory for this session
+      if (createdPwd) {
+        setRecentInitialPasswords((prev) => ({
+          ...prev,
+          [data.client.id]: createdPwd,
+        }));
+      }
+
+      // Automatically open the dedicated Share Client Portal modal
+      setSharingModalData({
+        client: newClient,
+        projectName: projName,
+        initialPassword: createdPwd,
       });
 
       setName("");
       setLoginId("");
       setPassword("");
     } catch (e) {
-      setCreateError(e instanceof Error ? e.message : "Failed to create client");
+      const msg = e instanceof Error ? e.message : "Failed to create client";
+      setCreateError(msg);
+      toast.error("Unable to create client");
     } finally {
       setCreating(false);
     }
@@ -190,49 +217,79 @@ export default function ClientsPage() {
         prev.map((c) => (c.id === editing.id ? data.client : c))
       );
       setEditing(null);
+      toast.success("Client updated successfully");
     } catch (e) {
-      setEditError(e instanceof Error ? e.message : "Failed to update client");
+      const msg = e instanceof Error ? e.message : "Failed to update client";
+      setEditError(msg);
+      toast.error("Unable to update client");
     } finally {
       setUpdating(false);
     }
   }
 
-  async function handleResetPassword(e: React.FormEvent) {
-    e.preventDefault();
-    if (!resettingClient) return;
+  async function handleConfirmResetPassword() {
+    if (!confirmResetClient) return;
     setResetting(true);
     setResetError("");
-    const pwd = newPassword || generateRandomPassword();
 
     try {
-      const res = await fetch(`/api/clients/${resettingClient.id}/reset-password`, {
+      const res = await fetch(`/api/clients/${confirmResetClient.id}/reset-password`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ password: pwd }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to reset password");
 
-      setResetSuccess(pwd);
+      const targetClient = confirmResetClient;
+      const projName = targetClient.projects?.name || "Assigned Project";
+
+      setClients((prev) =>
+        prev.map((c) =>
+          c.id === targetClient.id ? { ...c, is_password_changed: false } : c
+        )
+      );
+
+      setConfirmResetClient(null);
+      toast.success("Client password reset successfully");
+
+      // Cache the newly generated initial password in memory for this session
+      if (data.initialPassword) {
+        setRecentInitialPasswords((prev) => ({
+          ...prev,
+          [targetClient.id]: data.initialPassword,
+        }));
+      }
+
+      // Automatically open the dedicated Share Client Portal modal with the new initial password
+      setSharingModalData({
+        client: targetClient,
+        projectName: projName,
+        initialPassword: data.initialPassword,
+      });
     } catch (e) {
-      setResetError(e instanceof Error ? e.message : "Failed to reset password");
+      const msg = e instanceof Error ? e.message : "Failed to reset password";
+      setResetError(msg);
+      toast.error("Unable to reset password");
     } finally {
       setResetting(false);
     }
   }
 
-  async function handleDelete(id: string, clientName: string) {
-    if (!confirm(`Are you sure you want to remove client "${clientName}"?`)) return;
-    setLoading(true);
+  async function handleConfirmDelete() {
+    if (!deletingClient) return;
+    setDeleting(true);
     try {
-      const res = await fetch(`/api/clients/${id}`, { method: "DELETE" });
+      const res = await fetch(`/api/clients/${deletingClient.id}`, { method: "DELETE" });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to delete client");
-      setClients((prev) => prev.filter((c) => c.id !== id));
+      setClients((prev) => prev.filter((c) => c.id !== deletingClient.id));
+      setDeletingClient(null);
+      toast.success("Client deleted");
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to delete client");
+      const msg = e instanceof Error ? e.message : "Failed to delete client";
+      setError(msg);
+      toast.error("Unable to delete client");
     } finally {
-      setLoading(false);
+      setDeleting(false);
     }
   }
 
@@ -240,13 +297,17 @@ export default function ClientsPage() {
     navigator.clipboard.writeText(pin);
     setCopiedLoginId(pin);
     setTimeout(() => setCopiedLoginId(null), 1500);
+    toast.success("Login PIN copied");
   }
 
-  function handleCopyPortalLink() {
-    if (typeof window === "undefined") return;
-    const url = `${window.location.origin}/client/login`;
-    navigator.clipboard.writeText(url);
-    alert(`Client Portal link copied: ${url}`);
+  function handleOpenShareModal(client: Client) {
+    const projName = client.projects?.name || "Assigned Project";
+    const initialPwd = recentInitialPasswords[client.id];
+    setSharingModalData({
+      client,
+      projectName: projName,
+      initialPassword: initialPwd,
+    });
   }
 
   const filteredClients = useMemo(() => {
@@ -364,7 +425,7 @@ export default function ClientsPage() {
             </div>
           )
         ) : (
-          <div className="rounded-2xl border border-zinc-200/80 bg-white shadow-card overflow-hidden divide-y divide-zinc-100">
+          <div className="rounded-2xl border border-zinc-200/80 bg-white shadow-card divide-y divide-zinc-100">
             {filteredClients.map((client) => {
               const initials = client.name ? client.name.slice(0, 2).toUpperCase() : "CL";
               const projectName = client.projects?.name || "Assigned Project";
@@ -373,7 +434,7 @@ export default function ClientsPage() {
               return (
                 <div
                   key={client.id}
-                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 sm:p-5 hover:bg-zinc-50/50 transition"
+                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 sm:p-5 hover:bg-zinc-50/50 transition first:rounded-t-2xl last:rounded-b-2xl"
                 >
                   <div className="flex items-center gap-3.5 min-w-0 flex-1">
                     <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-slate-900 text-xs font-semibold text-white">
@@ -385,13 +446,21 @@ export default function ClientsPage() {
                         <span className="text-sm font-semibold text-slate-900 truncate">
                           {client.name}
                         </span>
-                        <Badge
-                          variant={client.status === "active" ? "approved" : "neutral"}
-                          size="sm"
-                          showIcon={false}
-                        >
-                          {client.status || "active"}
-                        </Badge>
+                        {client.status === "disabled" ? (
+                          <Badge variant="neutral" size="sm" showIcon={false}>
+                            Disabled
+                          </Badge>
+                        ) : client.is_password_changed === false ? (
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-50 text-amber-700 border border-amber-200/80">
+                            <span className="h-1.5 w-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+                            Password setup pending
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200/80">
+                            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                            Active
+                          </span>
+                        )}
                       </div>
 
                       <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-zinc-500">
@@ -426,7 +495,7 @@ export default function ClientsPage() {
                       variant="ghost"
                       size="sm"
                       leftIcon={<ExternalLink size={13} />}
-                      onClick={handleCopyPortalLink}
+                      onClick={() => handleOpenShareModal(client)}
                     >
                       Portal link
                     </Button>
@@ -450,9 +519,7 @@ export default function ClientsPage() {
                           label: "Reset password",
                           icon: <KeyRound size={14} />,
                           onClick: () => {
-                            setResettingClient(client);
-                            setNewPassword(generateRandomPassword());
-                            setResetSuccess(null);
+                            setConfirmResetClient(client);
                             setResetError("");
                           },
                         },
@@ -460,7 +527,7 @@ export default function ClientsPage() {
                           label: "Delete client",
                           icon: <Trash2 size={14} />,
                           variant: "danger",
-                          onClick: () => handleDelete(client.id, client.name),
+                          onClick: () => setDeletingClient(client),
                         },
                       ]}
                     />
@@ -590,58 +657,7 @@ export default function ClientsPage() {
         </form>
       </Modal>
 
-      {/* One-time Created Credentials Modal */}
-      <Modal
-        isOpen={Boolean(createdCredentials)}
-        onClose={() => setCreatedCredentials(null)}
-        title="Client Access Created"
-        description="Share these login credentials with the client to grant portal access."
-        footer={
-          <Button
-            variant="primary"
-            onClick={() => setCreatedCredentials(null)}
-          >
-            Done
-          </Button>
-        }
-      >
-        {createdCredentials && (
-          <div className="space-y-4">
-            <div className="rounded-xl border border-emerald-200 bg-emerald-50/50 p-4 space-y-2">
-              <div className="flex items-center justify-between text-xs text-emerald-800 font-medium">
-                <span>Client Name:</span>
-                <span className="font-semibold text-slate-900">{createdCredentials.name}</span>
-              </div>
-              <div className="flex items-center justify-between text-xs text-emerald-800 font-medium">
-                <span>Assigned Project:</span>
-                <span className="font-semibold text-slate-900">{createdCredentials.projectName}</span>
-              </div>
-              <div className="flex items-center justify-between text-xs text-emerald-800 font-medium">
-                <span>Login PIN:</span>
-                <span className="font-mono font-bold text-slate-900">{createdCredentials.loginId}</span>
-              </div>
-              <div className="flex items-center justify-between text-xs text-emerald-800 font-medium">
-                <span>Password:</span>
-                <span className="font-mono font-bold text-slate-900">{createdCredentials.passwordEntered}</span>
-              </div>
-            </div>
 
-            <Button
-              variant="secondary"
-              className="w-full"
-              leftIcon={copiedCreds ? <Check size={14} className="text-emerald-600" /> : <Copy size={14} />}
-              onClick={() => {
-                const text = `StoryBoard Client Portal Login:\nURL: ${window.location.origin}/client/login\nProject: ${createdCredentials.projectName}\nLogin ID: ${createdCredentials.loginId}\nPassword: ${createdCredentials.passwordEntered}`;
-                navigator.clipboard.writeText(text);
-                setCopiedCreds(true);
-                setTimeout(() => setCopiedCreds(false), 2000);
-              }}
-            >
-              {copiedCreds ? "Credentials copied" : "Copy credentials message"}
-            </Button>
-          </div>
-        )}
-      </Modal>
 
       {/* Edit Client Modal */}
       <Modal
@@ -737,90 +753,96 @@ export default function ClientsPage() {
         </form>
       </Modal>
 
-      {/* Reset Password Modal */}
+      {/* Reset Confirmation Modal */}
       <Modal
-        isOpen={Boolean(resettingClient)}
-        onClose={() => setResettingClient(null)}
-        title="Reset Client Password"
-        description={`Set a new portal password for ${resettingClient?.name}.`}
+        isOpen={Boolean(confirmResetClient)}
+        onClose={() => setConfirmResetClient(null)}
+        title="Reset client password?"
+        description="The client's current password will stop working. A new initial password will be generated."
         footer={
-          resetSuccess ? (
+          <>
             <Button
-              variant="primary"
-              onClick={() => setResettingClient(null)}
+              variant="outline"
+              type="button"
+              onClick={() => setConfirmResetClient(null)}
             >
-              Close
+              Cancel
             </Button>
-          ) : (
-            <>
-              <Button
-                variant="outline"
-                type="button"
-                onClick={() => setResettingClient(null)}
-              >
-                Cancel
-              </Button>
-              <Button
-                variant="primary"
-                type="submit"
-                form="reset-pwd-form"
-                isLoading={resetting}
-              >
-                Reset password
-              </Button>
-            </>
-          )
+            <Button
+              variant="danger"
+              type="button"
+              isLoading={resetting}
+              onClick={handleConfirmResetPassword}
+            >
+              Reset password
+            </Button>
+          </>
         }
       >
-        {resetSuccess ? (
-          <div className="space-y-3">
-            <div className="rounded-xl border border-emerald-200 bg-emerald-50/50 p-4 text-center">
-              <p className="text-xs text-emerald-800 font-medium">New Password for {resettingClient?.name}:</p>
-              <p className="font-mono text-lg font-bold text-slate-900 mt-1">{resetSuccess}</p>
-            </div>
-            <Button
-              variant="secondary"
-              className="w-full"
-              leftIcon={<Copy size={14} />}
-              onClick={() => {
-                navigator.clipboard.writeText(resetSuccess);
-                alert("Password copied to clipboard.");
-              }}
-            >
-              Copy new password
-            </Button>
-          </div>
-        ) : (
-          <form id="reset-pwd-form" onSubmit={handleResetPassword} className="space-y-4">
-            <div>
-              <div className="flex items-center justify-between mb-1.5">
-                <label className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
-                  New Password
-                </label>
-                <button
-                  type="button"
-                  onClick={() => setNewPassword(generateRandomPassword())}
-                  className="text-xs text-indigo-600 hover:underline"
-                >
-                  Generate random
-                </button>
-              </div>
-              <input
-                type="text"
-                required
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                className="h-10 w-full rounded-xl border border-zinc-200 px-3.5 text-sm font-mono text-zinc-900 outline-none transition focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
-              />
-            </div>
-            {resetError && (
-              <p className="text-xs text-rose-600 bg-rose-50 p-2.5 rounded-lg">
-                {resetError}
-              </p>
-            )}
-          </form>
-        )}
+        <div className="space-y-3">
+          <p className="text-xs text-zinc-600 leading-relaxed">
+            Are you sure you want to reset the portal access password for{" "}
+            <strong>{confirmResetClient?.name}</strong>? A secure temporary password
+            will be generated for immediate handoff, and the client will be prompted to
+            configure a new password on their next sign in.
+          </p>
+          {resetError && (
+            <p className="text-xs text-rose-600 bg-rose-50 p-2.5 rounded-lg">
+              {resetError}
+            </p>
+          )}
+        </div>
       </Modal>
+
+      {/* Delete Client Confirmation Modal */}
+      <Modal
+        isOpen={Boolean(deletingClient)}
+        onClose={() => setDeletingClient(null)}
+        title="Remove client?"
+        description="Are you sure you want to remove this client? This will revoke their portal access."
+        footer={
+          <>
+            <Button
+              variant="outline"
+              type="button"
+              onClick={() => setDeletingClient(null)}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="danger"
+              type="button"
+              isLoading={deleting}
+              onClick={handleConfirmDelete}
+            >
+              Remove client
+            </Button>
+          </>
+        }
+      >
+        <p className="text-xs text-zinc-600 leading-relaxed">
+          Client <strong>{deletingClient?.name}</strong> will be permanently removed
+          from this project. Their login PIN and portal access will stop working
+          immediately.
+        </p>
+      </Modal>
+
+      {/* Dedicated Client Portal Share Modal */}
+      {sharingModalData && (
+        <ClientPortalShareModal
+          isOpen={Boolean(sharingModalData)}
+          onClose={() => setSharingModalData(null)}
+          client={sharingModalData.client}
+          projectName={sharingModalData.projectName}
+          initialPassword={sharingModalData.initialPassword}
+          onResetPassword={() => {
+            const clientToReset = sharingModalData.client;
+            setSharingModalData(null);
+            setConfirmResetClient(clientToReset);
+            setResetError("");
+          }}
+        />
+      )}
     </div>
   );
 }

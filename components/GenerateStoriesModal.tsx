@@ -11,6 +11,7 @@ import {
   X,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { toast } from "@/lib/toast";
 import type { Story } from "@/lib/types";
 
 export function GenerateStoriesModal({
@@ -63,8 +64,14 @@ export function GenerateStoriesModal({
 
       const newStories = data.stories as Story[];
       setGeneratedStories(newStories);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Generation failed. Please try again.");
+      toast.success(
+        newStories.length > 1
+          ? `${newStories.length} stories created successfully`
+          : "Story created successfully"
+      );
+    } catch {
+      setError("Unable to generate stories. Please try again.");
+      toast.error("Unable to generate stories", "Please try again.");
     } finally {
       setLoading(false);
     }

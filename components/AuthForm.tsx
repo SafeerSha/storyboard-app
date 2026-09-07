@@ -6,6 +6,8 @@ import { ArrowRight, Lock, Mail } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { createClient } from "@/lib/supabase/client";
 
+import { toast } from "@/lib/toast";
+
 export function AuthForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -21,10 +23,13 @@ export function AuthForm() {
     try {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
+      toast.success("Login successful");
       router.push("/");
       router.refresh();
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Authentication failed");
+    } catch {
+      const userMessage = "Unable to sign in. Please check your credentials and try again.";
+      setError(userMessage);
+      toast.error("Unable to sign in", "Please check your credentials and try again.");
     } finally {
       setLoading(false);
     }

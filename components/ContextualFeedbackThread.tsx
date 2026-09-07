@@ -17,6 +17,7 @@ import type {
   FeedbackThreadStatus,
   FeedbackAuthorType,
 } from "@/lib/types";
+import { toast } from "@/lib/toast";
 
 interface ContextualFeedbackThreadProps {
   storyId: string;
@@ -88,8 +89,9 @@ export function ContextualFeedbackThread({
       if (onThreadCreated && data.thread) {
         onThreadCreated(data.thread);
       }
-    } catch (e) {
-      alert(e instanceof Error ? e.message : "Failed to create feedback");
+      toast.success("Comment added");
+    } catch {
+      toast.error("Unable to add comment");
     } finally {
       setLoading(false);
     }
@@ -116,8 +118,9 @@ export function ContextualFeedbackThread({
       if (onMessageAdded && data.message) {
         onMessageAdded(threadId, data.message);
       }
-    } catch (e) {
-      alert(e instanceof Error ? e.message : "Failed to reply");
+      toast.success("Reply added");
+    } catch {
+      toast.error("Unable to send reply");
     } finally {
       setLoading(false);
     }
@@ -146,8 +149,9 @@ export function ContextualFeedbackThread({
       if (onStatusUpdated) {
         onStatusUpdated(threadId, nextStatus);
       }
-    } catch (e) {
-      alert(e instanceof Error ? e.message : "Failed to update status");
+      toast.success(nextStatus === "resolved" ? "Comment thread resolved" : "Comment thread reopened");
+    } catch {
+      toast.error("Unable to update status");
     } finally {
       setLoading(false);
     }

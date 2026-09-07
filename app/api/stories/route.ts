@@ -82,8 +82,97 @@ export async function GET(req: Request) {
 export async function POST(req: Request) {
   try {
     const rawBody = await req.json();
-    const body = schema.parse(rawBody);
     const admin = createAdminClient();
+
+    // Check if bulk insert
+    if (rawBody && Array.isArray(rawBody.stories)) {
+      const itemsToValidate = rawBody.stories;
+      if (itemsToValidate.length === 0) {
+        return NextResponse.json({ error: "No stories provided." }, { status: 400 });
+      }
+
+      const parsedStories = z.array(schema).parse(itemsToValidate);
+      const teamUser = await getAuthenticatedTeamUser();
+      let projectId = parsedStories[0].project_id;
+
+      if (teamUser) {
+        projectId = teamUser.project_id;
+        for (const s of parsedStories) {
+          s.project_id = teamUser.project_id;
+          if (!s.epic_id) {
+            return NextResponse.json(
+              { error: "Stories must belong to an Epic. Please specify an epic_id." },
+              { status: 400 }
+            );
+          }
+        }
+      } else {
+        const supabase = await createClient();
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+
+        let isAuth = false;
+        if (user) {
+          const { data: profile } = await admin
+            .from("freelancer_profiles")
+            .select("role")
+            .eq("id", user.id)
+            .maybeSingle();
+
+          if (profile?.role === "super_admin") {
+            isAuth = true;
+          } else {
+            const { data: project } = await admin
+              .from("projects")
+              .select("id")
+              .eq("id", projectId)
+              .eq("owner_id", user.id)
+              .maybeSingle();
+            if (project) isAuth = true;
+          }
+        }
+        if (!isAuth) {
+          return NextResponse.json({ error: "Unauthorized or access denied." }, { status: 403 });
+        }
+      }
+
+      // Validate all epics belong to this project
+      const epicIds = Array.from(new Set(parsedStories.map((s) => s.epic_id).filter(Boolean)));
+      for (const epicId of epicIds) {
+        const { data: epic } = await admin
+          .from("epics")
+          .select("project_id")
+          .eq("id", epicId)
+          .maybeSingle();
+        if (!epic || epic.project_id !== projectId) {
+          return NextResponse.json({ error: "Epic does not belong to this project." }, { status: 400 });
+        }
+      }
+
+      const rowsToInsert = parsedStories.map((s) => ({
+        project_id: s.project_id,
+        epic_id: s.epic_id || null,
+        title: s.title,
+        description: s.description,
+        acceptance_criteria: s.acceptance_criteria,
+        assumptions: s.assumptions,
+        clarifications: s.clarifications,
+        raw_requirement: s.raw_requirement,
+        status: s.status,
+      }));
+
+      const { data: inserted, error: insertErr } = await admin
+        .from("stories")
+        .insert(rowsToInsert)
+        .select("*");
+
+      if (insertErr) return NextResponse.json({ error: insertErr.message }, { status: 400 });
+      return NextResponse.json({ stories: inserted }, { status: 201 });
+    }
+
+    // Single story insert
+    const body = schema.parse(rawBody);
     let isAuthorized = false;
 
     // 1. Team User authorization
@@ -92,6 +181,12 @@ export async function POST(req: Request) {
       // Force project_id to assigned project
       body.project_id = teamUser.project_id;
       isAuthorized = true;
+      if (!body.epic_id) {
+        return NextResponse.json(
+          { error: "Stories must belong to an Epic. Please specify an epic_id." },
+          { status: 400 }
+        );
+      }
     }
 
     // 2. Freelancer / Super Admin authorization

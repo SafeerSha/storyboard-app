@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { ArrowRight, Lock, ShieldCheck, User } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
+import { toast } from "@/lib/toast";
 
 export default function TeamLoginPage() {
   const router = useRouter();
@@ -29,10 +30,13 @@ export default function TeamLoginPage() {
         throw new Error(data.error || "Failed to sign in");
       }
 
+      toast.success("Login successful");
       router.push("/team");
       router.refresh();
-    } catch (err: any) {
-      setError(err.message || "Unable to sign in. Please verify your credentials.");
+    } catch {
+      const userMessage = "Unable to sign in. Please check your credentials and try again.";
+      setError(userMessage);
+      toast.error("Unable to sign in", "Please check your credentials and try again.");
     } finally {
       setLoading(false);
     }

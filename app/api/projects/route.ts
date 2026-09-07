@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { z } from "zod";
 
+export const dynamic = "force-dynamic";
+
 const schema = z.object({ name: z.string().min(1).max(200), description: z.string().max(5000).optional().default("") });
 
 export async function GET() {

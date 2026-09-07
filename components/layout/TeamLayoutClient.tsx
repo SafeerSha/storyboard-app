@@ -30,7 +30,7 @@ export function TeamLayoutClient({
       {/* Main Container */}
       <div className="flex flex-1 flex-col md:pl-56 min-w-0">
         {/* Mobile Top Header */}
-        <header className="sticky top-0 z-20 flex h-14 items-center justify-between border-b border-line bg-white/90 backdrop-blur-md px-4 md:hidden">
+        <header className="sticky top-0 z-20 flex h-[64px] sm:h-[72px] items-center justify-between border-b border-[#E2E6EF] bg-[#F8F9FC]/95 backdrop-blur-md px-4 md:hidden">
           <button
             type="button"
             onClick={() => setMobileOpen(true)}

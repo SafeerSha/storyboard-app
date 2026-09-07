@@ -2,23 +2,37 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import bcrypt from "bcryptjs";
-import { z } from "zod";
+import { generateTemporaryPassword } from "@/lib/client-credentials";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
-const schema = z.object({ password: z.string().min(1).max(200) });
+export const dynamic = "force-dynamic";
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
+  // Rate limit password resets: max 10 per minute per user
+  const ip = getClientIp(req);
+  const rateLimit = checkRateLimit(`reset-client-password:${user.id}:${ip}`, {
+    limit: 10,
+    windowSeconds: 60,
+  });
+  if (!rateLimit.success) {
+    return NextResponse.json(
+      { error: `Too many password reset requests. Please wait ${rateLimit.resetInSeconds} seconds.` },
+      { status: 429 }
+    );
+  }
+
   try {
-    const { password } = schema.parse(await req.json());
-    
-    // Check ownership
+    // Check ownership and load client info
     const { data: existingClient, error: clientError } = await supabase
       .from("clients")
-      .select("id, projects!inner(owner_id)")
+      .select("id, name, login_id, project_id, projects!inner(name, owner_id)")
       .eq("id", id)
       .eq("projects.owner_id", user.id)
       .maybeSingle();
@@ -27,18 +41,48 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       return NextResponse.json({ error: "Client not found or unauthorized." }, { status: 404 });
     }
 
-    const password_hash = await bcrypt.hash(password, 10);
-    
-    // Use admin client to invalidate client sessions since freelancers don't have RLS access to client_sessions table
+    // Generate a secure new initial password
+    const initialPassword = generateTemporaryPassword();
+    const password_hash = await bcrypt.hash(initialPassword, 12);
+
     const admin = createAdminClient();
-    
-    const { error: updateError } = await admin.from("clients").update({ password_hash }).eq("id", id);
+
+    // Update password_hash and set is_password_changed = false
+    let updatePayload: Record<string, any> = {
+      password_hash,
+      is_password_changed: false,
+      password_changed_at: null,
+    };
+
+    let { error: updateError } = await admin.from("clients").update(updatePayload).eq("id", id);
+
+    if (updateError && (updateError.code === "42703" || updateError.message.includes("is_password_changed"))) {
+      // Column is_password_changed not yet migrated in Supabase; update password_hash only
+      delete updatePayload.is_password_changed;
+      delete updatePayload.password_changed_at;
+      const retry = await admin.from("clients").update(updatePayload).eq("id", id);
+      updateError = retry.error;
+    }
+
     if (updateError) throw updateError;
 
-    const { error: sessionError } = await admin.from("client_sessions").delete().eq("client_id", id);
-    if (sessionError) throw sessionError;
+    // Immediately revoke all existing client sessions so former passwords or sessions no longer work
+    await admin.from("client_sessions").delete().eq("client_id", id);
 
-    return NextResponse.json({ ok: true });
+    const clientProject: any = existingClient.projects;
+    const projectName = clientProject?.name || "Assigned Project";
+
+    return NextResponse.json({
+      ok: true,
+      initialPassword,
+      client: {
+        id: existingClient.id,
+        name: existingClient.name,
+        login_id: existingClient.login_id,
+        project_id: existingClient.project_id,
+        projectName,
+      },
+    });
   } catch (e: any) {
     return NextResponse.json({ error: e.message || "Failed to reset password." }, { status: 400 });
   }

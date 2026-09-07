@@ -1,6 +1,7 @@
 import "./globals.css";
 import type { Metadata, Viewport } from "next";
 import { GlobalLoader } from "@/components/GlobalLoader";
+import { ToastProvider } from "@/components/ui/Toast";
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -18,6 +19,7 @@ export default function RootLayout({ children }: Readonly<{children: React.React
     <html lang="en">
       <body>
         <GlobalLoader />
+        <ToastProvider />
         {children}
       </body>
     </html>

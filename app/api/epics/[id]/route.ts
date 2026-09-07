@@ -82,17 +82,11 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
 }
 
 export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
-  const auth = await createClient();
-  const {
-    data: { user },
-  } = await auth.auth.getUser();
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
   try {
     const { id: epicId } = await params;
     const admin = createAdminClient();
 
-    // Validate ownership or super admin
+    // Check existing epic
     const { data: epic } = await admin
       .from("epics")
       .select("project_id, projects(owner_id)")
@@ -103,16 +97,38 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
       return NextResponse.json({ error: "Epic not found or access denied." }, { status: 404 });
     }
 
-    const { data: profile } = await admin
-      .from("freelancer_profiles")
-      .select("role")
-      .eq("id", user.id)
-      .maybeSingle();
+    let isAuthorized = false;
 
-    const isSuperAdmin = profile?.role === "super_admin";
-    const projectData = Array.isArray(epic.projects) ? epic.projects[0] : epic.projects;
-    if (!isSuperAdmin && (projectData as any)?.owner_id !== user.id) {
-      return NextResponse.json({ error: "Epic not found or access denied." }, { status: 404 });
+    // 1. Team User authorization
+    const teamUser = await getAuthenticatedTeamUser();
+    if (teamUser && teamUser.project_id === epic.project_id) {
+      isAuthorized = true;
+    }
+
+    // 2. Freelancer / Super Admin authorization
+    if (!isAuthorized) {
+      const auth = await createClient();
+      const {
+        data: { user },
+      } = await auth.auth.getUser();
+
+      if (user) {
+        const { data: profile } = await admin
+          .from("freelancer_profiles")
+          .select("role")
+          .eq("id", user.id)
+          .maybeSingle();
+
+        const isSuperAdmin = profile?.role === "super_admin";
+        const projectData = Array.isArray(epic.projects) ? epic.projects[0] : epic.projects;
+        if (isSuperAdmin || (projectData as any)?.owner_id === user.id) {
+          isAuthorized = true;
+        }
+      }
+    }
+
+    if (!isAuthorized) {
+      return NextResponse.json({ error: "Unauthorized or access denied." }, { status: 403 });
     }
 
     // Deletion safeguard: Cannot delete an epic that contains stories

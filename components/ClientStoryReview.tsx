@@ -12,6 +12,7 @@ import {
 import { ContextualFeedbackThread } from "@/components/ContextualFeedbackThread";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
+import { toast } from "@/lib/toast";
 import type { Story, FeedbackThread, FeedbackMessage, FeedbackThreadStatus } from "@/lib/types";
 
 interface ClientStoryReviewProps {
@@ -102,8 +103,11 @@ export function ClientStoryReview({
       setShowConfirmModal(false);
       setThreads((prev) => prev.map((t) => ({ ...t, status: "resolved" })));
       if (onStatusChange) onStatusChange("approved");
+      toast.success("Story approved");
     } catch (e) {
-      setApprovalError(e instanceof Error ? e.message : "Approval failed");
+      const msg = e instanceof Error ? e.message : "Approval failed";
+      setApprovalError(msg);
+      toast.error("Unable to approve story");
     } finally {
       setApproving(false);
     }

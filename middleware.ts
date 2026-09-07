@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 const TEAM_COOKIE = "storyboard_team_session";
 
@@ -44,11 +45,12 @@ export async function middleware(request: NextRequest) {
   // 2. Freelancer / Super Admin checks
   let isSuperAdmin = false;
   if (user) {
-    const { data: profile } = await supabase
+    const adminClient = createAdminClient();
+    const { data: profile } = await adminClient
       .from("freelancer_profiles")
       .select("role, status")
       .eq("id", user.id)
-      .single();
+      .maybeSingle();
     if (profile?.status === "disabled") {
       await supabase.auth.signOut();
       return NextResponse.redirect(new URL("/login", request.url));

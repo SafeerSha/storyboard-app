@@ -88,3 +88,72 @@ export type StoryWithFeedback = Story & {
   open_feedback_count?: number;
 };
 
+// ==============================================================================
+// Project Inbox & Personal AI Workspace Types
+// ==============================================================================
+
+export type InboxItemType =
+  | "idea"
+  | "upcoming_project"
+  | "research"
+  | "opportunity"
+  | "experiment"
+  | "feature"
+  | "other";
+
+export type InboxItemStatus =
+  | "inbox"
+  | "exploring"
+  | "researching"
+  | "planned"
+  | "ready"
+  | "archived";
+
+export type InboxItemPriority = "low" | "medium" | "high";
+
+export type ProjectInboxLink = {
+  id: string;
+  inbox_item_id: string;
+  title: string;
+  url: string;
+  created_at: string;
+  updated_at: string;
+};
+
+export type ProjectInboxAiMessage = {
+  id: string;
+  thread_id: string;
+  role: "user" | "assistant";
+  content: string;
+  created_at: string;
+};
+
+export type ProjectInboxAiThread = {
+  id: string;
+  inbox_item_id: string;
+  title: string;
+  created_at: string;
+  updated_at: string;
+  messages?: ProjectInboxAiMessage[];
+};
+
+export type ProjectInboxItem = {
+  id: string;
+  owner_id: string;
+  title: string;
+  description: string;
+  type: InboxItemType;
+  status: InboxItemStatus;
+  priority: InboxItemPriority;
+  notes: string;
+  research_notes: string;
+  converted_project_id: string | null;
+  converted_at: string | null;
+  created_at: string;
+  updated_at: string;
+  links?: ProjectInboxLink[];
+  ai_threads?: ProjectInboxAiThread[];
+  converted_project?: { id: string; name: string } | null;
+};
+
+

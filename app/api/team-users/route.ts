@@ -4,6 +4,8 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { verifySuperAdmin } from "@/lib/super-admin";
 import { logAudit } from "@/lib/audit";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   const admin = await verifySuperAdmin();
   if (!admin) {

@@ -19,9 +19,11 @@ import { DashboardHeader } from "@/components/layout/DashboardHeader";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { DropdownMenu } from "@/components/ui/DropdownMenu";
 import { TableRowSkeleton } from "@/components/ui/Skeleton";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { toast } from "@/lib/toast";
 import type { TeamUser } from "@/lib/types";
 
 interface ProjectOption {
@@ -71,6 +73,10 @@ export default function UsersPage() {
   const [resetError, setResetError] = useState("");
   const [resetSuccessMessage, setResetSuccessMessage] = useState("");
 
+  // Delete user confirmation dialog state
+  const [deletingUser, setDeletingUser] = useState<TeamUser | null>(null);
+  const [deletingLoading, setDeletingLoading] = useState(false);
+
   useEffect(() => {
     loadData();
   }, []);
@@ -106,7 +112,7 @@ export default function UsersPage() {
         }
       }
     } catch (e: any) {
-      setError(e.message || "Failed to load page data.");
+      setError(e.message || "Failed to load data.");
     } finally {
       setLoading(false);
     }
@@ -121,20 +127,24 @@ export default function UsersPage() {
     return p;
   }
 
-  async function handleCreate(e: React.FormEvent) {
+  async function handleCreateUser(e: React.FormEvent) {
     e.preventDefault();
+    if (!createName.trim() || !createUsername.trim() || !createPassword.trim() || !createProjectId) {
+      return;
+    }
+
     setCreating(true);
     setCreateError("");
+
     try {
       const res = await fetch("/api/team-users", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name: createName,
-          username: createUsername,
+          name: createName.trim(),
+          username: createUsername.trim().toLowerCase(),
           password: createPassword,
           projectId: createProjectId,
-          status: createStatus,
         }),
       });
 
@@ -146,6 +156,7 @@ export default function UsersPage() {
 
       setUsers((prev) => [data.user, ...prev]);
       setShowCreate(false);
+      toast.success("Team member created successfully");
       setCreatedSuccess({
         name: createName,
         username: createUsername,
@@ -157,7 +168,9 @@ export default function UsersPage() {
       setCreateUsername("");
       setCreatePassword("");
     } catch (err: any) {
-      setCreateError(err.message || "Failed to create team user.");
+      const msg = err.message || "Failed to create team user.";
+      setCreateError(msg);
+      toast.error("Unable to create team member");
     } finally {
       setCreating(false);
     }
@@ -186,8 +199,11 @@ export default function UsersPage() {
         prev.map((u) => (u.id === editingUser.id ? data.user : u))
       );
       setEditingUser(null);
+      toast.success("Team member updated successfully");
     } catch (err: any) {
-      setEditError(err.message || "Failed to update team user.");
+      const msg = err.message || "Failed to update team user.";
+      setEditError(msg);
+      toast.error("Unable to update team member");
     } finally {
       setSavingEdit(false);
     }
@@ -213,28 +229,37 @@ export default function UsersPage() {
       if (!res.ok) throw new Error(data.error || "Failed to reset password.");
 
       setResetSuccessMessage(pwd);
+      toast.success("Team member password reset successfully");
     } catch (err: any) {
-      setResetError(err.message || "Failed to reset password.");
+      const msg = err.message || "Failed to reset password.";
+      setResetError(msg);
+      toast.error("Unable to reset password");
     } finally {
       setResetting(false);
     }
   }
 
-  async function handleDeleteUser(user: TeamUser) {
-    if (!confirm(`Are you sure you want to remove team user "${user.name}" (@${user.username})?`)) return;
-    setLoading(true);
+  function handleDeleteUser(user: TeamUser) {
+    setDeletingUser(user);
+  }
+
+  async function confirmDeleteUser() {
+    if (!deletingUser) return;
+    setDeletingLoading(true);
     try {
-      const res = await fetch(`/api/team-users/${user.id}`, {
+      const res = await fetch(`/api/team-users/${deletingUser.id}`, {
         method: "DELETE",
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to delete team user.");
 
-      setUsers((prev) => prev.filter((u) => u.id !== user.id));
-    } catch (err: any) {
-      alert(err.message || "Failed to delete team user.");
+      setUsers((prev) => prev.filter((u) => u.id !== deletingUser.id));
+      toast.success("Team member removed");
+      setDeletingUser(null);
+    } catch {
+      toast.error("Unable to remove team member");
     } finally {
-      setLoading(false);
+      setDeletingLoading(false);
     }
   }
 
@@ -251,8 +276,9 @@ export default function UsersPage() {
       if (!res.ok) throw new Error(data.error || "Failed to update user status.");
 
       setUsers((prev) => prev.map((u) => (u.id === user.id ? data.user : u)));
-    } catch (err: any) {
-      alert(err.message || "Failed to update status.");
+      toast.success(newStatus === "active" ? "Team member enabled" : "Team member disabled");
+    } catch {
+      toast.error("Unable to update team member status");
     } finally {
       setLoading(false);
     }
@@ -272,7 +298,7 @@ export default function UsersPage() {
   if (error && error.includes("Unauthorized")) {
     return (
       <div>
-        <DashboardHeader eyebrow="ADMINISTRATION" title="Team Members" />
+        <DashboardHeader eyebrow="ADMINISTRATION" title="Team Members" maxWidth="max-w-4xl" />
         <main className="mx-auto max-w-4xl px-4 py-12">
           <EmptyState
             icon={ShieldAlert}
@@ -388,7 +414,7 @@ export default function UsersPage() {
             </div>
           )
         ) : (
-          <div className="rounded-2xl border border-zinc-200/80 bg-white shadow-card overflow-hidden divide-y divide-zinc-100">
+          <div className="rounded-2xl border border-zinc-200/80 bg-white shadow-card divide-y divide-zinc-100">
             {filteredUsers.map((u) => {
               const initials = u.name ? u.name.slice(0, 2).toUpperCase() : "TU";
               const proj = projects.find((p) => p.id === u.project_id);
@@ -396,7 +422,7 @@ export default function UsersPage() {
               return (
                 <div
                   key={u.id}
-                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 sm:p-5 hover:bg-zinc-50/50 transition"
+                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 sm:p-5 hover:bg-zinc-50/50 transition first:rounded-t-2xl last:rounded-b-2xl"
                 >
                   <div className="flex items-center gap-3.5 min-w-0 flex-1">
                     <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-slate-900 text-xs font-semibold text-white">
@@ -509,7 +535,7 @@ export default function UsersPage() {
           </>
         }
       >
-        <form id="create-user-form" onSubmit={handleCreate} className="space-y-4">
+        <form id="create-user-form" onSubmit={handleCreateUser} className="space-y-4">
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-1.5">
               Full Name <span className="text-rose-500">*</span>
@@ -650,6 +676,7 @@ export default function UsersPage() {
                 navigator.clipboard.writeText(text);
                 setCopiedCreds(true);
                 setTimeout(() => setCopiedCreds(false), 2000);
+                toast.success("Team member access details copied");
               }}
             >
               {copiedCreds ? "Credentials copied" : "Copy credentials message"}
@@ -785,7 +812,7 @@ export default function UsersPage() {
               leftIcon={<Copy size={14} />}
               onClick={() => {
                 navigator.clipboard.writeText(resetSuccessMessage);
-                alert("Password copied to clipboard.");
+                toast.success("Password copied");
               }}
             >
               Copy new password
@@ -811,6 +838,7 @@ export default function UsersPage() {
                 required
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
+                placeholder="Leave blank to auto-generate"
                 className="h-10 w-full rounded-xl border border-zinc-200 px-3.5 text-sm font-mono text-zinc-900 outline-none transition focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
               />
             </div>
@@ -822,6 +850,18 @@ export default function UsersPage() {
           </form>
         )}
       </Modal>
+
+      {/* Delete User Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={Boolean(deletingUser)}
+        onClose={() => setDeletingUser(null)}
+        onConfirm={confirmDeleteUser}
+        title="Remove team member"
+        description={`Are you sure you want to remove team user "${deletingUser?.name}" (@${deletingUser?.username})?`}
+        confirmLabel="Remove member"
+        variant="danger"
+        isLoading={deletingLoading}
+      />
     </div>
   );
 }

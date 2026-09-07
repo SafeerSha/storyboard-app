@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { Check, MessageSquare, Send } from "lucide-react";
+import { toast } from "@/lib/toast";
 
 export function ClientActions({ storyId, status }: { storyId: string; status: string }) {
   const [comment, setComment] = useState("");
@@ -27,8 +28,13 @@ export function ClientActions({ storyId, status }: { storyId: string; status: st
       setDone(d.status);
       setComment("");
       setOpen(false);
-    } catch (e) {
-      alert(e instanceof Error ? e.message : "Action failed");
+      if (actionType === "approve") {
+        toast.success("Story approved");
+      } else {
+        toast.success("Change request submitted");
+      }
+    } catch {
+      toast.error(actionType === "approve" ? "Unable to approve story" : "Unable to submit change request");
     } finally {
       setLoading(false);
     }

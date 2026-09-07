@@ -11,6 +11,7 @@ import {
   MessageSquare,
   X,
 } from "lucide-react";
+import { toast } from "@/lib/toast";
 
 interface TeamSidebarProps {
   userName: string;
@@ -47,6 +48,7 @@ export function TeamSidebar({
     } catch {
       // Proceed with redirect regardless
     }
+    toast.flash("success", "Signed out successfully");
     window.location.href = "/team/login";
   }
 
@@ -54,9 +56,9 @@ export function TeamSidebar({
   const initials = userName ? userName.slice(0, 2).toUpperCase() : "TU";
 
   const renderNavContent = (isMobile = false) => (
-    <div className="flex h-full flex-col bg-white">
+    <div className="flex h-full flex-col bg-[#F8F9FC]">
       {/* Brand Header */}
-      <div className="flex h-15 items-center justify-between border-b border-line px-4">
+      <div className="flex h-[72px] sm:h-[80px] items-center justify-between border-b border-[#E2E6EF] px-5 bg-[#F8F9FC]">
         <div className="flex items-center gap-2.5">
           <div className="grid h-8 w-8 place-items-center rounded-lg bg-slate-900 text-white shadow-xs">
             <span className="text-xs font-semibold tracking-tighter">◆</span>
@@ -180,7 +182,7 @@ export function TeamSidebar({
   return (
     <>
       {/* Desktop Sidebar */}
-      <aside className="hidden md:flex md:w-56 md:flex-col fixed inset-y-0 left-0 z-30 border-r border-line bg-white">
+      <aside className="hidden md:flex md:w-56 md:flex-col fixed inset-y-0 left-0 z-30 border-r border-[#E2E6EF] bg-[#F8F9FC]">
         {renderNavContent(false)}
       </aside>
 
@@ -191,7 +193,7 @@ export function TeamSidebar({
             className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs transition-opacity"
             onClick={closeMobile}
           />
-          <div className="fixed inset-y-0 left-0 w-64 max-w-[80vw] bg-white shadow-2xl animate-in slide-in-from-left duration-200">
+          <div className="fixed inset-y-0 left-0 w-64 max-w-[80vw] bg-[#F8F9FC] border-r border-[#E2E6EF] shadow-2xl animate-in slide-in-from-left duration-200">
             {renderNavContent(true)}
           </div>
         </div>

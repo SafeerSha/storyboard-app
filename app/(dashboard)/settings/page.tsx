@@ -13,6 +13,7 @@ import { DashboardHeader } from "@/components/layout/DashboardHeader";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { createClient } from "@/lib/supabase/client";
+import { toast } from "@/lib/toast";
 
 export default function SettingsPage() {
   const [email, setEmail] = useState<string | null>(null);
@@ -42,6 +43,7 @@ export default function SettingsPage() {
   async function handleSignOut() {
     const supabase = createClient();
     await supabase.auth.signOut();
+    toast.flash("success", "Signed out successfully");
     window.location.href = "/login";
   }
 
@@ -57,6 +59,7 @@ export default function SettingsPage() {
         eyebrow="MANAGE"
         title="Settings"
         description="Account preferences and system configurations."
+        maxWidth="max-w-4xl"
       />
 
       <main className="mx-auto max-w-4xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8 space-y-6">
