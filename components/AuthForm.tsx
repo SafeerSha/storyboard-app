@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/Button";
 import { createClient } from "@/lib/supabase/client";
 
 import { toast } from "@/lib/toast";
+import { StoryBoardLogo } from "@/components/brand/StoryBoardLogo";
 
 export function AuthForm() {
   const [email, setEmail] = useState("");
@@ -37,14 +38,9 @@ export function AuthForm() {
 
   return (
     <div className="w-full max-w-md">
-      <div className="mb-6 sm:mb-8 text-center">
-        <div className="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-[#B8944E] text-white shadow-md">
-          <span className="text-base font-bold">◆</span>
-        </div>
-        <h1 className="mt-4 text-xl sm:text-2xl font-bold tracking-tight text-[#252331]">
-          StoryBoard
-        </h1>
-        <p className="mt-1.5 text-xs sm:text-sm text-[#706C7D]">
+      <div className="mb-6 sm:mb-8 text-center flex flex-col items-center">
+        <StoryBoardLogo size="lg" variant="stacked" />
+        <p className="mt-2 text-xs sm:text-sm text-[#706C7D]">
           Sign in to manage client requirements, feature stories, and approvals.
         </p>
       </div>

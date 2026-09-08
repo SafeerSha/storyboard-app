@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { getAuthenticatedClient } from "@/lib/client-session";
 import { SetPasswordForm } from "./SetPasswordForm";
+import { StoryBoardLogoMark } from "@/components/brand/StoryBoardLogo";
 
 export const dynamic = "force-dynamic";
 
@@ -22,8 +23,8 @@ export default async function SetPasswordPage() {
     <main className="grid min-h-screen place-items-center bg-paper px-4 py-8 sm:px-6">
       <div className="w-full max-w-md">
         <div className="mb-6 sm:mb-8 text-center">
-          <div className="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-slate-900 text-white shadow-card">
-            <span className="text-base font-bold">◆</span>
+          <div className="flex justify-center mb-4">
+            <StoryBoardLogoMark size={44} />
           </div>
           <h1 className="mt-4 text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
             Create a new password

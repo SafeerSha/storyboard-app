@@ -57,7 +57,8 @@ export function ContextualFeedbackThread({
   const [expandedThreads, setExpandedThreads] = useState(true);
 
   // Filter threads that match this specific item / section
-  const relevantThreads = threads.filter((t) => {
+  const threadList = Array.isArray(threads) ? threads : [];
+  const relevantThreads = threadList.filter((t) => {
     if (sectionType === "general") {
       return t.section_type === "general";
     }
@@ -311,7 +312,8 @@ export function ContextualFeedbackThread({
                           }
                         }}
                         placeholder="Write a reply..."
-                        className="h-8 flex-1 rounded-lg border border-zinc-200 bg-white px-2.5 text-xs text-zinc-900 outline-none focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)]"
+                        containerClassName="flex-1 min-w-0"
+                        className="h-8 w-full rounded-lg border border-zinc-200 bg-white px-2.5 text-xs text-zinc-900 outline-none focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)]"
                         disabled={loading}
                       />
                       <button

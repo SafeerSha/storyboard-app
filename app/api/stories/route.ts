@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getAuthenticatedTeamUser } from "@/lib/team-session";
-import { getReviewersForStories, isTeamUserProjectMember } from "@/lib/story-reviewer-auth";
+import { getReviewersForStories, isTeamUserProjectMember, syncFreelancerToTeam } from "@/lib/story-reviewer-auth";
 import { z } from "zod";
 
 const schema = z.object({
@@ -110,7 +110,9 @@ export async function POST(req: Request) {
       const teamUser = await getAuthenticatedTeamUser();
       let projectId = parsedStories[0].project_id;
 
+      let creatorId: string | null = null;
       if (teamUser) {
+        creatorId = teamUser.id;
         const isMember = await isTeamUserProjectMember(teamUser.id, projectId);
         if (!isMember) {
           return NextResponse.json({ error: "Forbidden. Access to this project is not allowed." }, { status: 403 });
@@ -132,6 +134,7 @@ export async function POST(req: Request) {
 
         let isAuth = false;
         if (user) {
+          creatorId = user.id;
           const { data: profile } = await admin
             .from("freelancer_profiles")
             .select("role")
@@ -178,6 +181,7 @@ export async function POST(req: Request) {
         clarifications: s.clarifications,
         raw_requirement: s.raw_requirement,
         status: s.status,
+        created_by_id: creatorId,
       }));
 
       const { data: inserted, error: insertErr } = await admin
@@ -301,6 +305,29 @@ export async function POST(req: Request) {
           .eq("status", "active")
           .in("id", missingIds);
         (legacyMembers || []).forEach((m) => validIds.add(m.id));
+      }
+
+      // Check if any remaining missing IDs belong to the project owner or super admins in freelancer_profiles
+      const stillMissing = body.reviewer_ids.filter((rid) => !validIds.has(rid));
+      if (stillMissing.length > 0) {
+        const { data: proj } = await admin
+          .from("projects")
+          .select("owner_id")
+          .eq("id", body.project_id)
+          .maybeSingle();
+
+        const { data: adminProfiles } = await admin
+          .from("freelancer_profiles")
+          .select("id, name, email, role, status")
+          .in("id", stillMissing)
+          .eq("status", "active");
+
+        for (const ap of adminProfiles || []) {
+          if (ap.id === proj?.owner_id || ap.role === "super_admin") {
+            await syncFreelancerToTeam(admin, ap, body.project_id);
+            validIds.add(ap.id);
+          }
+        }
       }
 
       const hasInvalid = body.reviewer_ids.some((rid) => !validIds.has(rid));

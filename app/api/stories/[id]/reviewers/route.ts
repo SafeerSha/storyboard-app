@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { canManageStoryReviewers } from "@/lib/story-reviewer-auth";
+import { canManageStoryReviewers, syncFreelancerToTeam } from "@/lib/story-reviewer-auth";
 import { logAudit } from "@/lib/audit";
 
 export const dynamic = "force-dynamic";
@@ -69,6 +69,43 @@ export async function GET(
         .in("id", missingIds);
       (legacyMembers || []).forEach((m) => validUserIds.add(m.id));
     }
+
+    // Project owner and super admins are also valid project members
+    const stillMissing = teamUserIds.filter((id) => !validUserIds.has(id));
+    if (stillMissing.length > 0) {
+      const { data: proj } = await admin
+        .from("projects")
+        .select("owner_id")
+        .eq("id", story.project_id)
+        .maybeSingle();
+
+      const { data: adminProfiles } = await admin
+        .from("freelancer_profiles")
+        .select("id, name, email, role, status")
+        .in("id", stillMissing)
+        .eq("status", "active");
+
+      for (const ap of adminProfiles || []) {
+        if (ap.id === proj?.owner_id || ap.role === "super_admin") {
+          validUserIds.add(ap.id);
+        }
+      }
+    }
+  }
+
+  // Look up freelancer_profiles for any user whose team_users info is not joined
+  const unjoinedUserIds = rawReviewers
+    .filter((r: any) => !r.user)
+    .map((r: any) => r.team_user_id)
+    .filter(Boolean);
+
+  const freelancerLookup = new Map<string, any>();
+  if (unjoinedUserIds.length > 0) {
+    const { data: profiles } = await admin
+      .from("freelancer_profiles")
+      .select("id, name, email, role")
+      .in("id", unjoinedUserIds);
+    (profiles || []).forEach((p) => freelancerLookup.set(p.id, p));
   }
 
   const formatted = rawReviewers
@@ -79,13 +116,26 @@ export async function GET(
     .map((r: any) => {
       const u = r.user;
       const uid = r.team_user_id;
+      const fp = freelancerLookup.get(uid);
+      const displayName =
+        u?.name ||
+        fp?.name ||
+        (fp?.role === "super_admin" ? "Super Admin" : "Project Creator") ||
+        "Team Member";
+      const displayUsername =
+        u?.username || (fp?.email ? fp.email.split("@")[0] : "");
+      const displayRole =
+        u?.role ||
+        (fp?.role === "super_admin" ? "Super Admin" : "Project Creator") ||
+        "member";
+
       return {
         id: r.id,
         user_id: uid,
         team_user_id: uid,
-        name: u?.name || "Team Member",
-        username: u?.username || "",
-        role: u?.role || "member",
+        name: displayName,
+        username: displayUsername,
+        role: displayRole,
         assigned_by: r.assigned_by,
         created_at: r.created_at,
       };
@@ -145,6 +195,29 @@ export async function PUT(
           .eq("status", "active")
           .in("id", missingIds);
         (legacyMembers || []).forEach((m) => validIds.add(m.id));
+      }
+
+      // Check if any remaining missing IDs belong to the project owner or super admins in freelancer_profiles
+      const stillMissing = reviewerIds.filter((id) => !validIds.has(id));
+      if (stillMissing.length > 0) {
+        const { data: proj } = await admin
+          .from("projects")
+          .select("owner_id")
+          .eq("id", story.project_id)
+          .maybeSingle();
+
+        const { data: adminProfiles } = await admin
+          .from("freelancer_profiles")
+          .select("id, name, email, role, status")
+          .in("id", stillMissing)
+          .eq("status", "active");
+
+        for (const ap of adminProfiles || []) {
+          if (ap.id === proj?.owner_id || ap.role === "super_admin") {
+            await syncFreelancerToTeam(admin, ap, story.project_id);
+            validIds.add(ap.id);
+          }
+        }
       }
 
       const hasInvalid = reviewerIds.some((id) => !validIds.has(id));
@@ -210,16 +283,44 @@ export async function PUT(
       .eq("story_id", storyId)
       .order("created_at", { ascending: true });
 
+    // Lookup any reviewers whose user:team_users wasn't joined
+    const unjoinedUpdatedIds = (updatedReviewers || [])
+      .filter((r: any) => !r.user)
+      .map((r: any) => r.team_user_id)
+      .filter(Boolean);
+
+    const updatedFreelancerLookup = new Map<string, any>();
+    if (unjoinedUpdatedIds.length > 0) {
+      const { data: profiles } = await admin
+        .from("freelancer_profiles")
+        .select("id, name, email, role")
+        .in("id", unjoinedUpdatedIds);
+      (profiles || []).forEach((p) => updatedFreelancerLookup.set(p.id, p));
+    }
+
     const formatted = (updatedReviewers || []).map((r: any) => {
       const u = r.user;
       const uid = r.team_user_id;
+      const fp = updatedFreelancerLookup.get(uid);
+      const displayName =
+        u?.name ||
+        fp?.name ||
+        (fp?.role === "super_admin" ? "Super Admin" : "Project Creator") ||
+        "Team Member";
+      const displayUsername =
+        u?.username || (fp?.email ? fp.email.split("@")[0] : "");
+      const displayRole =
+        u?.role ||
+        (fp?.role === "super_admin" ? "Super Admin" : "Project Creator") ||
+        "member";
+
       return {
         id: r.id,
         user_id: uid,
         team_user_id: uid,
-        name: u?.name || "Team Member",
-        username: u?.username || "",
-        role: u?.role || "member",
+        name: displayName,
+        username: displayUsername,
+        role: displayRole,
         assigned_by: r.assigned_by,
         created_at: r.created_at,
       };

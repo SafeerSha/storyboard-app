@@ -17,6 +17,7 @@ import {
   X,
 } from "lucide-react";
 import { toast } from "@/lib/toast";
+import { StoryBoardLogo } from "@/components/brand/StoryBoardLogo";
 
 interface EpicItem {
   id: string;
@@ -117,19 +118,7 @@ export function ClientSidebar({
     <div className="flex h-full flex-col bg-transparent">
       {/* Brand Header */}
       <div className="flex h-[76px] items-center justify-between border-b border-[rgba(74,61,100,0.08)] px-5 bg-transparent">
-        <div className="flex items-center gap-2.5">
-          <div className="grid h-8 w-8 place-items-center rounded-lg bg-[#B8944E] text-white shadow-xs">
-            <span className="text-xs font-semibold tracking-tighter">◆</span>
-          </div>
-          <div className="min-w-0">
-            <span className="text-sm font-semibold tracking-tight text-[#252331] block">
-              StoryBoard
-            </span>
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-[#80642F] block">
-              Client Portal
-            </span>
-          </div>
-        </div>
+        <StoryBoardLogo size="md" variant="full" badge="Client Portal" />
         {isMobile && (
           <button
             type="button"

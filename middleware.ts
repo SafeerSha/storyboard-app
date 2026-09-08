@@ -10,9 +10,8 @@ export async function middleware(request: NextRequest) {
   // 1. Team Portal route protections (Early exit: zero Supabase Auth API calls)
   const hasTeamSession = Boolean(request.cookies.get(TEAM_COOKIE)?.value);
   if (pathname === "/team/login") {
-    if (hasTeamSession) {
-      return NextResponse.redirect(new URL("/team", request.url));
-    }
+    // Allow access to login page. Never blindly redirect to /team based solely on
+    // raw cookie presence, as an expired/invalid token causes an infinite bounce loop.
     return NextResponse.next({ request });
   }
 

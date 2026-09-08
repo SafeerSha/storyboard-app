@@ -538,7 +538,7 @@ export default function TeamReviewsPage() {
 
                         {/* Description Preview */}
                         {story.description && (
-                          <p className="mt-1 text-xs sm:text-sm text-[#706C7D] line-clamp-2 max-w-3xl">
+                          <p className="mt-1 text-xs sm:text-sm text-[#706C7D] leading-relaxed max-w-3xl">
                             {story.description}
                           </p>
                         )}

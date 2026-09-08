@@ -7,12 +7,12 @@ import {
   ClipboardCheck,
   FolderKanban,
   Layers,
-  LayoutDashboard,
   LogOut,
   MessageSquare,
   X,
 } from "lucide-react";
 import { toast } from "@/lib/toast";
+import { StoryBoardLogo } from "@/components/brand/StoryBoardLogo";
 
 interface TeamSidebarProps {
   userName: string;
@@ -30,6 +30,7 @@ export function TeamSidebar({
   const pathname = usePathname();
   const [pendingReviewsCount, setPendingReviewsCount] = React.useState<number>(0);
   const [epics, setEpics] = React.useState<Array<{ id: string; name: string; storyCount: number }>>([]);
+  const [hasInboxAccess, setHasInboxAccess] = React.useState<boolean>(false);
 
   const fetchCount = React.useCallback(() => {
     fetch("/api/team/reviews/count")
@@ -53,18 +54,35 @@ export function TeamSidebar({
       .catch(() => {});
   }, []);
 
+  const fetchInboxAccess = React.useCallback(() => {
+    fetch("/api/inbox?status=all")
+      .then((r) => (r.ok ? r.json() : { items: [] }))
+      .then((d) => {
+        if (Array.isArray(d.items) && d.items.length > 0) {
+          setHasInboxAccess(true);
+        } else {
+          setHasInboxAccess(false);
+        }
+      })
+      .catch(() => {
+        setHasInboxAccess(false);
+      });
+  }, []);
+
   useEffect(() => {
     fetchCount();
     fetchEpics();
+    fetchInboxAccess();
     const handleUpdate = () => {
       fetchCount();
       fetchEpics();
+      fetchInboxAccess();
     };
     window.addEventListener("storyboard:review-updated", handleUpdate);
     return () => {
       window.removeEventListener("storyboard:review-updated", handleUpdate);
     };
-  }, [fetchCount, fetchEpics]);
+  }, [fetchCount, fetchEpics, fetchInboxAccess]);
 
   useEffect(() => {
     if (!mobileOpen) return;
@@ -97,17 +115,7 @@ export function TeamSidebar({
     <div className="flex h-full flex-col bg-transparent">
       {/* Brand Header */}
       <div className="flex h-[76px] items-center justify-between border-b border-[rgba(74,61,100,0.08)] px-5 bg-transparent">
-        <div className="flex items-center gap-2.5">
-          <div className="grid h-8 w-8 place-items-center rounded-lg bg-[#B8944E] text-white shadow-xs">
-            <span className="text-xs font-semibold tracking-tighter">◆</span>
-          </div>
-          <span className="text-sm font-semibold tracking-tight text-[#252331]">
-            StoryBoard
-          </span>
-          <span className="rounded-md bg-[rgba(184,148,78,0.10)] px-1.5 py-0.5 text-[10px] font-medium text-[#80642F] border border-[rgba(184,148,78,0.14)]">
-            Team
-          </span>
-        </div>
+        <StoryBoardLogo size="md" variant="full" badge="Team" />
         {isMobile && (
           <button
             type="button"
@@ -156,20 +164,13 @@ export function TeamSidebar({
                   : "text-[#706C7D] font-medium hover:bg-[rgba(184,148,78,0.04)] hover:text-[#80642F] border border-transparent"
               }`}
             >
-              <LayoutDashboard
+              <FolderKanban
                 size={16}
                 className={pathname === "/team" ? "text-[#B8944E]" : "text-[#9994A5]"}
               />
-              <span>Overview</span>
-            </Link>
-            <a
-              href="/team#project-details"
-              onClick={closeMobile}
-              className="flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-xs sm:text-sm text-[#706C7D] font-medium hover:bg-[rgba(184,148,78,0.04)] hover:text-[#80642F] border border-transparent transition-colors"
-            >
-              <FolderKanban size={16} className="text-[#9994A5]" />
               <span>Project</span>
-            </a>
+            </Link>
+
             <Link
               href="/team/reviews"
               onClick={closeMobile}
@@ -192,21 +193,24 @@ export function TeamSidebar({
                 </span>
               )}
             </Link>
-            <Link
-              href="/inbox"
-              onClick={closeMobile}
-              className={`flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-xs sm:text-sm transition-colors ${
-                pathname.startsWith("/inbox")
-                  ? "bg-[rgba(184,148,78,0.09)] text-[#80642F] font-medium border border-[rgba(184,148,78,0.12)]"
-                  : "text-[#706C7D] font-medium hover:bg-[rgba(184,148,78,0.04)] hover:text-[#80642F] border border-transparent"
-              }`}
-            >
-              <Layers
-                size={16}
-                className={pathname.startsWith("/inbox") ? "text-[#B8944E]" : "text-[#9994A5]"}
-              />
-              <span className="truncate">Idea Inbox</span>
-            </Link>
+
+            {hasInboxAccess && (
+              <Link
+                href="/inbox"
+                onClick={closeMobile}
+                className={`flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-xs sm:text-sm transition-colors ${
+                  pathname.startsWith("/inbox")
+                    ? "bg-[rgba(184,148,78,0.09)] text-[#80642F] font-medium border border-[rgba(184,148,78,0.12)]"
+                    : "text-[#706C7D] font-medium hover:bg-[rgba(184,148,78,0.04)] hover:text-[#80642F] border border-transparent"
+                }`}
+              >
+                <Layers
+                  size={16}
+                  className={pathname.startsWith("/inbox") ? "text-[#B8944E]" : "text-[#9994A5]"}
+                />
+                <span className="truncate">Idea Inbox</span>
+              </Link>
+            )}
           </nav>
         </div>
 

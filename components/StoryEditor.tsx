@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import {
   AlertCircle,
+  CheckCircle2,
   HelpCircle,
   MessageSquare,
   Plus,
@@ -18,9 +19,25 @@ import type {
   GeneratedStory,
   Epic,
   Story,
+  StoryStatus,
   FeedbackThread,
   FeedbackAuthorType,
 } from "@/lib/types";
+
+interface StoryFormState {
+  id?: string;
+  title: string;
+  description: string;
+  acceptance_criteria: string[];
+  assumptions: string[];
+  clarifications: string[];
+  raw_requirement?: string | null;
+  epic_id?: string | null;
+  suggestedEpic?: string;
+  reviewer_ids: string[];
+  status: StoryStatus;
+  [key: string]: any;
+}
 
 export function StoryEditor({
   story,
@@ -33,6 +50,9 @@ export function StoryEditor({
   viewerType,
   currentUserId,
   isReviewer,
+  onApprove,
+  isTeamApproved,
+  approving,
 }: {
   story: (GeneratedStory | Story) & {
     raw_requirement?: string | null;
@@ -51,8 +71,22 @@ export function StoryEditor({
   viewerType?: FeedbackAuthorType;
   currentUserId?: string;
   isReviewer?: boolean;
+  onApprove?: (storyId: string) => void;
+  isTeamApproved?: boolean;
+  approving?: boolean;
 }) {
-  const [value, setValue] = useState(story);
+  const normalizeStory = (s: any): StoryFormState => ({
+    ...s,
+    title: s?.title || "",
+    description: s?.description || "",
+    acceptance_criteria: Array.isArray(s?.acceptance_criteria) ? s.acceptance_criteria : [],
+    assumptions: Array.isArray(s?.assumptions) ? s.assumptions : [],
+    clarifications: Array.isArray(s?.clarifications) ? s.clarifications : [],
+    reviewer_ids: Array.isArray(s?.reviewer_ids) ? s.reviewer_ids : [],
+    status: (s?.status as StoryStatus) || "review",
+  });
+
+  const [value, setValue] = useState<StoryFormState>(() => normalizeStory(story));
   const storyId = story.id;
   const [threads, setThreads] = useState<FeedbackThread[]>([]);
   const effectiveViewer = viewerType || "freelancer";
@@ -61,13 +95,13 @@ export function StoryEditor({
 
   const [teamMembers, setTeamMembers] = useState<Array<{ id: string; name: string; username: string; role?: string }>>([]);
   const [selectedReviewerIds, setSelectedReviewerIds] = useState<string[]>(
-    story.reviewer_ids || []
+    Array.isArray(story.reviewer_ids) ? story.reviewer_ids : []
   );
   const [loadingTeam, setLoadingTeam] = useState(false);
 
   useEffect(() => {
-    setValue(story);
-    setSelectedReviewerIds(story.reviewer_ids || []);
+    setValue(normalizeStory(story));
+    setSelectedReviewerIds(Array.isArray(story.reviewer_ids) ? story.reviewer_ids : []);
   }, [story]);
 
   const projectId = (story as any).project_id;
@@ -114,27 +148,34 @@ export function StoryEditor({
     index: number,
     text: string
   ) =>
-    setValue((v) => ({
-      ...v,
-      [key]: (v[key] as string[]).map((x: string, i: number) =>
-        i === index ? text : x
-      ),
-    }));
+    setValue((v: any) => {
+      const arr = Array.isArray(v[key]) ? (v[key] as string[]) : [];
+      return {
+        ...v,
+        [key]: arr.map((x: string, i: number) => (i === index ? text : x)),
+      };
+    });
 
   const add = (key: "acceptance_criteria" | "assumptions" | "clarifications") =>
-    setValue((v) => ({
-      ...v,
-      [key]: [...(v[key] as string[]), ""],
-    }));
+    setValue((v: any) => {
+      const arr = Array.isArray(v[key]) ? (v[key] as string[]) : [];
+      return {
+        ...v,
+        [key]: [...arr, ""],
+      };
+    });
 
   const remove = (
     key: "acceptance_criteria" | "assumptions" | "clarifications",
     index: number
   ) =>
-    setValue((v) => ({
-      ...v,
-      [key]: (v[key] as string[]).filter((_: string, i: number) => i !== index),
-    }));
+    setValue((v: any) => {
+      const arr = Array.isArray(v[key]) ? (v[key] as string[]) : [];
+      return {
+        ...v,
+        [key]: arr.filter((_: string, i: number) => i !== index),
+      };
+    });
 
   const suggestedEpicExists = epics.some((e) => e.name === story.suggestedEpic);
   const openFeedbackCount = threads.filter((t) => t.status === "open").length;
@@ -148,7 +189,7 @@ export function StoryEditor({
       : "Story · In Review";
 
   return (
-    <div className="rounded-[18px] border border-[rgba(74,61,100,0.08)] bg-white p-5 sm:p-7 shadow-[0_8px_30px_rgba(70,55,95,0.055)] space-y-6">
+    <div className="rounded-[18px] border border-[rgba(74,61,100,0.08)] bg-white p-4 sm:p-7 shadow-[0_8px_30px_rgba(70,55,95,0.055)] space-y-5 sm:space-y-6">
       {/* Header */}
       <div className="flex items-start justify-between gap-4 border-b border-[rgba(74,61,100,0.06)] pb-4">
         <div className="min-w-0">
@@ -251,7 +292,7 @@ export function StoryEditor({
           value={value.description}
           onChange={(e) => setValue({ ...value, description: e.target.value })}
           placeholder="Describe the user capability and business value..."
-          className="w-full rounded-xl border border-[rgba(74,61,100,0.11)] bg-white p-3 text-sm text-[#252331] placeholder-[#9994A5] outline-none transition focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)] resize-y"
+          className="w-full rounded-xl border border-[rgba(74,61,100,0.11)] bg-white p-3 text-sm text-[#252331] placeholder-[#9994A5] outline-none transition focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)]"
         />
       </div>
 
@@ -325,23 +366,31 @@ export function StoryEditor({
           ) : (
             <div className="flex flex-wrap gap-2">
               {selectedReviewerIds.length > 0 ? (
-                teamMembers
-                  .filter((tm) => selectedReviewerIds.includes(tm.id))
-                  .map((tm) => (
+                selectedReviewerIds.map((rid) => {
+                  const tm =
+                    teamMembers.find((m) => m.id === rid) ||
+                    (story.reviewers || []).find(
+                      (r: any) => r.user_id === rid || r.id === rid || r.team_user_id === rid
+                    );
+                  if (!tm) return null;
+                  return (
                     <span
-                      key={tm.id}
+                      key={rid}
                       className="inline-flex items-center gap-1.5 rounded-lg border border-[rgba(74,61,100,0.12)] bg-white px-2.5 py-1 text-xs text-[#252331]"
                     >
                       <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
                       <span>{tm.name}</span>
-                      <span className="text-[10px] text-[#706C7D]">(@{tm.username})</span>
+                      {tm.username && (
+                        <span className="text-[10px] text-[#706C7D]">(@{tm.username})</span>
+                      )}
                       {tm.role && tm.role !== "member" && (
                         <span className="rounded bg-zinc-100 px-1.5 py-0.5 text-[9px] uppercase tracking-wider font-semibold text-zinc-600 border border-zinc-200">
                           {tm.role}
                         </span>
                       )}
                     </span>
-                  ))
+                  );
+                })
               ) : (
                 <span className="text-xs text-[#9994A5] italic">No reviewers assigned</span>
               )}
@@ -354,8 +403,8 @@ export function StoryEditor({
 
       {/* 1. Acceptance Criteria */}
       <section className="space-y-3">
-        <div className="flex items-center justify-between">
-          <div>
+        <div className="flex items-center justify-between gap-3">
+          <div className="min-w-0 flex-1">
             <h4 className="text-sm font-semibold text-[#252331] tracking-tight">
               Acceptance Criteria
             </h4>
@@ -366,7 +415,7 @@ export function StoryEditor({
           <button
             type="button"
             onClick={() => add("acceptance_criteria")}
-            className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-[#80642F] hover:bg-[rgba(184,148,78,0.08)] transition"
+            className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-[#80642F] hover:bg-[rgba(184,148,78,0.08)] transition shrink-0 whitespace-nowrap cursor-pointer"
           >
             <Plus size={13} />
             <span>Add criterion</span>
@@ -374,7 +423,7 @@ export function StoryEditor({
         </div>
 
         <div className="space-y-2.5">
-          {(value.acceptance_criteria as string[]).map((item, i) => {
+          {((Array.isArray(value.acceptance_criteria) ? value.acceptance_criteria : []) as string[]).map((item: string, i: number) => {
             const itemId = `ac-${i}`;
             return (
               <div
@@ -386,20 +435,23 @@ export function StoryEditor({
                     {String(i + 1).padStart(2, "0")}
                   </span>
                   <VoiceTextarea
-                    rows={2}
+                    rows={1}
                     value={item}
                     onChange={(e) => updateList("acceptance_criteria", i, e.target.value)}
                     placeholder="Describe specific validation or behavior..."
-                    className="flex-1 text-xs sm:text-sm text-[#252331] placeholder-[#9994A5] bg-transparent outline-none resize-none leading-relaxed"
+                    containerClassName="flex-1 min-w-0"
+                    className="w-full text-xs sm:text-sm text-[#252331] placeholder-[#9994A5] bg-transparent outline-none leading-relaxed"
+                    actionSlot={
+                      <button
+                        type="button"
+                        onClick={() => remove("acceptance_criteria", i)}
+                        aria-label="Remove criterion"
+                        className="grid h-7 w-7 place-items-center rounded-lg text-[#9994A5] hover:bg-rose-50/80 hover:text-[#C25D72] transition cursor-pointer"
+                      >
+                        <Trash2 size={13} />
+                      </button>
+                    }
                   />
-                  <button
-                    type="button"
-                    onClick={() => remove("acceptance_criteria", i)}
-                    aria-label="Remove criterion"
-                    className="grid h-7 w-7 shrink-0 place-items-center rounded-lg text-[#9994A5] hover:bg-rose-50/80 hover:text-[#C25D72] transition"
-                  >
-                    <Trash2 size={13} />
-                  </button>
                 </div>
 
                 {storyId && (
@@ -443,8 +495,8 @@ export function StoryEditor({
 
       {/* 2. Assumptions */}
       <section className="space-y-3 pt-2">
-        <div className="flex items-center justify-between">
-          <div>
+        <div className="flex items-center justify-between gap-3">
+          <div className="min-w-0 flex-1">
             <h4 className="text-sm font-semibold text-[#252331] tracking-tight">
               Assumptions
             </h4>
@@ -455,7 +507,7 @@ export function StoryEditor({
           <button
             type="button"
             onClick={() => add("assumptions")}
-            className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-[#80642F] hover:bg-[rgba(184,148,78,0.08)] transition"
+            className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-[#80642F] hover:bg-[rgba(184,148,78,0.08)] transition shrink-0 whitespace-nowrap cursor-pointer"
           >
             <Plus size={13} />
             <span>Add assumption</span>
@@ -463,29 +515,34 @@ export function StoryEditor({
         </div>
 
         <div className="space-y-2">
-          {(value.assumptions as string[]).map((item, i) => {
+          {((Array.isArray(value.assumptions) ? value.assumptions : []) as string[]).map((item: string, i: number) => {
             const itemId = `assump-${i}`;
             return (
               <div
                 key={i}
                 className="rounded-xl border border-[rgba(74,61,100,0.08)] bg-[#FAF9FC] p-2.5 transition focus-within:border-[#B8944E] focus-within:bg-white"
               >
-                <div className="flex items-center gap-2">
-                  <span className="text-[#9994A5] font-bold text-sm shrink-0">•</span>
-                  <VoiceInput
+                <div className="flex items-start gap-2">
+                  <span className="text-[#9994A5] font-bold text-sm shrink-0 mt-0.5">•</span>
+                  <VoiceTextarea
+                    rows={1}
                     value={item}
                     onChange={(e) => updateList("assumptions", i, e.target.value)}
                     placeholder="e.g. Users already have an account."
-                    className="flex-1 text-xs sm:text-sm text-[#252331] placeholder-[#9994A5] bg-transparent outline-none"
+                    containerClassName="flex-1 min-w-0"
+                    className="w-full text-xs sm:text-sm text-[#252331] placeholder-[#9994A5] bg-transparent outline-none leading-relaxed"
+                    actionSize="sm"
+                    actionSlot={
+                      <button
+                        type="button"
+                        onClick={() => remove("assumptions", i)}
+                        aria-label="Remove assumption"
+                        className="grid h-6 w-6 place-items-center rounded text-[#9994A5] hover:bg-rose-50/80 hover:text-[#C25D72] transition cursor-pointer"
+                      >
+                        <Trash2 size={12} />
+                      </button>
+                    }
                   />
-                  <button
-                    type="button"
-                    onClick={() => remove("assumptions", i)}
-                    aria-label="Remove assumption"
-                    className="grid h-6 w-6 shrink-0 place-items-center rounded text-[#9994A5] hover:bg-rose-50/80 hover:text-[#C25D72] transition"
-                  >
-                    <Trash2 size={12} />
-                  </button>
                 </div>
 
                 {storyId && (
@@ -528,8 +585,8 @@ export function StoryEditor({
 
       {/* 3. Clarifications */}
       <section className="space-y-3 pt-2">
-        <div className="flex items-center justify-between">
-          <div>
+        <div className="flex items-center justify-between gap-3">
+          <div className="min-w-0 flex-1">
             <h4 className="text-sm font-semibold text-[#252331] tracking-tight">
               Clarifications & Open Questions
             </h4>
@@ -540,7 +597,7 @@ export function StoryEditor({
           <button
             type="button"
             onClick={() => add("clarifications")}
-            className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-[#A87936] hover:bg-[rgba(168,121,54,0.08)] transition"
+            className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-[#A87936] hover:bg-[rgba(168,121,54,0.08)] transition shrink-0 whitespace-nowrap cursor-pointer"
           >
             <Plus size={13} />
             <span>Add clarification</span>
@@ -548,29 +605,34 @@ export function StoryEditor({
         </div>
 
         <div className="space-y-2">
-          {(value.clarifications as string[]).map((item, i) => {
+          {((Array.isArray(value.clarifications) ? value.clarifications : []) as string[]).map((item: string, i: number) => {
             const itemId = `clarif-${i}`;
             return (
               <div
                 key={i}
                 className="rounded-xl border border-[rgba(168,121,54,0.16)] bg-[rgba(168,121,54,0.04)] p-2.5 transition focus-within:border-[#A87936] focus-within:bg-white"
               >
-                <div className="flex items-center gap-2">
-                  <HelpCircle size={14} className="text-[#A87936] shrink-0" />
-                  <VoiceInput
+                <div className="flex items-start gap-2">
+                  <HelpCircle size={14} className="text-[#A87936] shrink-0 mt-1" />
+                  <VoiceTextarea
+                    rows={1}
                     value={item}
                     onChange={(e) => updateList("clarifications", i, e.target.value)}
                     placeholder="e.g. Should email changes require verification?"
-                    className="flex-1 text-xs sm:text-sm text-[#252331] placeholder-[#9994A5] bg-transparent outline-none"
+                    containerClassName="flex-1 min-w-0"
+                    className="w-full text-xs sm:text-sm text-[#252331] placeholder-[#9994A5] bg-transparent outline-none leading-relaxed"
+                    actionSize="sm"
+                    actionSlot={
+                      <button
+                        type="button"
+                        onClick={() => remove("clarifications", i)}
+                        aria-label="Remove clarification"
+                        className="grid h-6 w-6 place-items-center rounded text-[#9994A5] hover:bg-rose-50/80 hover:text-[#C25D72] transition cursor-pointer"
+                      >
+                        <Trash2 size={12} />
+                      </button>
+                    }
                   />
-                  <button
-                    type="button"
-                    onClick={() => remove("clarifications", i)}
-                    aria-label="Remove clarification"
-                    className="grid h-6 w-6 shrink-0 place-items-center rounded text-[#9994A5] hover:bg-rose-50/80 hover:text-[#C25D72] transition"
-                  >
-                    <Trash2 size={12} />
-                  </button>
                 </div>
 
                 {storyId && (
@@ -654,7 +716,7 @@ export function StoryEditor({
 
       {/* Action Footer */}
       <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-3 border-t border-[rgba(74,61,100,0.06)] pt-5">
-        <div>
+        <div className="flex items-center gap-2">
           {onDelete && (
             <Button
               variant="danger"
@@ -663,6 +725,22 @@ export function StoryEditor({
               onClick={onDelete}
             >
               Delete story
+            </Button>
+          )}
+          {onApprove && !isReadOnly && (
+            <Button
+              variant={isTeamApproved ? "secondary" : "primary"}
+              size="sm"
+              leftIcon={
+                <CheckCircle2
+                  size={14}
+                  className={isTeamApproved ? "text-[#2E8B70]" : "text-white"}
+                />
+              }
+              onClick={() => onApprove(storyId!)}
+              isLoading={approving}
+            >
+              {isTeamApproved ? "Team Approved" : "Approve for Team"}
             </Button>
           )}
         </div>
@@ -677,8 +755,9 @@ export function StoryEditor({
             onClick={() =>
               onSave({
                 ...value,
+                status: (value.status || "review") as StoryStatus,
                 reviewer_ids: selectedReviewerIds,
-              })
+              } as any)
             }
           >
             Save changes

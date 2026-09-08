@@ -21,45 +21,33 @@ export async function GET(req: Request) {
 
   try {
     // 1. Determine accessible item IDs
-    let allowedItemIds: string[] | null = null;
+    // Ideas are ONLY shown to the user who created it OR if the logged-in user is mapped as a member
+    const { data: memberships } = await db
+      .from("project_inbox_members")
+      .select("inbox_item_id")
+      .eq("user_id", actor.id);
 
-    if (!actor.isSuperAdmin) {
-      // Find items where user is an explicit collaborator in project_inbox_members
-      const { data: memberships } = await db
-        .from("project_inbox_members")
-        .select("inbox_item_id")
-        .eq("user_id", actor.id);
+    const memberItemIds = (memberships || []).map((m: any) => m.inbox_item_id);
 
-      const memberItemIds = (memberships || []).map((m: any) => m.inbox_item_id);
+    const { data: ownedItems } = await db
+      .from("project_inbox_items")
+      .select("id")
+      .eq("owner_id", actor.id);
 
-      if (actor.type === "freelancer") {
-        // Freelancers see items they own OR are members of
-        const { data: ownedItems } = await db
-          .from("project_inbox_items")
-          .select("id")
-          .eq("owner_id", actor.id);
+    const ownedItemIds = (ownedItems || []).map((o: any) => o.id);
 
-        const ownedItemIds = (ownedItems || []).map((o: any) => o.id);
-        allowedItemIds = Array.from(new Set([...ownedItemIds, ...memberItemIds]));
-      } else {
-        // Team users see ONLY items where they are explicitly added as members
-        allowedItemIds = memberItemIds;
-      }
+    const allowedItemIds = Array.from(new Set([...ownedItemIds, ...memberItemIds]));
 
-      if (allowedItemIds.length === 0) {
-        return NextResponse.json({ items: [] });
-      }
+    if (allowedItemIds.length === 0) {
+      return NextResponse.json({ items: [] });
     }
 
     let query = db
       .from("project_inbox_items")
       .select(
         "id, owner_id, title, description, type, status, priority, converted_project_id, converted_at, created_at, updated_at, converted_project:projects(id, name)"
-      );
-
-    if (allowedItemIds !== null) {
-      query = query.in("id", allowedItemIds);
-    }
+      )
+      .in("id", allowedItemIds);
 
     // Status filter
     if (statusParam === "active") {

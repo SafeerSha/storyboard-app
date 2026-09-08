@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import { CheckCircle2, MessageSquare } from "lucide-react";
 import { Badge, type BadgeVariant } from "@/components/ui/Badge";
@@ -25,16 +27,16 @@ export function StoryCard({
     <button
       type="button"
       onClick={onClick}
-      className={`group w-full text-left rounded-xl border p-4 transition-all duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#B8944E] cursor-pointer ${
+      className={`group w-full text-left rounded-xl border p-3.5 sm:p-4 transition-all duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#B8944E] cursor-pointer ${
         isSelected
           ? "border-[#B8944E] bg-[rgba(184,148,78,0.06)] shadow-xs ring-1 ring-[#B8944E]/25"
           : "border-[rgba(74,61,100,0.08)] bg-white hover:border-[#B8944E]/30 hover:shadow-[0_4px_20px_rgba(70,55,95,0.05)]"
       }`}
     >
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0 flex-1">
+      <span className="flex items-start justify-between gap-3">
+        <span className="block min-w-0 flex-1">
           {/* Metadata Row */}
-          <div className="flex flex-wrap items-center gap-2 mb-1.5">
+          <span className="flex flex-wrap items-center gap-2 mb-1.5">
             <span className="text-[10px] font-semibold uppercase tracking-wider text-[#9994A5]">
               Story
             </span>
@@ -74,28 +76,28 @@ export function StoryCard({
                 </span>
               </>
             )}
-          </div>
+          </span>
 
           {/* Title */}
-          <h4 className="text-sm font-semibold text-[#252331] tracking-tight group-hover:text-[#80642F] transition truncate">
+          <span className="block text-sm font-semibold text-[#252331] tracking-tight group-hover:text-[#80642F] transition truncate">
             {story.title}
-          </h4>
+          </span>
 
           {/* Description */}
           {story.description && (
-            <p className="mt-1 text-xs text-[#706C7D] line-clamp-2 leading-relaxed">
+            <span className="block mt-1 text-xs text-[#706C7D] leading-relaxed">
               {story.description}
-            </p>
+            </span>
           )}
-        </div>
+        </span>
 
         {/* Status Badge */}
         <Badge variant={statusVariant} size="sm" className="shrink-0" />
-      </div>
+      </span>
 
       {/* Subtle counts summary if assumptions or clarifications exist */}
       {(assumptionsCount > 0 || clarificationsCount > 0) && (
-        <div className="mt-2.5 pt-2 border-t border-[rgba(74,61,100,0.06)] flex items-center gap-3 text-[11px] text-[#9994A5]">
+        <span className="mt-2.5 pt-2 border-t border-[rgba(74,61,100,0.06)] flex items-center gap-3 text-[11px] text-[#9994A5]">
           {assumptionsCount > 0 && (
             <span>
               • {assumptionsCount} {assumptionsCount === 1 ? "assumption" : "assumptions"}
@@ -106,7 +108,7 @@ export function StoryCard({
               ? {clarificationsCount} {clarificationsCount === 1 ? "clarification" : "clarifications"}
             </span>
           )}
-        </div>
+        </span>
       )}
     </button>
   );

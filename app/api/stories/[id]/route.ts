@@ -8,6 +8,7 @@ import {
   isTeamUserProjectMember,
   canManageStoryReviewers,
   getStoryReviewers,
+  syncFreelancerToTeam,
 } from "@/lib/story-reviewer-auth";
 
 const patchSchema = z.object({
@@ -132,6 +133,29 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
             .eq("status", "active")
             .in("id", missingIds);
           (legacyMembers || []).forEach((m) => validIds.add(m.id));
+        }
+
+        // Check if any remaining missing IDs belong to the project owner or super admins in freelancer_profiles
+        const stillMissing = body.reviewer_ids.filter((rid) => !validIds.has(rid));
+        if (stillMissing.length > 0) {
+          const { data: proj } = await admin
+            .from("projects")
+            .select("owner_id")
+            .eq("id", story.project_id)
+            .maybeSingle();
+
+          const { data: adminProfiles } = await admin
+            .from("freelancer_profiles")
+            .select("id, name, email, role, status")
+            .in("id", stillMissing)
+            .eq("status", "active");
+
+          for (const ap of adminProfiles || []) {
+            if (ap.id === proj?.owner_id || ap.role === "super_admin") {
+              await syncFreelancerToTeam(admin, ap, story.project_id);
+              validIds.add(ap.id);
+            }
+          }
         }
 
         const hasInvalid = body.reviewer_ids.some((rid) => !validIds.has(rid));

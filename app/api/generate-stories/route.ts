@@ -4,6 +4,7 @@ import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getAuthenticatedTeamUser } from "@/lib/team-session";
+import { isTeamUserProjectMember } from "@/lib/story-reviewer-auth";
 
 export async function POST(request: Request) {
   try {
@@ -22,9 +23,14 @@ export async function POST(request: Request) {
     // 1. Check if authenticated as Team User
     const teamUser = await getAuthenticatedTeamUser();
     if (teamUser) {
-      // Force projectId to assigned project
-      projectId = teamUser.project_id;
-      isAuthorized = true;
+      const targetProjectId = projectId || teamUser.project_id;
+      const isMember =
+        targetProjectId === teamUser.project_id ||
+        (await isTeamUserProjectMember(teamUser.id, targetProjectId));
+      if (isMember) {
+        projectId = targetProjectId;
+        isAuthorized = true;
+      }
     }
 
     // 2. Check if authenticated as Freelancer / Super Admin
@@ -102,6 +108,7 @@ export async function POST(request: Request) {
       clarifications: story.clarifications || [],
       status: story.status || "draft",
       raw_requirement: requirement,
+      created_by_id: teamUser ? teamUser.id : null,
     }));
 
     // If caller requested preview without saving immediately

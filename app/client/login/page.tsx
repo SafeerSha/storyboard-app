@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { ArrowRight, KeyRound, Lock, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { toast } from "@/lib/toast";
+import { StoryBoardLogo } from "@/components/brand/StoryBoardLogo";
 
 export default function ClientLogin() {
   const router = useRouter();
@@ -52,14 +53,9 @@ export default function ClientLogin() {
       }}
     >
       <div className="w-full max-w-md">
-        <div className="mb-6 sm:mb-8 text-center">
-          <div className="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-[#B8944E] text-white shadow-md">
-            <span className="text-base font-bold">◆</span>
-          </div>
-          <h1 className="mt-4 text-xl sm:text-2xl font-bold tracking-tight text-[#252331]">
-            Client Review Portal
-          </h1>
-          <p className="mt-1.5 text-xs sm:text-sm text-[#706C7D]">
+        <div className="mb-6 sm:mb-8 text-center flex flex-col items-center">
+          <StoryBoardLogo size="lg" variant="stacked" badge="Client Review" />
+          <p className="mt-2 text-xs sm:text-sm text-[#706C7D]">
             Review project requirements, acceptance criteria, and approve for development.
           </p>
         </div>

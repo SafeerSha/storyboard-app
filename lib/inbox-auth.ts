@@ -116,19 +116,7 @@ export async function verifyInboxItemAccess(
     };
   }
 
-  // Super Admin override
-  if (actor.isSuperAdmin) {
-    return {
-      hasAccess: true,
-      role: "owner",
-      isOwner: true,
-      canManageCollaborators: true,
-      canEditItem: true,
-      canDeleteItem: true,
-    };
-  }
-
-  // Item Owner
+  // Item Owner (the creator)
   if (item.owner_id === actor.id) {
     return {
       hasAccess: true,

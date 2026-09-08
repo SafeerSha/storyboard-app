@@ -87,6 +87,9 @@ export default async function TeamDashboardPage({
 
   const initialStories: Story[] = storyList.map((s) => ({
     ...s,
+    acceptance_criteria: Array.isArray(s.acceptance_criteria) ? s.acceptance_criteria : [],
+    assumptions: Array.isArray(s.assumptions) ? s.assumptions : [],
+    clarifications: Array.isArray(s.clarifications) ? s.clarifications : [],
     reviewer_ids: (reviewersMap[s.id] || []).map((r) => r.user_id),
     reviewers: reviewersMap[s.id] || [],
   }));

@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getAuthenticatedTeamUser } from "@/lib/team-session";
-import { isTeamUserProjectMember } from "@/lib/story-reviewer-auth";
+import { isTeamUserProjectMember, syncFreelancerToTeam } from "@/lib/story-reviewer-auth";
 
 export const dynamic = "force-dynamic";
 
@@ -60,9 +60,62 @@ export async function GET(
     return NextResponse.json({ error: "Unauthorized or access denied." }, { status: 403 });
   }
 
-  // Query project_team_members joined with team_users
   const memberMap = new Map<string, { id: string; name: string; username: string; role: string }>();
 
+  // 3. Include Project Creator / Owner and Super Admins from freelancer_profiles
+  try {
+    const profileIds = new Set<string>();
+    const { data: project } = await admin
+      .from("projects")
+      .select("id, owner_id")
+      .eq("id", projectId)
+      .maybeSingle();
+
+    if (project?.owner_id) {
+      profileIds.add(project.owner_id);
+    }
+
+    const { data: superAdmins } = await admin
+      .from("freelancer_profiles")
+      .select("id, name, email, role, status")
+      .eq("role", "super_admin")
+      .eq("status", "active");
+
+    (superAdmins || []).forEach((sa) => profileIds.add(sa.id));
+
+    if (profileIds.size > 0) {
+      const { data: profiles } = await admin
+        .from("freelancer_profiles")
+        .select("id, name, email, role, status")
+        .in("id", Array.from(profileIds))
+        .eq("status", "active");
+
+      for (const p of profiles || []) {
+        const roleTitle = p.role === "super_admin" ? "Super Admin" : "Project Creator";
+        try {
+          const synced = await syncFreelancerToTeam(admin, p, projectId);
+          memberMap.set(p.id, {
+            id: p.id,
+            name: synced.name,
+            username: synced.username,
+            role: roleTitle,
+          });
+        } catch (syncErr) {
+          console.error("Failed to sync freelancer to team_users:", syncErr);
+          memberMap.set(p.id, {
+            id: p.id,
+            name: p.name || roleTitle,
+            username: p.email ? p.email.split("@")[0] : "admin",
+            role: roleTitle,
+          });
+        }
+      }
+    }
+  } catch (err) {
+    console.error("Failed to fetch project creator or super admin profiles:", err);
+  }
+
+  // 4. Query project_team_members joined with team_users
   const { data: records, error } = await admin
     .from("project_team_members")
     .select(`
@@ -82,12 +135,14 @@ export async function GET(
     for (const r of records) {
       const u = (r as any).team_user;
       if (u && u.id && u.status === "active") {
-        memberMap.set(u.id, {
-          id: u.id,
-          name: u.name,
-          username: u.username,
-          role: u.role || "member",
-        });
+        if (!memberMap.has(u.id)) {
+          memberMap.set(u.id, {
+            id: u.id,
+            name: u.name,
+            username: u.username,
+            role: u.role || "member",
+          });
+        }
       }
     }
   }
@@ -112,9 +167,14 @@ export async function GET(
     }
   }
 
-  const teamMembers = Array.from(memberMap.values()).sort((a, b) =>
-    a.name.localeCompare(b.name)
-  );
+  // Sort: Super Admin & Project Creator first, then alphabetically
+  const teamMembers = Array.from(memberMap.values()).sort((a, b) => {
+    const aIsAdminOrOwner = a.role === "Super Admin" || a.role === "Project Creator";
+    const bIsAdminOrOwner = b.role === "Super Admin" || b.role === "Project Creator";
+    if (aIsAdminOrOwner && !bIsAdminOrOwner) return -1;
+    if (!aIsAdminOrOwner && bIsAdminOrOwner) return 1;
+    return a.name.localeCompare(b.name);
+  });
 
   return NextResponse.json({
     teamMembers,

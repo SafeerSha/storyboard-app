@@ -12,7 +12,81 @@ export interface StoryReviewerItem {
 }
 
 /**
- * Verifies whether a team user has active membership in a project.
+ * Ensures that a freelancer/super admin profile has a corresponding synced record
+ * in public.team_users and public.project_team_members, satisfying foreign key
+ * constraints in story_reviewers and many-to-many membership lookups.
+ */
+export async function syncFreelancerToTeam(
+  admin: any,
+  profile: { id: string; name?: string | null; email: string; role?: string; status?: string },
+  projectId: string
+): Promise<{ id: string; name: string; username: string; role: string }> {
+  const roleTitle = profile.role === "super_admin" ? "Super Admin" : "Project Creator";
+  const baseName = profile.name || (profile.role === "super_admin" ? "Super Admin" : "Project Creator");
+  const rawHandle = (profile.email ? profile.email.split("@")[0] : "admin")
+    .toLowerCase()
+    .replace(/[^a-z0-9_]/g, "");
+
+  // 1. Check existing team_users record
+  const { data: existingUser } = await admin
+    .from("team_users")
+    .select("id, name, username, role, status")
+    .eq("id", profile.id)
+    .maybeSingle();
+
+  let finalUsername = existingUser?.username;
+
+  if (!existingUser) {
+    // Check if username is already taken by someone else
+    const { data: taken } = await admin
+      .from("team_users")
+      .select("id")
+      .eq("username", rawHandle)
+      .maybeSingle();
+
+    finalUsername = taken && taken.id !== profile.id
+      ? `${rawHandle}_${profile.id.substring(0, 4)}`
+      : rawHandle;
+
+    await admin.from("team_users").upsert(
+      {
+        id: profile.id,
+        project_id: projectId,
+        name: baseName,
+        username: finalUsername,
+        role: roleTitle,
+        status: "active",
+        password_hash: "managed_admin_profile",
+      },
+      { onConflict: "id" }
+    );
+  } else if (existingUser.status !== "active" || existingUser.role !== roleTitle) {
+    await admin
+      .from("team_users")
+      .update({ status: "active", role: roleTitle, name: baseName })
+      .eq("id", profile.id);
+  }
+
+  // 2. Ensure project_team_members record exists
+  await admin.from("project_team_members").upsert(
+    {
+      project_id: projectId,
+      team_user_id: profile.id,
+      assigned_by: profile.id,
+    },
+    { onConflict: "project_id,team_user_id" }
+  );
+
+  return {
+    id: profile.id,
+    name: baseName,
+    username: finalUsername || rawHandle,
+    role: roleTitle,
+  };
+}
+
+/**
+ * Verifies whether a team user (or project creator/super admin) has active membership in a project.
  */
 export async function isTeamUserProjectMember(teamUserId: string, projectId: string): Promise<boolean> {
   if (!teamUserId || !projectId) return false;
@@ -26,18 +100,28 @@ export async function isTeamUserProjectMember(teamUserId: string, projectId: str
     .limit(1)
     .maybeSingle();
 
-  return Boolean(data);
+  if (data) return true;
+
+  // Verify if user is project owner or super admin
+  const { data: project } = await admin
+    .from("projects")
+    .select("owner_id")
+    .eq("id", projectId)
+    .maybeSingle();
+
+  if (project?.owner_id === teamUserId) return true;
+
+  const { data: profile } = await admin
+    .from("freelancer_profiles")
+    .select("role")
+    .eq("id", teamUserId)
+    .maybeSingle();
+
+  return profile?.role === "super_admin";
 }
 
 /**
- * Checks if a specific team user is eligible and assigned as a reviewer for a story.
- * Requirements:
- * 1. team user exists and is active
- * 2. story exists and belongs to a project
- * 3. team user has an active membership in project_team_members for that project
- * 4. team user is mapped in story_reviewers
- *
- * If a reviewer was removed from project_team_members, access is immediately blocked.
+ * Checks if a specific team user or creator is eligible and assigned as a reviewer for a story.
  */
 export async function isTeamUserReviewer(storyId: string, teamUserId: string): Promise<boolean> {
   if (!storyId || !teamUserId) return false;
@@ -52,20 +136,7 @@ export async function isTeamUserReviewer(storyId: string, teamUserId: string): P
 
   if (!story || !story.project_id) return false;
 
-  // 2. Verify team user exists and is active
-  const { data: teamUser } = await admin
-    .from("team_users")
-    .select("id, status")
-    .eq("id", teamUserId)
-    .maybeSingle();
-
-  if (!teamUser || teamUser.status !== "active") return false;
-
-  // 3. Verify active membership in project_team_members for this project
-  const isMember = await isTeamUserProjectMember(teamUserId, story.project_id);
-  if (!isMember) return false;
-
-  // 4. Verify assignment in story_reviewers
+  // 2. Verify assignment in story_reviewers
   const { data: assignment } = await admin
     .from("story_reviewers")
     .select("id")
@@ -74,7 +145,11 @@ export async function isTeamUserReviewer(storyId: string, teamUserId: string): P
     .limit(1)
     .maybeSingle();
 
-  return Boolean(assignment);
+  if (!assignment) return false;
+
+  // 3. Verify active membership or creator/admin status
+  const isMember = await isTeamUserProjectMember(teamUserId, story.project_id);
+  return isMember;
 }
 
 /**
@@ -115,12 +190,11 @@ export async function getReviewersForStories(
     }> = [];
 
     for (const r of records) {
-      const u = (r as any).user;
       const s = (r as any).story;
       const userId = r.team_user_id;
       const projectId = s?.project_id;
 
-      if (u && u.status === "active" && projectId && userId) {
+      if (projectId && userId) {
         candidatePairs.push({
           story_id: r.story_id,
           project_id: projectId,
@@ -146,16 +220,58 @@ export async function getReviewersForStories(
       (validMemberships || []).map((m) => `${m.project_id}:${m.team_user_id}`)
     );
 
+    // Batch query projects to find project owners
+    const { data: projectOwners } = await admin
+      .from("projects")
+      .select("id, owner_id")
+      .in("id", projectIds);
+    (projectOwners || []).forEach((p) => {
+      if (p.owner_id) validMembershipSet.add(`${p.id}:${p.owner_id}`);
+    });
+
+    // Batch query freelancer_profiles for any users not resolved via team_users
+    const missingUserIds = userIds.filter((uid) => {
+      const pair = candidatePairs.find((c) => c.user_id === uid);
+      return !pair?.record.user;
+    });
+
+    const freelancerMap = new Map<string, any>();
+    if (missingUserIds.length > 0) {
+      const { data: profiles } = await admin
+        .from("freelancer_profiles")
+        .select("id, name, email, role, status")
+        .in("id", missingUserIds);
+      (profiles || []).forEach((p) => {
+        freelancerMap.set(p.id, p);
+        if (p.role === "super_admin") {
+          projectIds.forEach((pid) => validMembershipSet.add(`${pid}:${p.id}`));
+        }
+      });
+    }
+
     for (const item of candidatePairs) {
       if (validMembershipSet.has(`${item.project_id}:${item.user_id}`)) {
         const u = item.record.user;
+        const fp = freelancerMap.get(item.user_id);
+        const displayName =
+          u?.name ||
+          fp?.name ||
+          (fp?.role === "super_admin" ? "Super Admin" : "Project Creator") ||
+          "Team Member";
+        const displayUsername =
+          u?.username || (fp?.email ? fp.email.split("@")[0] : "");
+        const displayRole =
+          u?.role ||
+          (fp?.role === "super_admin" ? "Super Admin" : "Project Creator") ||
+          "member";
+
         map[item.story_id].push({
           id: item.record.id,
           team_user_id: item.user_id,
           user_id: item.user_id,
-          name: u.name || "Team Member",
-          username: u.username || "",
-          role: u.role || "member",
+          name: displayName,
+          username: displayUsername,
+          role: displayRole,
         });
       }
     }

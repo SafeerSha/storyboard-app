@@ -49,9 +49,9 @@ export function EpicFolder({
           isUncategorized
             ? "border-amber-200/70 bg-amber-50/40"
             : "border-[rgba(74,61,100,0.06)] bg-[#FAF9FC]/90"
-        } p-3.5 sm:p-4`}
+        } p-3 sm:p-4`}
       >
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="flex items-center justify-between gap-2 sm:gap-3">
           {/* Clickable Header Button */}
           <button
             type="button"
@@ -59,45 +59,45 @@ export function EpicFolder({
             aria-expanded={isExpanded}
             aria-controls={contentId}
             aria-label={`${isExpanded ? "Collapse" : "Expand"} ${name} folder`}
-            className="flex items-center gap-3 text-left min-w-0 flex-1 group focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B8944E] rounded-xl py-1 px-1 -ml-1 transition cursor-pointer"
+            className="flex items-center gap-2.5 sm:gap-3 text-left min-w-0 flex-1 group focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B8944E] rounded-xl py-0.5 sm:py-1 px-1 -ml-1 transition cursor-pointer"
           >
             {/* Expand / Collapse Chevron */}
             <span
-              className={`grid h-7 w-7 shrink-0 place-items-center rounded-lg border transition ${
+              className={`grid h-6 w-6 sm:h-7 sm:w-7 shrink-0 place-items-center rounded-lg border transition ${
                 isUncategorized
                   ? "border-amber-200 bg-amber-100/70 text-amber-800 group-hover:bg-amber-100"
                   : "border-[rgba(74,61,100,0.10)] bg-white text-[#706C7D] group-hover:text-[#252331] group-hover:border-[rgba(184,148,78,0.3)] shadow-2xs"
               }`}
             >
               {isExpanded ? (
-                <ChevronDown size={16} className="transition-transform" />
+                <ChevronDown size={15} className="transition-transform" />
               ) : (
-                <ChevronRight size={16} className="transition-transform" />
+                <ChevronRight size={15} className="transition-transform" />
               )}
             </span>
 
             {/* Folder Title + Count */}
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-2 flex-wrap">
+            <span className="block min-w-0 flex-1">
+              <span className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
                 {isUncategorized ? (
-                  <span className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-amber-800 bg-amber-100/80 px-1.5 py-0.5 rounded border border-amber-200">
-                    <AlertCircle size={11} />
+                  <span className="flex items-center gap-1 text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-amber-800 bg-amber-100/80 px-1.5 py-0.5 rounded border border-amber-200 shrink-0">
+                    <AlertCircle size={10} />
                     Uncategorized
                   </span>
                 ) : (
-                  <span className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-[#9994A5]">
-                    <Layers size={11} className="text-[#B8944E]" />
+                  <span className="flex items-center gap-1 text-[9px] sm:text-[10px] font-semibold uppercase tracking-wider text-[#9994A5] shrink-0">
+                    <Layers size={10} className="text-[#B8944E]" />
                     Epic
                   </span>
                 )}
 
-                <h3 className="text-sm sm:text-base font-semibold text-[#252331] tracking-tight truncate group-hover:text-[#80642F] transition-colors">
+                <span className="text-xs sm:text-base font-semibold text-[#252331] tracking-tight truncate group-hover:text-[#80642F] transition-colors">
                   {name}
-                </h3>
+                </span>
 
                 {/* Story Count Badge */}
                 <span
-                  className={`rounded-full px-2 py-0.5 text-xs font-semibold tabular-nums border ${
+                  className={`rounded-full px-1.5 sm:px-2 py-0.2 text-[10px] sm:text-xs font-semibold tabular-nums border shrink-0 ${
                     isUncategorized
                       ? "bg-amber-100 text-amber-900 border-amber-200"
                       : "bg-[rgba(184,148,78,0.10)] text-[#80642F] border-[rgba(184,148,78,0.16)]"
@@ -108,20 +108,20 @@ export function EpicFolder({
                 </span>
 
                 {headerExtra}
-              </div>
+              </span>
 
               {description && (
-                <p className="mt-0.5 text-xs text-[#706C7D] line-clamp-1 leading-relaxed">
+                <span className="block mt-0.5 text-[11px] sm:text-xs text-[#706C7D] line-clamp-1 leading-relaxed">
                   {description}
-                </p>
+                </span>
               )}
-            </div>
+            </span>
           </button>
 
           {/* Action buttons (isolated from toggle click) */}
           {actions && (
             <div
-              className="flex items-center gap-2 shrink-0 self-end sm:self-center pl-10 sm:pl-0"
+              className="flex items-center gap-1.5 sm:gap-2 shrink-0 self-center"
               onClick={(e) => e.stopPropagation()}
             >
               {actions}

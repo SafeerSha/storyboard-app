@@ -607,7 +607,8 @@ export function InboxDiscussionWorkspace({
                 : "Share your thoughts with the team..."
             }
             disabled={sending}
-            className="h-10 flex-1 rounded-xl border border-slate-200 bg-slate-50/60 px-3.5 text-xs sm:text-sm text-[#111827] placeholder:text-slate-400 outline-none transition focus:bg-white focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.2)]"
+            containerClassName="flex-1 min-w-0"
+            className="h-10 w-full rounded-xl border border-slate-200 bg-slate-50/60 px-3.5 text-xs sm:text-sm text-[#111827] placeholder:text-slate-400 outline-none transition focus:bg-white focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.2)]"
           />
           <Button
             type="submit"

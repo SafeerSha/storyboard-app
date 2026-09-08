@@ -82,3 +82,12 @@ button, input, textarea, select {
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(74, 61, 100, 0.25);
 }
+
+/* Auto-grow textareas to avoid vertical overflow, internal scrolling, and height limits */
+textarea.auto-grow-field {
+  field-sizing: content;
+  overflow: hidden !important;
+  resize: none !important;
+  max-height: none !important;
+}
+

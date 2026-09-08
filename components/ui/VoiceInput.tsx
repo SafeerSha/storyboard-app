@@ -120,9 +120,16 @@ export const VoiceInput = forwardRef<HTMLInputElement, VoiceInputProps>(
       }
     }, [disabled, isListening, stopListening]);
 
+    const isFlex =
+      containerClassName.includes("flex-1") ||
+      className.includes("flex-1") ||
+      containerClassName.includes("flex");
+
+    const cleanClassName = className.replace(/\bflex-1\b/g, "").trim();
+
     if (!isSupported && hideMicIfUnsupported) {
       return (
-        <div className={`relative w-full ${containerClassName}`}>
+        <div className={`relative w-full ${isFlex ? "flex-1 min-w-0" : ""} ${containerClassName}`}>
           <input
             ref={innerRef}
             type={type}
@@ -130,7 +137,7 @@ export const VoiceInput = forwardRef<HTMLInputElement, VoiceInputProps>(
             disabled={disabled}
             placeholder={placeholder}
             onChange={onChange}
-            className={className}
+            className={`w-full block ${cleanClassName}`}
             {...props}
           />
         </div>
@@ -138,7 +145,7 @@ export const VoiceInput = forwardRef<HTMLInputElement, VoiceInputProps>(
     }
 
     return (
-      <div className={`relative flex items-center w-full group ${containerClassName}`}>
+      <div className={`relative flex items-center w-full ${isFlex ? "flex-1 min-w-0" : ""} group ${containerClassName}`}>
         <input
           ref={innerRef}
           type={type}
@@ -153,10 +160,12 @@ export const VoiceInput = forwardRef<HTMLInputElement, VoiceInputProps>(
           onSelect={updateSelection}
           onClick={updateSelection}
           onKeyUp={updateSelection}
-          className={`${className} ${
+          className={`w-full block ${cleanClassName} ${
             isListening
               ? "ring-1 ring-[#C25D72]/50 border-[#C25D72]/60 pr-9"
-              : "pr-8"
+              : isSupported
+              ? "pr-8"
+              : ""
           }`}
           {...props}
         />

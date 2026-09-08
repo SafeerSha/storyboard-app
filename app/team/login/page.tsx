@@ -5,6 +5,7 @@ import { ArrowRight, Lock, ShieldCheck, User } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { toast } from "@/lib/toast";
+import { StoryBoardLogo } from "@/components/brand/StoryBoardLogo";
 
 export default function TeamLoginPage() {
   const router = useRouter();
@@ -56,14 +57,9 @@ export default function TeamLoginPage() {
       }}
     >
       <div className="w-full max-w-md">
-        <div className="mb-6 sm:mb-8 text-center">
-          <div className="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-[#B8944E] text-white shadow-md">
-            <span className="text-base font-bold">◆</span>
-          </div>
-          <h1 className="mt-4 text-xl sm:text-2xl font-bold tracking-tight text-[#252331]">
-            Team Member Portal
-          </h1>
-          <p className="mt-1.5 text-xs sm:text-sm text-[#706C7D]">
+        <div className="mb-6 sm:mb-8 text-center flex flex-col items-center">
+          <StoryBoardLogo size="lg" variant="stacked" badge="Team Portal" />
+          <p className="mt-2 text-xs sm:text-sm text-[#706C7D]">
             Sign in to collaborate on your assigned project requirements.
           </p>
         </div>

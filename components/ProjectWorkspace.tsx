@@ -7,6 +7,8 @@ import {
   ArrowLeft,
   Check,
   CheckCircle2,
+  ChevronDown,
+  ChevronUp,
   Copy,
   Edit2,
   ExternalLink,
@@ -67,18 +69,28 @@ export function ProjectWorkspace({
   const [aiError, setAiError] = useState("");
 
   const [epicFilter, setEpicFilter] = useState<string>("all");
-  const [collapsedEpicIds, setCollapsedEpicIds] = useState<Set<string>>(new Set());
+  const [collapsedEpicIds, setCollapsedEpicIds] = useState<Record<string, boolean>>({});
 
   const toggleEpic = useCallback((epicId: string) => {
-    setCollapsedEpicIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(epicId)) {
-        next.delete(epicId);
-      } else {
-        next.add(epicId);
-      }
+    setCollapsedEpicIds((prev) => ({
+      ...prev,
+      [epicId]: !prev[epicId],
+    }));
+  }, []);
+
+  const foldAllEpics = useCallback(() => {
+    setCollapsedEpicIds(() => {
+      const next: Record<string, boolean> = {};
+      epics.forEach((e) => {
+        next[e.id] = true;
+      });
+      next["uncategorized"] = true;
       return next;
     });
+  }, [epics]);
+
+  const expandAllEpics = useCallback(() => {
+    setCollapsedEpicIds({});
   }, []);
 
   // ConfirmDialog states for deletions
@@ -102,6 +114,18 @@ export function ProjectWorkspace({
     setEpics(initialEpics);
     loadFeedbackCounts();
   }, [initialStories, initialEpics, loadFeedbackCounts]);
+
+  // Prevent background scroll bleed when full-screen story inspector is open on mobile
+  useEffect(() => {
+    if (!editing) return;
+    if (typeof window !== "undefined" && window.innerWidth < 1024) {
+      const originalOverflow = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
+      return () => {
+        document.body.style.overflow = originalOverflow;
+      };
+    }
+  }, [editing]);
 
   // Story Actions
   async function updateStory(id: string, updates: Partial<Story>) {
@@ -327,19 +351,21 @@ export function ProjectWorkspace({
         backHref="/projects"
         backLabel="Projects"
         actions={
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
             <Button
               variant="secondary"
-              size="md"
-              leftIcon={copiedLink ? <Check size={14} className="text-emerald-600" /> : <Copy size={14} />}
+              className="h-8 sm:h-10 px-2.5 sm:px-4 text-xs sm:text-sm"
+              leftIcon={copiedLink ? <Check size={13} className="text-emerald-600" /> : <Copy size={13} />}
               onClick={handleCopyClientLink}
+              title="Share client portal link"
             >
-              {copiedLink ? "Link copied" : "Share client portal"}
+              <span className="hidden sm:inline">{copiedLink ? "Link copied" : "Share client portal"}</span>
+              <span className="sm:hidden">{copiedLink ? "Copied" : "Share portal"}</span>
             </Button>
             <Button
               variant="primary"
-              size="md"
-              leftIcon={<Plus size={14} />}
+              className="h-8 sm:h-10 px-3 sm:px-4 text-xs sm:text-sm"
+              leftIcon={<Plus size={13} />}
               onClick={() => openCreateEpic()}
             >
               Add Epic
@@ -348,31 +374,36 @@ export function ProjectWorkspace({
         }
       />
 
-      <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8 space-y-6">
+      <main className="mx-auto max-w-6xl px-4 py-5 sm:px-6 sm:py-8 lg:px-8 space-y-5 sm:space-y-6">
         {/* Project Summary & Progress Bar */}
-        <div className="rounded-[18px] border border-[rgba(74,61,100,0.08)] bg-white/88 p-5 sm:p-6 shadow-[0_8px_30px_rgba(70,55,95,0.055)] backdrop-blur-[16px]">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[rgba(74,61,100,0.06)] pb-5">
+        <div className="rounded-[18px] border border-[rgba(74,61,100,0.08)] bg-white/88 p-4 sm:p-6 shadow-[0_8px_30px_rgba(70,55,95,0.055)] backdrop-blur-[16px]">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 border-b border-[rgba(74,61,100,0.06)] pb-3.5 sm:pb-5">
             <div>
-              <h2 className="text-base font-semibold tracking-tight text-[#252331]">
+              <h2 className="text-sm sm:text-base font-semibold tracking-tight text-[#252331]">
                 Requirements Hierarchy
               </h2>
-              <p className="mt-1 text-xs text-[#706C7D]">
+              <p className="mt-0.5 text-xs text-[#706C7D] hidden sm:block">
                 Epics group focused product areas. Stories contain criteria and discussions.
               </p>
             </div>
-            <div className="flex items-center gap-3 sm:gap-4 text-xs font-medium flex-wrap">
+            <div className="flex items-center gap-2.5 sm:gap-4 text-xs font-medium flex-wrap">
               <span className="text-[#706C7D]">{totalStoriesCount} Stories</span>
+              <span className="text-[rgba(74,61,100,0.2)]">•</span>
               <span className="text-[#2E8B70] font-semibold">{approvedStoriesCount} Approved</span>
               {changesRequestedCount > 0 && (
-                <span className="text-[#C25D72] font-semibold">
-                  {changesRequestedCount} Changes Requested
-                </span>
+                <>
+                  <span className="text-[rgba(74,61,100,0.2)]">•</span>
+                  <span className="text-[#C25D72] font-semibold">
+                    {changesRequestedCount} Changes Requested
+                  </span>
+                </>
               )}
+              <span className="text-[rgba(74,61,100,0.2)]">•</span>
               <span className="text-[#9994A5]">{draftStoriesCount} In Review</span>
             </div>
           </div>
 
-          <div className="pt-4">
+          <div className="pt-3 sm:pt-4">
             <div className="flex items-center justify-between text-xs text-[#706C7D] mb-1.5 font-medium">
               <span>Overall Client Sign-off</span>
               <span className="text-[#252331] font-semibold">{progressPercent}%</span>
@@ -392,27 +423,52 @@ export function ProjectWorkspace({
           </div>
         )}
 
-        {/* Filter & Workspace Layout */}
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold uppercase tracking-wider text-[#9994A5]">
-              Filter:
-            </span>
-            <select
-              value={epicFilter}
-              onChange={(e) => setEpicFilter(e.target.value)}
-              className="h-9 rounded-xl border border-[rgba(74,61,100,0.11)] bg-white/85 px-3 text-xs font-medium text-[#252331] outline-none transition focus:border-[#B8944E] cursor-pointer"
-            >
-              <option value="all">All Epics ({epics.length})</option>
-              {epics.map((e) => (
-                <option key={e.id} value={e.id}>
-                  {e.name}
-                </option>
-              ))}
-            </select>
+        {/* Filter & Quick Folding Toolbar */}
+        <div className="flex flex-wrap items-center justify-between gap-2.5 sm:gap-3">
+          <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
+            <div className="flex items-center gap-1.5 sm:gap-2 flex-1 sm:flex-none min-w-0">
+              <span className="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-[#9994A5] shrink-0">
+                Filter:
+              </span>
+              <select
+                value={epicFilter}
+                onChange={(e) => setEpicFilter(e.target.value)}
+                className="h-8 sm:h-9 w-full sm:w-auto rounded-xl border border-[rgba(74,61,100,0.11)] bg-white/85 px-2.5 sm:px-3 text-xs font-medium text-[#252331] outline-none transition focus:border-[#B8944E] cursor-pointer truncate"
+              >
+                <option value="all">All Epics ({epics.length})</option>
+                {epics.map((e) => (
+                  <option key={e.id} value={e.id}>
+                    {e.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Segmented Quick Fold / Expand Controls */}
+            <div className="inline-flex items-center rounded-xl border border-[rgba(74,61,100,0.11)] bg-white/80 p-0.5 text-xs shrink-0 shadow-2xs">
+              <button
+                type="button"
+                onClick={foldAllEpics}
+                className="flex items-center gap-1 rounded-lg px-2 sm:px-2.5 py-1 text-[11px] font-medium text-[#706C7D] hover:text-[#252331] hover:bg-[#FAF9FC] transition cursor-pointer whitespace-nowrap"
+                title="Collapse all epics"
+              >
+                <ChevronUp size={12} className="shrink-0" />
+                <span>Fold all</span>
+              </button>
+              <span className="h-3 w-[1px] bg-[rgba(74,61,100,0.12)] shrink-0" />
+              <button
+                type="button"
+                onClick={expandAllEpics}
+                className="flex items-center gap-1 rounded-lg px-2 sm:px-2.5 py-1 text-[11px] font-medium text-[#706C7D] hover:text-[#252331] hover:bg-[#FAF9FC] transition cursor-pointer whitespace-nowrap"
+                title="Expand all epics"
+              >
+                <ChevronDown size={12} className="shrink-0" />
+                <span>Expand all</span>
+              </button>
+            </div>
           </div>
 
-          <span className="text-xs text-[#706C7D]">
+          <span className="text-[11px] sm:text-xs text-[#706C7D] shrink-0">
             {stories.length} {stories.length === 1 ? "story" : "stories"} total
           </span>
         </div>
@@ -451,10 +507,10 @@ export function ProjectWorkspace({
                       name={epic.name}
                       description={epic.description}
                       storyCount={epicStories.length}
-                      isExpanded={!collapsedEpicIds.has(epic.id)}
+                      isExpanded={!collapsedEpicIds[epic.id]}
                       onToggle={() => toggleEpic(epic.id)}
                       headerExtra={
-                        <div className="flex items-center gap-1.5 text-[11px] font-medium">
+                        <span className="flex items-center gap-1.5 text-[11px] font-medium">
                           <span className="text-[rgba(74,61,100,0.2)]">•</span>
                           <span className="text-[#2E8B70]">{approvedCount} approved</span>
                           {changesCount > 0 && (
@@ -463,7 +519,7 @@ export function ProjectWorkspace({
                               <span className="text-[#C25D72]">{changesCount} changes</span>
                             </>
                           )}
-                        </div>
+                        </span>
                       }
                       actions={
                         <>
@@ -472,8 +528,10 @@ export function ProjectWorkspace({
                             size="sm"
                             leftIcon={<Sparkles size={13} className="text-[#B8944E]" />}
                             onClick={() => setGeneratingEpicId(epic.id)}
+                            className="text-xs px-2 sm:px-3"
+                            title="Generate stories with AI"
                           >
-                            Generate
+                            <span className="hidden sm:inline">Generate</span>
                           </Button>
 
                           <DropdownMenu
@@ -513,16 +571,7 @@ export function ProjectWorkspace({
                           story={story}
                           isSelected={editing?.id === story.id}
                           openFeedbackCount={feedbackCounts[story.id] || 0}
-                          onClick={() => {
-                            setEditing(story);
-                            if (typeof window !== "undefined" && window.innerWidth < 1024) {
-                              setTimeout(() => {
-                                document
-                                  .getElementById("story-editor-section")
-                                  ?.scrollIntoView({ behavior: "smooth" });
-                              }, 100);
-                            }
-                          }}
+                          onClick={() => setEditing(story)}
                         />
                       ))}
                     </EpicFolder>
@@ -536,7 +585,7 @@ export function ProjectWorkspace({
                     name="Uncategorized"
                     description="Requirements not assigned to an Epic"
                     storyCount={uncategorizedStories.length}
-                    isExpanded={!collapsedEpicIds.has("uncategorized")}
+                    isExpanded={!collapsedEpicIds["uncategorized"]}
                     onToggle={() => toggleEpic("uncategorized")}
                     isUncategorized={true}
                   >
@@ -558,29 +607,50 @@ export function ProjectWorkspace({
           {/* Right Column: Story Document Inspector / Editor */}
           <div
             id="story-editor-section"
-            className="lg:sticky lg:top-20 lg:self-start z-10"
+            className={
+              editing
+                ? "max-lg:fixed max-lg:inset-0 max-lg:z-40 max-lg:overflow-y-auto max-lg:bg-[#FAF9FC] max-lg:p-3.5 sm:max-lg:p-6 max-lg:pb-20 lg:sticky lg:top-20 lg:self-start z-10 animate-in fade-in max-lg:slide-in-from-bottom-4 duration-200"
+                : "hidden lg:block lg:sticky lg:top-20 lg:self-start z-10"
+            }
           >
             {editing ? (
-              <StoryEditor
-                story={editing}
-                epics={epics}
-                onCancel={() => setEditing(null)}
-                onFeedbackChange={loadFeedbackCounts}
-                onSave={async (updated) => {
-                  await updateStory(editing.id, {
-                    title: updated.title,
-                    description: updated.description,
-                    acceptance_criteria: updated.acceptance_criteria,
-                    assumptions: updated.assumptions,
-                    clarifications: updated.clarifications,
-                    raw_requirement: updated.raw_requirement,
-                    epic_id: updated.epic_id,
-                    reviewer_ids: updated.reviewer_ids,
-                  });
-                }}
-                onCreateEpic={openCreateEpic}
-                onDelete={() => deleteStory(editing.id)}
-              />
+              <div className="space-y-3">
+                {/* Mobile Back to Stories Bar */}
+                <div className="lg:hidden sticky top-0 z-20 -mx-3.5 -mt-3.5 sm:-mx-6 sm:-mt-6 px-4 py-3 bg-white/95 backdrop-blur-md border-b border-[rgba(74,61,100,0.08)] flex items-center justify-between shadow-2xs">
+                  <button
+                    type="button"
+                    onClick={() => setEditing(null)}
+                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#80642F] bg-[rgba(184,148,78,0.08)] hover:bg-[rgba(184,148,78,0.14)] px-3 py-1.5 rounded-xl border border-[rgba(184,148,78,0.18)] transition active:scale-95 cursor-pointer"
+                  >
+                    <ArrowLeft size={14} />
+                    <span>Back to Stories</span>
+                  </button>
+                  <span className="text-xs font-semibold uppercase tracking-wider text-[#706C7D]">
+                    Story Inspector
+                  </span>
+                </div>
+
+                <StoryEditor
+                  story={editing}
+                  epics={epics}
+                  onCancel={() => setEditing(null)}
+                  onFeedbackChange={loadFeedbackCounts}
+                  onSave={async (updated) => {
+                    await updateStory(editing.id, {
+                      title: updated.title,
+                      description: updated.description,
+                      acceptance_criteria: updated.acceptance_criteria,
+                      assumptions: updated.assumptions,
+                      clarifications: updated.clarifications,
+                      raw_requirement: updated.raw_requirement,
+                      epic_id: updated.epic_id,
+                      reviewer_ids: updated.reviewer_ids,
+                    });
+                  }}
+                  onCreateEpic={openCreateEpic}
+                  onDelete={() => deleteStory(editing.id)}
+                />
+              </div>
             ) : (
               <div className="rounded-[18px] border border-dashed border-[rgba(74,61,100,0.12)] bg-white/80 backdrop-blur-[16px] p-8 sm:p-12 text-center shadow-[0_8px_30px_rgba(70,55,95,0.04)]">
                 <div className="mx-auto grid h-10 w-10 place-items-center rounded-xl bg-[rgba(184,148,78,0.10)] text-[#B8944E] mb-3 shadow-sm border border-[rgba(184,148,78,0.15)]">

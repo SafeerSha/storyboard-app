@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { getAuthenticatedTeamUser } from "@/lib/team-session";
 import { correctEpicName } from "@/lib/ai/gemini";
 import { z } from "zod";
 
@@ -9,9 +10,23 @@ const schema = z.object({
 });
 
 export async function POST(req: Request) {
-  const auth = await createClient();
-  const { data: { user } } = await auth.auth.getUser();
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  let isAuthorized = false;
+  const teamUser = await getAuthenticatedTeamUser();
+  if (teamUser) {
+    isAuthorized = true;
+  } else {
+    const auth = await createClient();
+    const {
+      data: { user },
+    } = await auth.auth.getUser();
+    if (user) {
+      isAuthorized = true;
+    }
+  }
+
+  if (!isAuthorized) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
   try {
     const json = await req.json();

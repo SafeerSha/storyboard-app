@@ -17,6 +17,7 @@ import {
 import { createClient } from "@/lib/supabase/client";
 import { toast } from "@/lib/toast";
 import type { DashboardUser } from "./FreelancerLayout";
+import { StoryBoardLogo } from "@/components/brand/StoryBoardLogo";
 
 interface FreelancerSidebarProps {
   mobileOpen: boolean;
@@ -133,19 +134,13 @@ export function FreelancerSidebar({
         <Link
           href="/"
           onClick={closeMobile}
-          className="flex items-center gap-2.5 group focus-visible:outline-none"
+          className="flex items-center group focus-visible:outline-none"
         >
-          <div className="grid h-8 w-8 place-items-center rounded-lg bg-[#B8944E] text-white shadow-xs">
-            <span className="text-xs font-semibold tracking-tighter">◆</span>
-          </div>
-          <span className="text-sm font-semibold tracking-tight text-[#252331] group-hover:text-[#80642F] transition">
-            StoryBoard
-          </span>
-          {userRole === "super_admin" && (
-            <span className="rounded-md bg-[rgba(184,148,78,0.10)] px-1.5 py-0.5 text-[10px] font-medium text-[#80642F] border border-[rgba(184,148,78,0.14)]">
-              Admin
-            </span>
-          )}
+          <StoryBoardLogo
+            size="md"
+            variant="full"
+            badge={userRole === "super_admin" ? "Admin" : undefined}
+          />
         </Link>
         {isMobile && (
           <button
