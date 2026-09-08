@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useState, useEffect } from "react";
 import { FreelancerSidebar } from "./FreelancerSidebar";
 
 export interface DashboardUser {
@@ -15,6 +15,8 @@ interface DashboardContextType {
   setMobileOpen: (open: boolean) => void;
   toggleMobile: () => void;
   user: DashboardUser | null;
+  desktopNavMode: "dock" | "sidebar";
+  toggleDesktopNavMode: () => void;
 }
 
 const DashboardContext = createContext<DashboardContextType>({
@@ -22,6 +24,8 @@ const DashboardContext = createContext<DashboardContextType>({
   setMobileOpen: () => {},
   toggleMobile: () => {},
   user: null,
+  desktopNavMode: "dock",
+  toggleDesktopNavMode: () => {},
 });
 
 export const useDashboard = () => useContext(DashboardContext);
@@ -34,22 +38,59 @@ export function FreelancerLayout({
   initialUser?: DashboardUser | null;
 }) {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [desktopNavMode, setDesktopNavMode] = useState<"dock" | "sidebar">("dock");
+
+  // Load layout preference from localStorage
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("storyboard:desktop-nav-mode");
+      if (saved === "sidebar" || saved === "dock") {
+        setDesktopNavMode(saved);
+      }
+    } catch {}
+  }, []);
+
   const toggleMobile = () => setMobileOpen((prev) => !prev);
+
+  const toggleDesktopNavMode = () => {
+    setDesktopNavMode((prev) => {
+      const next = prev === "dock" ? "sidebar" : "dock";
+      try {
+        localStorage.setItem("storyboard:desktop-nav-mode", next);
+      } catch {}
+      return next;
+    });
+  };
 
   return (
     <DashboardContext.Provider
-      value={{ mobileOpen, setMobileOpen, toggleMobile, user: initialUser }}
+      value={{
+        mobileOpen,
+        setMobileOpen,
+        toggleMobile,
+        user: initialUser,
+        desktopNavMode,
+        toggleDesktopNavMode,
+      }}
     >
       <div className="min-h-screen bg-transparent">
-        {/* Canonical Persistent Freelancer / Super Admin Sidebar */}
+        {/* Navigation (macOS Dock or Persistent Sidebar based on desktopNavMode) */}
         <FreelancerSidebar
           mobileOpen={mobileOpen}
           setMobileOpen={setMobileOpen}
           initialUser={initialUser}
         />
 
-        {/* Global Main Content Offset for the 224px (w-56) Left Sidebar */}
-        <div className="min-h-screen lg:pl-56">{children}</div>
+        {/* Global Main Content: Full-width in dock mode (lg:pl-0 pb-28), or offset for left sidebar (lg:pl-56) */}
+        <div
+          className={`min-h-screen transition-all duration-200 ${
+            desktopNavMode === "dock"
+              ? "lg:pl-0 pb-28"
+              : "lg:pl-56 pb-20 lg:pb-0"
+          }`}
+        >
+          {children}
+        </div>
       </div>
     </DashboardContext.Provider>
   );

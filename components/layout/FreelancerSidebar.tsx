@@ -9,15 +9,18 @@ import {
   LayoutDashboard,
   Lightbulb,
   LogOut,
+  PanelBottom,
   Settings,
   ShieldCheck,
   Users,
-  X,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { toast } from "@/lib/toast";
-import type { DashboardUser } from "./FreelancerLayout";
+import { DashboardUser, useDashboard } from "./FreelancerLayout";
 import { StoryBoardLogo } from "@/components/brand/StoryBoardLogo";
+import { MobileNavigationSheet, NavSheetItem, NavSheetSection } from "./MobileNavigationSheet";
+import { MobileBottomDock, MobileDockItem } from "./MobileBottomDock";
+import { AppDock, DockSectionConfig } from "./AppDock";
 
 interface FreelancerSidebarProps {
   mobileOpen: boolean;
@@ -31,6 +34,7 @@ export function FreelancerSidebar({
   initialUser = null,
 }: FreelancerSidebarProps) {
   const pathname = usePathname();
+  const { desktopNavMode, toggleDesktopNavMode } = useDashboard();
   const [userEmail, setUserEmail] = useState<string | null>(initialUser?.email || null);
   const [userRole, setUserRole] = useState<string>(initialUser?.role || "freelancer");
   const [userNameState, setUserNameState] = useState<string>(initialUser?.name || "");
@@ -70,22 +74,7 @@ export function FreelancerSidebar({
     }
   }, [initialUser]);
 
-  // Lock body scroll and listen for Escape when mobile drawer is open
-  useEffect(() => {
-    if (!mobileOpen) return;
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setMobileOpen(false);
-    };
-    document.addEventListener("keydown", handleKeyDown);
-    const originalOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.removeEventListener("keydown", handleKeyDown);
-      document.body.style.overflow = originalOverflow;
-    };
-  }, [mobileOpen, setMobileOpen]);
-
-  // Click away for user profile menu
+  // Click away for desktop user profile menu
   useEffect(() => {
     if (!showUserMenu) return;
     function handleClickOutside(e: MouseEvent) {
@@ -127,13 +116,173 @@ export function FreelancerSidebar({
     ? userEmail.slice(0, 2).toUpperCase()
     : "SB";
 
-  const renderNav = (isMobile = false) => (
+  // Mobile Bottom Dock shortcuts (1-tap access in thumb zone)
+  const mobileDockItems: MobileDockItem[] = [
+    {
+      id: "dock-overview",
+      label: "Overview",
+      href: "/",
+      icon: LayoutDashboard,
+      isActive: isOverviewActive,
+      onClick: closeMobile,
+    },
+    {
+      id: "dock-projects",
+      label: "Projects",
+      href: "/projects",
+      icon: FolderKanban,
+      isActive: isProjectsActive,
+      onClick: closeMobile,
+    },
+    ...(userRole === "super_admin"
+      ? [
+          {
+            id: "dock-inbox",
+            label: "Ideas",
+            href: "/inbox",
+            icon: Lightbulb,
+            isActive: isInboxActive,
+            onClick: closeMobile,
+          },
+        ]
+      : []),
+  ];
+
+  // Mobile Action Sheet Config (Full feature sheet sliding from bottom)
+  const sheetQuickTiles: NavSheetItem[] = [
+    {
+      id: "sheet-overview",
+      label: "Overview",
+      href: "/",
+      icon: LayoutDashboard,
+      isActive: isOverviewActive,
+    },
+    {
+      id: "sheet-projects",
+      label: "Projects",
+      href: "/projects",
+      icon: FolderKanban,
+      isActive: isProjectsActive,
+    },
+    ...(userRole === "super_admin"
+      ? [
+          {
+            id: "sheet-inbox",
+            label: "Ideas Inbox",
+            href: "/inbox",
+            icon: Lightbulb,
+            isActive: isInboxActive,
+          },
+        ]
+      : []),
+  ];
+
+  const sheetSections: NavSheetSection[] = [
+    {
+      id: "manage",
+      title: "Manage & Administration",
+      items: [
+        {
+          id: "sheet-clients",
+          label: "Clients",
+          href: "/clients",
+          icon: Users,
+          isActive: isClientsActive,
+          description: "Manage client organizations & projects",
+        },
+        ...(userRole === "super_admin"
+          ? [
+              {
+                id: "sheet-users",
+                label: "Users",
+                href: "/users",
+                icon: ShieldCheck,
+                isActive: isUsersActive,
+                description: "Platform user roles & permissions",
+              },
+            ]
+          : []),
+        {
+          id: "sheet-settings",
+          label: "Settings",
+          href: "/settings",
+          icon: Settings,
+          isActive: isSettingsActive && !isUsersActive,
+          description: "Workspace preferences & configuration",
+        },
+      ],
+    },
+  ];
+
+  const desktopDockSections: DockSectionConfig[] = [
+    {
+      id: "dock-workspace",
+      items: [
+        {
+          id: "dock-overview",
+          label: "Overview",
+          href: "/",
+          icon: LayoutDashboard,
+          isActive: isOverviewActive,
+        },
+        {
+          id: "dock-projects",
+          label: "Projects",
+          href: "/projects",
+          icon: FolderKanban,
+          isActive: isProjectsActive,
+        },
+        ...(userRole === "super_admin"
+          ? [
+              {
+                id: "dock-inbox",
+                label: "Ideas",
+                href: "/inbox",
+                icon: Lightbulb,
+                isActive: isInboxActive,
+              },
+            ]
+          : []),
+      ],
+    },
+    {
+      id: "dock-manage",
+      items: [
+        {
+          id: "dock-clients",
+          label: "Clients",
+          href: "/clients",
+          icon: Users,
+          isActive: isClientsActive,
+        },
+        ...(userRole === "super_admin"
+          ? [
+              {
+                id: "dock-users",
+                label: "Users",
+                href: "/users",
+                icon: ShieldCheck,
+                isActive: isUsersActive,
+              },
+            ]
+          : []),
+        {
+          id: "dock-settings",
+          label: "Settings",
+          href: "/settings",
+          icon: Settings,
+          isActive: isSettingsActive && !isUsersActive,
+        },
+      ],
+    },
+  ];
+
+  const renderDesktopNav = () => (
     <div className="flex h-full flex-col bg-transparent">
       {/* Brand Header */}
-      <div className="flex h-[76px] items-center justify-between border-b border-[rgba(74,61,100,0.08)] px-5 bg-transparent">
+      <div className="flex h-[76px] items-center border-b border-[rgba(74,61,100,0.08)] px-5 bg-transparent">
         <Link
           href="/"
-          onClick={closeMobile}
           className="flex items-center group focus-visible:outline-none"
         >
           <StoryBoardLogo
@@ -142,16 +291,6 @@ export function FreelancerSidebar({
             badge={userRole === "super_admin" ? "Admin" : undefined}
           />
         </Link>
-        {isMobile && (
-          <button
-            type="button"
-            onClick={closeMobile}
-            className="grid h-8 w-8 place-items-center rounded-lg text-[#9994A5] hover:bg-[rgba(184,148,78,0.08)] hover:text-[#252331] transition"
-            aria-label="Close sidebar"
-          >
-            <X size={18} />
-          </button>
-        )}
       </div>
 
       {/* Navigation Groups */}
@@ -164,7 +303,6 @@ export function FreelancerSidebar({
           <nav className="space-y-0.5">
             <Link
               href="/"
-              onClick={closeMobile}
               className={`flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-xs sm:text-sm transition-colors ${
                 isOverviewActive
                   ? "bg-[rgba(184,148,78,0.09)] border border-[rgba(184,148,78,0.12)] text-[#80642F] font-medium"
@@ -179,7 +317,6 @@ export function FreelancerSidebar({
             </Link>
             <Link
               href="/projects"
-              onClick={closeMobile}
               className={`flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-xs sm:text-sm transition-colors ${
                 isProjectsActive
                   ? "bg-[rgba(184,148,78,0.09)] border border-[rgba(184,148,78,0.12)] text-[#80642F] font-medium"
@@ -196,7 +333,6 @@ export function FreelancerSidebar({
             {userRole === "super_admin" && (
               <Link
                 href="/inbox"
-                onClick={closeMobile}
                 className={`flex items-center justify-between rounded-lg px-2.5 py-1.5 text-xs sm:text-sm transition-colors group ${
                   isInboxActive
                     ? "bg-[rgba(184,148,78,0.09)] border border-[rgba(184,148,78,0.12)] text-[#80642F] font-medium"
@@ -230,7 +366,6 @@ export function FreelancerSidebar({
           <nav className="space-y-0.5">
             <Link
               href="/clients"
-              onClick={closeMobile}
               className={`flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-xs sm:text-sm transition-colors ${
                 isClientsActive
                   ? "bg-[rgba(184,148,78,0.09)] border border-[rgba(184,148,78,0.12)] text-[#80642F] font-medium"
@@ -246,7 +381,6 @@ export function FreelancerSidebar({
             {userRole === "super_admin" && (
               <Link
                 href="/users"
-                onClick={closeMobile}
                 className={`flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-xs sm:text-sm transition-colors ${
                   isUsersActive
                     ? "bg-[rgba(184,148,78,0.09)] border border-[rgba(184,148,78,0.12)] text-[#80642F] font-medium"
@@ -262,7 +396,6 @@ export function FreelancerSidebar({
             )}
             <Link
               href="/settings"
-              onClick={closeMobile}
               className={`flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-xs sm:text-sm transition-colors ${
                 isSettingsActive && !isUsersActive
                   ? "bg-[rgba(184,148,78,0.09)] border border-[rgba(184,148,78,0.12)] text-[#80642F] font-medium"
@@ -282,7 +415,22 @@ export function FreelancerSidebar({
       </div>
 
       {/* User Profile Pill & Popover Menu */}
-      <div className="relative border-t border-[rgba(74,61,100,0.08)] p-3" ref={menuRef}>
+      <div className="relative border-t border-[rgba(74,61,100,0.08)] p-3 space-y-2" ref={menuRef}>
+        {/* Switch to Bottom Dock Button */}
+        <button
+          type="button"
+          onClick={toggleDesktopNavMode}
+          title="Switch to macOS Bottom Dock"
+          aria-label="Switch to macOS Bottom Dock"
+          className="flex w-full items-center justify-between gap-2 rounded-xl px-2.5 py-2 text-xs font-semibold text-zinc-600 hover:text-zinc-950 bg-white/60 hover:bg-[rgba(184,148,78,0.08)] border border-zinc-200/80 hover:border-[#B8944E]/40 transition-all cursor-pointer group shadow-2xs"
+        >
+          <div className="flex items-center gap-2 min-w-0">
+            <PanelBottom size={15} className="text-zinc-500 group-hover:text-[#B8944E] transition-colors shrink-0" />
+            <span className="truncate">Dock Layout</span>
+          </div>
+          <span className="text-[10px] font-bold text-zinc-400 group-hover:text-[#80642F] uppercase tracking-wider shrink-0">Switch</span>
+        </button>
+
         {showUserMenu && (
           <div className="absolute bottom-full left-3 right-3 mb-2 overflow-hidden rounded-xl border border-[rgba(74,61,100,0.10)] bg-white/94 backdrop-blur-[20px] p-1 shadow-[0_15px_40px_rgba(70,55,95,0.12)] animate-in fade-in zoom-in-95 duration-100">
             <div className="border-b border-[rgba(74,61,100,0.08)] px-3 py-2">
@@ -296,7 +444,7 @@ export function FreelancerSidebar({
             <button
               type="button"
               onClick={handleSignOut}
-              className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium text-[#C25D72] hover:bg-rose-50/80 transition"
+              className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium text-[#C25D72] hover:bg-rose-50/80 transition cursor-pointer"
             >
               <LogOut size={14} />
               <span>Sign out</span>
@@ -307,7 +455,7 @@ export function FreelancerSidebar({
         <button
           type="button"
           onClick={() => setShowUserMenu((prev) => !prev)}
-          className="flex w-full items-center gap-2.5 rounded-lg p-1.5 text-left transition hover:bg-[rgba(184,148,78,0.05)]"
+          className="flex w-full items-center gap-2.5 rounded-lg p-1.5 text-left transition hover:bg-[rgba(184,148,78,0.05)] cursor-pointer"
         >
           <div className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-[#B8944E] text-[11px] font-semibold text-white">
             {userInitials}
@@ -329,30 +477,59 @@ export function FreelancerSidebar({
 
   return (
     <>
-      {/* Desktop Persistent Sidebar */}
-      <aside className="fixed inset-y-0 left-0 z-30 hidden w-56 border-r border-[rgba(74,61,100,0.08)] bg-[rgba(250,249,252,0.80)] backdrop-blur-[20px] lg:flex lg:flex-col">
-        {renderNav(false)}
-      </aside>
-
-      {/* Mobile Drawer Overlay */}
-      {mobileOpen && (
-        <div
-          className="fixed inset-0 z-40 bg-[rgba(40,32,55,0.25)] backdrop-blur-xs transition-opacity lg:hidden"
-          onClick={closeMobile}
+      {/* Desktop macOS Bottom Center Dock (Default & Preferred Layout) */}
+      {desktopNavMode === "dock" && (
+        <AppDock
+          className="hidden lg:flex"
+          brand={{
+            label: "StoryBoard",
+            href: "/",
+            badge: userRole === "super_admin" ? "Admin" : undefined,
+          }}
+          sections={desktopDockSections}
+          user={{
+            name: userName,
+            email: userEmail,
+            role: roleDisplay,
+            initials: userInitials,
+            onSignOut: handleSignOut,
+          }}
+          onToggleLayout={toggleDesktopNavMode}
+          layoutMode="dock"
         />
       )}
 
-      {/* Mobile Drawer Slide-Out Panel */}
-      <aside
-        role="dialog"
-        aria-modal="true"
-        aria-label="Navigation Menu"
-        className={`fixed inset-y-0 left-0 z-50 flex w-64 max-w-[calc(100vw-3rem)] flex-col border-r border-[rgba(74,61,100,0.08)] bg-[rgba(250,249,252,0.94)] backdrop-blur-[20px] shadow-2xl transition-transform duration-200 ease-in-out lg:hidden pb-[env(safe-area-inset-bottom)] ${
-          mobileOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
-      >
-        {renderNav(true)}
-      </aside>
+      {/* Desktop Persistent Sidebar (when sidebar mode selected) */}
+      {desktopNavMode === "sidebar" && (
+        <aside className="fixed inset-y-0 left-0 z-30 hidden w-56 border-r border-[rgba(74,61,100,0.08)] bg-[rgba(250,249,252,0.80)] backdrop-blur-[20px] lg:flex lg:flex-col">
+          {renderDesktopNav()}
+        </aside>
+      )}
+
+      {/* Mobile Floating Bottom Dock (Fast 1-Tap Navigation) */}
+      <MobileBottomDock
+        items={mobileDockItems}
+        onOpenMenu={() => setMobileOpen(true)}
+        isMenuOpen={mobileOpen}
+        isMoreActive={isClientsActive || isSettingsActive || isUsersActive}
+      />
+
+      {/* Mobile Sliding Bottom Sheet (Full Action & Workspace Hub) */}
+      <MobileNavigationSheet
+        isOpen={mobileOpen}
+        onClose={closeMobile}
+        brandBadge={userRole === "super_admin" ? "Admin" : undefined}
+        brandHref="/"
+        quickTiles={sheetQuickTiles}
+        sections={sheetSections}
+        user={{
+          name: userName,
+          email: userEmail,
+          roleDisplay,
+          initials: userInitials,
+          onSignOut: handleSignOut,
+        }}
+      />
     </>
   );
 }
