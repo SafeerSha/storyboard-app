@@ -19,57 +19,63 @@ export async function POST(request: Request) {
 
     const adminDb = createAdminClient();
     let isAuthorized = false;
+    let creatorId: string | null = null;
 
-    // 1. Check if authenticated as Team User
-    const teamUser = await getAuthenticatedTeamUser();
-    if (teamUser) {
-      const targetProjectId = projectId || teamUser.project_id;
-      const isMember =
-        targetProjectId === teamUser.project_id ||
-        (await isTeamUserProjectMember(teamUser.id, targetProjectId));
-      if (isMember) {
-        projectId = targetProjectId;
+    // 1. Check Freelancer / Super Admin (Supabase Auth takes precedence)
+    const cookieStore = await cookies();
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
+      {
+        cookies: {
+          getAll: () => cookieStore.getAll(),
+          setAll: () => {},
+        },
+      }
+    );
+
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (user) {
+      // Check super admin or project ownership
+      const { data: profile } = await adminDb
+        .from("freelancer_profiles")
+        .select("role")
+        .eq("id", user.id)
+        .maybeSingle();
+
+      if (profile?.role === "super_admin") {
         isAuthorized = true;
+        creatorId = user.id;
+      } else {
+        const { data: project } = await adminDb
+          .from("projects")
+          .select("id")
+          .eq("id", projectId)
+          .eq("owner_id", user.id)
+          .maybeSingle();
+
+        if (project) {
+          isAuthorized = true;
+          creatorId = user.id;
+        }
       }
     }
 
-    // 2. Check if authenticated as Freelancer / Super Admin
+    // 2. Check Team User session if not authenticated via Supabase
     if (!isAuthorized) {
-      const cookieStore = await cookies();
-      const supabase = createServerClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
-        {
-          cookies: {
-            getAll: () => cookieStore.getAll(),
-            setAll: () => {},
-          },
-        }
-      );
-
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
-      if (user) {
-        // Check super admin or project ownership
-        const { data: profile } = await adminDb
-          .from("freelancer_profiles")
-          .select("role")
-          .eq("id", user.id)
-          .maybeSingle();
-
-        if (profile?.role === "super_admin") {
+      const teamUser = await getAuthenticatedTeamUser();
+      if (teamUser) {
+        const targetProjectId = projectId || teamUser.project_id;
+        const isMember =
+          targetProjectId === teamUser.project_id ||
+          (await isTeamUserProjectMember(teamUser.id, targetProjectId));
+        if (isMember) {
+          projectId = targetProjectId;
           isAuthorized = true;
-        } else {
-          const { data: project } = await adminDb
-            .from("projects")
-            .select("id")
-            .eq("id", projectId)
-            .eq("owner_id", user.id)
-            .maybeSingle();
-
-          if (project) isAuthorized = true;
+          creatorId = teamUser.id;
         }
       }
     }
@@ -108,7 +114,7 @@ export async function POST(request: Request) {
       clarifications: story.clarifications || [],
       status: story.status || "draft",
       raw_requirement: requirement,
-      created_by_id: teamUser ? teamUser.id : null,
+      created_by_id: creatorId,
     }));
 
     // If caller requested preview without saving immediately

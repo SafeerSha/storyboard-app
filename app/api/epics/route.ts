@@ -68,6 +68,15 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized or project access denied." }, { status: 403 });
     }
 
+    let creatorId: string | null = null;
+    if (teamUser) {
+      creatorId = teamUser.id;
+    } else {
+      const auth = await createClient();
+      const { data: { user } } = await auth.auth.getUser();
+      if (user) creatorId = user.id;
+    }
+
     const { data: epic, error } = await admin
       .from("epics")
       .insert({
@@ -76,6 +85,7 @@ export async function POST(req: Request) {
         description,
         status,
         sort_order: sortOrder,
+        created_by_id: creatorId,
       })
       .select()
       .single();

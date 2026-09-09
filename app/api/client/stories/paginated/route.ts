@@ -127,6 +127,7 @@ export async function GET(req: Request) {
         totalPages,
       },
       epics: epicsData || [],
+      viewerId: client.id,
     });
   } catch (error: unknown) {
     console.error("Failed to load paginated stories:", error);

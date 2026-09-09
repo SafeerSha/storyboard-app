@@ -9,7 +9,7 @@ import {
   Clock,
   FolderKanban,
   Layers,
-  Sparkles,
+  ListTodo,
 } from "lucide-react";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getAuthenticatedClient } from "@/lib/client-session";
@@ -192,87 +192,28 @@ export default async function ClientOverviewPage() {
 
       {/* Main Container */}
       <div className="mx-auto max-w-6xl px-4 py-6 sm:px-8 space-y-8">
-        {/* Prominent "Needs Your Action" Section */}
-        <section className="space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-[rgba(74,61,100,0.08)] pb-3">
-            <div className="flex items-center gap-2">
-              <div className="grid h-8 w-8 place-items-center rounded-xl bg-[rgba(184,148,78,0.14)] text-[#80642F]">
-                <Sparkles size={16} />
-              </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <h2 className="text-lg font-bold text-[#252331] tracking-tight">
-                    Needs Your Action
-                  </h2>
-                  <span className="inline-flex items-center justify-center rounded-full bg-[#B8944E] px-2 py-0.5 text-xs font-bold text-white shadow-xs">
-                    {needsAction}
-                  </span>
-                </div>
-                <p className="text-xs text-[#706C7D]">
-                  Stories currently awaiting your review, feedback, or sign-off.
-                </p>
-              </div>
-            </div>
-
-            {needsAction > 0 && (
-              <Link href="/client/reviews">
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  rightIcon={<ArrowRight size={14} />}
-                  className="text-xs font-semibold text-[#80642F] hover:text-[#252331]"
-                >
-                  View all ({needsAction})
-                </Button>
-              </Link>
-            )}
-          </div>
-
-          {/* Actionable stories list */}
-          {enrichedActionStories.length === 0 ? (
-            <div className="rounded-2xl border border-[rgba(184,148,78,0.18)] bg-gradient-to-b from-white/90 to-[#FAF7F2]/60 p-8 text-center shadow-[0_4px_24px_rgba(70,55,95,0.04)] backdrop-blur-[16px]">
-              <div className="mx-auto mb-3 grid h-12 w-12 place-items-center rounded-2xl bg-[rgba(184,148,78,0.12)] text-[#B8944E]">
-                <CheckCircle2 size={24} />
-              </div>
-              <h3 className="text-base font-bold text-[#252331]">
-                You&apos;re all caught up!
-              </h3>
-              <p className="mx-auto mt-1 max-w-md text-xs text-[#706C7D]">
-                No stories currently require your review. All pending requirements have been signed off.
-              </p>
-              <div className="mt-4 flex justify-center gap-3">
-                <Link href="/client/stories">
-                  <Button variant="secondary" size="sm">
-                    Browse All Stories
-                  </Button>
-                </Link>
-              </div>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {enrichedActionStories.map((story) => (
-                <ClientStoryCard key={story.id} story={story} />
-              ))}
-
-              {needsAction > enrichedActionStories.length && (
-                <div className="text-center pt-2">
-                  <Link href="/client/reviews">
-                    <Button
-                      variant="secondary"
-                      className="text-xs font-semibold text-[#80642F]"
-                      rightIcon={<ArrowRight size={14} />}
-                    >
-                      View all {needsAction} stories needing action →
-                    </Button>
-                  </Link>
-                </div>
-              )}
-            </div>
-          )}
-        </section>
-
         {/* Quick Review Navigation Cards */}
-        <section className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {/* Needs Your Action Card */}
+          <Link
+            href="/client/reviews"
+            className="group rounded-2xl border border-[rgba(74,61,100,0.08)] bg-white/80 p-5 shadow-xs hover:border-[#B8944E]/30 hover:shadow-md transition backdrop-blur-sm"
+          >
+            <div className="flex items-center justify-between mb-3">
+              <div className="grid h-10 w-10 place-items-center rounded-xl bg-[rgba(184,148,78,0.14)] text-[#80642F]">
+                <ListTodo size={20} />
+              </div>
+              <span className="text-xl font-bold text-[#252331] group-hover:text-[#80642F] transition-colors">
+                {needsAction}
+              </span>
+            </div>
+            <h3 className="text-sm font-bold text-[#252331] group-hover:text-[#80642F] transition-colors">
+              Needs Your Action
+            </h3>
+            <p className="mt-1 text-xs text-[#706C7D] line-clamp-2">
+              Stories awaiting your review, feedback, or sign-off.
+            </p>
+          </Link>
           {/* Changes Requested Card */}
           <Link
             href="/client/changes"

@@ -30,6 +30,7 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { toast } from "@/lib/toast";
 import type { Story, Epic } from "@/lib/types";
 import { EpicFolder } from "@/components/epics/EpicFolder";
+import { EpicFeedbackThread } from "@/components/epics/EpicFeedbackThread";
 import { VoiceTextarea } from "@/components/ui/VoiceTextarea";
 import { sortEpics, sortStories } from "@/lib/epic-story-utils";
 
@@ -40,6 +41,8 @@ type ProjectWorkspaceProps = {
   projectStatus?: string;
   initialStories: Story[];
   initialEpics: Epic[];
+  viewerId?: string;
+  viewerType?: "freelancer" | "client" | "team_user";
 };
 
 export function ProjectWorkspace({
@@ -49,10 +52,15 @@ export function ProjectWorkspace({
   projectStatus = "active",
   initialStories,
   initialEpics,
+  viewerId,
+  viewerType = "freelancer",
 }: ProjectWorkspaceProps) {
   const [stories, setStories] = useState<Story[]>(initialStories);
   const [epics, setEpics] = useState<Epic[]>(initialEpics);
   const [feedbackCounts, setFeedbackCounts] = useState<Record<string, number>>({});
+  const [projectTeamMembers, setProjectTeamMembers] = useState<
+    Array<{ id: string; name: string; username: string; role?: string }>
+  >([]);
 
   const [generatingEpicId, setGeneratingEpicId] = useState<string | null>(null);
   const [editing, setEditing] = useState<Story | null>(null);
@@ -103,6 +111,16 @@ export function ProjectWorkspace({
       if (res.ok) {
         const data = await res.json();
         if (data.counts) setFeedbackCounts(data.counts);
+      }
+    } catch {
+      // Silently catch
+    }
+    
+    try {
+      const res = await fetch(`/api/projects/${projectId}/team-members?forReviewers=false`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.teamMembers) setProjectTeamMembers(data.teamMembers);
       }
     } catch {
       // Silently catch
@@ -375,44 +393,106 @@ export function ProjectWorkspace({
       />
 
       <main className="mx-auto max-w-6xl px-4 py-5 sm:px-6 sm:py-8 lg:px-8 space-y-5 sm:space-y-6">
-        {/* Project Summary & Progress Bar */}
-        <div className="rounded-[18px] border border-[rgba(74,61,100,0.08)] bg-white/88 p-4 sm:p-6 shadow-[0_8px_30px_rgba(70,55,95,0.055)] backdrop-blur-[16px]">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 border-b border-[rgba(74,61,100,0.06)] pb-3.5 sm:pb-5">
-            <div>
-              <h2 className="text-sm sm:text-base font-semibold tracking-tight text-[#252331]">
-                Requirements Hierarchy
-              </h2>
-              <p className="mt-0.5 text-xs text-[#706C7D] hidden sm:block">
-                Epics group focused product areas. Stories contain criteria and discussions.
+        {/* Optimized Requirements Hierarchy Control Panel */}
+        <div className="rounded-[18px] border border-[rgba(74,61,100,0.08)] bg-white/88 p-4 sm:p-5 shadow-[0_8px_30px_rgba(70,55,95,0.055)] backdrop-blur-[16px] space-y-4">
+          {/* Header Row: Title, Epic/Story counts, and Status Breakdown Pills */}
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 sm:gap-4">
+            <div className="min-w-0">
+              <div className="flex items-center gap-2.5 flex-wrap">
+                <h2 className="text-base sm:text-lg font-bold tracking-tight text-[#252331]">
+                  Requirements Hierarchy
+                </h2>
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-[rgba(184,148,78,0.10)] px-2.5 py-0.5 text-xs font-semibold text-[#80642F] border border-[rgba(184,148,78,0.20)]">
+                  <Layers size={12} />
+                  <span>{epics.length} {epics.length === 1 ? "Epic" : "Epics"}</span>
+                  <span className="text-[rgba(128,100,47,0.35)]">•</span>
+                  <span>{totalStoriesCount} Stories</span>
+                </span>
+              </div>
+              <p className="mt-1 text-xs text-[#706C7D] leading-relaxed">
+                Epics group focused product areas. Stories contain criteria and client discussions.
               </p>
             </div>
-            <div className="flex items-center gap-2.5 sm:gap-4 text-xs font-medium flex-wrap">
-              <span className="text-[#706C7D]">{totalStoriesCount} Stories</span>
-              <span className="text-[rgba(74,61,100,0.2)]">•</span>
-              <span className="text-[#2E8B70] font-semibold">{approvedStoriesCount} Approved</span>
+
+            {/* Status Breakdown Pills */}
+            <div className="flex items-center gap-2 sm:gap-2.5 text-xs flex-wrap shrink-0">
+              <span className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-50/90 px-2.5 py-1 font-semibold text-emerald-700 border border-emerald-200/70 shadow-2xs">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                {approvedStoriesCount} Approved
+              </span>
               {changesRequestedCount > 0 && (
-                <>
-                  <span className="text-[rgba(74,61,100,0.2)]">•</span>
-                  <span className="text-[#C25D72] font-semibold">
-                    {changesRequestedCount} Changes Requested
-                  </span>
-                </>
+                <span className="inline-flex items-center gap-1.5 rounded-lg bg-rose-50/90 px-2.5 py-1 font-semibold text-rose-700 border border-rose-200/70 shadow-2xs">
+                  <span className="h-1.5 w-1.5 rounded-full bg-rose-500" />
+                  {changesRequestedCount} Changes Requested
+                </span>
               )}
-              <span className="text-[rgba(74,61,100,0.2)]">•</span>
-              <span className="text-[#9994A5]">{draftStoriesCount} In Review</span>
+              <span className="inline-flex items-center gap-1.5 rounded-lg bg-[#FAF9FC] px-2.5 py-1 font-medium text-[#706C7D] border border-[rgba(74,61,100,0.10)] shadow-2xs">
+                <span className="h-1.5 w-1.5 rounded-full bg-[#9994A5]" />
+                {draftStoriesCount} In Review
+              </span>
             </div>
           </div>
 
-          <div className="pt-3 sm:pt-4">
-            <div className="flex items-center justify-between text-xs text-[#706C7D] mb-1.5 font-medium">
-              <span>Overall Client Sign-off</span>
-              <span className="text-[#252331] font-semibold">{progressPercent}%</span>
+          {/* Integrated Action & Progress Row */}
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3.5 pt-3.5 border-t border-[rgba(74,61,100,0.06)]">
+            {/* Inline Sign-off Progress Bar */}
+            <div className="flex items-center gap-3 flex-1 max-w-md min-w-0">
+              <span className="text-xs font-semibold text-[#252331] shrink-0">
+                Client Sign-off:
+              </span>
+              <div className="h-2 flex-1 overflow-hidden rounded-full bg-[rgba(74,61,100,0.07)]">
+                <div
+                  className="h-full rounded-full bg-[#B8944E] transition-all duration-500 shadow-2xs"
+                  style={{ width: `${progressPercent}%` }}
+                />
+              </div>
+              <span className="text-xs font-bold text-[#80642F] shrink-0 min-w-[2.5rem] text-right font-mono">
+                {progressPercent}%
+              </span>
             </div>
-            <div className="h-2 w-full overflow-hidden rounded-full bg-[rgba(74,61,100,0.06)]">
-              <div
-                className="h-full rounded-full bg-[#B8944E] transition-all duration-500"
-                style={{ width: `${progressPercent}%` }}
-              />
+
+            {/* Filter & Quick Folding Controls */}
+            <div className="flex items-center gap-2 sm:gap-3 shrink-0 flex-wrap sm:flex-nowrap">
+              <div className="flex items-center gap-1.5">
+                <span className="text-[11px] font-semibold uppercase tracking-wider text-[#9994A5] shrink-0">
+                  Filter:
+                </span>
+                <select
+                  value={epicFilter}
+                  onChange={(e) => setEpicFilter(e.target.value)}
+                  className="h-8 rounded-xl border border-[rgba(74,61,100,0.12)] bg-[#FAF9FC] px-2.5 text-xs font-medium text-[#252331] outline-none transition focus:border-[#B8944E] focus:bg-white cursor-pointer shadow-2xs"
+                >
+                  <option value="all">All Epics ({epics.length})</option>
+                  {epics.map((e) => (
+                    <option key={e.id} value={e.id}>
+                      {e.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Segmented Quick Fold / Expand Controls */}
+              <div className="inline-flex items-center rounded-xl border border-[rgba(74,61,100,0.12)] bg-[#FAF9FC] p-0.5 text-xs shrink-0 shadow-2xs">
+                <button
+                  type="button"
+                  onClick={foldAllEpics}
+                  className="flex items-center gap-1 rounded-lg px-2.5 py-1 text-[11px] font-medium text-[#706C7D] hover:text-[#252331] hover:bg-white transition cursor-pointer whitespace-nowrap"
+                  title="Collapse all epics"
+                >
+                  <ChevronUp size={12} className="shrink-0" />
+                  <span>Fold all</span>
+                </button>
+                <span className="h-3 w-[1px] bg-[rgba(74,61,100,0.12)] shrink-0" />
+                <button
+                  type="button"
+                  onClick={expandAllEpics}
+                  className="flex items-center gap-1 rounded-lg px-2.5 py-1 text-[11px] font-medium text-[#706C7D] hover:text-[#252331] hover:bg-white transition cursor-pointer whitespace-nowrap"
+                  title="Expand all epics"
+                >
+                  <ChevronDown size={12} className="shrink-0" />
+                  <span>Expand all</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -422,56 +502,6 @@ export function ProjectWorkspace({
             {error}
           </div>
         )}
-
-        {/* Filter & Quick Folding Toolbar */}
-        <div className="flex flex-wrap items-center justify-between gap-2.5 sm:gap-3">
-          <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
-            <div className="flex items-center gap-1.5 sm:gap-2 flex-1 sm:flex-none min-w-0">
-              <span className="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-[#9994A5] shrink-0">
-                Filter:
-              </span>
-              <select
-                value={epicFilter}
-                onChange={(e) => setEpicFilter(e.target.value)}
-                className="h-8 sm:h-9 w-full sm:w-auto rounded-xl border border-[rgba(74,61,100,0.11)] bg-white/85 px-2.5 sm:px-3 text-xs font-medium text-[#252331] outline-none transition focus:border-[#B8944E] cursor-pointer truncate"
-              >
-                <option value="all">All Epics ({epics.length})</option>
-                {epics.map((e) => (
-                  <option key={e.id} value={e.id}>
-                    {e.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Segmented Quick Fold / Expand Controls */}
-            <div className="inline-flex items-center rounded-xl border border-[rgba(74,61,100,0.11)] bg-white/80 p-0.5 text-xs shrink-0 shadow-2xs">
-              <button
-                type="button"
-                onClick={foldAllEpics}
-                className="flex items-center gap-1 rounded-lg px-2 sm:px-2.5 py-1 text-[11px] font-medium text-[#706C7D] hover:text-[#252331] hover:bg-[#FAF9FC] transition cursor-pointer whitespace-nowrap"
-                title="Collapse all epics"
-              >
-                <ChevronUp size={12} className="shrink-0" />
-                <span>Fold all</span>
-              </button>
-              <span className="h-3 w-[1px] bg-[rgba(74,61,100,0.12)] shrink-0" />
-              <button
-                type="button"
-                onClick={expandAllEpics}
-                className="flex items-center gap-1 rounded-lg px-2 sm:px-2.5 py-1 text-[11px] font-medium text-[#706C7D] hover:text-[#252331] hover:bg-[#FAF9FC] transition cursor-pointer whitespace-nowrap"
-                title="Expand all epics"
-              >
-                <ChevronDown size={12} className="shrink-0" />
-                <span>Expand all</span>
-              </button>
-            </div>
-          </div>
-
-          <span className="text-[11px] sm:text-xs text-[#706C7D] shrink-0">
-            {stories.length} {stories.length === 1 ? "story" : "stories"} total
-          </span>
-        </div>
 
         {/* Split View: Epics/Stories on Left, Story Document Inspector on Right */}
         <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr] items-start">
@@ -506,6 +536,7 @@ export function ProjectWorkspace({
                       id={epic.id}
                       name={epic.name}
                       description={epic.description}
+                      creatorName={projectTeamMembers.find(tm => tm.id === epic.created_by_id)?.name || undefined}
                       storyCount={epicStories.length}
                       isExpanded={!collapsedEpicIds[epic.id]}
                       onToggle={() => toggleEpic(epic.id)}
@@ -520,6 +551,16 @@ export function ProjectWorkspace({
                             </>
                           )}
                         </span>
+                      }
+                      discussion={
+                        viewerId ? (
+                          <EpicFeedbackThread
+                            epicId={epic.id}
+                            sectionType="general"
+                            viewerId={viewerId}
+                            viewerType={viewerType}
+                          />
+                        ) : null
                       }
                       actions={
                         <>
@@ -571,6 +612,7 @@ export function ProjectWorkspace({
                           story={story}
                           isSelected={editing?.id === story.id}
                           openFeedbackCount={feedbackCounts[story.id] || 0}
+                          creatorName={projectTeamMembers.find(tm => tm.id === story.created_by_id)?.name}
                           onClick={() => setEditing(story)}
                         />
                       ))}
@@ -595,6 +637,7 @@ export function ProjectWorkspace({
                         story={story}
                         isSelected={editing?.id === story.id}
                         openFeedbackCount={feedbackCounts[story.id] || 0}
+                        creatorName={projectTeamMembers.find(tm => tm.id === story.created_by_id)?.name}
                         onClick={() => setEditing(story)}
                       />
                     ))}
@@ -633,6 +676,8 @@ export function ProjectWorkspace({
                 <StoryEditor
                   story={editing}
                   epics={epics}
+                  viewerType="freelancer"
+                  isReviewer={true}
                   onCancel={() => setEditing(null)}
                   onFeedbackChange={loadFeedbackCounts}
                   onSave={async (updated) => {
@@ -645,6 +690,7 @@ export function ProjectWorkspace({
                       raw_requirement: updated.raw_requirement,
                       epic_id: updated.epic_id,
                       reviewer_ids: updated.reviewer_ids,
+                      status: updated.status,
                     });
                   }}
                   onCreateEpic={openCreateEpic}

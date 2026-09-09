@@ -6,7 +6,7 @@ import { ClientStoryReview } from "@/components/ClientStoryReview";
 import { useStoryAccordion } from "./StoryAccordionContext";
 import type { Story } from "@/lib/types";
 
-export function StoryArticle({ story }: { story: Story }) {
+export function StoryArticle({ story, viewerId }: { story: Story; viewerId?: string }) {
   const { openStoryId, setOpenStoryId } = useStoryAccordion();
   const isOpen = openStoryId === story.id;
   const statusVariant = (story.status || "review") as BadgeVariant;
@@ -69,7 +69,7 @@ export function StoryArticle({ story }: { story: Story }) {
             </div>
           )}
 
-          <ClientStoryReview story={story} />
+          <ClientStoryReview story={story} viewerId={viewerId} />
         </div>
       )}
     </div>

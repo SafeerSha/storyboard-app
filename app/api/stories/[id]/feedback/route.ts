@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getAuthenticatedClient } from "@/lib/client-session";
 import { getAuthenticatedTeamUser } from "@/lib/team-session";
-import { getStoryFeedback, createFeedbackThread } from "@/lib/feedback-store";
+import { getStoryFeedback, createFeedbackThread, resolveSession } from "@/lib/feedback-store";
 import { isTeamUserReviewer } from "@/lib/story-reviewer-auth";
 import type { FeedbackAuthorType, FeedbackSectionType } from "@/lib/types";
 
@@ -15,79 +15,7 @@ const postSchema = z.object({
   body: z.string().min(1).max(5000),
 });
 
-async function resolveSession(storyId: string) {
-  const admin = createAdminClient();
-  const { data: story } = await admin
-    .from("stories")
-    .select("id, project_id, status")
-    .eq("id", storyId)
-    .maybeSingle();
-
-  if (!story) return { error: "Story not found", status: 404 };
-
-  // 1. Try Team User session
-  const teamUser = await getAuthenticatedTeamUser();
-  if (teamUser && teamUser.project_id === story.project_id) {
-    return {
-      story,
-      authorType: "team_user" as FeedbackAuthorType,
-      authorId: teamUser.id,
-      authorName: teamUser.name || "Team Member",
-    };
-  }
-
-  // 2. Try Freelancer / Super Admin session
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (user) {
-    const { data: profile } = await admin
-      .from("freelancer_profiles")
-      .select("role")
-      .eq("id", user.id)
-      .maybeSingle();
-
-    if (profile?.role === "super_admin") {
-      return {
-        story,
-        authorType: "freelancer" as FeedbackAuthorType,
-        authorId: user.id,
-        authorName: "Super Admin",
-      };
-    }
-
-    const { data: project } = await admin
-      .from("projects")
-      .select("id, owner_id")
-      .eq("id", story.project_id)
-      .eq("owner_id", user.id)
-      .maybeSingle();
-
-    if (project) {
-      return {
-        story,
-        authorType: "freelancer" as FeedbackAuthorType,
-        authorId: user.id,
-        authorName: "Freelancer",
-      };
-    }
-  }
-
-  // 3. Try Client session
-  const client = await getAuthenticatedClient();
-  if (client && client.project_id === story.project_id) {
-    return {
-      story,
-      authorType: "client" as FeedbackAuthorType,
-      authorId: client.id,
-      authorName: client.name || "Client",
-    };
-  }
-
-  return { error: "Unauthorized", status: 401 };
-}
-
+// resolveSession moved to @/lib/feedback-store
 export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const auth = await resolveSession(id);

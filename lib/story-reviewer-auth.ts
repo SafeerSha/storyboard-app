@@ -122,6 +122,7 @@ export async function isTeamUserProjectMember(teamUserId: string, projectId: str
 
 /**
  * Checks if a specific team user or creator is eligible and assigned as a reviewer for a story.
+ * The story creator, project owner, and super admins ALWAYS have reviewer authority.
  */
 export async function isTeamUserReviewer(storyId: string, teamUserId: string): Promise<boolean> {
   if (!storyId || !teamUserId) return false;
@@ -130,13 +131,48 @@ export async function isTeamUserReviewer(storyId: string, teamUserId: string): P
   // 1. Resolve story and its project server-side
   const { data: story } = await admin
     .from("stories")
-    .select("id, project_id")
+    .select("id, project_id, created_by_id")
     .eq("id", storyId)
     .maybeSingle();
 
   if (!story || !story.project_id) return false;
 
-  // 2. Verify assignment in story_reviewers
+  // 2. Story Creator, Project Owner, and Super Admin ALWAYS have reviewer & management authority
+  if (story.created_by_id && story.created_by_id === teamUserId) {
+    return true;
+  }
+
+  const { data: project } = await admin
+    .from("projects")
+    .select("owner_id")
+    .eq("id", story.project_id)
+    .maybeSingle();
+
+  if (project?.owner_id === teamUserId) {
+    return true;
+  }
+
+  const { data: profile } = await admin
+    .from("freelancer_profiles")
+    .select("role")
+    .eq("id", teamUserId)
+    .maybeSingle();
+
+  if (profile?.role === "super_admin") {
+    return true;
+  }
+
+  const { data: tu } = await admin
+    .from("team_users")
+    .select("role")
+    .eq("id", teamUserId)
+    .maybeSingle();
+
+  if (tu?.role === "Super Admin" || tu?.role === "Project Creator") {
+    return true;
+  }
+
+  // 3. For team members: verify assignment in story_reviewers
   const { data: assignment } = await admin
     .from("story_reviewers")
     .select("id")
@@ -147,7 +183,7 @@ export async function isTeamUserReviewer(storyId: string, teamUserId: string): P
 
   if (!assignment) return false;
 
-  // 3. Verify active membership or creator/admin status
+  // 4. Verify active membership in project
   const isMember = await isTeamUserProjectMember(teamUserId, story.project_id);
   return isMember;
 }
@@ -329,7 +365,7 @@ export async function canManageStoryReviewers(
       };
     }
 
-    // Check project ownership
+    // Check project ownership or story creator
     const { data: project } = await admin
       .from("projects")
       .select("id")
@@ -337,7 +373,7 @@ export async function canManageStoryReviewers(
       .eq("owner_id", user.id)
       .maybeSingle();
 
-    if (project) {
+    if (project || (story.created_by_id && story.created_by_id === user.id)) {
       return {
         authorized: true,
         actorType: "freelancer",
@@ -347,11 +383,16 @@ export async function canManageStoryReviewers(
     }
   }
 
-  // 2. Check Team User (story creator)
+  // 2. Check Team User (story creator or admin role)
   const teamUser = await getAuthenticatedTeamUser();
   if (teamUser) {
     const isMember = await isTeamUserProjectMember(teamUser.id, story.project_id);
-    if (isMember && story.created_by_id && story.created_by_id === teamUser.id) {
+    if (
+      isMember &&
+      ((story.created_by_id && story.created_by_id === teamUser.id) ||
+        teamUser.role === "Super Admin" ||
+        teamUser.role === "Project Creator")
+    ) {
       return {
         authorized: true,
         actorType: "team_user",

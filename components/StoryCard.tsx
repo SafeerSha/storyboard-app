@@ -9,6 +9,7 @@ interface StoryCardProps {
   story: Story;
   isSelected?: boolean;
   openFeedbackCount?: number;
+  creatorName?: string;
   onClick?: () => void;
 }
 
@@ -16,6 +17,7 @@ export function StoryCard({
   story,
   isSelected = false,
   openFeedbackCount,
+  creatorName,
   onClick,
 }: StoryCardProps) {
   const statusVariant = (story.status || "review") as BadgeVariant;
@@ -73,6 +75,15 @@ export function StoryCard({
                 <span className="inline-flex items-center gap-1 text-[11px] font-medium text-[#A87936] bg-[rgba(168,121,54,0.08)] px-1.5 py-0.2 rounded border border-[rgba(168,121,54,0.16)]">
                   <MessageSquare size={11} />
                   {openFeedbackCount} open feedback
+                </span>
+              </>
+            )}
+
+            {creatorName && (
+              <>
+                <span className="text-[rgba(74,61,100,0.2)] text-xs">•</span>
+                <span className="text-[11px] font-medium text-[#706C7D]">
+                  Created by {creatorName}
                 </span>
               </>
             )}

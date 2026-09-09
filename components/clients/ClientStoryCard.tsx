@@ -83,6 +83,7 @@ interface ClientStoryCardProps {
   onToggle?: () => void;
   onStatusChange?: (newStatus: string) => void;
   compact?: boolean;
+  viewerId?: string;
 }
 
 export function ClientStoryCard({
@@ -91,6 +92,7 @@ export function ClientStoryCard({
   onToggle,
   onStatusChange,
   compact = false,
+  viewerId,
 }: ClientStoryCardProps) {
   const [internalOpen, setInternalOpen] = useState(false);
   const isOpen = controlledIsOpen !== undefined ? controlledIsOpen : internalOpen;
@@ -136,8 +138,8 @@ export function ClientStoryCard({
         }}
         className="cursor-pointer p-4 sm:p-5 outline-none select-none transition-colors hover:bg-white/50"
       >
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-          <div className="min-w-0 flex-1">
+        <div className="flex flex-col gap-3.5">
+          <div className="min-w-0">
             {/* Meta badges row */}
             <div className="flex flex-wrap items-center gap-2 text-xs mb-1.5 font-medium">
               {story.epic_name && (
@@ -170,7 +172,7 @@ export function ClientStoryCard({
 
             {/* Story Title */}
             <h3
-              className={`text-sm sm:text-base font-bold tracking-tight text-[#252331] transition-colors truncate ${
+              className={`text-sm sm:text-base font-bold tracking-tight text-[#252331] transition-colors line-clamp-2 mb-1 ${
                 isOpen ? "text-[#80642F]" : "group-hover:text-[#80642F]"
               }`}
             >
@@ -178,26 +180,28 @@ export function ClientStoryCard({
             </h3>
 
             {!compact && story.description && !isOpen && (
-              <p className="mt-1 text-xs text-[#706C7D] line-clamp-1 max-w-3xl">
+              <p className="mt-1 text-xs text-[#706C7D] line-clamp-2 max-w-3xl">
                 {story.description}
               </p>
             )}
           </div>
 
-          {/* Right Action & Status Badge */}
-          <div className="flex items-center justify-between sm:justify-end gap-3 shrink-0 pt-1 sm:pt-0">
-            {/* Client Status Badge */}
-            <span
-              className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold border ${statusMeta.colorClasses}`}
-            >
-              <StatusIcon size={12} className="shrink-0" />
-              <span>{statusMeta.label}</span>
-            </span>
+          {/* Bottom Action & Status Badge */}
+          <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
+            <div className="flex items-center gap-2.5">
+              {/* Client Status Badge */}
+              <span
+                className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold border ${statusMeta.colorClasses}`}
+              >
+                <StatusIcon size={12} className="shrink-0" />
+                <span>{statusMeta.label}</span>
+              </span>
 
-            {/* Relative updated timestamp */}
-            <span className="hidden sm:inline-block text-[11px] text-[#A09CAB]">
-              {formatRelativeTime(story.updated_at)}
-            </span>
+              {/* Relative updated timestamp */}
+              <span className="text-[11px] text-[#A09CAB]">
+                {formatRelativeTime(story.updated_at)}
+              </span>
+            </div>
 
             {/* Expand / Review CTA */}
             <div className="flex items-center gap-2">
@@ -217,7 +221,7 @@ export function ClientStoryCard({
                 {isOpen ? "Collapse" : "Review →"}
               </Button>
 
-              <div className="grid h-7 w-7 place-items-center rounded-lg text-[#9994A5] group-hover:text-[#252331] transition">
+              <div className="grid h-7 w-7 place-items-center rounded-lg text-[#9994A5] group-hover:text-[#252331] transition bg-white/50 border border-transparent group-hover:border-[rgba(74,61,100,0.08)]">
                 <ChevronDown
                   size={16}
                   className={`transition-transform duration-200 ${
@@ -247,6 +251,7 @@ export function ClientStoryCard({
           {/* Reusable Client Review Experience */}
           <ClientStoryReview
             story={story}
+            viewerId={viewerId}
             onStatusChange={(newStatus) => {
               if (onStatusChange) onStatusChange(newStatus);
             }}

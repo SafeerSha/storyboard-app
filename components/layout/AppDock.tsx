@@ -85,7 +85,7 @@ export function AppDock({
     >
       <nav
         aria-label="macOS Desktop Dock Navigation"
-        className="pointer-events-auto flex items-center h-[62px] sm:h-[68px] rounded-2xl sm:rounded-full border border-white/45 bg-white/30 backdrop-blur-2xl px-3 sm:px-4 py-2 shadow-[0_20px_45px_rgba(0,0,0,0.10),0_4px_12px_rgba(0,0,0,0.03),inset_0_1.5px_2px_0_rgba(255,255,255,0.90),inset_0_0_0_1px_rgba(255,255,255,0.25),inset_0_-2px_4px_0_rgba(0,0,0,0.03)] gap-1.5 transition-all duration-200"
+        className="pointer-events-auto flex items-center h-[62px] sm:h-[68px] rounded-2xl sm:rounded-full border border-white/20 bg-white/10 backdrop-blur-3xl px-4 sm:px-6 py-2 shadow-[0_30px_60px_rgba(0,0,0,0.12),0_10px_25px_rgba(0,0,0,0.05),inset_0_2px_4px_rgba(255,255,255,0.4),inset_0_0_10px_rgba(255,255,255,0.1),inset_0_-2px_6px_rgba(0,0,0,0.05)] gap-1.5 sm:gap-2 transition-all duration-200"
         style={{
           WebkitBackdropFilter: "blur(32px) saturate(190%)",
           backdropFilter: "blur(32px) saturate(190%)",
@@ -94,7 +94,7 @@ export function AppDock({
         {/* Brand Icon */}
         {brand && (
           <div
-            className="relative flex items-center justify-center shrink-0 mr-1 sm:mr-1.5"
+            className="relative flex items-center justify-center shrink-0 ml-0.5 mr-1 sm:mr-1.5"
             onMouseEnter={() => setHoveredId("brand")}
             onMouseLeave={() => setHoveredId((prev) => (prev === "brand" ? null : prev))}
           >

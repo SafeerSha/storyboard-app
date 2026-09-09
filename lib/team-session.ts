@@ -59,6 +59,7 @@ export async function getAuthenticatedTeamUser() {
         id,
         name,
         username,
+        role,
         project_id,
         status
       )
@@ -86,6 +87,7 @@ export async function getAuthenticatedTeamUser() {
     id: teamUser.id,
     name: teamUser.name,
     username: teamUser.username,
+    role: (teamUser as any).role || "member",
     project_id: teamUser.project_id,
     status: teamUser.status,
   };

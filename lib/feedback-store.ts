@@ -1,7 +1,84 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { FeedbackThread, FeedbackMessage, FeedbackSectionType, FeedbackThreadStatus, FeedbackAuthorType } from "@/lib/types";
 
+import { getAuthenticatedTeamUser } from "@/lib/team-session";
+import { getAuthenticatedClient } from "@/lib/client-session";
+import { createClient } from "@/lib/supabase/server";
+
 const FALLBACK_PREFIX = "__FEEDBACK_THREAD__:";
+
+export async function resolveSession(storyId: string) {
+  const admin = createAdminClient();
+  const { data: story } = await admin
+    .from("stories")
+    .select("id, project_id, status")
+    .eq("id", storyId)
+    .maybeSingle();
+
+  if (!story) return { error: "Story not found", status: 404 };
+
+  // 1. Try Team User session
+  const teamUser = await getAuthenticatedTeamUser();
+  if (teamUser && teamUser.project_id === story.project_id) {
+    return {
+      story,
+      authorType: "team_user" as FeedbackAuthorType,
+      authorId: teamUser.id,
+      authorName: teamUser.name || "Team Member",
+    };
+  }
+
+  // 2. Try Freelancer / Super Admin session
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (user) {
+    const { data: profile } = await admin
+      .from("freelancer_profiles")
+      .select("role")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    if (profile?.role === "super_admin") {
+      return {
+        story,
+        authorType: "freelancer" as FeedbackAuthorType,
+        authorId: user.id,
+        authorName: "Super Admin",
+      };
+    }
+
+    const { data: project } = await admin
+      .from("projects")
+      .select("id, owner_id")
+      .eq("id", story.project_id)
+      .eq("owner_id", user.id)
+      .maybeSingle();
+
+    if (project) {
+      return {
+        story,
+        authorType: "freelancer" as FeedbackAuthorType,
+        authorId: user.id,
+        authorName: "Freelancer",
+      };
+    }
+  }
+
+  // 3. Try Client session
+  const client = await getAuthenticatedClient();
+  if (client && client.project_id === story.project_id) {
+    return {
+      story,
+      authorType: "client" as FeedbackAuthorType,
+      authorId: client.id,
+      authorName: client.name || "Client",
+    };
+  }
+
+  return { error: "Unauthorized", status: 401 };
+}
 
 export async function getStoryFeedback(storyId: string): Promise<FeedbackThread[]> {
   const db = createAdminClient();
@@ -390,10 +467,82 @@ export async function updateFeedbackThreadStatus({
       }
     }
     return { ok: true };
-  } catch (e) {
-    console.error("Failed to update thread status:", e);
+  } catch {
     return { ok: false };
   }
+}
+
+export async function updateFeedbackMessage({
+  messageId,
+  body
+}: {
+  messageId: string;
+  body: string;
+}): Promise<{ ok: boolean }> {
+  const db = createAdminClient();
+
+  // Try dedicated tables
+  try {
+    const { data: existing, error: fetchErr } = await db
+      .from("story_feedback_messages")
+      .select("id")
+      .eq("id", messageId)
+      .maybeSingle();
+
+    if (!fetchErr && existing) {
+      const { error } = await db
+        .from("story_feedback_messages")
+        .update({ body: body.trim() })
+        .eq("id", messageId);
+      if (!error) return { ok: true };
+    }
+  } catch {
+    // Fallback below
+  }
+
+  // Fallback via story_comments
+  try {
+    const { data: comment } = await db
+      .from("story_comments")
+      .select("id, body")
+      .eq("id", messageId)
+      .maybeSingle();
+
+    if (comment && typeof comment.body === "string" && comment.body.startsWith(FALLBACK_PREFIX)) {
+      const payload = JSON.parse(comment.body.slice(FALLBACK_PREFIX.length));
+      payload.body = body.trim();
+      await db
+        .from("story_comments")
+        .update({ body: FALLBACK_PREFIX + JSON.stringify(payload) })
+        .eq("id", messageId);
+      return { ok: true };
+    }
+  } catch {
+    // Ignored
+  }
+
+  return { ok: false };
+}
+
+export async function deleteFeedbackMessage(messageId: string): Promise<{ ok: boolean }> {
+  const db = createAdminClient();
+
+  // Try dedicated tables
+  try {
+    const { error } = await db
+      .from("story_feedback_messages")
+      .delete()
+      .eq("id", messageId);
+
+    // Also delete from story_comments in case it's in the fallback
+    await db.from("story_comments").delete().eq("id", messageId);
+
+    if (!error) return { ok: true };
+  } catch {
+    // Fallback below
+  }
+
+  return { ok: false };
 }
 
 export async function getOpenFeedbackCountForStories(storyIds: string[]): Promise<Record<string, number>> {

@@ -41,50 +41,57 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     if (!story) return NextResponse.json({ error: "Story not found." }, { status: 404 });
 
     let isAuthorized = false;
+    let isSuperAdminOrOwner = false;
     let actorId = "system";
 
-    // 1. Team User check (multi-project membership verified)
+    // 1. Freelancer / Super Admin check (Supabase Auth takes precedence)
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (user) {
+      const { data: profile } = await admin
+        .from("freelancer_profiles")
+        .select("role")
+        .eq("id", user.id)
+        .maybeSingle();
+
+      if (profile?.role === "super_admin") {
+        isAuthorized = true;
+        isSuperAdminOrOwner = true;
+        actorId = user.id;
+      } else {
+        const { data: project } = await admin
+          .from("projects")
+          .select("id, owner_id")
+          .eq("id", story.project_id)
+          .maybeSingle();
+
+        if (project?.owner_id === user.id || story.created_by_id === user.id) {
+          isAuthorized = true;
+          isSuperAdminOrOwner = true;
+          actorId = user.id;
+        }
+      }
+    }
+
+    // 2. Team User session check if not authenticated via Supabase
     const teamUser = await getAuthenticatedTeamUser();
-    if (teamUser) {
+    if (!isAuthorized && teamUser) {
       const isMember = await isTeamUserProjectMember(teamUser.id, story.project_id);
       if (isMember) {
         isAuthorized = true;
         actorId = teamUser.id;
+        if (
+          (story.created_by_id && story.created_by_id === teamUser.id) ||
+          (teamUser as any).role === "Super Admin" ||
+          (teamUser as any).role === "Project Creator"
+        ) {
+          isSuperAdminOrOwner = true;
+        }
       } else {
         return NextResponse.json({ error: "Forbidden. Access to this story is denied." }, { status: 403 });
-      }
-    }
-
-    // 2. Freelancer / Super Admin check
-    if (!isAuthorized) {
-      const supabase = await createClient();
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
-      if (user) {
-        const { data: profile } = await admin
-          .from("freelancer_profiles")
-          .select("role")
-          .eq("id", user.id)
-          .maybeSingle();
-
-        if (profile?.role === "super_admin") {
-          isAuthorized = true;
-          actorId = user.id;
-        } else {
-          const { data: project } = await admin
-            .from("projects")
-            .select("id")
-            .eq("id", story.project_id)
-            .eq("owner_id", user.id)
-            .maybeSingle();
-
-          if (project) {
-            isAuthorized = true;
-            actorId = user.id;
-          }
-        }
       }
     }
 
@@ -92,9 +99,10 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
       return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
     }
 
-    // If team member is changing review status, verify they are an assigned reviewer
-    if (body.team_review_status && teamUser) {
-      const isReviewer = await isTeamUserReviewer(id, teamUser.id);
+    // If changing review status, verify reviewer status (creators, owners, and super admins are exempt)
+    if (body.team_review_status && !isSuperAdminOrOwner) {
+      const reviewerCheckId = teamUser ? teamUser.id : actorId;
+      const isReviewer = await isTeamUserReviewer(id, reviewerCheckId);
       if (!isReviewer) {
         return NextResponse.json(
           { error: "Forbidden. Only assigned reviewers can update story review status." },
@@ -105,12 +113,14 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
 
     // If updating reviewer assignments, verify caller can manage reviewers and validate memberships
     if (body.reviewer_ids !== undefined) {
-      const canManage = await canManageStoryReviewers(story);
-      if (!canManage.authorized) {
-        return NextResponse.json(
-          { error: "Forbidden. Only the project owner, super admin, or story creator can modify reviewer assignments." },
-          { status: 403 }
-        );
+      if (!isSuperAdminOrOwner) {
+        const canManage = await canManageStoryReviewers(story);
+        if (!canManage.authorized) {
+          return NextResponse.json(
+            { error: "Forbidden. Only the project owner, super admin, or story creator can modify reviewer assignments." },
+            { status: 403 }
+          );
+        }
       }
 
       if (body.reviewer_ids.length > 0) {

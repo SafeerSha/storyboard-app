@@ -511,9 +511,11 @@ export default function TeamReviewsPage() {
                           {/* Reviewers Pill */}
                           <span
                             className="inline-flex items-center gap-1 rounded-full bg-zinc-100/90 px-2 py-0.5 text-[11px] font-medium text-zinc-700 border border-zinc-200"
-                            title={`Assigned reviewers: ${story.reviewers
-                              .map((r) => r.name || r.username)
-                              .join(", ")}`}
+                            title={`Assigned reviewers: ${
+                              story.reviewers
+                                ? story.reviewers.map((r) => r.name || r.username).join(", ")
+                                : "None"
+                            }`}
                           >
                             <Users size={11} className="text-zinc-500" />
                             <span>
@@ -616,7 +618,7 @@ export default function TeamReviewsPage() {
                       {/* Right CTA Button */}
                       <div className="flex items-center gap-2 shrink-0 pt-2 lg:pt-0 self-end lg:self-center">
                         <Link
-                          href={`/team?projectId=${story.project_id}&storyId=${story.id}`}
+                          href={`/team/reviews/${story.id}`}
                         >
                           <Button
                             variant="primary"

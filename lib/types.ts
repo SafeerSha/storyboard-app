@@ -7,6 +7,7 @@ export type Epic = {
   description: string | null;
   status: "active" | "completed" | "archived";
   sort_order: number;
+  created_by_id?: string | null;
   created_at: string;
   updated_at: string;
 };

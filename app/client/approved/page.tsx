@@ -28,6 +28,7 @@ interface PaginatedResponse {
     totalPages: number;
   };
   epics: Epic[];
+  viewerId?: string;
 }
 
 export default function ClientApprovedPage() {

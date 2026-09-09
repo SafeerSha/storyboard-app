@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   CheckCircle2,
   CornerDownRight,
@@ -24,8 +24,8 @@ import { VoiceTextarea } from "@/components/ui/VoiceTextarea";
 import { VoiceInput } from "@/components/ui/VoiceInput";
 import { Button } from "@/components/ui/Button";
 
-interface ContextualFeedbackThreadProps {
-  storyId: string;
+interface EpicFeedbackThreadProps {
+  epicId: string;
   sectionType: FeedbackSectionType;
   itemId?: string | null;
   itemText?: string | null;
@@ -33,28 +33,26 @@ interface ContextualFeedbackThreadProps {
   actionLabel?: string;
   viewerType: FeedbackAuthorType;
   viewerId?: string;
-  threads: FeedbackThread[];
   isReadOnly?: boolean;
   onThreadCreated?: (thread: FeedbackThread) => void;
   onMessageAdded?: (threadId: string, message: FeedbackMessage) => void;
   onStatusUpdated?: (threadId: string, status: FeedbackThreadStatus) => void;
 }
 
-export function ContextualFeedbackThread({
-  storyId,
+export function EpicFeedbackThread({
+  epicId,
   sectionType,
   itemId,
   itemText,
   pointNumber,
-  actionLabel = "Request change",
+  actionLabel = "Discussion",
   viewerType,
   viewerId,
-  threads,
   isReadOnly = false,
   onThreadCreated,
   onMessageAdded,
   onStatusUpdated,
-}: ContextualFeedbackThreadProps) {
+}: EpicFeedbackThreadProps) {
   const [isOpenInput, setIsOpenInput] = useState(false);
   const [newComment, setNewComment] = useState("");
   const [replyTextMap, setReplyTextMap] = useState<Record<string, string>>({});
@@ -64,9 +62,38 @@ export function ContextualFeedbackThread({
   const [editContent, setEditContent] = useState("");
   const [isUpdatingMessage, setIsUpdatingMessage] = useState(false);
 
+  const [localThreads, setLocalThreads] = useState<FeedbackThread[]>([]);
+  const [isFetching, setIsFetching] = useState(true);
+
+  const fetchThreads = useCallback(async () => {
+    try {
+      const res = await fetch(`/api/epics/${epicId}/feedback`);
+      if (res.ok) {
+        const data = await res.json();
+        setLocalThreads(data.threads || []);
+      }
+    } catch (err) {
+      console.error("Failed to fetch epic threads", err);
+    } finally {
+      setIsFetching(false);
+    }
+  }, [epicId]);
+
+  useEffect(() => {
+    fetchThreads();
+
+    const handleUpdate = () => {
+      fetchThreads();
+    };
+
+    window.addEventListener("storyboard:epic-review-updated", handleUpdate);
+    return () => {
+      window.removeEventListener("storyboard:epic-review-updated", handleUpdate);
+    };
+  }, [fetchThreads]);
+
   // Filter threads that match this specific item / section
-  const threadList = Array.isArray(threads) ? threads : [];
-  const relevantThreads = threadList.filter((t) => {
+  const relevantThreads = localThreads.filter((t) => {
     if (sectionType === "general") {
       return t.section_type === "general";
     }
@@ -83,15 +110,10 @@ export function ContextualFeedbackThread({
     if (!newComment.trim()) return;
     setLoading(true);
     try {
-      const res = await fetch(`/api/stories/${storyId}/feedback`, {
+      const res = await fetch(`/api/epics/${epicId}/feedback`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          sectionType,
-          itemId: itemId || null,
-          itemText: itemText || null,
-          body: newComment.trim(),
-        }),
+        body: JSON.stringify({ body: newComment.trim() }),
       });
 
       const data = await res.json();
@@ -103,7 +125,7 @@ export function ContextualFeedbackThread({
         onThreadCreated(data.thread);
       }
       if (typeof window !== "undefined") {
-        window.dispatchEvent(new CustomEvent("storyboard:review-updated"));
+        window.dispatchEvent(new CustomEvent("storyboard:epic-review-updated"));
       }
       toast.success("Comment added");
     } catch {
@@ -118,11 +140,11 @@ export function ContextualFeedbackThread({
     if (!text) return;
     setLoading(true);
     try {
-      const res = await fetch(`/api/feedback/${threadId}/messages`, {
+      const res = await fetch(`/api/epics/${epicId}/feedback`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          storyId,
+          threadId,
           body: text,
         }),
       });
@@ -150,11 +172,10 @@ export function ContextualFeedbackThread({
       currentStatus === "open" ? "resolved" : "open";
     setLoading(true);
     try {
-      const res = await fetch(`/api/feedback/${threadId}`, {
+      const res = await fetch(`/api/epics/${epicId}/feedback/threads/${threadId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          storyId,
           status: nextStatus,
         }),
       });
@@ -166,7 +187,7 @@ export function ContextualFeedbackThread({
         onStatusUpdated(threadId, nextStatus);
       }
       if (typeof window !== "undefined") {
-        window.dispatchEvent(new CustomEvent("storyboard:review-updated"));
+        window.dispatchEvent(new CustomEvent("storyboard:epic-review-updated"));
       }
       toast.success("Thread resolved");
     } catch {
@@ -180,7 +201,7 @@ export function ContextualFeedbackThread({
     if (!editContent.trim()) return;
     setIsUpdatingMessage(true);
     try {
-      const res = await fetch(`/api/stories/${storyId}/feedback/messages/${messageId}`, {
+      const res = await fetch(`/api/epics/${epicId}/feedback/messages/${messageId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ body: editContent.trim() }),
@@ -190,7 +211,7 @@ export function ContextualFeedbackThread({
 
       // We use the event to trigger a re-fetch since `threads` are state from parent
       if (typeof window !== "undefined") {
-        window.dispatchEvent(new CustomEvent("storyboard:review-updated"));
+        window.dispatchEvent(new CustomEvent("storyboard:epic-review-updated"));
         window.dispatchEvent(new CustomEvent("storyboard:client-review-updated"));
       }
       setEditingMessageId(null);
@@ -207,14 +228,14 @@ export function ContextualFeedbackThread({
     if (!confirm("Are you sure you want to delete this message?")) return;
     setIsUpdatingMessage(true);
     try {
-      const res = await fetch(`/api/stories/${storyId}/feedback/messages/${messageId}`, {
+      const res = await fetch(`/api/epics/${epicId}/feedback/messages/${messageId}`, {
         method: "DELETE",
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to delete message");
 
       if (typeof window !== "undefined") {
-        window.dispatchEvent(new CustomEvent("storyboard:review-updated"));
+        window.dispatchEvent(new CustomEvent("storyboard:epic-review-updated"));
         window.dispatchEvent(new CustomEvent("storyboard:client-review-updated"));
       }
       toast.success("Message deleted");
@@ -225,8 +246,12 @@ export function ContextualFeedbackThread({
     }
   }
 
+  if (isFetching) {
+    return <div className="text-sm text-gray-500 p-2">Loading discussion...</div>;
+  }
+
   return (
-    <div className="mt-2 space-y-2">
+    <div className="flex flex-col">
       {/* Existing Threads Header & List */}
       {hasThreads && (
         <div className="space-y-2">
@@ -235,21 +260,19 @@ export function ContextualFeedbackThread({
             return (
               <div
                 key={thread.id}
-                className={`rounded-xl border p-3 sm:p-3.5 text-xs sm:text-sm transition-colors ${
-                  isOpen
-                    ? "border-amber-200/80 bg-amber-50/30"
-                    : "border-zinc-200/70 bg-zinc-50/60"
-                }`}
+                className={`rounded-xl border p-3 sm:p-3.5 text-xs sm:text-sm transition-colors ${isOpen
+                  ? "border-amber-200/80 bg-amber-50/30"
+                  : "border-zinc-200/70 bg-zinc-50/60"
+                  }`}
               >
                 {/* Thread Header */}
                 <div className="flex items-center justify-between gap-2 border-b border-zinc-200/60 pb-2 mb-2.5">
                   <div className="flex items-center gap-2">
                     <span
-                      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold ${
-                        isOpen
-                          ? "bg-amber-100 text-amber-800"
-                          : "bg-emerald-100 text-emerald-800"
-                      }`}
+                      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold ${isOpen
+                        ? "bg-amber-100 text-amber-800"
+                        : "bg-emerald-100 text-emerald-800"
+                        }`}
                     >
                       {isOpen ? "● Open change request" : "✓ Resolved"}
                     </span>
@@ -266,11 +289,10 @@ export function ContextualFeedbackThread({
                       type="button"
                       disabled={loading}
                       onClick={() => handleToggleStatus(thread.id, thread.status)}
-                      className={`inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium transition ${
-                        isOpen
-                          ? "text-emerald-700 hover:bg-emerald-100/70"
-                          : "text-zinc-600 hover:bg-zinc-200/60"
-                      }`}
+                      className={`inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium transition ${isOpen
+                        ? "text-emerald-700 hover:bg-emerald-100/70"
+                        : "text-zinc-600 hover:bg-zinc-200/60"
+                        }`}
                     >
                       {isOpen ? (
                         <>
@@ -299,13 +321,12 @@ export function ContextualFeedbackThread({
                     return (
                       <div
                         key={msg.id}
-                        className={`rounded-lg p-2.5 border transition-colors ${
-                          isTeamUser
-                            ? "bg-emerald-50/50 border-emerald-100"
-                            : isClient
+                        className={`rounded-lg p-2.5 border transition-colors ${isTeamUser
+                          ? "bg-emerald-50/50 border-emerald-100"
+                          : isClient
                             ? "bg-white border-zinc-200/80 shadow-2xs"
                             : "bg-[rgba(184,148,78,0.06)] border-[rgba(184,148,78,0.15)]"
-                        } group`}
+                          } group`}
                       >
                         <div className="flex items-center justify-between text-xs mb-1">
                           <div className="flex items-center gap-1.5">
@@ -316,19 +337,18 @@ export function ContextualFeedbackThread({
                               {msg.author_name}
                             </span>
                             <span
-                              className={`rounded-full px-1.5 py-0.2 text-[10px] font-medium ${
-                                isTeamUser
-                                  ? "bg-emerald-100 text-emerald-800"
-                                  : isClient
+                              className={`rounded-full px-1.5 py-0.2 text-[10px] font-medium ${isTeamUser
+                                ? "bg-emerald-100 text-emerald-800"
+                                : isClient
                                   ? "bg-amber-100 text-amber-800"
                                   : "bg-[rgba(184,148,78,0.12)] text-[#80642F]"
-                              }`}
+                                }`}
                             >
                               {isTeamUser
                                 ? "Team"
                                 : isClient
-                                ? "Client"
-                                : "Freelancer"}
+                                  ? "Client"
+                                  : "Freelancer"}
                             </span>
                           </div>
                           <div className="flex items-center gap-3">
@@ -389,7 +409,7 @@ export function ContextualFeedbackThread({
                                 size="sm"
                                 className="h-6 text-[10px] px-2"
                                 onClick={() => handleEditMessage(thread.id, msg.id)}
-                                 isLoading={isUpdatingMessage}
+                                isLoading={isUpdatingMessage}
                               >
                                 Save
                               </Button>
@@ -475,13 +495,12 @@ export function ContextualFeedbackThread({
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-[#80642F]">
               {pointNumber !== undefined
-                ? `${
-                    sectionType === "acceptance_criteria"
-                      ? "Criterion"
-                      : sectionType === "assumption"
-                      ? "Assumption"
-                      : "Clarification"
-                  } #${pointNumber + 1}`
+                ? `${sectionType === "acceptance_criteria"
+                  ? "Criterion"
+                  : sectionType === "assumption"
+                    ? "Assumption"
+                    : "Clarification"
+                } #${pointNumber + 1}`
                 : "Feedback & Changes"}
             </span>
             <button

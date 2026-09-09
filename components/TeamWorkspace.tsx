@@ -27,6 +27,7 @@ import { VoiceTextarea } from "@/components/ui/VoiceTextarea";
 import { toast } from "@/lib/toast";
 import type { Story, Epic } from "@/lib/types";
 import { EpicFolder } from "@/components/epics/EpicFolder";
+import { EpicFeedbackThread } from "@/components/epics/EpicFeedbackThread";
 import { sortEpics, sortStories } from "@/lib/epic-story-utils";
 
 interface TeamWorkspaceProps {
@@ -34,6 +35,7 @@ interface TeamWorkspaceProps {
     id: string;
     name: string;
     username: string;
+    role?: string;
     project_id: string;
   };
   project: {
@@ -125,7 +127,7 @@ export function TeamWorkspace({
   // Load Team Members
   const loadTeamMembers = useCallback(async () => {
     try {
-      const res = await fetch(`/api/projects/${project.id}/team-members`);
+      const res = await fetch(`/api/projects/${project.id}/team-members?forReviewers=true`);
       if (res.ok) {
         const data = await res.json();
         if (data.teamMembers) setProjectTeamMembers(data.teamMembers);
@@ -443,7 +445,7 @@ export function TeamWorkspace({
     setManualStoryCriteria([]);
     setManualStoryAssumptions([]);
     setManualStoryClarifications([]);
-    setManualStoryReviewerIds([teamUser.id]);
+    setManualStoryReviewerIds([]);
     setManualStoryError("");
     setManualStoryModalOpen(true);
     loadTeamMembers();
@@ -656,6 +658,7 @@ export function TeamWorkspace({
                       id={epic.id}
                       name={epic.name}
                       description={epic.description}
+                      creatorName={projectTeamMembers.find(tm => tm.id === epic.created_by_id)?.name || undefined}
                       storyCount={epicStories.length}
                       isExpanded={!collapsedEpicIds[epic.id]}
                       onToggle={() => toggleEpic(epic.id)}
@@ -670,6 +673,14 @@ export function TeamWorkspace({
                             </>
                           )}
                         </span>
+                      }
+                      discussion={
+                        <EpicFeedbackThread
+                          epicId={epic.id}
+                          sectionType="general"
+                          viewerId={teamUser.id}
+                          viewerType="team_user"
+                        />
                       }
                       actions={
                         <>
@@ -726,6 +737,7 @@ export function TeamWorkspace({
                           story={story}
                           isSelected={editingStory?.id === story.id}
                           openFeedbackCount={feedbackCounts[story.id] || 0}
+                          creatorName={projectTeamMembers.find(tm => tm.id === story.created_by_id)?.name}
                           onClick={() => setEditingStory(story)}
                         />
                       ))}
@@ -750,6 +762,7 @@ export function TeamWorkspace({
                         story={story}
                         isSelected={editingStory?.id === story.id}
                         openFeedbackCount={feedbackCounts[story.id] || 0}
+                        creatorName={projectTeamMembers.find(tm => tm.id === story.created_by_id)?.name}
                         onClick={() => setEditingStory(story)}
                       />
                     ))}
@@ -790,7 +803,12 @@ export function TeamWorkspace({
                   epics={epics}
                   viewerType="team_user"
                   currentUserId={teamUser.id}
-                  isReviewer={(editingStory.reviewer_ids || []).includes(teamUser.id)}
+                  isReviewer={
+                    Boolean(editingStory.created_by_id && editingStory.created_by_id === teamUser.id) ||
+                    teamUser.role === "Super Admin" ||
+                    teamUser.role === "Project Creator" ||
+                    (editingStory.reviewer_ids || []).includes(teamUser.id)
+                  }
                   onCancel={() => setEditingStory(null)}
                   onFeedbackChange={loadFeedbackCounts}
                   onSave={handleSaveStoryEditor}
@@ -1090,8 +1108,10 @@ export function TeamWorkspace({
                 Select team members and project leaders who will review and approve this story.
               </p>
               <div className="flex flex-wrap gap-2 pt-1">
-                {projectTeamMembers.map((tm) => {
-                  const isSelected = manualStoryReviewerIds.includes(tm.id);
+                {projectTeamMembers
+                  .filter((tm) => tm.id !== teamUser.id && tm.role !== "Super Admin" && tm.role !== "Project Creator")
+                  .map((tm) => {
+                    const isSelected = manualStoryReviewerIds.includes(tm.id);
                   return (
                     <button
                       key={tm.id}

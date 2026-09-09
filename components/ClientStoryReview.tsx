@@ -18,12 +18,14 @@ import type { Story, FeedbackThread, FeedbackMessage, FeedbackThreadStatus } fro
 interface ClientStoryReviewProps {
   story: Story;
   initialThreads?: FeedbackThread[];
+  viewerId?: string;
   onStatusChange?: (newStatus: string) => void;
 }
 
 export function ClientStoryReview({
   story,
   initialThreads = [],
+  viewerId,
   onStatusChange,
 }: ClientStoryReviewProps) {
   const [threads, setThreads] = useState<FeedbackThread[]>(initialThreads);
@@ -166,6 +168,7 @@ export function ClientStoryReview({
                     pointNumber={i}
                     actionLabel="Request change"
                     viewerType="client"
+                    viewerId={viewerId}
                     threads={threads}
                     onThreadCreated={handleThreadCreated}
                     onMessageAdded={handleMessageAdded}
@@ -212,6 +215,7 @@ export function ClientStoryReview({
                     pointNumber={i}
                     actionLabel="Comment"
                     viewerType="client"
+                    viewerId={viewerId}
                     threads={threads}
                     onThreadCreated={handleThreadCreated}
                     onMessageAdded={handleMessageAdded}
@@ -256,6 +260,7 @@ export function ClientStoryReview({
                     pointNumber={i}
                     actionLabel="Respond"
                     viewerType="client"
+                    viewerId={viewerId}
                     threads={threads}
                     onThreadCreated={handleThreadCreated}
                     onMessageAdded={handleMessageAdded}
@@ -283,6 +288,7 @@ export function ClientStoryReview({
           itemText={null}
           actionLabel="Request general changes"
           viewerType="client"
+          viewerId={viewerId}
           threads={threads}
           onThreadCreated={handleThreadCreated}
           onMessageAdded={handleMessageAdded}

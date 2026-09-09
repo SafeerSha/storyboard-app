@@ -7,6 +7,7 @@ export interface EpicFolderProps {
   id: string;
   name: string;
   description?: string | null;
+  creatorName?: string;
   storyCount: number;
   isExpanded: boolean;
   onToggle: () => void;
@@ -16,12 +17,14 @@ export interface EpicFolderProps {
   emptyAction?: React.ReactNode;
   children?: React.ReactNode;
   isUncategorized?: boolean;
+  discussion?: React.ReactNode;
 }
 
 export function EpicFolder({
   id,
   name,
   description,
+  creatorName,
   storyCount,
   isExpanded,
   onToggle,
@@ -31,6 +34,7 @@ export function EpicFolder({
   emptyAction,
   children,
   isUncategorized = false,
+  discussion,
 }: EpicFolderProps) {
   const contentId = `epic-folder-content-${id}`;
 
@@ -108,6 +112,15 @@ export function EpicFolder({
                 </span>
 
                 {headerExtra}
+
+                {creatorName && (
+                  <>
+                    <span className="text-[rgba(74,61,100,0.2)] text-xs hidden sm:inline">•</span>
+                    <span className="text-[10px] sm:text-[11px] font-medium text-[#706C7D]">
+                      Created by {creatorName}
+                    </span>
+                  </>
+                )}
               </span>
 
               {description && (
@@ -130,9 +143,9 @@ export function EpicFolder({
         </div>
       </div>
 
-      {/* Folder Contents */}
       {isExpanded && (
         <div id={contentId} className="p-3 sm:p-4 bg-transparent animate-in fade-in-50 duration-150">
+          {discussion && <div className="mb-4">{discussion}</div>}
           {storyCount === 0 ? (
             <div className="rounded-xl border border-dashed border-[rgba(74,61,100,0.12)] bg-[#FAF9FC]/60 py-7 px-4 text-center">
               <p className="text-xs text-[#706C7D]">{emptyMessage}</p>

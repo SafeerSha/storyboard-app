@@ -273,8 +273,8 @@ export default function ClientNeedsActionPage() {
 
         {/* Loading Skeletons */}
         {loading && !data && (
-          <div className="space-y-4">
-            {[1, 2, 3].map((i) => (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            {[1, 2, 3, 4].map((i) => (
               <div
                 key={i}
                 className="animate-pulse rounded-[18px] border border-[rgba(74,61,100,0.08)] bg-white/70 p-5 shadow-sm"
@@ -326,7 +326,7 @@ export default function ClientNeedsActionPage() {
 
         {/* Stories List */}
         {!loading && stories.length > 0 && (
-          <div className="space-y-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
             {stories.map((story) => (
               <ClientStoryCard
                 key={story.id}
