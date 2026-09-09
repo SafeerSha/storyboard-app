@@ -167,7 +167,7 @@ export default function TeamReviewsPage() {
       const res = await fetch(`/api/team/reviews?${params.toString()}`);
       if (!res.ok) {
         if (res.status === 401) {
-          router.push("/team/login");
+          router.push("/login");
           return;
         }
         throw new Error("Failed to load review queue");

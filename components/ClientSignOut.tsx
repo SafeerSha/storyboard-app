@@ -12,7 +12,7 @@ export function ClientSignOut() {
       // Proceed
     }
     toast.flash("success", "Signed out successfully");
-    window.location.href = "/client/login";
+    window.location.href = "/login";
   }
 
   return (

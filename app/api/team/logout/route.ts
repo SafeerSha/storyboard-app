@@ -3,5 +3,5 @@ import { deleteTeamSession } from "@/lib/team-session";
 
 export async function POST() {
   await deleteTeamSession();
-  return NextResponse.json({ success: true, redirect: "/team/login" });
+  return NextResponse.json({ success: true, redirect: "/login" });
 }

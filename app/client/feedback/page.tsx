@@ -54,7 +54,7 @@ export default function ClientFeedbackInboxPage() {
       const res = await fetch("/api/client/feedback/inbox?limit=50");
       if (!res.ok) {
         if (res.status === 401) {
-          router.push("/client/login");
+          router.push("/login");
           return;
         }
         throw new Error("Failed to load feedback inbox");

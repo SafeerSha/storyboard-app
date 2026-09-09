@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowRight, Lock, Mail } from "lucide-react";
+import { ArrowRight, Lock, UserCircle } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { createClient } from "@/lib/supabase/client";
 
@@ -10,7 +10,7 @@ import { toast } from "@/lib/toast";
 import { StoryBoardLogo } from "@/components/brand/StoryBoardLogo";
 
 export function AuthForm() {
-  const [email, setEmail] = useState("");
+  const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -20,15 +20,40 @@ export function AuthForm() {
     e.preventDefault();
     setLoading(true);
     setError("");
-    const supabase = createClient();
+
     try {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) throw error;
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ identifier, password }),
+      });
+
+      const data = await res.json();
+
+      if (data.action === "SUPABASE_AUTH") {
+        const supabase = createClient();
+        const { error: authError } = await supabase.auth.signInWithPassword({
+          email: identifier,
+          password,
+        });
+
+        if (authError) throw authError;
+
+        toast.success("Login successful");
+        router.push("/");
+        router.refresh();
+        return;
+      }
+
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to sign in");
+      }
+
       toast.success("Login successful");
-      router.push("/");
+      router.push(data.redirectTo || "/");
       router.refresh();
-    } catch {
-      const userMessage = "Unable to sign in. Please check your credentials and try again.";
+    } catch (err: any) {
+      const userMessage = err?.message || "Unable to sign in. Please check your credentials and try again.";
       setError(userMessage);
       toast.error("Unable to sign in", "Please check your credentials and try again.");
     } finally {
@@ -41,7 +66,7 @@ export function AuthForm() {
       <div className="mb-6 sm:mb-8 text-center flex flex-col items-center">
         <StoryBoardLogo size="lg" variant="stacked" />
         <p className="mt-2 text-xs sm:text-sm text-[#706C7D]">
-          Sign in to manage client requirements, feature stories, and approvals.
+          Sign in to manage epic and stories.
         </p>
       </div>
 
@@ -51,20 +76,23 @@ export function AuthForm() {
       >
         <div>
           <label className="block text-xs font-semibold uppercase tracking-wider text-[#9994A5] mb-1.5">
-            Email Address
+            Login ID
           </label>
           <div className="relative">
-            <Mail
+            <UserCircle
               size={15}
               className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#9994A5]"
             />
             <input
-              type="email"
+              type="text"
               required
               autoFocus
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="name@company.com"
+              autoCapitalize="none"
+              autoCorrect="off"
+              spellCheck="false"
+              value={identifier}
+              onChange={(e) => setIdentifier(e.target.value)}
+              placeholder="Login Id"
               className="h-10 w-full rounded-xl border border-[rgba(74,61,100,0.11)] bg-white/85 pl-10 pr-3.5 text-sm text-[#252331] placeholder-[#9994A5] outline-none transition focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)]"
             />
           </div>

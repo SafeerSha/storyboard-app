@@ -325,7 +325,7 @@ export function ProjectWorkspace({
 
   function handleCopyClientLink() {
     if (typeof window === "undefined") return;
-    const url = `${window.location.origin}/client/login`;
+    const url = `${window.location.origin}/login`;
     navigator.clipboard.writeText(url);
     setCopiedLink(true);
     setTimeout(() => setCopiedLink(false), 2000);

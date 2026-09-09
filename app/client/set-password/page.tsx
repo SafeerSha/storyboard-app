@@ -11,7 +11,7 @@ export default async function SetPasswordPage() {
 
   // 1. If not authenticated, bounce to login
   if (!client) {
-    redirect("/client/login");
+    redirect("/login");
   }
 
   // 2. If password has already been set, forbid accessing onboarding; bounce to client portal

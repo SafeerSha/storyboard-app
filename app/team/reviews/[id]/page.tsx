@@ -12,7 +12,7 @@ export default async function StoryReviewPage({
 }) {
   const teamUser = await getAuthenticatedTeamUser();
   if (!teamUser) {
-    redirect("/team/login");
+    redirect("/login");
   }
 
   const { id: storyId } = await params;

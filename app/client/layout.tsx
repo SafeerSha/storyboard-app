@@ -10,7 +10,7 @@ export default async function ClientRootLayout({
 }) {
   const client = await getAuthenticatedClient({ allowPendingPasswordChange: true });
 
-  // If unauthenticated or password setup pending (e.g. /client/login or /client/set-password),
+  // If unauthenticated or password setup pending (e.g. /login or /client/set-password),
   // render children directly without sidebar
   if (!client || !client.is_password_changed) {
     return <>{children}</>;

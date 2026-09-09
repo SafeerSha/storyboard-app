@@ -100,7 +100,7 @@ export function TeamWorkspace({
 
   // Filter and Folding state (Record ensures pure serializable state and reliable re-rendering)
   const [epicFilter, setEpicFilter] = useState<string>("all");
-  const [collapsedEpicIds, setCollapsedEpicIds] = useState<Record<string, boolean>>({});
+  const [expandedEpicIds, setExpandedEpicIds] = useState<Set<string>>(() => new Set());
 
   // ConfirmDialog states
   const [deletingStoryId, setDeletingStoryId] = useState<string | null>(null);
@@ -151,10 +151,11 @@ export function TeamWorkspace({
       if (target) {
         setEditingStory(target);
         if (target.epic_id) {
-          setCollapsedEpicIds((prev) => ({
-            ...prev,
-            [target.epic_id!]: false,
-          }));
+          setExpandedEpicIds((prev) => {
+            const next = new Set(prev);
+            next.add(target.epic_id!);
+            return next;
+          });
         }
       }
     }
@@ -174,26 +175,31 @@ export function TeamWorkspace({
 
   // Folding controls
   const toggleEpic = useCallback((epicId: string) => {
-    setCollapsedEpicIds((prev) => ({
-      ...prev,
-      [epicId]: !prev[epicId],
-    }));
+    setExpandedEpicIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(epicId)) {
+        next.delete(epicId);
+      } else {
+        next.add(epicId);
+      }
+      return next;
+    });
   }, []);
 
   const foldAllEpics = useCallback(() => {
-    setCollapsedEpicIds(() => {
-      const next: Record<string, boolean> = {};
+    setExpandedEpicIds(new Set());
+  }, []);
+
+  const expandAllEpics = useCallback(() => {
+    setExpandedEpicIds(() => {
+      const next = new Set<string>();
       epics.forEach((e) => {
-        next[e.id] = true;
+        next.add(e.id);
       });
-      next["uncategorized"] = true;
+      next.add("uncategorized");
       return next;
     });
   }, [epics]);
-
-  const expandAllEpics = useCallback(() => {
-    setCollapsedEpicIds({});
-  }, []);
 
   // Epic Actions
   function openCreateEpic(name = "") {
@@ -660,7 +666,7 @@ export function TeamWorkspace({
                       description={epic.description}
                       creatorName={projectTeamMembers.find(tm => tm.id === epic.created_by_id)?.name || undefined}
                       storyCount={epicStories.length}
-                      isExpanded={!collapsedEpicIds[epic.id]}
+                      isExpanded={expandedEpicIds.has(epic.id)}
                       onToggle={() => toggleEpic(epic.id)}
                       headerExtra={
                         <span className="flex items-center gap-1.5 text-[11px] font-medium">
@@ -752,7 +758,7 @@ export function TeamWorkspace({
                     name="Uncategorized"
                     description="Requirements not assigned to an Epic. Select a story to assign it to an Epic."
                     storyCount={uncategorizedStories.length}
-                    isExpanded={!collapsedEpicIds["uncategorized"]}
+                    isExpanded={expandedEpicIds.has("uncategorized")}
                     onToggle={() => toggleEpic("uncategorized")}
                     isUncategorized={true}
                   >

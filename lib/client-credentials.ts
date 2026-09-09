@@ -37,7 +37,7 @@ export function generateTemporaryPassword(): string {
  *
  * Example:
  * Login Portal:
- * http://localhost:3001/client/login
+ * http://localhost:3001/login
  *
  * Login PIN:
  * 713272

@@ -10,7 +10,7 @@ export default async function TeamRootLayout({
 }) {
   const teamUser = await getAuthenticatedTeamUser();
 
-  // If no team session (e.g. /team/login), render children directly without sidebar
+  // If no team session (e.g. /login), render children directly without sidebar
   if (!teamUser) {
     return <>{children}</>;
   }

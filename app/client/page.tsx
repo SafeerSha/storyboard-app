@@ -21,7 +21,7 @@ export const dynamic = "force-dynamic";
 
 export default async function ClientOverviewPage() {
   const client = await getAuthenticatedClient({ allowPendingPasswordChange: true });
-  if (!client) redirect("/client/login");
+  if (!client) redirect("/login");
   if (!client.is_password_changed) redirect("/client/set-password");
 
   const db = createAdminClient();

@@ -122,7 +122,7 @@ export default function ClientChangesRequestedPage() {
 
       if (!storiesRes.ok) {
         if (storiesRes.status === 401) {
-          router.push("/client/login");
+          router.push("/login");
           return;
         }
         throw new Error("Failed to load changes requested");

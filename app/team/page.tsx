@@ -12,7 +12,7 @@ export default async function TeamDashboardPage({
 }) {
   const teamUser = await getAuthenticatedTeamUser();
   if (!teamUser) {
-    redirect("/team/login");
+    redirect("/login");
   }
 
   const resolvedParams = searchParams ? await searchParams : {};

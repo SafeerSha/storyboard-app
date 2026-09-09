@@ -98,7 +98,7 @@ export function TeamSidebar({
       // Proceed with redirect regardless
     }
     toast.flash("success", "Signed out successfully");
-    window.location.href = "/team/login";
+    window.location.href = "/login";
   }
 
   const closeMobile = () => setMobileOpen(false);

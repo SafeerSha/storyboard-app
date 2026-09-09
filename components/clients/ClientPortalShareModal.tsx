@@ -53,12 +53,12 @@ export function ClientPortalShareModal({
   const portalUrl =
     customPortalUrl ||
     (process.env.NEXT_PUBLIC_APP_URL
-      ? `${process.env.NEXT_PUBLIC_APP_URL.replace(/\/+$/, "")}/client/login`
+      ? `${process.env.NEXT_PUBLIC_APP_URL.replace(/\/+$/, "")}/login`
       : process.env.NEXT_PUBLIC_SITE_URL
-      ? `${process.env.NEXT_PUBLIC_SITE_URL.replace(/\/+$/, "")}/client/login`
+      ? `${process.env.NEXT_PUBLIC_SITE_URL.replace(/\/+$/, "")}/login`
       : typeof window !== "undefined"
-      ? `${window.location.origin}/client/login`
-      : "/client/login");
+      ? `${window.location.origin}/login`
+      : "/login");
 
   const initials = client.name
     ? client.name

@@ -100,7 +100,7 @@ export function ClientSidebar({
       // Proceed with redirect regardless
     }
     toast.flash("success", "Signed out successfully");
-    window.location.href = "/client/login";
+    window.location.href = "/login";
   }
 
   const closeMobile = () => setMobileOpen(false);
@@ -110,7 +110,7 @@ export function ClientSidebar({
   const mobileDockItems: MobileDockItem[] = [
     {
       id: "dock-client-stories",
-      label: "Stories",
+      label: "Overview",
       href: "/client",
       icon: LayoutDashboard,
       isActive: pathname === "/client",
@@ -249,30 +249,6 @@ export function ClientSidebar({
         </div>
       </div>
 
-      {/* Epics List */}
-      {epics.length > 0 && (
-        <div>
-          <div className="px-1 pb-2 text-xs font-bold uppercase tracking-wider text-zinc-500 flex items-center justify-between">
-            <span>EPICS</span>
-            <span className="text-xs text-zinc-500 font-bold">{epics.length}</span>
-          </div>
-          <div className="rounded-2xl border border-zinc-200 bg-zinc-50 divide-y divide-zinc-200 overflow-hidden shadow-2xs">
-            {epics.map((epic) => (
-              <a
-                key={epic.id}
-                href={`/client#epic-folder-${epic.id}`}
-                onClick={closeMobile}
-                className="flex items-center justify-between px-3.5 py-2.5 text-xs text-zinc-800 font-bold hover:bg-white hover:text-zinc-950 transition-colors"
-              >
-                <span className="truncate">{epic.name}</span>
-                <span className="rounded-full bg-zinc-200 px-2 py-0.5 text-[10px] font-bold text-zinc-800">
-                  {epic.storyCount}
-                </span>
-              </a>
-            ))}
-          </div>
-        </div>
-      )}
     </div>
   );
 

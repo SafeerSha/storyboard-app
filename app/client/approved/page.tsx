@@ -98,7 +98,7 @@ export default function ClientApprovedPage() {
       const res = await fetch(`/api/client/stories/paginated?${params.toString()}`);
       if (!res.ok) {
         if (res.status === 401) {
-          router.push("/client/login");
+          router.push("/login");
           return;
         }
         throw new Error("Failed to load approved stories");
