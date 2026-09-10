@@ -33,6 +33,7 @@ import {
   Clock,
   XCircle,
   FileText,
+  Trash2,
 } from "lucide-react";
 
 type Project = {
@@ -767,6 +768,23 @@ export function RemunerationClient({
     }
   };
 
+  const handleDeleteQuotation = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this quotation permanently?")) return;
+    try {
+      const res = await fetch(`/api/remuneration/${id}`, { method: "DELETE" });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      
+      toast.success("Quotation deleted successfully.");
+      if (currentEstimateId === id) {
+        setCurrentEstimateId(null);
+      }
+      fetchData();
+    } catch (err: any) {
+      toast.error(err.message || "Failed to delete quotation.");
+    }
+  };
+
   const handleExportExcel = async () => {
     if (!estimateData) return;
     try {
@@ -1350,6 +1368,16 @@ export function RemunerationClient({
                               Recall Quotation
                             </Button>
                           </>
+                        )}
+                        {!(pubStatus === "published" || pubStatus === "negotiating" || pubStatus === "approved") && (
+                          <Button
+                            variant="outline"
+                            onClick={() => handleDeleteQuotation(est.id)}
+                            className="flex items-center gap-1.5 text-xs py-1.5 px-3 border-rose-200 text-rose-700 hover:bg-rose-50 hover:border-rose-300 font-semibold"
+                          >
+                            <Trash2 className="w-3.5 h-3.5 text-rose-600" />
+                            Delete
+                          </Button>
                         )}
                       </div>
 
