@@ -44,6 +44,11 @@ export function ClientStoryReview({
           const data = await res.json();
           if (isMounted && data.threads) {
             setThreads(data.threads);
+            const openCount = data.threads.filter((t: any) => t.status === "open").length;
+            if (openCount === 0 && storyStatus === "changes_requested") {
+              setStoryStatus("review");
+              if (onStatusChange) onStatusChange("review");
+            }
           }
         }
       } catch {
@@ -54,7 +59,7 @@ export function ClientStoryReview({
     return () => {
       isMounted = false;
     };
-  }, [story.id]);
+  }, [story.id, storyStatus, onStatusChange]);
 
   const openThreadsCount = threads.filter((t) => t.status === "open").length;
 
@@ -64,6 +69,7 @@ export function ClientStoryReview({
     if (onStatusChange) onStatusChange("changes_requested");
     if (typeof window !== "undefined") {
       window.dispatchEvent(new CustomEvent("storyboard:client-review-updated"));
+      window.dispatchEvent(new CustomEvent("storyboard:review-updated"));
     }
   }
 
@@ -75,18 +81,41 @@ export function ClientStoryReview({
     );
     if (typeof window !== "undefined") {
       window.dispatchEvent(new CustomEvent("storyboard:client-review-updated"));
+      window.dispatchEvent(new CustomEvent("storyboard:review-updated"));
     }
   }
 
   function handleStatusUpdated(
     threadId: string,
-    nextStatus: FeedbackThreadStatus
+    nextStatus: FeedbackThreadStatus,
+    syncResult?: any
   ) {
-    setThreads((prev) =>
-      prev.map((t) => (t.id === threadId ? { ...t, status: nextStatus } : t))
-    );
+    setThreads((prev) => {
+      const updated = prev.map((t) => (t.id === threadId ? { ...t, status: nextStatus } : t));
+      const stillOpen = updated.filter((t) => t.status === "open").length;
+
+      if (stillOpen === 0) {
+        if (storyStatus === "changes_requested") {
+          setStoryStatus("review");
+          if (onStatusChange) onStatusChange("review");
+        }
+      } else {
+        if (storyStatus !== "approved" && storyStatus !== "in_development" && storyStatus !== "completed") {
+          setStoryStatus("changes_requested");
+          if (onStatusChange) onStatusChange("changes_requested");
+        }
+      }
+
+      if (syncResult?.status && syncResult.status !== storyStatus) {
+        setStoryStatus(syncResult.status);
+        if (onStatusChange) onStatusChange(syncResult.status);
+      }
+
+      return updated;
+    });
     if (typeof window !== "undefined") {
       window.dispatchEvent(new CustomEvent("storyboard:client-review-updated"));
+      window.dispatchEvent(new CustomEvent("storyboard:review-updated"));
     }
   }
 

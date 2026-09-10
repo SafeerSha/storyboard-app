@@ -286,12 +286,100 @@ export type RemunerationStoryEstimate = {
   database_hours: number;
   integration_hours: number;
   testing_hours: number;
+  unit_testing_hours?: number;
   confidence: string | null;
   reasoning: string | null;
   assumptions: string[] | null;
   risks: string[] | null;
   created_at: string;
   updated_at: string;
+};
+
+export type RemunerationScope = "frontend" | "backend" | "both";
+
+export type RemunerationServiceRates = {
+  frontend?: number;
+  backend?: number;
+  dbDesign?: number;
+  unitTesting?: number;
+  deployment?: number;
+  effectiveRate?: number;
+};
+
+export type RemunerationPublishingStatus =
+  | "draft"
+  | "published"
+  | "negotiating"
+  | "approved"
+  | "rejected"
+  | "recalled";
+
+export type RemunerationDiscussionMessage = {
+  id: string;
+  author_id: string;
+  author_name: string;
+  author_type: "client" | "freelancer";
+  message: string;
+  proposed_hours?: number;
+  proposed_amount?: number;
+  created_at: string;
+};
+
+export type RemunerationDiscussionThread = {
+  id: string;
+  section_key: string; // e.g. "summary", "database_design", "unit_testing", "deployment", "story_<id>"
+  section_title: string;
+  status: "open" | "resolved";
+  messages: RemunerationDiscussionMessage[];
+  created_at: string;
+  updated_at: string;
+};
+
+export type RemunerationClientAction = {
+  status: "pending" | "approved" | "rejected" | "negotiating";
+  decided_at?: string;
+  decided_by_client_id?: string;
+  decided_by_client_name?: string;
+  notes?: string;
+};
+
+export type PublishedClientDetail = {
+  id: string;
+  name: string;
+  email?: string;
+};
+
+export type RemunerationPublishingInfo = {
+  status: RemunerationPublishingStatus;
+  published_at?: string;
+  published_to_client_ids: string[];
+  published_to_clients?: PublishedClientDetail[];
+  previous_client_ids?: string[];
+  previous_clients?: PublishedClientDetail[];
+  client_emails?: Record<string, string>;
+  from_email?: string;
+  publish_note?: string;
+  recalled_at?: string;
+  recall_reason?: string;
+  estimate_label?: string;
+  client_action?: RemunerationClientAction;
+  discussions?: Record<string, RemunerationDiscussionThread>; // keyed by section_key
+};
+
+export type RemunerationProjectSummary = {
+  complexity: string;
+  summary: string;
+  estimate_label?: string;
+  risks?: string[];
+  assumptions?: string[];
+  scope?: RemunerationScope;
+  includeDbDesign?: boolean;
+  includeUnitTesting?: boolean;
+  includeDeployment?: boolean;
+  deploymentHours?: number;
+  rates?: RemunerationServiceRates;
+  effectiveRate?: number;
+  publishing?: RemunerationPublishingInfo;
 };
 
 export type RemunerationEstimate = {
@@ -306,7 +394,7 @@ export type RemunerationEstimate = {
   base_amount: number;
   contingency_amount: number;
   final_amount: number;
-  project_summary: any | null;
+  project_summary: RemunerationProjectSummary | any;
   created_at: string;
   updated_at: string;
   story_estimates?: RemunerationStoryEstimate[];

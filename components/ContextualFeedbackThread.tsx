@@ -37,7 +37,7 @@ interface ContextualFeedbackThreadProps {
   isReadOnly?: boolean;
   onThreadCreated?: (thread: FeedbackThread) => void;
   onMessageAdded?: (threadId: string, message: FeedbackMessage) => void;
-  onStatusUpdated?: (threadId: string, status: FeedbackThreadStatus) => void;
+  onStatusUpdated?: (threadId: string, status: FeedbackThreadStatus, syncResult?: any) => void;
 }
 
 export function ContextualFeedbackThread({
@@ -163,12 +163,13 @@ export function ContextualFeedbackThread({
       if (!res.ok) throw new Error(data.error || "Failed to update status");
 
       if (onStatusUpdated) {
-        onStatusUpdated(threadId, nextStatus);
+        onStatusUpdated(threadId, nextStatus, data.syncResult);
       }
       if (typeof window !== "undefined") {
         window.dispatchEvent(new CustomEvent("storyboard:review-updated"));
+        window.dispatchEvent(new CustomEvent("storyboard:client-review-updated"));
       }
-      toast.success("Thread resolved");
+      toast.success(nextStatus === "resolved" ? "Thread resolved" : "Thread reopened");
     } catch {
       toast.error("Unable to update status");
     } finally {

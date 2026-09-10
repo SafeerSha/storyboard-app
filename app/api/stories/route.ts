@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getAuthenticatedTeamUser } from "@/lib/team-session";
 import { getReviewersForStories, isTeamUserProjectMember, syncFreelancerToTeam } from "@/lib/story-reviewer-auth";
+import { autoSyncStoriesFeedbackStatus } from "@/lib/feedback-store";
 import { z } from "zod";
 
 const schema = z.object({
@@ -83,10 +84,16 @@ export async function GET(req: Request) {
 
   const storyList = stories ?? [];
   const storyIds = storyList.map((s) => s.id);
-  const reviewersMap = await getReviewersForStories(storyIds);
+  const [reviewersMap, healed] = await Promise.all([
+    getReviewersForStories(storyIds),
+    autoSyncStoriesFeedbackStatus(storyIds),
+  ]);
 
   const enriched = storyList.map((s) => ({
     ...s,
+    status: healed[s.id]?.status || s.status,
+    client_review_status: (healed[s.id]?.clientReviewStatus as any) || s.client_review_status,
+    team_review_status: (healed[s.id]?.teamReviewStatus as any) || s.team_review_status,
     reviewer_ids: (reviewersMap[s.id] || []).map((r) => r.user_id),
     reviewers: reviewersMap[s.id] || [],
   }));

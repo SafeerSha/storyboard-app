@@ -44,13 +44,19 @@ export async function GET() {
     // Get previous estimates
     const { data: savedEstimates } = await admin
       .from("remuneration_estimates")
-      .select("id, project_id, hourly_rate, currency, final_amount, created_at, ai_total_hours, final_total_hours, contingency_percentage")
+      .select("id, project_id, hourly_rate, currency, final_amount, created_at, ai_total_hours, final_total_hours, contingency_percentage, project_summary")
       .eq("created_by", user.id)
       .order("created_at", { ascending: false });
+
+    // Fetch clients so UI can display recipient client names and emails for any estimate
+    const { data: allClients } = await admin
+      .from("clients")
+      .select("id, name, email, login_id, project_id");
 
     return NextResponse.json({
       projects: projectsData,
       savedEstimates: savedEstimates || [],
+      clients: allClients || [],
     });
   } catch (err: any) {
     return NextResponse.json({ error: err.message || "Internal server error" }, { status: 500 });

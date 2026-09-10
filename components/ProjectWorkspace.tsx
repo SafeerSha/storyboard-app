@@ -29,7 +29,7 @@ import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { DropdownMenu } from "@/components/ui/DropdownMenu";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { toast } from "@/lib/toast";
-import type { Story, Epic } from "@/lib/types";
+import type { Story, Epic, StoryStatus } from "@/lib/types";
 import { EpicFolder } from "@/components/epics/EpicFolder";
 import { EpicFeedbackThread } from "@/components/epics/EpicFeedbackThread";
 import { VoiceTextarea } from "@/components/ui/VoiceTextarea";
@@ -128,11 +128,64 @@ export function ProjectWorkspace({
     }
   }, [projectId]);
 
+  const reloadStories = useCallback(async () => {
+    try {
+      const res = await fetch(`/api/stories?projectId=${projectId}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.stories) setStories(data.stories);
+      }
+    } catch {
+      // Silently catch
+    }
+  }, [projectId]);
+
+  const handleFeedbackChange = useCallback((updatedStoryId?: string, newStatus?: StoryStatus) => {
+    loadFeedbackCounts();
+    if (updatedStoryId && newStatus) {
+      setStories((prev) =>
+        prev.map((s) => (s.id === updatedStoryId ? { ...s, status: newStatus } : s))
+      );
+      setEditing((prev: any) =>
+        prev && prev.id === updatedStoryId ? { ...prev, status: newStatus } : prev
+      );
+    }
+  }, [loadFeedbackCounts]);
+
+  useEffect(() => {
+    const handleReviewUpdate = () => {
+      loadFeedbackCounts();
+      reloadStories();
+    };
+    window.addEventListener("storyboard:review-updated", handleReviewUpdate);
+    return () => {
+      window.removeEventListener("storyboard:review-updated", handleReviewUpdate);
+    };
+  }, [loadFeedbackCounts, reloadStories]);
+
   useEffect(() => {
     setStories(initialStories);
     setEpics(initialEpics);
     loadFeedbackCounts();
   }, [initialStories, initialEpics, loadFeedbackCounts]);
+
+  // Support direct deep-linking to a specific story via query params (?story=id or ?storyId=id)
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    const targetStoryId = params.get("story") || params.get("storyId");
+    if (targetStoryId && stories.length > 0) {
+      const found = stories.find(
+        (s) => s.id === targetStoryId || s.id.startsWith(targetStoryId) || targetStoryId.startsWith(s.id)
+      );
+      if (found) {
+        setEditing(found);
+        if (found.epic_id) {
+          setCollapsedEpicIds((prev) => ({ ...prev, [found.epic_id!]: false }));
+        }
+      }
+    }
+  }, [stories]);
 
   // Prevent background scroll bleed when full-screen story inspector is open on mobile
   useEffect(() => {
@@ -681,7 +734,7 @@ export function ProjectWorkspace({
                   viewerType="freelancer"
                   isReviewer={true}
                   onCancel={() => setEditing(null)}
-                  onFeedbackChange={loadFeedbackCounts}
+                  onFeedbackChange={handleFeedbackChange}
                   onSave={async (updated) => {
                     await updateStory(editing.id, {
                       title: updated.title,

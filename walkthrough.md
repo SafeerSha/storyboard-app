@@ -34,3 +34,26 @@ I have successfully replaced the public signup system with a secure, role-based 
 - Passwords are never stored in plaintext (handled natively by Supabase).
 - No service keys are exposed to the browser.
 - Privilege escalation is prevented because the `freelancer_profiles` table does not allow INSERT/UPDATE via public RLS—only the server-side admin client can assign the `super_admin` role.
+
+## 6. Executive Estimation & Scope Email Redesign
+- **Standard Professional Visuals**: Redesigned `lib/email/templates/base.ts` and `lib/email/templates/quotation-published.ts` to follow premier B2B SaaS and enterprise agency conventions (like Stripe, Apple, and Linear).
+- **Executive Hierarchy**:
+  1. **Header**: Dark brand banner (`#09090b`) with gold signature accent (`#B8944E`) and status pill badge.
+  2. **Hero Metrics**: Dual-column executive KPI card displaying **Total Estimated Effort** (`hrs`) and **Total Proposed Investment** (`$`).
+  3. **Specification Table**: Formal metadata table showing Project Name, Project Lead, Document Format (Itemized PDF + Interactive Client Portal), and Client Portal PIN.
+  4. **Lead Note**: Subtle executive blockquote styling for custom freelancer notes.
+  5. **Discussion Callout**: Dedicated notice explaining that clients can inspect time breakdowns, leave comments, or submit counter-offers directly in the portal.
+  6. **Primary CTA**: Prominent, high-contrast action button: `Review & Discuss Estimation →`.
+  7. **PDF Attachment Badge**: Clean `[PDF]` badge indicating that an itemized PDF copy has been attached to the email for procurement and offline accounting.
+  8. **Direct Portal Link & Note**: Dedicated reference box with raw link and explicit instruction: *"Click the link above to review, discuss, and negotiate on the estimation directly in your Client Portal."*
+  9. **Sign-off & Footer**: Formal sign-off from the project lead and confidential legal disclaimer.
+## 7. Editable Story Test Hours & Instant Estimation Recalculation
+- **Interactive Test Hours Inputs**:
+  - **In the story badges**: Replaced static `Tests: 1h` badge with an interactive, editable numeric input badge `Tests: [ 1 ] h` (with step `0.1` / `0.5`).
+  - **In the calculation panel**: Added a dedicated `Test Hours [ 1 ] h` row right above `Final Hours`.
+- **Instant Estimation Recalculation**:
+  - Updating test hours immediately calculates the delta and updates `final_hours`.
+  - Story `Amount` (`storyCost`) updates instantly based on the active discipline rate or base rate.
+  - Overall project totals (**Estimated Hours**, **Final Total Hours**, **Base Amount**, **Contingency Buffer**, and **Total Proposed Investment**) all recalculate instantly without needing to reload or re-analyze.
+  - Saving to database, exporting to PDF/Excel, and publishing to Client Portal all preserve and transmit the custom test hours.
+

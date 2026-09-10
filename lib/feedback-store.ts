@@ -1,5 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/admin";
-import type { FeedbackThread, FeedbackMessage, FeedbackSectionType, FeedbackThreadStatus, FeedbackAuthorType } from "@/lib/types";
+import type { FeedbackThread, FeedbackMessage, FeedbackSectionType, FeedbackThreadStatus, FeedbackAuthorType, StoryStatus } from "@/lib/types";
 
 import { getAuthenticatedTeamUser } from "@/lib/team-session";
 import { getAuthenticatedClient } from "@/lib/client-session";
@@ -426,6 +426,169 @@ export async function addFeedbackMessage({
   };
 }
 
+export interface StorySyncResult {
+  storyId: string;
+  status: StoryStatus;
+  clientReviewStatus?: "pending" | "approved" | "changes_requested";
+  teamReviewStatus?: "pending" | "approved" | "changes_requested";
+  openFeedbackCount: number;
+}
+
+export async function syncStoryReviewStatus(storyId: string): Promise<StorySyncResult | null> {
+  const db = createAdminClient();
+
+  const { data: story, error } = await db
+    .from("stories")
+    .select("id, status, client_review_status, team_review_status")
+    .eq("id", storyId)
+    .maybeSingle();
+
+  if (error || !story) return null;
+
+  // Count open feedback threads
+  let totalOpen = 0;
+  let openClientCount = 0;
+  let openTeamCount = 0;
+
+  try {
+    const { data: threads, error: threadErr } = await db
+      .from("story_feedback_threads")
+      .select("id, status, created_by_type")
+      .eq("story_id", storyId);
+
+    if (!threadErr && threads) {
+      const openThreads = threads.filter((t: any) => t.status === "open");
+      totalOpen = openThreads.length;
+      openClientCount = openThreads.filter((t: any) => t.created_by_type === "client").length;
+      openTeamCount = openThreads.filter((t: any) => t.created_by_type === "team_user").length;
+    }
+  } catch {
+    // fallback below
+  }
+
+  // Fallback check if needed
+  if (totalOpen === 0) {
+    try {
+      const { data: comments } = await db
+        .from("story_comments")
+        .select("id, body")
+        .eq("story_id", storyId);
+
+      if (comments) {
+        for (const c of comments) {
+          if (typeof c.body === "string" && c.body.startsWith(FALLBACK_PREFIX)) {
+            try {
+              const p = JSON.parse(c.body.slice(FALLBACK_PREFIX.length));
+              if (p.status === "open") {
+                totalOpen++;
+                if (p.author_type === "client") openClientCount++;
+                if (p.author_type === "team_user") openTeamCount++;
+              }
+            } catch {
+              // ignore
+            }
+          }
+        }
+      }
+    } catch {
+      // ignore
+    }
+  }
+
+  let nextStatus = story.status;
+  let nextClientStatus = story.client_review_status;
+  let nextTeamStatus = story.team_review_status;
+
+  if (totalOpen === 0) {
+    // All feedback/discussions/clarifications are resolved!
+    // If status was changes_requested, revert to review
+    if (story.status === "changes_requested") {
+      nextStatus = "review";
+    }
+    // If client_review_status was changes_requested, revert to pending
+    if (story.client_review_status === "changes_requested") {
+      nextClientStatus = "pending";
+    }
+    // If team_review_status was changes_requested, revert to pending
+    if (story.team_review_status === "changes_requested") {
+      nextTeamStatus = "pending";
+    }
+  } else {
+    // There are still open threads
+    if (story.status !== "approved" && story.status !== "in_development" && story.status !== "completed") {
+      nextStatus = "changes_requested";
+    }
+    if (openClientCount > 0 || (totalOpen > 0 && openTeamCount === 0)) {
+      if (story.client_review_status !== "approved") {
+        nextClientStatus = "changes_requested";
+      }
+    }
+    if (openTeamCount > 0) {
+      if (story.team_review_status !== "approved") {
+        nextTeamStatus = "changes_requested";
+      }
+    }
+  }
+
+  const updates: Record<string, any> = {};
+  if (nextStatus !== story.status) updates.status = nextStatus;
+  if (nextClientStatus !== story.client_review_status) updates.client_review_status = nextClientStatus;
+  if (nextTeamStatus !== story.team_review_status) updates.team_review_status = nextTeamStatus;
+
+  if (Object.keys(updates).length > 0) {
+    updates.updated_at = new Date().toISOString();
+    await db.from("stories").update(updates).eq("id", storyId);
+  }
+
+  return {
+    storyId,
+    status: nextStatus as StoryStatus,
+    clientReviewStatus: nextClientStatus,
+    teamReviewStatus: nextTeamStatus,
+    openFeedbackCount: totalOpen,
+  };
+}
+
+export async function autoSyncStoriesFeedbackStatus(
+  storyIds: string[]
+): Promise<Record<string, { status: StoryStatus; clientReviewStatus?: string; teamReviewStatus?: string }>> {
+  if (!storyIds || storyIds.length === 0) return {};
+  const db = createAdminClient();
+
+  const { data: candidateStories, error } = await db
+    .from("stories")
+    .select("id, status, client_review_status, team_review_status")
+    .in("id", storyIds)
+    .or("status.eq.changes_requested,client_review_status.eq.changes_requested,team_review_status.eq.changes_requested");
+
+  if (error || !candidateStories || candidateStories.length === 0) return {};
+
+  const candidateIds = candidateStories.map((s) => s.id);
+  const openCounts = await getOpenFeedbackCountForStories(candidateIds);
+  const healed: Record<string, { status: StoryStatus; clientReviewStatus?: string; teamReviewStatus?: string }> = {};
+
+  for (const s of candidateStories) {
+    if ((openCounts[s.id] || 0) === 0) {
+      const updates: Record<string, any> = {};
+      if (s.status === "changes_requested") updates.status = "review";
+      if (s.client_review_status === "changes_requested") updates.client_review_status = "pending";
+      if (s.team_review_status === "changes_requested") updates.team_review_status = "pending";
+
+      if (Object.keys(updates).length > 0) {
+        updates.updated_at = new Date().toISOString();
+        await db.from("stories").update(updates).eq("id", s.id);
+        healed[s.id] = {
+          status: (updates.status || s.status) as StoryStatus,
+          clientReviewStatus: updates.client_review_status || s.client_review_status,
+          teamReviewStatus: updates.team_review_status || s.team_review_status,
+        };
+      }
+    }
+  }
+
+  return healed;
+}
+
 export async function updateFeedbackThreadStatus({
   storyId,
   threadId,
@@ -434,8 +597,9 @@ export async function updateFeedbackThreadStatus({
   storyId: string;
   threadId: string;
   status: FeedbackThreadStatus;
-}): Promise<{ ok: boolean }> {
+}): Promise<{ ok: boolean; syncResult?: StorySyncResult | null }> {
   const db = createAdminClient();
+  let updated = false;
 
   try {
     const { error } = await db
@@ -443,40 +607,49 @@ export async function updateFeedbackThreadStatus({
       .update({ status, updated_at: new Date().toISOString() })
       .eq("id", threadId);
 
-    if (!error) return { ok: true };
+    if (!error) updated = true;
   } catch {
     // Fallback below
   }
 
   // Fallback via story_comments: update all records with this thread_id
-  try {
-    const { data: comments } = await db
-      .from("story_comments")
-      .select("id, body")
-      .eq("story_id", storyId);
+  if (!updated) {
+    try {
+      const { data: comments } = await db
+        .from("story_comments")
+        .select("id, body")
+        .eq("story_id", storyId);
 
-    if (comments) {
-      for (const c of comments) {
-        if (typeof c.body === "string" && c.body.startsWith(FALLBACK_PREFIX)) {
-          try {
-            const p = JSON.parse(c.body.slice(FALLBACK_PREFIX.length));
-            if (p.thread_id === threadId) {
-              p.status = status;
-              await db
-                .from("story_comments")
-                .update({ body: FALLBACK_PREFIX + JSON.stringify(p) })
-                .eq("id", c.id);
+      if (comments) {
+        for (const c of comments) {
+          if (typeof c.body === "string" && c.body.startsWith(FALLBACK_PREFIX)) {
+            try {
+              const p = JSON.parse(c.body.slice(FALLBACK_PREFIX.length));
+              if (p.thread_id === threadId) {
+                p.status = status;
+                await db
+                  .from("story_comments")
+                  .update({ body: FALLBACK_PREFIX + JSON.stringify(p) })
+                  .eq("id", c.id);
+                updated = true;
+              }
+            } catch {
+              // ignore
             }
-          } catch {
-            // ignore
           }
         }
       }
+    } catch {
+      // ignore
     }
-    return { ok: true };
-  } catch {
-    return { ok: false };
   }
+
+  if (updated) {
+    const syncResult = await syncStoryReviewStatus(storyId);
+    return { ok: true, syncResult };
+  }
+
+  return { ok: false };
 }
 
 export async function updateFeedbackMessage({

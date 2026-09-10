@@ -25,6 +25,7 @@ import type {
   StoryStatus,
   FeedbackThread,
   FeedbackAuthorType,
+  FeedbackThreadStatus,
 } from "@/lib/types";
 
 interface StoryFormState {
@@ -71,7 +72,7 @@ export function StoryEditor({
   onCancel: () => void;
   onCreateEpic: (name: string) => void;
   onDelete?: () => void;
-  onFeedbackChange?: () => void;
+  onFeedbackChange?: (storyId?: string, newStatus?: StoryStatus) => void;
   viewerType?: FeedbackAuthorType;
   currentUserId?: string;
   isReviewer?: boolean;
@@ -153,13 +154,60 @@ export function StoryEditor({
     fetch(`/api/stories/${storyId}/feedback`)
       .then((r) => (r.ok ? r.json() : { threads: [] }))
       .then((d) => {
-        if (active && d.threads) setThreads(d.threads);
+        if (active && d.threads) {
+          setThreads(d.threads);
+          const openCount = d.threads.filter((t: any) => t.status === "open").length;
+          if (openCount === 0 && value.status === "changes_requested") {
+            setValue((v) => ({ ...v, status: "review" }));
+            onFeedbackChange?.(storyId, "review");
+          }
+        }
       })
       .catch(() => { });
     return () => {
       active = false;
     };
   }, [storyId]);
+
+  const handleThreadCreated = (t: FeedbackThread) => {
+    setThreads((prev) => [...prev, t]);
+    setValue((v) => ({ ...v, status: "changes_requested" }));
+    onFeedbackChange?.(storyId, "changes_requested");
+  };
+
+  const handleThreadStatusUpdated = (
+    threadId: string,
+    nextStatus: FeedbackThreadStatus,
+    syncResult?: any
+  ) => {
+    let computedStoryStatus: StoryStatus | undefined = syncResult?.status;
+
+    setThreads((prev) => {
+      const updated = prev.map((t) => (t.id === threadId ? { ...t, status: nextStatus } : t));
+      const stillOpen = updated.filter((t) => t.status === "open").length;
+
+      if (!computedStoryStatus) {
+        if (stillOpen === 0) {
+          if (value.status === "changes_requested") {
+            computedStoryStatus = "review";
+          }
+        } else {
+          if (value.status !== "approved" && value.status !== "in_development" && value.status !== "completed") {
+            computedStoryStatus = "changes_requested";
+          }
+        }
+      }
+
+      return updated;
+    });
+
+    if (computedStoryStatus && computedStoryStatus !== value.status) {
+      setValue((prev) => ({ ...prev, status: computedStoryStatus! }));
+    }
+
+    const finalStatus = computedStoryStatus || (value.status === "changes_requested" ? "review" : value.status);
+    onFeedbackChange?.(storyId, finalStatus);
+  };
 
   const updateList = (
     key: "acceptance_criteria" | "assumptions" | "clarifications",
@@ -410,10 +458,7 @@ export function StoryEditor({
                             viewerId={currentUserId}
                             isReadOnly={isReadOnly}
                             threads={threads}
-                            onThreadCreated={(t) => {
-                              setThreads((prev) => [...prev, t]);
-                              onFeedbackChange?.();
-                            }}
+                            onThreadCreated={handleThreadCreated}
                             onMessageAdded={(tid, m) => {
                               setThreads((prev) =>
                                 prev.map((t) =>
@@ -422,12 +467,7 @@ export function StoryEditor({
                               );
                               onFeedbackChange?.();
                             }}
-                            onStatusUpdated={(tid, s) => {
-                              setThreads((prev) =>
-                                prev.map((t) => (t.id === tid ? { ...t, status: s } : t))
-                              );
-                              onFeedbackChange?.();
-                            }}
+                            onStatusUpdated={handleThreadStatusUpdated}
                           />
                         </div>
                       )}
@@ -627,10 +667,7 @@ export function StoryEditor({
                             viewerType={effectiveViewer}
                             viewerId={currentUserId}
                             threads={threads}
-                            onThreadCreated={(t) => {
-                              setThreads((prev) => [...prev, t]);
-                              onFeedbackChange?.();
-                            }}
+                            onThreadCreated={handleThreadCreated}
                             onMessageAdded={(tid, m) => {
                               setThreads((prev) =>
                                 prev.map((t) =>
@@ -639,12 +676,7 @@ export function StoryEditor({
                               );
                               onFeedbackChange?.();
                             }}
-                            onStatusUpdated={(tid, s) => {
-                              setThreads((prev) =>
-                                prev.map((t) => (t.id === tid ? { ...t, status: s } : t))
-                              );
-                              onFeedbackChange?.();
-                            }}
+                            onStatusUpdated={handleThreadStatusUpdated}
                           />
                         </div>
                       )}
@@ -719,10 +751,7 @@ export function StoryEditor({
                             viewerId={currentUserId}
                             isReadOnly={isReadOnly}
                             threads={threads}
-                            onThreadCreated={(t) => {
-                              setThreads((prev) => [...prev, t]);
-                              onFeedbackChange?.();
-                            }}
+                            onThreadCreated={handleThreadCreated}
                             onMessageAdded={(tid, m) => {
                               setThreads((prev) =>
                                 prev.map((t) =>
@@ -731,12 +760,7 @@ export function StoryEditor({
                               );
                               onFeedbackChange?.();
                             }}
-                            onStatusUpdated={(tid, s) => {
-                              setThreads((prev) =>
-                                prev.map((t) => (t.id === tid ? { ...t, status: s } : t))
-                              );
-                              onFeedbackChange?.();
-                            }}
+                            onStatusUpdated={handleThreadStatusUpdated}
                           />
                         </div>
                       )}
@@ -765,10 +789,7 @@ export function StoryEditor({
                   viewerId={currentUserId}
                   isReadOnly={isReadOnly}
                   threads={threads}
-                  onThreadCreated={(t) => {
-                    setThreads((prev) => [...prev, t]);
-                    onFeedbackChange?.();
-                  }}
+                  onThreadCreated={handleThreadCreated}
                   onMessageAdded={(tid, m) => {
                     setThreads((prev) =>
                       prev.map((t) =>
@@ -777,12 +798,7 @@ export function StoryEditor({
                     );
                     onFeedbackChange?.();
                   }}
-                  onStatusUpdated={(tid, s) => {
-                    setThreads((prev) =>
-                      prev.map((t) => (t.id === tid ? { ...t, status: s } : t))
-                    );
-                    onFeedbackChange?.();
-                  }}
+                  onStatusUpdated={handleThreadStatusUpdated}
                 />
               </div>
             )}
@@ -1034,10 +1050,7 @@ export function StoryEditor({
                           viewerId={currentUserId}
                           isReadOnly={isReadOnly}
                           threads={threads}
-                          onThreadCreated={(t) => {
-                            setThreads((prev) => [...prev, t]);
-                            onFeedbackChange?.();
-                          }}
+                          onThreadCreated={handleThreadCreated}
                           onMessageAdded={(tid, m) => {
                             setThreads((prev) =>
                               prev.map((t) =>
@@ -1046,12 +1059,7 @@ export function StoryEditor({
                             );
                             onFeedbackChange?.();
                           }}
-                          onStatusUpdated={(tid, s) => {
-                            setThreads((prev) =>
-                              prev.map((t) => (t.id === tid ? { ...t, status: s } : t))
-                            );
-                            onFeedbackChange?.();
-                          }}
+                          onStatusUpdated={handleThreadStatusUpdated}
                         />
                       </div>
                     )}
@@ -1125,10 +1133,7 @@ export function StoryEditor({
                           viewerType={effectiveViewer}
                           viewerId={currentUserId}
                           threads={threads}
-                          onThreadCreated={(t) => {
-                            setThreads((prev) => [...prev, t]);
-                            onFeedbackChange?.();
-                          }}
+                          onThreadCreated={handleThreadCreated}
                           onMessageAdded={(tid, m) => {
                             setThreads((prev) =>
                               prev.map((t) =>
@@ -1137,12 +1142,7 @@ export function StoryEditor({
                             );
                             onFeedbackChange?.();
                           }}
-                          onStatusUpdated={(tid, s) => {
-                            setThreads((prev) =>
-                              prev.map((t) => (t.id === tid ? { ...t, status: s } : t))
-                            );
-                            onFeedbackChange?.();
-                          }}
+                          onStatusUpdated={handleThreadStatusUpdated}
                         />
                       </div>
                     )}
@@ -1217,10 +1217,7 @@ export function StoryEditor({
                           viewerId={currentUserId}
                           isReadOnly={isReadOnly}
                           threads={threads}
-                          onThreadCreated={(t) => {
-                            setThreads((prev) => [...prev, t]);
-                            onFeedbackChange?.();
-                          }}
+                          onThreadCreated={handleThreadCreated}
                           onMessageAdded={(tid, m) => {
                             setThreads((prev) =>
                               prev.map((t) =>
@@ -1229,12 +1226,7 @@ export function StoryEditor({
                             );
                             onFeedbackChange?.();
                           }}
-                          onStatusUpdated={(tid, s) => {
-                            setThreads((prev) =>
-                              prev.map((t) => (t.id === tid ? { ...t, status: s } : t))
-                            );
-                            onFeedbackChange?.();
-                          }}
+                          onStatusUpdated={handleThreadStatusUpdated}
                         />
                       </div>
                     )}
@@ -1263,10 +1255,7 @@ export function StoryEditor({
                 viewerId={currentUserId}
                 isReadOnly={isReadOnly}
                 threads={threads}
-                onThreadCreated={(t) => {
-                  setThreads((prev) => [...prev, t]);
-                  onFeedbackChange?.();
-                }}
+                onThreadCreated={handleThreadCreated}
                 onMessageAdded={(tid, m) => {
                   setThreads((prev) =>
                     prev.map((t) =>
@@ -1275,12 +1264,7 @@ export function StoryEditor({
                   );
                   onFeedbackChange?.();
                 }}
-                onStatusUpdated={(tid, s) => {
-                  setThreads((prev) =>
-                    prev.map((t) => (t.id === tid ? { ...t, status: s } : t))
-                  );
-                  onFeedbackChange?.();
-                }}
+                onStatusUpdated={handleThreadStatusUpdated}
               />
             </div>
           )}

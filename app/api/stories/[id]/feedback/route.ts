@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getAuthenticatedClient } from "@/lib/client-session";
 import { getAuthenticatedTeamUser } from "@/lib/team-session";
-import { getStoryFeedback, createFeedbackThread, resolveSession } from "@/lib/feedback-store";
+import { getStoryFeedback, createFeedbackThread, resolveSession, syncStoryReviewStatus } from "@/lib/feedback-store";
 import { isTeamUserReviewer } from "@/lib/story-reviewer-auth";
 import type { FeedbackAuthorType, FeedbackSectionType } from "@/lib/types";
 
@@ -89,7 +89,9 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
         .eq("id", id);
     }
 
-    return NextResponse.json({ ok: true, thread });
+    const syncResult = await syncStoryReviewStatus(id);
+
+    return NextResponse.json({ ok: true, thread, syncResult });
   } catch (e) {
     return NextResponse.json(
       { error: e instanceof Error ? e.message : "Failed to create feedback" },

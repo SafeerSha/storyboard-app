@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getAuthenticatedClient } from "@/lib/client-session";
-import { getOpenFeedbackCountForStories } from "@/lib/feedback-store";
+import { getOpenFeedbackCountForStories, autoSyncStoriesFeedbackStatus } from "@/lib/feedback-store";
 
 export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id: projectId } = await params;
@@ -43,6 +43,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
       .eq("project_id", projectId);
 
     const storyIds = (stories || []).map(s => s.id);
+    await autoSyncStoriesFeedbackStatus(storyIds);
     const counts = await getOpenFeedbackCountForStories(storyIds);
 
     return NextResponse.json({ counts });

@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { getAuthenticatedTeamUser } from "@/lib/team-session";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getReviewersForStories, isTeamUserProjectMember } from "@/lib/story-reviewer-auth";
+import { autoSyncStoriesFeedbackStatus } from "@/lib/feedback-store";
 import { TeamWorkspace } from "@/components/TeamWorkspace";
 import type { Story, Epic } from "@/lib/types";
 
@@ -83,10 +84,16 @@ export default async function TeamDashboardPage({
 
   const storyList = (storiesData || []) as Story[];
   const storyIds = storyList.map((s) => s.id);
-  const reviewersMap = await getReviewersForStories(storyIds);
+  const [reviewersMap, healed] = await Promise.all([
+    getReviewersForStories(storyIds),
+    autoSyncStoriesFeedbackStatus(storyIds),
+  ]);
 
   const initialStories: Story[] = storyList.map((s) => ({
     ...s,
+    status: healed[s.id]?.status || s.status,
+    client_review_status: (healed[s.id]?.clientReviewStatus as any) || s.client_review_status,
+    team_review_status: (healed[s.id]?.teamReviewStatus as any) || s.team_review_status,
     acceptance_criteria: Array.isArray(s.acceptance_criteria) ? s.acceptance_criteria : [],
     assumptions: Array.isArray(s.assumptions) ? s.assumptions : [],
     clarifications: Array.isArray(s.clarifications) ? s.clarifications : [],

@@ -8,6 +8,7 @@ import {
   Bookmark,
   CheckCircle2,
   Clock,
+  Coins,
   FolderKanban,
   Layers,
   LayoutDashboard,
@@ -144,6 +145,14 @@ export function ClientSidebar({
           </span>
         ) : undefined,
     },
+    {
+      id: "dock-client-estimate",
+      label: "Quotation",
+      href: "/client/estimate",
+      icon: Coins,
+      isActive: pathname === "/client/estimate",
+      onClick: closeMobile,
+    },
   ];
 
   // Mobile Sheet quick tiles
@@ -154,6 +163,13 @@ export function ClientSidebar({
       href: "/client",
       icon: LayoutDashboard,
       isActive: pathname === "/client",
+    },
+    {
+      id: "sheet-client-estimate",
+      label: "Quotation",
+      href: "/client/estimate",
+      icon: Coins,
+      isActive: pathname === "/client/estimate",
     },
     {
       id: "sheet-client-action",
@@ -265,6 +281,13 @@ export function ClientSidebar({
           isActive: pathname === "/client",
         },
         {
+          id: "dock-client-estimate",
+          label: "Quotation",
+          href: "/client/estimate",
+          icon: Coins,
+          isActive: pathname === "/client/estimate",
+        },
+        {
           id: "dock-client-action",
           label: "Needs Action",
           href: "/client/reviews",
@@ -342,6 +365,21 @@ export function ClientSidebar({
                 className={pathname === "/client" ? "text-[#B8944E]" : "text-[#9994A5]"}
               />
               <span>Overview</span>
+            </Link>
+
+            <Link
+              href="/client/estimate"
+              className={`flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-medium transition ${
+                pathname === "/client/estimate"
+                  ? "bg-[rgba(184,148,78,0.12)] text-[#80642F] font-semibold shadow-xs"
+                  : "text-[#706C7D] hover:bg-white/60 hover:text-[#252331]"
+              }`}
+            >
+              <Coins
+                size={16}
+                className={pathname === "/client/estimate" ? "text-[#B8944E]" : "text-[#9994A5]"}
+              />
+              <span>Quotation & Scope</span>
             </Link>
           </div>
         </div>

@@ -89,7 +89,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ thread
       return NextResponse.json({ error: "Failed to update thread status" }, { status: 500 });
     }
 
-    return NextResponse.json({ ok: true, status: input.status });
+    return NextResponse.json({ ok: true, status: input.status, syncResult: res.syncResult });
   } catch (e) {
     return NextResponse.json(
       { error: e instanceof Error ? e.message : "Invalid request" },

@@ -27,7 +27,7 @@ import { DropdownMenu } from "@/components/ui/DropdownMenu";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { VoiceTextarea } from "@/components/ui/VoiceTextarea";
 import { toast } from "@/lib/toast";
-import type { Story, Epic } from "@/lib/types";
+import type { Story, Epic, StoryStatus } from "@/lib/types";
 import { EpicFolder } from "@/components/epics/EpicFolder";
 import { EpicFeedbackThread } from "@/components/epics/EpicFeedbackThread";
 import { sortEpics, sortStories } from "@/lib/epic-story-utils";
@@ -138,6 +138,41 @@ export function TeamWorkspace({
       // Silently catch
     }
   }, [project.id]);
+
+  const reloadStories = useCallback(async () => {
+    try {
+      const res = await fetch(`/api/stories?projectId=${project.id}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.stories) setStories(data.stories);
+      }
+    } catch {
+      // Silently catch
+    }
+  }, [project.id]);
+
+  const handleFeedbackChange = useCallback((updatedStoryId?: string, newStatus?: StoryStatus) => {
+    loadFeedbackCounts();
+    if (updatedStoryId && newStatus) {
+      setStories((prev) =>
+        prev.map((s) => (s.id === updatedStoryId ? { ...s, status: newStatus } : s))
+      );
+      setEditingStory((prev: any) =>
+        prev && prev.id === updatedStoryId ? { ...prev, status: newStatus } : prev
+      );
+    }
+  }, [loadFeedbackCounts]);
+
+  useEffect(() => {
+    const handleReviewUpdate = () => {
+      loadFeedbackCounts();
+      reloadStories();
+    };
+    window.addEventListener("storyboard:review-updated", handleReviewUpdate);
+    return () => {
+      window.removeEventListener("storyboard:review-updated", handleReviewUpdate);
+    };
+  }, [loadFeedbackCounts, reloadStories]);
 
   useEffect(() => {
     setStories(initialStories);
@@ -819,7 +854,7 @@ export function TeamWorkspace({
                     (editingStory.reviewer_ids || []).includes(teamUser.id)
                   }
                   onCancel={() => setEditingStory(null)}
-                  onFeedbackChange={loadFeedbackCounts}
+                  onFeedbackChange={handleFeedbackChange}
                   onSave={handleSaveStoryEditor}
                   onCreateEpic={openCreateEpic}
                   onDelete={() => setDeletingStoryId(editingStory.id)}

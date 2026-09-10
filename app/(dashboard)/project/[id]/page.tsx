@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/Button";
 
 import { Story } from "@/lib/types";
 import { getReviewersForStories } from "@/lib/story-reviewer-auth";
+import { autoSyncStoriesFeedbackStatus } from "@/lib/feedback-store";
 
 export default async function ProjectPage({
   params,
@@ -56,10 +57,16 @@ export default async function ProjectPage({
 
   const storyList = (rawStories || []) as Story[];
   const storyIds = storyList.map((s) => s.id);
-  const reviewersMap = await getReviewersForStories(storyIds);
+  const [reviewersMap, healed] = await Promise.all([
+    getReviewersForStories(storyIds),
+    autoSyncStoriesFeedbackStatus(storyIds),
+  ]);
 
   const initialStories: Story[] = storyList.map((s) => ({
     ...s,
+    status: healed[s.id]?.status || s.status,
+    client_review_status: (healed[s.id]?.clientReviewStatus as any) || s.client_review_status,
+    team_review_status: (healed[s.id]?.teamReviewStatus as any) || s.team_review_status,
     reviewer_ids: (reviewersMap[s.id] || []).map((r) => r.user_id),
     reviewers: reviewersMap[s.id] || [],
   }));

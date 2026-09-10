@@ -7,6 +7,7 @@ import {
   Bookmark,
   CheckCircle2,
   Clock,
+  Coins,
   FolderKanban,
   Layers,
   ListTodo,
@@ -36,6 +37,7 @@ export default async function ClientOverviewPage() {
     { data: actionStoriesData },
     { data: epicsData },
     { data: storyEpicMap },
+    { data: quotationData },
   ] = await Promise.all([
     // Project info
     db
@@ -96,6 +98,13 @@ export default async function ClientOverviewPage() {
       .from("stories")
       .select("id, epic_id, status, client_review_status")
       .eq("project_id", client.project_id),
+
+    // Published remuneration estimate
+    db
+      .from("remuneration_estimates")
+      .select("id, currency, final_amount, final_total_hours, project_summary, updated_at, created_at")
+      .eq("project_id", client.project_id)
+      .order("created_at", { ascending: false }),
   ]);
 
   const total = totalStoriesCount ?? 0;
@@ -143,6 +152,14 @@ export default async function ClientOverviewPage() {
       epicStats[k].approved += 1;
     }
   });
+
+  // Client published quotation
+  const clientQuotation = (quotationData || []).find((est: any) => {
+    const pub = est.project_summary?.publishing;
+    if (!pub || pub.status === "draft") return false;
+    return Array.isArray(pub.published_to_client_ids) && pub.published_to_client_ids.includes(client.id);
+  });
+  const quotationStatus = clientQuotation?.project_summary?.publishing?.status || "published";
 
   return (
     <div className="min-h-screen pb-16">
@@ -192,6 +209,55 @@ export default async function ClientOverviewPage() {
 
       {/* Main Container */}
       <div className="mx-auto max-w-6xl px-4 py-6 sm:px-8 space-y-8">
+        {/* Project Quotation Hero Card (if published) */}
+        {clientQuotation && (
+          <div className="rounded-2xl border border-[rgba(184,148,78,0.3)] bg-gradient-to-r from-amber-50/70 via-white to-amber-50/40 p-5 sm:p-6 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-start gap-3.5">
+              <div className="w-10 h-10 rounded-xl bg-[#B8944E]/15 text-[#80642F] flex items-center justify-center shrink-0 mt-0.5">
+                <Coins className="w-5 h-5" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-xs font-bold uppercase tracking-wider text-[#80642F] bg-[#B8944E]/15 px-2 py-0.5 rounded-full">
+                    Official Quotation Available
+                  </span>
+                  <span
+                    className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                      quotationStatus === "approved"
+                        ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                        : quotationStatus === "negotiating"
+                        ? "bg-amber-50 text-amber-700 border border-amber-200"
+                        : "bg-blue-50 text-blue-700 border border-blue-200"
+                    }`}
+                  >
+                    {quotationStatus === "approved"
+                      ? "✓ Approved"
+                      : quotationStatus === "negotiating"
+                      ? "Discussion in Progress"
+                      : "Pending Review"}
+                  </span>
+                </div>
+                <h3 className="text-base font-bold text-zinc-900">
+                  {clientQuotation.final_amount
+                    ? `${clientQuotation.currency} ${Number(clientQuotation.final_amount).toLocaleString()}`
+                    : "Fee Proposal"}{" "}
+                  • {clientQuotation.final_total_hours} Billable Hours
+                </h3>
+                <p className="text-xs text-zinc-500 mt-0.5">
+                  Review the deliverables scope, discuss individual items, or approve the commercial proposal.
+                </p>
+              </div>
+            </div>
+            <Link
+              href="/client/estimate"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold text-white bg-[#B8944E] hover:bg-[#9f7d3a] transition shrink-0 shadow-sm"
+            >
+              <span>Review Quotation</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+        )}
+
         {/* Quick Review Navigation Cards */}
         <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {/* Needs Your Action Card */}

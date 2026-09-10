@@ -11,10 +11,12 @@ const ProjectEstimateSchema = {
       properties: {
         complexity: { type: "string" },
         summary: { type: "string" },
-        risks: { type: "array", items: { type: "string" } },
-        assumptions: { type: "array", items: { type: "string" } }
+        deploymentHours: { type: "number" },
+        deploymentReasoning: { type: "string" },
+        databaseDesignHours: { type: "number" },
+        databaseDesignReasoning: { type: "string" }
       },
-      required: ["complexity", "summary", "risks", "assumptions"]
+      required: ["complexity", "summary"]
     },
     stories: {
       type: "array",
@@ -22,6 +24,7 @@ const ProjectEstimateSchema = {
         type: "object",
         properties: {
           storyId: { type: "string" },
+          title: { type: "string" },
           epicId: { type: "string", nullable: true },
           complexity: { type: "string" },
           effort: {
@@ -30,16 +33,15 @@ const ProjectEstimateSchema = {
               frontendHours: { type: "number" },
               backendHours: { type: "number" },
               databaseHours: { type: "number" },
+              unitTestingHours: { type: "number" },
               integrationHours: { type: "number" },
               testingHours: { type: "number" },
               totalHours: { type: "number" }
             },
-            required: ["frontendHours", "backendHours", "databaseHours", "integrationHours", "testingHours", "totalHours"]
+            required: ["frontendHours", "backendHours", "databaseHours", "unitTestingHours", "integrationHours", "testingHours", "totalHours"]
           },
           confidence: { type: "string" },
-          reasoning: { type: "string" },
-          assumptions: { type: "array", items: { type: "string" } },
-          risks: { type: "array", items: { type: "string" } }
+          reasoning: { type: "string" }
         },
         required: ["storyId", "complexity", "effort", "confidence", "reasoning"]
       }
@@ -59,7 +61,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { projectId } = await req.json();
+    const { projectId, scope = "both", includeDbDesign = true, includeUnitTesting = true, unitTestIntensity = "lean", includeDeployment = false, customPrompt = "" } = await req.json();
 
     if (!projectId) {
       return NextResponse.json({ error: "Missing projectId" }, { status: 400 });
@@ -121,10 +123,28 @@ export async function POST(req: Request) {
     const promptText = `
 You are estimating software implementation effort from structured product requirements.
 Estimate realistic engineering effort, not arbitrary numbers.
-Consider frontend, backend, data, integrations, security, testing, edge cases, and requirement uncertainty.
-Do not assume undocumented complex functionality.
-Where information is missing, identify the assumption and reduce confidence.
 
+Project Scope & Architectural Disciplines:
+- Engineering Scope: ${scope === "frontend" ? "FRONTEND ONLY (UI components, styling, client state, interaction, responsiveness). Server-side backend is OUT OF SCOPE." : scope === "backend" ? "BACKEND ONLY (APIs, business services, authentication, server-side data processing). Frontend UI is OUT OF SCOPE." : "FULL STACK (Both Frontend UI and Backend server services are in-scope)."}
+- Database Design & Architecture: ${includeDbDesign ? "INCLUDED in project scope. Estimate database modeling, schema migrations, and indexing effort (in databaseHours for each story, plus overall databaseDesignHours in projectSummary)." : "EXCLUDED from project scope. Set databaseHours to 0 and databaseDesignHours to 0."}
+- Unit Testing & Code Quality: ${includeUnitTesting ? `INCLUDED in project scope. Keep unit testing effort lean, realistic, and strictly proportional to implementation effort (around 10% to 15% of development hours, NEVER equal to or near dev time).
+  * Unit tests strictly cover essential logic: happy paths, input validation, and primary edge cases.
+  * Simple stories: 0.5 to 1.0 hour maximum.
+  * Medium stories: 1.0 to 1.5 hours maximum.
+  * Complex stories: 1.5 to 2.5 hours maximum.
+  * Do NOT inflate or overestimate unit testing hours.` : "EXCLUDED from project scope. Set unitTestingHours to 0 and testingHours to 0."}
+- Deployment & DevOps: ${includeDeployment ? "INCLUDED in project scope. Provide estimated deploymentHours in projectSummary for cloud environment provisioning, CI/CD pipelines, containerization, domain/SSL, and production rollout." : "EXCLUDED. Set deploymentHours to 0."}
+
+For each story:
+- Provide breakdown for frontendHours, backendHours, databaseHours, unitTestingHours, integrationHours, testingHours.
+- testingHours must equal unitTestingHours.
+- Set totalHours according to the active scope (${scope}):
+  * If frontend: totalHours = frontendHours + (includeUnitTesting ? unitTestingHours : 0) + (integrationHours * 0.4)
+  * If backend: totalHours = backendHours + (includeDbDesign ? databaseHours : 0) + (includeUnitTesting ? unitTestingHours : 0) + (integrationHours * 0.6)
+  * If both: totalHours = frontendHours + backendHours + (includeDbDesign ? databaseHours : 0) + (includeUnitTesting ? unitTestingHours : 0) + integrationHours
+
+Do not assume undocumented complex functionality.
+${customPrompt ? `\nSpecial Instructions from User:\n${customPrompt}\n` : ""}
 Return structured JSON only.
 
 Project Name: ${authorizedProject?.name}
@@ -167,6 +187,57 @@ Clarifications: ${JSON.stringify(s.clarifications || [])}
     }
 
     const estimateJson = JSON.parse(response.text);
+
+    // Enrich stories with actual database titles and epic names
+    const storyMap = new Map((stories || []).map(s => [s.id, s]));
+    const epicMap = new Map((epics || []).map(e => [e.id, e]));
+
+    estimateJson.stories = (estimateJson.stories || []).map((item: any) => {
+      const dbStory = storyMap.get(item.storyId) ||
+        (stories || []).find(s => s.id === item.storyId || s.id.startsWith(item.storyId) || (item.storyId && item.storyId.startsWith(s.id)));
+      
+      const dbEpic = dbStory?.epic_id ? epicMap.get(dbStory.epic_id) : (item.epicId ? epicMap.get(item.epicId) : null);
+
+      const rawUnitTestHours = item.effort?.unitTestingHours ?? item.effort?.testingHours ?? 0;
+      const fe = item.effort?.frontendHours || 0;
+      const be = item.effort?.backendHours || 0;
+      const db = includeDbDesign ? (item.effort?.databaseHours || 0) : 0;
+      const integ = item.effort?.integrationHours || 0;
+      const devHours = fe + be;
+
+      // Calibration guardrail: unit test hours should be ~12-18% of dev effort, capped so it never bloats
+      const ratio = unitTestIntensity === "comprehensive" ? 0.25 : unitTestIntensity === "standard" ? 0.18 : 0.12;
+      const maxReasonableHours = devHours > 0
+        ? Math.max(0.5, Math.round(devHours * ratio * 10) / 10)
+        : rawUnitTestHours;
+      const unitTestHours = includeUnitTesting
+        ? Math.min(rawUnitTestHours, maxReasonableHours)
+        : 0;
+
+      let totalHours = 0;
+      if (scope === "frontend") {
+        totalHours = Math.round((fe + (unitTestHours * 0.6) + (integ * 0.4)) * 10) / 10;
+      } else if (scope === "backend") {
+        totalHours = Math.round((be + db + (unitTestHours * 0.4) + (integ * 0.6)) * 10) / 10;
+      } else {
+        totalHours = Math.round((fe + be + db + unitTestHours + integ) * 10) / 10;
+      }
+
+      return {
+        ...item,
+        title: dbStory?.title || item.title || "Untitled Story",
+        epicName: dbEpic?.name || "Uncategorized",
+        epicId: dbStory?.epic_id || item.epicId || null,
+        storyId: dbStory?.id || item.storyId,
+        projectId,
+        effort: {
+          ...item.effort,
+          unitTestingHours: unitTestHours,
+          testingHours: unitTestHours,
+          totalHours,
+        },
+      };
+    });
 
     return NextResponse.json({ estimate: estimateJson });
     
