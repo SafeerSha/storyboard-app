@@ -96,7 +96,7 @@ export type GenerateStoriesResult = {
 
 export type FeedbackSectionType = "acceptance_criteria" | "assumption" | "clarification" | "general";
 export type FeedbackThreadStatus = "open" | "resolved";
-export type FeedbackAuthorType = "client" | "freelancer" | "team_user";
+export type FeedbackAuthorType = "client" | "freelancer" | "team_user" | "admin";
 
 export type FeedbackMessage = {
   id: string;
@@ -270,3 +270,44 @@ export type ProjectInboxItem = {
 
 
 
+
+export type RemunerationStoryEstimate = {
+  id: string;
+  remuneration_estimate_id: string;
+  epic_id: string | null;
+  story_id: string | null;
+  story_title: string | null;
+  epic_name: string | null;
+  complexity: string;
+  ai_estimated_hours: number;
+  final_hours: number;
+  frontend_hours: number;
+  backend_hours: number;
+  database_hours: number;
+  integration_hours: number;
+  testing_hours: number;
+  confidence: string | null;
+  reasoning: string | null;
+  assumptions: string[] | null;
+  risks: string[] | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type RemunerationEstimate = {
+  id: string;
+  project_id: string;
+  created_by: string;
+  hourly_rate: number;
+  currency: string;
+  contingency_percentage: number;
+  ai_total_hours: number;
+  final_total_hours: number;
+  base_amount: number;
+  contingency_amount: number;
+  final_amount: number;
+  project_summary: any | null;
+  created_at: string;
+  updated_at: string;
+  story_estimates?: RemunerationStoryEstimate[];
+};

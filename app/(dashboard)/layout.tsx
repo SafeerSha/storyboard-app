@@ -3,6 +3,8 @@ import { createServerClient } from "@supabase/ssr";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { cookies, headers } from "next/headers";
 
+export const dynamic = "force-dynamic";
+
 export default async function DashboardRootLayout({
   children,
 }: {

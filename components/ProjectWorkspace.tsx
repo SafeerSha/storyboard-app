@@ -16,6 +16,7 @@ import {
   Plus,
   Sparkles,
   Trash2,
+  MessageSquare,
 } from "lucide-react";
 import { DashboardHeader } from "@/components/layout/DashboardHeader";
 import { GenerateStoriesModal } from "@/components/GenerateStoriesModal";
@@ -552,46 +553,47 @@ export function ProjectWorkspace({
                           )}
                         </span>
                       }
-                      discussion={
-                        viewerId ? (
-                          <EpicFeedbackThread
-                            epicId={epic.id}
-                            sectionType="general"
-                            viewerId={viewerId}
-                            viewerType={viewerType}
-                          />
-                        ) : null
-                      }
                       actions={
-                        <>
-                          <Button
-                            variant="secondary"
-                            size="sm"
-                            leftIcon={<Sparkles size={13} className="text-[#B8944E]" />}
-                            onClick={() => setGeneratingEpicId(epic.id)}
-                            className="text-xs px-2 sm:px-3"
-                            title="Generate stories with AI"
-                          >
-                            <span className="hidden sm:inline">Generate</span>
-                          </Button>
+                        <div className="flex flex-col items-end gap-2">
+                          <div className="flex items-center gap-1.5">
+                            <Button
+                              variant="secondary"
+                              size="sm"
+                              leftIcon={<Sparkles size={13} className="text-[#B8944E]" />}
+                              onClick={() => setGeneratingEpicId(epic.id)}
+                              className="text-xs px-2 sm:px-3"
+                              title="Generate stories with AI"
+                            >
+                              <span className="hidden sm:inline">Generate</span>
+                            </Button>
 
-                          <DropdownMenu
-                            ariaLabel={`Actions for ${epic.name}`}
-                            items={[
-                              {
-                                label: "Edit Epic",
-                                icon: <Edit2 size={14} />,
-                                onClick: () => openEditEpic(epic),
-                              },
-                              {
-                                label: "Delete Epic",
-                                icon: <Trash2 size={14} />,
-                                variant: "danger",
-                                onClick: () => deleteEpic(epic.id),
-                              },
-                            ]}
-                          />
-                        </>
+                            <DropdownMenu
+                              ariaLabel={`Actions for ${epic.name}`}
+                              items={[
+                                {
+                                  label: "Edit Epic",
+                                  icon: <Edit2 size={14} />,
+                                  onClick: () => openEditEpic(epic),
+                                },
+                                {
+                                  label: "Delete Epic",
+                                  icon: <Trash2 size={14} />,
+                                  variant: "danger",
+                                  onClick: () => deleteEpic(epic.id),
+                                },
+                              ]}
+                            />
+                          </div>
+                          {viewerId && (
+                            <Link
+                              href={`/project/${projectId}/epics/${epic.id}/discussion`}
+                              className="inline-flex items-center gap-1.5 rounded-lg bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700 shadow-sm border border-slate-200 hover:bg-slate-50 transition"
+                            >
+                              <MessageSquare size={13} className="text-[#80642F]" />
+                              <span>Discussion</span>
+                            </Link>
+                          )}
+                        </div>
                       }
                       emptyMessage="No stories in this Epic yet."
                       emptyAction={

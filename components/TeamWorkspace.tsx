@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback, useMemo } from "react";
+import Link from "next/link";
 import {
   AlertCircle,
   ArrowLeft,
@@ -14,6 +15,7 @@ import {
   Trash2,
   Users,
   X,
+  MessageSquare,
 } from "lucide-react";
 import { GenerateStoriesModal } from "@/components/GenerateStoriesModal";
 import { StoryEditor } from "@/components/StoryEditor";
@@ -680,49 +682,50 @@ export function TeamWorkspace({
                           )}
                         </span>
                       }
-                      discussion={
-                        <EpicFeedbackThread
-                          epicId={epic.id}
-                          sectionType="general"
-                          viewerId={teamUser.id}
-                          viewerType="team_user"
-                        />
-                      }
                       actions={
-                        <>
-                          <Button
-                            variant="secondary"
-                            size="sm"
-                            leftIcon={<Sparkles size={13} className="text-[#B8944E]" />}
-                            onClick={() => setGeneratingEpicId(epic.id)}
-                            className="text-xs px-2 sm:px-3"
-                            title="Generate stories with AI"
-                          >
-                            <span className="hidden sm:inline">Generate</span>
-                          </Button>
+                        <div className="flex flex-col items-end gap-2">
+                          <div className="flex items-center gap-1.5">
+                            <Button
+                              variant="secondary"
+                              size="sm"
+                              leftIcon={<Sparkles size={13} className="text-[#B8944E]" />}
+                              onClick={() => setGeneratingEpicId(epic.id)}
+                              className="text-xs px-2 sm:px-3"
+                              title="Generate stories with AI"
+                            >
+                              <span className="hidden sm:inline">Generate</span>
+                            </Button>
 
-                          <DropdownMenu
-                            ariaLabel={`Actions for ${epic.name}`}
-                            items={[
-                              {
-                                label: "Add Story manually",
-                                icon: <Plus size={14} />,
-                                onClick: () => openAddStoryManually(epic),
-                              },
-                              {
-                                label: "Edit Epic",
-                                icon: <Edit2 size={14} />,
-                                onClick: () => openEditEpic(epic),
-                              },
-                              {
-                                label: "Delete Epic",
-                                icon: <Trash2 size={14} />,
-                                variant: "danger",
-                                onClick: () => deleteEpic(epic.id),
-                              },
-                            ]}
-                          />
-                        </>
+                            <DropdownMenu
+                              ariaLabel={`Actions for ${epic.name}`}
+                              items={[
+                                {
+                                  label: "Add Story manually",
+                                  icon: <Plus size={14} />,
+                                  onClick: () => openAddStoryManually(epic),
+                                },
+                                {
+                                  label: "Edit Epic",
+                                  icon: <Edit2 size={14} />,
+                                  onClick: () => openEditEpic(epic),
+                                },
+                                {
+                                  label: "Delete Epic",
+                                  icon: <Trash2 size={14} />,
+                                  variant: "danger",
+                                  onClick: () => deleteEpic(epic.id),
+                                },
+                              ]}
+                            />
+                          </div>
+                          <Link
+                            href={`/team/epics/${epic.id}/discussion`}
+                            className="inline-flex items-center gap-1.5 rounded-lg bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700 shadow-sm border border-slate-200 hover:bg-slate-50 transition"
+                          >
+                            <MessageSquare size={13} className="text-[#80642F]" />
+                            <span>Discussion</span>
+                          </Link>
+                        </div>
                       }
                       emptyMessage="No stories in this Epic yet."
                       emptyAction={

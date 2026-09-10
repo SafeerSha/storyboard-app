@@ -315,21 +315,23 @@ export function ContextualFeedbackThread({
                             <span className="font-semibold text-slate-900">
                               {msg.author_name}
                             </span>
-                            <span
-                              className={`rounded-full px-1.5 py-0.2 text-[10px] font-medium ${
-                                isTeamUser
-                                  ? "bg-emerald-100 text-emerald-800"
-                                  : isClient
-                                  ? "bg-amber-100 text-amber-800"
-                                  : "bg-[rgba(184,148,78,0.12)] text-[#80642F]"
-                              }`}
-                            >
-                              {isTeamUser
-                                ? "Team"
-                                : isClient
-                                ? "Client"
-                                : "Freelancer"}
-                            </span>
+                            {!isClient && (
+                              <span
+                                className={`rounded-full px-1.5 py-0.2 text-[10px] font-medium ${
+                                  isTeamUser
+                                    ? "bg-emerald-100 text-emerald-800"
+                                    : msg.author_type === "admin"
+                                    ? "bg-purple-100 text-purple-800"
+                                    : "bg-[rgba(184,148,78,0.12)] text-[#80642F]"
+                                }`}
+                              >
+                                {isTeamUser
+                                  ? "Team"
+                                  : msg.author_type === "admin"
+                                  ? "Admin"
+                                  : "Freelancer"}
+                              </span>
+                            )}
                           </div>
                           <div className="flex items-center gap-3">
                             <span className="text-[11px] text-zinc-400">

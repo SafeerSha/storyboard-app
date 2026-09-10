@@ -36,16 +36,23 @@ export async function resolveSession(storyId: string) {
   if (user) {
     const { data: profile } = await admin
       .from("freelancer_profiles")
-      .select("role")
+      .select("role, name")
       .eq("id", user.id)
       .maybeSingle();
+
+    const authorName =
+      profile?.name ||
+      user.user_metadata?.name ||
+      user.user_metadata?.full_name ||
+      user.email?.split("@")[0] ||
+      (profile?.role === "super_admin" ? "Super Admin" : "Freelancer");
 
     if (profile?.role === "super_admin") {
       return {
         story,
-        authorType: "freelancer" as FeedbackAuthorType,
+        authorType: "admin" as FeedbackAuthorType,
         authorId: user.id,
-        authorName: "Super Admin",
+        authorName,
       };
     }
 
@@ -61,7 +68,7 @@ export async function resolveSession(storyId: string) {
         story,
         authorType: "freelancer" as FeedbackAuthorType,
         authorId: user.id,
-        authorName: "Freelancer",
+        authorName,
       };
     }
   }

@@ -120,7 +120,6 @@ export function EpicFeedbackThread({
       if (!res.ok) throw new Error(data.error || "Failed to submit feedback");
 
       setNewComment("");
-      setIsOpenInput(false);
       if (onThreadCreated && data.thread) {
         onThreadCreated(data.thread);
       }
@@ -336,20 +335,22 @@ export function EpicFeedbackThread({
                             <span className="font-semibold text-slate-900">
                               {msg.author_name}
                             </span>
-                            <span
-                              className={`rounded-full px-1.5 py-0.2 text-[10px] font-medium ${isTeamUser
-                                ? "bg-emerald-100 text-emerald-800"
-                                : isClient
-                                  ? "bg-amber-100 text-amber-800"
-                                  : "bg-[rgba(184,148,78,0.12)] text-[#80642F]"
-                                }`}
-                            >
-                              {isTeamUser
-                                ? "Team"
-                                : isClient
-                                  ? "Client"
-                                  : "Freelancer"}
-                            </span>
+                            {!isClient && (
+                              <span
+                                className={`rounded-full px-1.5 py-0.2 text-[10px] font-medium ${isTeamUser
+                                  ? "bg-emerald-100 text-emerald-800"
+                                  : msg.author_type === "admin"
+                                    ? "bg-purple-100 text-purple-800"
+                                    : "bg-[rgba(184,148,78,0.12)] text-[#80642F]"
+                                  }`}
+                              >
+                                {isTeamUser
+                                  ? "Team"
+                                  : msg.author_type === "admin"
+                                    ? "Admin"
+                                    : "Freelancer"}
+                              </span>
+                            )}
                           </div>
                           <div className="flex items-center gap-3">
                             <span className="text-[11px] text-zinc-400">
@@ -470,27 +471,8 @@ export function EpicFeedbackThread({
         </div>
       )}
 
-      {/* Action / Trigger Row */}
-      {!isReadOnly && !isOpenInput && (
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => setIsOpenInput(true)}
-            className="inline-flex items-center gap-1 text-xs font-medium text-[#80642F] hover:text-[#B8944E] transition p-1 rounded hover:bg-[rgba(184,148,78,0.06)]"
-          >
-            <MessageSquare size={13} />
-            <span>{actionLabel}</span>
-          </button>
-
-          {openThreads.length > 0 && !hasThreads && (
-            <span className="text-xs text-amber-700 font-medium">
-              💬 {openThreads.length} open discussion
-            </span>
-          )}
-        </div>
-      )}
-
-      {!isReadOnly && isOpenInput && (
+      {/* Always Visible Input for New Thread */}
+      {!isReadOnly && (
         <div className="rounded-xl border border-[rgba(184,148,78,0.2)] bg-white p-3 shadow-xs space-y-2.5">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-[#80642F]">
@@ -503,16 +485,6 @@ export function EpicFeedbackThread({
                 } #${pointNumber + 1}`
                 : "Feedback & Changes"}
             </span>
-            <button
-              type="button"
-              onClick={() => {
-                setIsOpenInput(false);
-                setNewComment("");
-              }}
-              className="text-zinc-400 hover:text-zinc-700 p-0.5 rounded"
-            >
-              <X size={14} />
-            </button>
           </div>
 
           <VoiceTextarea
@@ -529,16 +501,6 @@ export function EpicFeedbackThread({
           />
 
           <div className="flex items-center justify-end gap-2">
-            <button
-              type="button"
-              onClick={() => {
-                setIsOpenInput(false);
-                setNewComment("");
-              }}
-              className="rounded-lg px-2.5 py-1.5 text-xs text-zinc-500 hover:bg-zinc-100 transition"
-            >
-              Cancel
-            </button>
             <button
               type="button"
               disabled={loading || !newComment.trim()}

@@ -41,7 +41,7 @@ export function EpicFolder({
   return (
     <div
       id={`epic-folder-${id}`}
-      className={`rounded-[18px] border transition-all duration-200 overflow-hidden ${
+      className={`relative rounded-[18px] border transition-all duration-200 focus-within:z-50 hover:z-40 ${
         isUncategorized
           ? "border-amber-200/90 bg-white/90 shadow-[0_8px_30px_rgba(180,120,40,0.06)] backdrop-blur-[16px]"
           : "border-[rgba(74,61,100,0.08)] bg-white/88 shadow-[0_8px_30px_rgba(70,55,95,0.055)] backdrop-blur-[16px]"
@@ -49,7 +49,7 @@ export function EpicFolder({
     >
       {/* Epic Header / Accordion Button */}
       <div
-        className={`border-b transition-colors ${
+        className={`border-b rounded-t-[18px] transition-colors ${
           isUncategorized
             ? "border-amber-200/70 bg-amber-50/40"
             : "border-[rgba(74,61,100,0.06)] bg-[#FAF9FC]/90"

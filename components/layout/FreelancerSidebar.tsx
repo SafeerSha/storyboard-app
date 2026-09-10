@@ -97,7 +97,7 @@ export function FreelancerSidebar({
   const isProjectsActive = pathname.startsWith("/project") || pathname.startsWith("/projects");
   const isInboxActive = pathname.startsWith("/inbox");
   const isClientsActive = pathname.startsWith("/clients");
-  const isSettingsActive = pathname.startsWith("/settings");
+  const isSettingsActive = pathname.startsWith("/settings") || pathname.startsWith("/remuneration");
   const isUsersActive = pathname.startsWith("/users");
 
   const closeMobile = () => setMobileOpen(false);
@@ -146,6 +146,14 @@ export function FreelancerSidebar({
           },
         ]
       : []),
+    {
+      id: "dock-settings",
+      label: "Settings",
+      href: "/settings",
+      icon: Settings,
+      isActive: isSettingsActive,
+      onClick: closeMobile,
+    },
   ];
 
   // Mobile Action Sheet Config (Full feature sheet sliding from bottom)
@@ -175,6 +183,13 @@ export function FreelancerSidebar({
           },
         ]
       : []),
+    {
+      id: "sheet-settings",
+      label: "Settings",
+      href: "/settings",
+      icon: Settings,
+      isActive: isSettingsActive,
+    },
   ];
 
   const sheetSections: NavSheetSection[] = [
@@ -203,12 +218,12 @@ export function FreelancerSidebar({
             ]
           : []),
         {
-          id: "sheet-settings",
-          label: "Settings",
+          id: "sheet-settings-item",
+          label: "Preferences",
           href: "/settings",
           icon: Settings,
           isActive: isSettingsActive && !isUsersActive,
-          description: "Workspace preferences & configuration",
+          description: "Workspace preferences, AI engine & remuneration",
         },
       ],
     },
