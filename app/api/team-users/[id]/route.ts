@@ -1,13 +1,13 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { verifySuperAdmin } from "@/lib/super-admin";
+import { verifyAnyFreelancer } from "@/lib/super-admin";
 import { invalidateAllTeamSessions } from "@/lib/team-session";
 import { logAudit } from "@/lib/audit";
 
 export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
-  const admin = await verifySuperAdmin();
-  if (!admin) {
-    return new NextResponse("Unauthorized. Super Admin access required.", { status: 403 });
+  const actor = await verifyAnyFreelancer();
+  if (!actor) {
+    return new NextResponse("Unauthorized. Please log in.", { status: 401 });
   }
 
   const { id } = await params;
@@ -16,11 +16,12 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     const body = await req.json();
     const adminClient = createAdminClient();
 
-    // Check existing team user
+    // Verify team user exists AND belongs to this actor
     const { data: existingUser, error: fetchError } = await adminClient
       .from("team_users")
-      .select("id, name, username, project_id, status")
+      .select("id, name, username, project_id, status, owner_id")
       .eq("id", id)
+      .eq("owner_id", actor.id)
       .maybeSingle();
 
     if (fetchError || !existingUser) {
@@ -49,14 +50,15 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
         return NextResponse.json({ error: "At least one project must be assigned." }, { status: 400 });
       }
 
-      // Verify all projects exist
+      // Verify all projects belong to this actor
       const { data: validProjects, error: projErr } = await adminClient
         .from("projects")
         .select("id, name")
-        .in("id", projectIds);
+        .in("id", projectIds)
+        .eq("owner_id", actor.id);
 
       if (projErr || !validProjects || validProjects.length !== projectIds.length) {
-        return NextResponse.json({ error: "One or more selected projects do not exist." }, { status: 400 });
+        return NextResponse.json({ error: "One or more selected projects do not belong to you." }, { status: 400 });
       }
 
       // Sync project_team_members
@@ -64,11 +66,11 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
       const ptmRows = projectIds.map((pid) => ({
         project_id: pid,
         team_user_id: id,
-        assigned_by: admin.id,
+        assigned_by: actor.id,
       }));
       await adminClient.from("project_team_members").insert(ptmRows);
 
-      updates.project_id = projectIds[0]; // fallback primary project
+      updates.project_id = projectIds[0];
     }
 
     if (body.role !== undefined) {
@@ -93,7 +95,6 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
       return NextResponse.json({ error: updateError.message }, { status: 500 });
     }
 
-    // Fetch all current project memberships for user
     const { data: currentMemberships } = await adminClient
       .from("project_team_members")
       .select("project_id, projects(id, name)")
@@ -106,14 +107,13 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
         name: m.projects.name,
       }));
 
-    // If disabled, immediately invalidate all active sessions
     if (updates.status === "disabled") {
       await invalidateAllTeamSessions(id);
       await logAudit({
         action: "team_user_disabled",
-        actorId: admin.id,
-        actorType: "super_admin",
-        actorName: admin.name,
+        actorId: actor.id,
+        actorType: actor.isSuperAdmin ? "super_admin" : "freelancer",
+        actorName: actor.name,
         targetType: "team_user",
         targetId: id,
         details: { username: existingUser.username },
@@ -121,9 +121,9 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     } else if (updates.status === "active" && existingUser.status === "disabled") {
       await logAudit({
         action: "team_user_enabled",
-        actorId: admin.id,
-        actorType: "super_admin",
-        actorName: admin.name,
+        actorId: actor.id,
+        actorType: actor.isSuperAdmin ? "super_admin" : "freelancer",
+        actorName: actor.name,
         targetType: "team_user",
         targetId: id,
         details: { username: existingUser.username },
@@ -132,9 +132,9 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
 
     await logAudit({
       action: "team_user_updated",
-      actorId: admin.id,
-      actorType: "super_admin",
-      actorName: admin.name,
+      actorId: actor.id,
+      actorType: actor.isSuperAdmin ? "super_admin" : "freelancer",
+      actorName: actor.name,
       targetType: "team_user",
       targetId: id,
       details: {
@@ -159,9 +159,9 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
 }
 
 export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
-  const admin = await verifySuperAdmin();
-  if (!admin) {
-    return new NextResponse("Unauthorized. Super Admin access required.", { status: 403 });
+  const actor = await verifyAnyFreelancer();
+  if (!actor) {
+    return new NextResponse("Unauthorized. Please log in.", { status: 401 });
   }
 
   const { id } = await params;
@@ -169,21 +169,20 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
   try {
     const adminClient = createAdminClient();
 
-    // Check existing team user
+    // Verify team user exists AND belongs to this actor
     const { data: existingUser, error: fetchError } = await adminClient
       .from("team_users")
-      .select("id, name, username")
+      .select("id, name, username, owner_id")
       .eq("id", id)
+      .eq("owner_id", actor.id)
       .maybeSingle();
 
     if (fetchError || !existingUser) {
       return NextResponse.json({ error: "Team user not found." }, { status: 404 });
     }
 
-    // Invalidate sessions first
     await invalidateAllTeamSessions(id);
 
-    // Delete team user
     const { error: deleteError } = await adminClient
       .from("team_users")
       .delete()
@@ -195,9 +194,9 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
 
     await logAudit({
       action: "team_user_deleted",
-      actorId: admin.id,
-      actorType: "super_admin",
-      actorName: admin.name,
+      actorId: actor.id,
+      actorType: actor.isSuperAdmin ? "super_admin" : "freelancer",
+      actorName: actor.name,
       targetType: "team_user",
       targetId: id,
       details: { username: existingUser.username, name: existingUser.name },
@@ -208,4 +207,3 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
     return NextResponse.json({ error: error.message || "Failed to delete team user." }, { status: 500 });
   }
 }
-

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { verifySuperAdmin } from "@/lib/super-admin";
+import { getAuthenticatedInboxActor, verifyInboxItemAccess } from "@/lib/inbox-auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 export const dynamic = "force-dynamic";
@@ -8,27 +8,20 @@ export async function PATCH(
   req: Request,
   { params }: { params: Promise<{ id: string; linkId: string }> }
 ) {
-  const admin = await verifySuperAdmin();
-  if (!admin) {
-    return new NextResponse("Unauthorized. Super Admin access required.", { status: 403 });
+  const actor = await getAuthenticatedInboxActor();
+  if (!actor) {
+    return new NextResponse("Unauthorized. Please log in.", { status: 401 });
   }
 
   const { id, linkId } = await params;
+  const access = await verifyInboxItemAccess(actor, id);
+  if (!access.hasAccess || !access.canEditItem) {
+    return NextResponse.json({ error: "Forbidden. Only the item owner can edit links." }, { status: 403 });
+  }
+
   const db = createAdminClient();
 
   try {
-    // Verify ownership of the parent item
-    const { data: item } = await db
-      .from("project_inbox_items")
-      .select("id")
-      .eq("id", id)
-      .eq("owner_id", admin.id)
-      .single();
-
-    if (!item) {
-      return NextResponse.json({ error: "Inbox item not found." }, { status: 404 });
-    }
-
     const body = await req.json();
     const updates: Record<string, any> = {
       updated_at: new Date().toISOString(),
@@ -65,27 +58,20 @@ export async function DELETE(
   _req: Request,
   { params }: { params: Promise<{ id: string; linkId: string }> }
 ) {
-  const admin = await verifySuperAdmin();
-  if (!admin) {
-    return new NextResponse("Unauthorized. Super Admin access required.", { status: 403 });
+  const actor = await getAuthenticatedInboxActor();
+  if (!actor) {
+    return new NextResponse("Unauthorized. Please log in.", { status: 401 });
   }
 
   const { id, linkId } = await params;
+  const access = await verifyInboxItemAccess(actor, id);
+  if (!access.hasAccess || !access.canEditItem) {
+    return NextResponse.json({ error: "Forbidden. Only the item owner can delete links." }, { status: 403 });
+  }
+
   const db = createAdminClient();
 
   try {
-    // Verify ownership
-    const { data: item } = await db
-      .from("project_inbox_items")
-      .select("id")
-      .eq("id", id)
-      .eq("owner_id", admin.id)
-      .single();
-
-    if (!item) {
-      return NextResponse.json({ error: "Inbox item not found." }, { status: 404 });
-    }
-
     const { error } = await db
       .from("project_inbox_links")
       .delete()

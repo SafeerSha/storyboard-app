@@ -153,8 +153,8 @@ export default function ProjectsPage() {
       setDeletingProject(null);
     } catch (e) {
       const msg = e instanceof Error ? e.message : "Failed to delete project";
-      setError(msg);
-      toast.error("Unable to delete project");
+      toast.error(msg);
+      setDeletingProject(null);
     } finally {
       setDeleting(false);
     }

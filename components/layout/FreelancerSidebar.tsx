@@ -134,18 +134,14 @@ export function FreelancerSidebar({
       isActive: isProjectsActive,
       onClick: closeMobile,
     },
-    ...(userRole === "super_admin"
-      ? [
-          {
-            id: "dock-inbox",
-            label: "Ideas",
-            href: "/inbox",
-            icon: Lightbulb,
-            isActive: isInboxActive,
-            onClick: closeMobile,
-          },
-        ]
-      : []),
+    {
+      id: "dock-inbox",
+      label: "Ideas",
+      href: "/inbox",
+      icon: Lightbulb,
+      isActive: isInboxActive,
+      onClick: closeMobile,
+    },
     {
       id: "dock-settings",
       label: "Settings",
@@ -172,17 +168,13 @@ export function FreelancerSidebar({
       icon: FolderKanban,
       isActive: isProjectsActive,
     },
-    ...(userRole === "super_admin"
-      ? [
-          {
-            id: "sheet-inbox",
-            label: "Ideas Inbox",
-            href: "/inbox",
-            icon: Lightbulb,
-            isActive: isInboxActive,
-          },
-        ]
-      : []),
+    {
+      id: "sheet-inbox",
+      label: "Ideas Inbox",
+      href: "/inbox",
+      icon: Lightbulb,
+      isActive: isInboxActive,
+    },
     {
       id: "sheet-settings",
       label: "Settings",
@@ -205,18 +197,14 @@ export function FreelancerSidebar({
           isActive: isClientsActive,
           description: "Manage client organizations & projects",
         },
-        ...(userRole === "super_admin"
-          ? [
-              {
-                id: "sheet-users",
-                label: "Users",
-                href: "/users",
-                icon: ShieldCheck,
-                isActive: isUsersActive,
-                description: "Platform user roles & permissions",
-              },
-            ]
-          : []),
+        {
+          id: "sheet-users",
+          label: "Team Members",
+          href: "/users",
+          icon: ShieldCheck,
+          isActive: isUsersActive,
+          description: "Manage your team's access & project assignments",
+        },
         {
           id: "sheet-settings-item",
           label: "Preferences",
@@ -247,17 +235,13 @@ export function FreelancerSidebar({
           icon: FolderKanban,
           isActive: isProjectsActive,
         },
-        ...(userRole === "super_admin"
-          ? [
-              {
-                id: "dock-inbox",
-                label: "Ideas",
-                href: "/inbox",
-                icon: Lightbulb,
-                isActive: isInboxActive,
-              },
-            ]
-          : []),
+        {
+          id: "dock-inbox",
+          label: "Ideas",
+          href: "/inbox",
+          icon: Lightbulb,
+          isActive: isInboxActive,
+        },
       ],
     },
     {
@@ -270,17 +254,13 @@ export function FreelancerSidebar({
           icon: Users,
           isActive: isClientsActive,
         },
-        ...(userRole === "super_admin"
-          ? [
-              {
-                id: "dock-users",
-                label: "Users",
-                href: "/users",
-                icon: ShieldCheck,
-                isActive: isUsersActive,
-              },
-            ]
-          : []),
+        {
+          id: "dock-users",
+          label: "Team",
+          href: "/users",
+          icon: ShieldCheck,
+          isActive: isUsersActive,
+        },
         {
           id: "dock-settings",
           label: "Settings",
@@ -345,31 +325,29 @@ export function FreelancerSidebar({
               <span>Projects</span>
             </Link>
 
-            {userRole === "super_admin" && (
-              <Link
-                href="/inbox"
-                className={`flex items-center justify-between rounded-lg px-2.5 py-1.5 text-xs sm:text-sm transition-colors group ${
-                  isInboxActive
-                    ? "bg-[rgba(184,148,78,0.09)] border border-[rgba(184,148,78,0.12)] text-[#80642F] font-medium"
-                    : "text-[#706C7D] hover:bg-[rgba(184,148,78,0.04)] hover:text-[#80642F] border border-transparent font-medium"
-                }`}
-              >
-                <div className="flex items-center gap-2.5 min-w-0">
-                  <Lightbulb
-                    size={16}
-                    className={
-                      isInboxActive
-                        ? "text-[#B8944E]"
-                        : "text-[#9994A5] group-hover:text-[#B8944E]"
-                    }
-                  />
-                  <span className="truncate">Project Inbox</span>
-                </div>
-                <span className="rounded bg-[rgba(184,148,78,0.10)] px-1.5 py-0.5 text-[10px] font-semibold text-[#80642F] border border-[rgba(184,148,78,0.14)]">
-                  Ideas
-                </span>
-              </Link>
-            )}
+            <Link
+              href="/inbox"
+              className={`flex items-center justify-between rounded-lg px-2.5 py-1.5 text-xs sm:text-sm transition-colors group ${
+                isInboxActive
+                  ? "bg-[rgba(184,148,78,0.09)] border border-[rgba(184,148,78,0.12)] text-[#80642F] font-medium"
+                  : "text-[#706C7D] hover:bg-[rgba(184,148,78,0.04)] hover:text-[#80642F] border border-transparent font-medium"
+              }`}
+            >
+              <div className="flex items-center gap-2.5 min-w-0">
+                <Lightbulb
+                  size={16}
+                  className={
+                    isInboxActive
+                      ? "text-[#B8944E]"
+                      : "text-[#9994A5] group-hover:text-[#B8944E]"
+                  }
+                />
+                <span className="truncate">Project Inbox</span>
+              </div>
+              <span className="rounded bg-[rgba(184,148,78,0.10)] px-1.5 py-0.5 text-[10px] font-semibold text-[#80642F] border border-[rgba(184,148,78,0.14)]">
+                Ideas
+              </span>
+            </Link>
           </nav>
         </div>
 
@@ -393,22 +371,20 @@ export function FreelancerSidebar({
               />
               <span>Clients</span>
             </Link>
-            {userRole === "super_admin" && (
-              <Link
-                href="/users"
-                className={`flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-xs sm:text-sm transition-colors ${
-                  isUsersActive
-                    ? "bg-[rgba(184,148,78,0.09)] border border-[rgba(184,148,78,0.12)] text-[#80642F] font-medium"
-                    : "text-[#706C7D] hover:bg-[rgba(184,148,78,0.04)] hover:text-[#80642F] border border-transparent font-medium"
-                }`}
-              >
-                <ShieldCheck
-                  size={16}
-                  className={isUsersActive ? "text-[#B8944E]" : "text-[#9994A5]"}
-                />
-                <span>Users</span>
-              </Link>
-            )}
+            <Link
+              href="/users"
+              className={`flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-xs sm:text-sm transition-colors ${
+                isUsersActive
+                  ? "bg-[rgba(184,148,78,0.09)] border border-[rgba(184,148,78,0.12)] text-[#80642F] font-medium"
+                  : "text-[#706C7D] hover:bg-[rgba(184,148,78,0.04)] hover:text-[#80642F] border border-transparent font-medium"
+              }`}
+            >
+              <ShieldCheck
+                size={16}
+                className={isUsersActive ? "text-[#B8944E]" : "text-[#9994A5]"}
+              />
+              <span>Team Members</span>
+            </Link>
             <Link
               href="/settings"
               className={`flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-xs sm:text-sm transition-colors ${

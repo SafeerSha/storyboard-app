@@ -139,7 +139,7 @@ export function ToastProvider() {
       {/* Toast viewport container: bottom-right on desktop, bottom-center on mobile */}
       <div
         aria-label="Notifications"
-        className="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-6 sm:bottom-6 z-[9999] pointer-events-none flex flex-col-reverse gap-2.5 sm:w-auto sm:max-w-sm max-w-[calc(100vw-32px)] mx-auto sm:mx-0 pb-[env(safe-area-inset-bottom)]"
+        className="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-6 sm:bottom-6 z-[10000] pointer-events-none flex flex-col-reverse gap-2.5 sm:w-auto sm:max-w-sm max-w-[calc(100vw-32px)] mx-auto sm:mx-0 pb-[env(safe-area-inset-bottom)]"
       >
         {toasts.map((t) => (
           <ToastElement key={t.id} item={t} onDismiss={handleDismiss} />

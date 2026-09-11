@@ -102,10 +102,8 @@ export async function middleware(request: NextRequest) {
       user.email?.split("@")[0] ||
       "Freelancer";
 
-    // Block non-admins from /users
-    if (pathname.startsWith("/users") && !isSuperAdmin) {
-      return NextResponse.redirect(new URL("/", request.url));
-    }
+    // /users is accessible to all freelancers — each sees only their own team members
+    // (data isolation is enforced at the API layer via owner_id scoping)
 
     // Attach verified user identity headers to forward down to Server Components
     // This avoids duplicate auth.getUser() + freelancer_profiles queries in layout.tsx

@@ -66,3 +66,44 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     return NextResponse.json({ error: e.message || "Failed to update client." }, { status: 400 });
   }
 }
+
+export async function DELETE(_req: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  try {
+    // Verify client belongs to a project owned by this user
+    const { data: existingClient, error: clientError } = await supabase
+      .from("clients")
+      .select("id, project_id, projects!inner(owner_id)")
+      .eq("id", id)
+      .eq("projects.owner_id", user.id)
+      .maybeSingle();
+
+    if (clientError || !existingClient) {
+      return NextResponse.json({ error: "Client not found or unauthorized." }, { status: 404 });
+    }
+
+    // Revoke all active portal sessions first
+    const { createAdminClient } = await import("@/lib/supabase/admin");
+    const admin = createAdminClient();
+    await admin.from("client_sessions").delete().eq("client_id", id);
+
+    // Delete the client record
+    const { error: deleteError } = await admin
+      .from("clients")
+      .delete()
+      .eq("id", id);
+
+    if (deleteError) {
+      return NextResponse.json({ error: deleteError.message }, { status: 500 });
+    }
+
+    return NextResponse.json({ success: true });
+  } catch (e: any) {
+    return NextResponse.json({ error: e.message || "Failed to remove client." }, { status: 500 });
+  }
+}
+

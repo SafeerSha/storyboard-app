@@ -5,7 +5,7 @@
 -- 1. Create team_users table
 CREATE TABLE IF NOT EXISTS public.team_users (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    project_id UUID NOT NULL REFERENCES public.projects(id) ON DELETE RESTRICT,
+    project_id UUID REFERENCES public.projects(id) ON DELETE CASCADE,
     name TEXT NOT NULL,
     username TEXT NOT NULL UNIQUE,
     password_hash TEXT NOT NULL,
@@ -49,6 +49,27 @@ CREATE INDEX IF NOT EXISTS idx_audit_logs_created_at ON public.audit_logs(create
 ALTER TABLE public.team_users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.team_sessions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.audit_logs ENABLE ROW LEVEL SECURITY;
+
+-- 4b. RLS Policies for team_users
+DROP POLICY IF EXISTS "owners and super admins can manage team users" ON public.team_users;
+CREATE POLICY "owners and super admins can manage team users"
+  ON public.team_users
+  FOR ALL
+  TO authenticated
+  USING (
+    EXISTS (
+      SELECT 1 FROM public.projects p
+      WHERE p.id = team_users.project_id AND p.owner_id = (SELECT auth.uid())
+    )
+    OR (SELECT public.is_super_admin())
+  )
+  WITH CHECK (
+    EXISTS (
+      SELECT 1 FROM public.projects p
+      WHERE p.id = team_users.project_id AND p.owner_id = (SELECT auth.uid())
+    )
+    OR (SELECT public.is_super_admin())
+  );
 
 -- 5. Extend story_feedback_threads and story_feedback_messages constraints to support 'team_user'
 DO $$

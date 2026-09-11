@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { verifySuperAdmin } from "@/lib/super-admin";
+import { getAuthenticatedInboxActor, verifyInboxItemAccess } from "@/lib/inbox-auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { generateInboxAiChatResponse } from "@/lib/ai/inbox-chat";
 
@@ -9,27 +9,20 @@ export async function GET(
   _req: Request,
   { params }: { params: Promise<{ id: string; threadId: string }> }
 ) {
-  const admin = await verifySuperAdmin();
-  if (!admin) {
-    return new NextResponse("Unauthorized. Super Admin access required.", { status: 403 });
+  const actor = await getAuthenticatedInboxActor();
+  if (!actor) {
+    return new NextResponse("Unauthorized. Please log in.", { status: 401 });
   }
 
   const { id, threadId } = await params;
+  const access = await verifyInboxItemAccess(actor, id);
+  if (!access.hasAccess) {
+    return NextResponse.json({ error: "Inbox item not found or access denied." }, { status: 404 });
+  }
+
   const db = createAdminClient();
 
   try {
-    // Verify item ownership
-    const { data: item } = await db
-      .from("project_inbox_items")
-      .select("id")
-      .eq("id", id)
-      .eq("owner_id", admin.id)
-      .single();
-
-    if (!item) {
-      return NextResponse.json({ error: "Inbox item not found." }, { status: 404 });
-    }
-
     const { data: messages, error } = await db
       .from("project_inbox_ai_messages")
       .select("*")
@@ -50,28 +43,33 @@ export async function POST(
   req: Request,
   { params }: { params: Promise<{ id: string; threadId: string }> }
 ) {
-  const admin = await verifySuperAdmin();
-  if (!admin) {
-    return new NextResponse("Unauthorized. Super Admin access required.", { status: 403 });
+  const actor = await getAuthenticatedInboxActor();
+  if (!actor) {
+    return new NextResponse("Unauthorized. Please log in.", { status: 401 });
   }
 
   const { id, threadId } = await params;
+  const access = await verifyInboxItemAccess(actor, id);
+  if (!access.hasAccess) {
+    return NextResponse.json({ error: "Inbox item not found or access denied." }, { status: 404 });
+  }
+
   const db = createAdminClient();
 
   try {
-    // 1. Verify item and fetch context
+    // 1. Verify item and fetch context — scoped to this actor's item
     const { data: item, error: itemError } = await db
       .from("project_inbox_items")
       .select("*")
       .eq("id", id)
-      .eq("owner_id", admin.id)
+      .eq("owner_id", actor.id)
       .single();
 
     if (itemError || !item) {
       return NextResponse.json({ error: "Inbox item not found." }, { status: 404 });
     }
 
-    // 2. Fetch associated links for context
+    // 2. Fetch associated links for AI context
     const { data: links } = await db
       .from("project_inbox_links")
       .select("*")

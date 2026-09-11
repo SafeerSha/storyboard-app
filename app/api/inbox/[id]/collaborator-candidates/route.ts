@@ -44,39 +44,46 @@ export async function GET(
       excludedUserIds.add(item.owner_id);
     }
 
-    // 2. Query active team_users
-    let teamQuery = db
-      .from("team_users")
-      .select("id, name, username, role, status")
-      .eq("status", "active")
-      .order("name", { ascending: true })
-      .limit(30);
+    // 2. Scope team_users to only those assigned to the actor's own projects.
+    //    This prevents a freelancer from seeing another freelancer's team members.
+    const { data: actorProjects } = await db
+      .from("projects")
+      .select("id")
+      .eq("owner_id", actor.id);
 
-    if (search) {
-      teamQuery = teamQuery.or(`name.ilike.%${search}%,username.ilike.%${search}%`);
+    const actorProjectIds = (actorProjects || []).map((p: any) => p.id);
+
+    let teamUsers: any[] = [];
+    if (actorProjectIds.length > 0) {
+      // team_users are linked to projects via team_user_projects join table (or project_ids column)
+      // Fetch team users scoped to the actor's projects only
+      const { data: scopedTeamUsers, error: teamError } = await db
+        .from("team_users")
+        .select("id, name, username, role, status, project_ids")
+        .eq("status", "active")
+        .overlaps("project_ids", actorProjectIds)
+        .order("name", { ascending: true })
+        .limit(30);
+
+      if (teamError) {
+        // Fallback: no team user candidates if query fails
+        teamUsers = [];
+      } else {
+        teamUsers = scopedTeamUsers || [];
+        if (search) {
+          const q = search.toLowerCase();
+          teamUsers = teamUsers.filter(
+            (u: any) =>
+              u.name?.toLowerCase().includes(q) ||
+              u.username?.toLowerCase().includes(q)
+          );
+        }
+      }
     }
 
-    const { data: teamUsers, error: teamError } = await teamQuery;
-    if (teamError) {
-      return NextResponse.json({ error: teamError.message }, { status: 500 });
-    }
-
-    // 3. Query active freelancer_profiles
-    let freelancerQuery = db
-      .from("freelancer_profiles")
-      .select("id, name, email, role, status")
-      .eq("status", "active")
-      .order("name", { ascending: true })
-      .limit(20);
-
-    if (search) {
-      freelancerQuery = freelancerQuery.or(`name.ilike.%${search}%,email.ilike.%${search}%`);
-    }
-
-    const { data: freelancers, error: freeError } = await freelancerQuery;
-    if (freeError) {
-      return NextResponse.json({ error: freeError.message }, { status: 500 });
-    }
+    // 3. Do NOT expose other freelancer accounts as collaborator candidates.
+    //    Cross-workspace freelancer collaboration is not supported —
+    //    only the actor's own scoped team members can be added as collaborators.
 
     // 4. Transform and filter candidates
     const candidates: Array<{
@@ -95,18 +102,6 @@ export async function GET(
           username: u.username,
           type: "team_user",
           roleTitle: "Team Member",
-        });
-      }
-    });
-
-    (freelancers || []).forEach((f: any) => {
-      if (!excludedUserIds.has(f.id)) {
-        candidates.push({
-          id: f.id,
-          name: f.name || f.email.split("@")[0],
-          username: f.email,
-          type: "freelancer",
-          roleTitle: f.role === "super_admin" ? "Super Admin" : "Freelancer",
         });
       }
     });

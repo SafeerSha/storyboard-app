@@ -1,14 +1,14 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { verifySuperAdmin } from "@/lib/super-admin";
+import { verifyAnyFreelancer } from "@/lib/super-admin";
 import { invalidateAllTeamSessions } from "@/lib/team-session";
 import { logAudit } from "@/lib/audit";
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
-  const admin = await verifySuperAdmin();
-  if (!admin) {
-    return new NextResponse("Unauthorized. Super Admin access required.", { status: 403 });
+  const actor = await verifyAnyFreelancer();
+  if (!actor) {
+    return new NextResponse("Unauthorized. Please log in.", { status: 401 });
   }
 
   const { id } = await params;
@@ -23,10 +23,12 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
 
     const adminClient = createAdminClient();
 
+    // Verify team user exists AND belongs to this actor
     const { data: user, error: fetchError } = await adminClient
       .from("team_users")
-      .select("id, username")
+      .select("id, username, owner_id")
       .eq("id", id)
+      .eq("owner_id", actor.id)
       .maybeSingle();
 
     if (fetchError || !user) {
@@ -47,15 +49,13 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       return NextResponse.json({ error: updateError.message }, { status: 500 });
     }
 
-    // Invalidate all active sessions so user must log in with new password
     await invalidateAllTeamSessions(id);
 
-    // Audit log (without password)
     await logAudit({
       action: "team_user_password_reset",
-      actorId: admin.id,
-      actorType: "super_admin",
-      actorName: admin.name,
+      actorId: actor.id,
+      actorType: actor.isSuperAdmin ? "super_admin" : "freelancer",
+      actorName: actor.name,
       targetType: "team_user",
       targetId: id,
       details: { username: user.username },

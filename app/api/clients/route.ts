@@ -18,10 +18,29 @@ export async function GET() {
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const admin = createAdminClient();
+
+  // First: fetch only project IDs that belong to this user.
+  // Filtering on a joined table with .eq("projects.owner_id") is a PostgREST
+  // join-filter, NOT a WHERE clause — it silently returns all rows.
+  // We must scope the query explicitly using the owner's project IDs.
+  const { data: userProjects, error: projectsError } = await admin
+    .from("projects")
+    .select("id")
+    .eq("owner_id", user.id);
+
+  if (projectsError) return NextResponse.json({ error: projectsError.message }, { status: 500 });
+
+  const projectIds = (userProjects ?? []).map((p: any) => p.id);
+
+  // No projects → no clients
+  if (projectIds.length === 0) {
+    return NextResponse.json({ clients: [] });
+  }
+
   let { data, error } = await admin
     .from("clients")
     .select("id,name,login_id,status,project_id,is_password_changed,projects(name)")
-    .eq("projects.owner_id", user.id)
+    .in("project_id", projectIds)
     .order("created_at", { ascending: false });
 
   if (error && (error.code === "42703" || error.message.includes("is_password_changed"))) {
@@ -29,7 +48,7 @@ export async function GET() {
     const fallback = await admin
       .from("clients")
       .select("id,name,login_id,status,project_id,projects(name)")
-      .eq("projects.owner_id", user.id)
+      .in("project_id", projectIds)
       .order("created_at", { ascending: false });
 
     data = (fallback.data ?? []).map((c: any) => ({

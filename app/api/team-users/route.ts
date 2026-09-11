@@ -1,21 +1,24 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { verifySuperAdmin } from "@/lib/super-admin";
+import { verifyAnyFreelancer } from "@/lib/super-admin";
 import { logAudit } from "@/lib/audit";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
-  const admin = await verifySuperAdmin();
-  if (!admin) {
-    return new NextResponse("Unauthorized. Super Admin access required.", { status: 403 });
+  const actor = await verifyAnyFreelancer();
+  if (!actor) {
+    return new NextResponse("Unauthorized. Please log in.", { status: 401 });
   }
 
   const adminClient = createAdminClient();
+
+  // Scope to only this actor's own team members
   const { data: users, error } = await adminClient
     .from("team_users")
     .select("id, project_id, name, username, role, status, created_at, updated_at, projects(id, name)")
+    .eq("owner_id", actor.id)
     .order("created_at", { ascending: false });
 
   if (error) {
@@ -25,7 +28,7 @@ export async function GET() {
   const userList = users || [];
   const userIds = userList.map((u) => u.id);
 
-  // Fetch all project_team_members joined with projects
+  // Fetch project memberships for this actor's team members
   const memberMap: Record<string, Array<{ id: string; name: string }>> = {};
   if (userIds.length > 0) {
     const { data: memberships } = await adminClient
@@ -46,7 +49,6 @@ export async function GET() {
 
   const enrichedUsers = userList.map((u: any) => {
     let projs = memberMap[u.id] || [];
-    // Backwards compatibility fallback if not yet in project_team_members
     if (projs.length === 0 && u.project_id && u.projects?.name) {
       projs = [{ id: u.project_id, name: u.projects.name }];
     }
@@ -62,9 +64,9 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
-  const admin = await verifySuperAdmin();
-  if (!admin) {
-    return new NextResponse("Unauthorized. Super Admin access required.", { status: 403 });
+  const actor = await verifyAnyFreelancer();
+  if (!actor) {
+    return new NextResponse("Unauthorized. Please log in.", { status: 401 });
   }
 
   try {
@@ -98,27 +100,28 @@ export async function POST(req: Request) {
 
     const adminClient = createAdminClient();
 
-    // Verify all projects exist in database
+    // Verify all projects exist AND belong to this actor
     const { data: validProjects, error: projectError } = await adminClient
       .from("projects")
       .select("id, name")
-      .in("id", projectIds);
+      .in("id", projectIds)
+      .eq("owner_id", actor.id);
 
     if (projectError || !validProjects || validProjects.length !== projectIds.length) {
-      return NextResponse.json({ error: "One or more selected projects were not found in the database." }, { status: 400 });
+      return NextResponse.json({ error: "One or more selected projects were not found or do not belong to you." }, { status: 400 });
     }
 
-    // Hash password securely with bcrypt
     const passwordHash = await bcrypt.hash(password, 12);
 
-    // Insert into team_users
+    // Insert into team_users with owner_id scoped to this actor
     const { data: newUser, error: insertError } = await adminClient
       .from("team_users")
       .insert({
+        owner_id: actor.id,
         name,
         username,
         password_hash: passwordHash,
-        project_id: projectIds[0], // primary/legacy project fallback
+        project_id: projectIds[0],
         role,
         status,
       })
@@ -132,20 +135,19 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: insertError.message }, { status: 500 });
     }
 
-    // Insert all project memberships into project_team_members
+    // Insert all project memberships
     const ptmRows = projectIds.map((pid) => ({
       project_id: pid,
       team_user_id: newUser.id,
-      assigned_by: admin.id,
+      assigned_by: actor.id,
     }));
     await adminClient.from("project_team_members").insert(ptmRows);
 
-    // Audit log
     await logAudit({
       action: "team_user_created",
-      actorId: admin.id,
-      actorType: "super_admin",
-      actorName: admin.name,
+      actorId: actor.id,
+      actorType: actor.isSuperAdmin ? "super_admin" : "freelancer",
+      actorName: actor.name,
       targetType: "team_user",
       targetId: newUser.id,
       details: {

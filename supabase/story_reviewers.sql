@@ -33,6 +33,9 @@ FROM public.team_users
 WHERE project_id IS NOT NULL
 ON CONFLICT (project_id, team_user_id) DO NOTHING;
 
+-- 3b. Clear legacy project_id from team_users after backfill
+UPDATE public.team_users SET project_id = NULL WHERE project_id IS NOT NULL;
+
 -- 4. Add created_by_id to stories to track story author
 ALTER TABLE public.stories 
 ADD COLUMN IF NOT EXISTS created_by_id UUID;

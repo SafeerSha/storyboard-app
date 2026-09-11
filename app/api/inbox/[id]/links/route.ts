@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { verifySuperAdmin } from "@/lib/super-admin";
+import { getAuthenticatedInboxActor, verifyInboxItemAccess } from "@/lib/inbox-auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 export const dynamic = "force-dynamic";
@@ -8,26 +8,20 @@ export async function GET(
   _req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const admin = await verifySuperAdmin();
-  if (!admin) {
-    return new NextResponse("Unauthorized. Super Admin access required.", { status: 403 });
+  const actor = await getAuthenticatedInboxActor();
+  if (!actor) {
+    return new NextResponse("Unauthorized. Please log in.", { status: 401 });
   }
 
   const { id } = await params;
+  const access = await verifyInboxItemAccess(actor, id);
+  if (!access.hasAccess) {
+    return NextResponse.json({ error: "Inbox item not found or access denied." }, { status: 404 });
+  }
+
   const db = createAdminClient();
 
   try {
-    const { data: item } = await db
-      .from("project_inbox_items")
-      .select("id")
-      .eq("id", id)
-      .eq("owner_id", admin.id)
-      .single();
-
-    if (!item) {
-      return NextResponse.json({ error: "Inbox item not found." }, { status: 404 });
-    }
-
     const { data: links, error } = await db
       .from("project_inbox_links")
       .select("*")
@@ -48,26 +42,20 @@ export async function POST(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const admin = await verifySuperAdmin();
-  if (!admin) {
-    return new NextResponse("Unauthorized. Super Admin access required.", { status: 403 });
+  const actor = await getAuthenticatedInboxActor();
+  if (!actor) {
+    return new NextResponse("Unauthorized. Please log in.", { status: 401 });
   }
 
   const { id } = await params;
+  const access = await verifyInboxItemAccess(actor, id);
+  if (!access.hasAccess || !access.canEditItem) {
+    return NextResponse.json({ error: "Forbidden. Only the item owner can add links." }, { status: 403 });
+  }
+
   const db = createAdminClient();
 
   try {
-    const { data: item } = await db
-      .from("project_inbox_items")
-      .select("id")
-      .eq("id", id)
-      .eq("owner_id", admin.id)
-      .single();
-
-    if (!item) {
-      return NextResponse.json({ error: "Inbox item not found." }, { status: 404 });
-    }
-
     const body = await req.json();
     const title = (body.title || "").trim();
     let url = (body.url || "").trim();

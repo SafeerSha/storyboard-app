@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { verifySuperAdmin } from "@/lib/super-admin";
+import { getAuthenticatedInboxActor, verifyInboxItemAccess } from "@/lib/inbox-auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 export const dynamic = "force-dynamic";
@@ -8,12 +8,19 @@ export async function POST(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const admin = await verifySuperAdmin();
-  if (!admin) {
-    return new NextResponse("Unauthorized. Super Admin access required.", { status: 403 });
+  const actor = await getAuthenticatedInboxActor();
+  if (!actor) {
+    return new NextResponse("Unauthorized. Please log in.", { status: 401 });
   }
 
   const { id } = await params;
+
+  // Only the item owner (any freelancer) can convert their own idea to a project
+  const access = await verifyInboxItemAccess(actor, id);
+  if (!access.hasAccess || !access.isOwner) {
+    return new NextResponse("Forbidden. Only the item owner can convert an idea to a project.", { status: 403 });
+  }
+
   const db = createAdminClient();
 
   try {
@@ -21,7 +28,7 @@ export async function POST(
       .from("project_inbox_items")
       .select("*")
       .eq("id", id)
-      .eq("owner_id", admin.id)
+      .eq("owner_id", actor.id)
       .single();
 
     if (itemError || !item) {
@@ -32,11 +39,11 @@ export async function POST(
     const projectName = (body.name || item.title || "New Project").trim();
     const projectDescription = (body.description || item.description || "").trim();
 
-    // 1. Create real project in projects table
+    // 1. Create real project in projects table under the actor's ownership
     const { data: newProject, error: projErr } = await db
       .from("projects")
       .insert({
-        owner_id: admin.id,
+        owner_id: actor.id,
         name: projectName,
         description: projectDescription,
         status: "active",
@@ -60,7 +67,7 @@ export async function POST(
         updated_at: new Date().toISOString(),
       })
       .eq("id", id)
-      .eq("owner_id", admin.id)
+      .eq("owner_id", actor.id)
       .select("*, converted_project:projects(id, name)")
       .single();
 

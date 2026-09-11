@@ -22,6 +22,7 @@ export const metadata: Metadata = {
     title: "REQly",
   },
   icons: {
+    icon: "/icon.svg",
     apple: "/icon.svg",
   }
 };
