@@ -37,7 +37,7 @@ export async function generateInboxAiChatResponse({
     : "None recorded yet.";
 
   const systemInstruction = `
-You are StoryBoard AI, a senior product strategy and technical brainstorming partner for the project team.
+You are Reqly AI, a senior product strategy and technical brainstorming partner for the project team.
 You are collaborating with team members on evaluating and researching an idea before it is formalized into a project.
 
 YOUR BEHAVIOR:

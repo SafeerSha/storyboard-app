@@ -736,7 +736,7 @@ export default function UsersPage() {
               className="w-full"
               leftIcon={copiedCreds ? <Check size={14} className="text-emerald-600" /> : <Copy size={14} />}
               onClick={() => {
-                const text = `StoryBoard Team Portal Login:\nURL: ${window.location.origin}/login\nProjects: ${createdSuccess.projectNames.join(", ")}\nUsername: ${createdSuccess.username}\nPassword: ${createdSuccess.passwordEntered}`;
+                const text = `Reqly Team Portal Login:\nURL: ${window.location.origin}/login\nProjects: ${createdSuccess.projectNames.join(", ")}\nUsername: ${createdSuccess.username}\nPassword: ${createdSuccess.passwordEntered}`;
                 navigator.clipboard.writeText(text);
                 setCopiedCreds(true);
                 setTimeout(() => setCopiedCreds(false), 2000);

@@ -1,8 +1,9 @@
 "use client";
 
 import React from "react";
+import { PRODUCT_NAME } from "@/lib/brand";
 
-export interface StoryBoardLogoProps {
+export interface ReqlyLogoProps {
   /** Size preset or custom pixel number */
   size?: "sm" | "md" | "lg" | "xl" | number;
   /** Presentation variant */
@@ -17,6 +18,10 @@ export interface StoryBoardLogoProps {
   iconClassName?: string;
 }
 
+// Legacy alias — keep old name importable so no import sites break immediately
+/** @deprecated Use ReqlyLogoProps */
+export type StoryBoardLogoProps = ReqlyLogoProps;
+
 const SIZE_MAP = {
   sm: { icon: 28, text: "text-sm", badge: "text-[9px]" },
   md: { icon: 32, text: "text-base", badge: "text-[10px]" },
@@ -25,11 +30,11 @@ const SIZE_MAP = {
 };
 
 /**
- * StoryBoard Signature Vector Logo Mark
- * Metaphor: The StoryBoard Hierarchy — Epic Column (Left), In-Progress Story (Top Right),
+ * Reqly Signature Vector Logo Mark
+ * Metaphor: The Reqly Hierarchy — Epic Column (Left), In-Progress Story (Top Right),
  * and Approved Signed-Off Story (Bottom Right) inside a premium champagne-gold jewel squircle.
  */
-export function StoryBoardLogoMark({
+export function ReqlyLogoMark({
   size = 32,
   className = "",
 }: {
@@ -221,36 +226,39 @@ export function StoryBoardLogoMark({
   );
 }
 
+/** @deprecated Use ReqlyLogoMark */
+export const StoryBoardLogoMark = ReqlyLogoMark;
+
 /**
- * StoryBoard Complete Logo Component
+ * Reqly Complete Logo Component
  * Renders the vector mark with typography and optional badges.
  */
-export function StoryBoardLogo({
+export function ReqlyLogo({
   size = "md",
   variant = "full",
   badge,
   inverted = false,
   className = "",
   iconClassName = "",
-}: StoryBoardLogoProps) {
+}: ReqlyLogoProps) {
   const pixelSize = typeof size === "number" ? size : SIZE_MAP[size].icon;
   const sizeConfig = typeof size === "string" ? SIZE_MAP[size] : SIZE_MAP.md;
 
   if (variant === "icon") {
-    return <StoryBoardLogoMark size={pixelSize} className={iconClassName || className} />;
+    return <ReqlyLogoMark size={pixelSize} className={iconClassName || className} />;
   }
 
   if (variant === "stacked") {
     return (
       <div className={`flex flex-col items-center text-center ${className}`}>
-        <StoryBoardLogoMark size={pixelSize} className={`mb-3 ${iconClassName}`} />
+        <ReqlyLogoMark size={pixelSize} className={`mb-3 ${iconClassName}`} />
         <div className="flex items-center justify-center gap-2">
           <span
             className={`font-bold tracking-tight ${sizeConfig.text} ${
               inverted ? "text-white" : "text-[#252331]"
             }`}
           >
-            Story<span className="text-[#B8944E]">Board</span>
+            REQ<span className="text-[#B8944E]">ly</span>
           </span>
           {badge && (
             <span
@@ -273,14 +281,14 @@ export function StoryBoardLogo({
   // Variant === "full" (Horizontal lockup)
   return (
     <div className={`flex items-center gap-2.5 ${className}`}>
-      <StoryBoardLogoMark size={pixelSize} className={iconClassName} />
+      <ReqlyLogoMark size={pixelSize} className={iconClassName} />
       <div className="flex items-center gap-2 min-w-0">
         <span
           className={`font-bold tracking-tight leading-none truncate ${sizeConfig.text} ${
             inverted ? "text-white" : "text-[#252331]"
           }`}
         >
-          Story<span className="text-[#B8944E]">Board</span>
+          REQ<span className="text-[#B8944E]">ly</span>
         </span>
         {badge && (
           <span
@@ -299,3 +307,6 @@ export function StoryBoardLogo({
     </div>
   );
 }
+
+/** @deprecated Use ReqlyLogo */
+export const StoryBoardLogo = ReqlyLogo;

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'storyboard-static-v1';
+const CACHE_NAME = 'reqly-static-v1';
 
 const STATIC_ASSETS = [
   '/icon.svg',

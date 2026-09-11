@@ -17,7 +17,7 @@ async function testEmail() {
     const info = await transporter.sendMail({
       from: '"Test Sender" <' + process.env.SMTP_USER + '>',
       to: "safeerps21@gmail.com",
-      subject: "Test Email from StoryBoard",
+      subject: "Test Email from Reqly",
       text: "This is a test email.",
       html: "<b>This is a test email.</b>",
     });

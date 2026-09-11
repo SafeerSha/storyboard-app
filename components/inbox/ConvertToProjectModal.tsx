@@ -89,7 +89,7 @@ export function ConvertToProjectModal({
           <div>
             <p className="font-semibold">Formalizing Idea</p>
             <p className="mt-0.5 text-[#706C7D] leading-relaxed">
-              This will initialize an authoritative StoryBoard Project from your idea. The original inbox item will remain as historical thinking context.
+              This will initialize a Reqly Project from your idea. The original inbox item will remain as historical thinking context.
             </p>
           </div>
         </div>

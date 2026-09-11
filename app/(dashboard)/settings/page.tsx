@@ -293,7 +293,7 @@ export default function SettingsPage() {
                     leftIcon={<LogOut size={14} />}
                     onClick={handleSignOut}
                   >
-                    Sign out of StoryBoard
+                    Sign out of Reqly
                   </Button>
                 </div>
               </div>

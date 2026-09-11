@@ -453,7 +453,7 @@ export function FreelancerSidebar({
                 Signed in as
               </p>
               <p className="truncate text-xs font-medium text-[#252331]">
-                {userEmail || "freelancer@storyboard"}
+                {userEmail || "freelancer@reqly.io"}
               </p>
             </div>
             <button
@@ -497,7 +497,7 @@ export function FreelancerSidebar({
         <AppDock
           className="hidden lg:flex"
           brand={{
-            label: "StoryBoard",
+            label: "Reqly",
             href: "/",
             badge: userRole === "super_admin" ? "Admin" : undefined,
           }}

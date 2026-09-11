@@ -63,11 +63,46 @@ export function AuthForm() {
 
   return (
     <div className="w-full max-w-md">
-      <div className="mb-6 sm:mb-8 text-center flex flex-col items-center">
-        <StoryBoardLogo size="lg" variant="stacked" />
-        <p className="mt-2 text-xs sm:text-sm text-[#706C7D]">
-          Sign in to manage epic and stories.
-        </p>
+      {/* Brand lockup */}
+      <div className="mb-8 sm:mb-10 flex flex-col items-center text-center gap-3">
+        <StoryBoardLogo size="lg" variant="icon" />
+
+        <div className="flex flex-col items-center gap-1.5">
+          <span
+            style={{
+              fontSize: "24px",
+              fontWeight: 700,
+              letterSpacing: "-0.04em",
+              lineHeight: 1,
+              color: "#252331",
+            }}
+          >
+            REQ<span style={{ color: "#B8944E" }}>ly</span>
+          </span>
+
+          {/* Thin gold divider */}
+          <span
+            style={{
+              display: "block",
+              width: "28px",
+              height: "1px",
+              background:
+                "linear-gradient(90deg, transparent, rgba(184,148,78,0.5), transparent)",
+            }}
+          />
+
+          <span
+            style={{
+              fontSize: "10px",
+              fontWeight: 500,
+              letterSpacing: "0.08em",
+              textTransform: "uppercase",
+              color: "#9994A5",
+            }}
+          >
+            From requirements to delivery
+          </span>
+        </div>
       </div>
 
       <form

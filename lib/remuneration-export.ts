@@ -124,18 +124,22 @@ export async function buildRemunerationPDFDoc(
   const estimateLabel = summary.estimate_label;
   
   // Header
+  doc.setFontSize(9);
+  doc.setTextColor(184, 148, 78);
+  doc.text("REQLY", 14, 14);
+
   doc.setFontSize(18);
   doc.setTextColor(24, 24, 27);
-  doc.text("SCOPE & REMUNERATION PROPOSAL", 14, 20);
+  doc.text("SCOPE & REMUNERATION PROPOSAL", 14, 22);
   
   doc.setFontSize(11);
   doc.setTextColor(70, 70, 70);
-  doc.text(`Project: ${projectName}${estimateLabel ? `  •  ${estimateLabel}` : ""}`, 14, 28);
+  doc.text(`Project: ${projectName}${estimateLabel ? `  •  ${estimateLabel}` : ""}`, 14, 30);
   
   const estimateDate = estimate.created_at ? new Date(estimate.created_at).toLocaleDateString() : new Date().toLocaleDateString();
   doc.setFontSize(9);
   doc.setTextColor(130, 130, 130);
-  doc.text(`Date: ${estimateDate}${estimateLabel ? `  |  Milestone: ${estimateLabel}` : ""}`, 14, 34);
+  doc.text(`Date: ${estimateDate}${estimateLabel ? `  |  Milestone: ${estimateLabel}` : ""}`, 14, 36);
 
   // Summary Table
   const summaryBody = [

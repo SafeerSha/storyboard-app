@@ -333,7 +333,7 @@ export function InboxAiWorkspace({ item }: InboxAiWorkspaceProps) {
                   }`}
                 >
                   <p className="text-[10px] font-semibold uppercase tracking-wider mb-1 opacity-70">
-                    {isUser ? "You" : "StoryBoard AI"}
+                    {isUser ? "You" : "Reqly AI"}
                   </p>
                   <div className="whitespace-pre-wrap">{m.content}</div>
                 </div>
@@ -356,7 +356,7 @@ export function InboxAiWorkspace({ item }: InboxAiWorkspaceProps) {
             </div>
             <div className="rounded-2xl border border-[#EBE7F2] bg-white px-4 py-2.5 shadow-xs text-[#706C7D] flex items-center gap-2">
               <Loader2 size={13} className="animate-spin text-[#B8944E]" />
-              <span className="text-xs">StoryBoard AI is analyzing your idea...</span>
+              <span className="text-xs">Reqly AI is analyzing your idea...</span>
             </div>
           </div>
         )}

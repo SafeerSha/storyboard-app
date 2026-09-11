@@ -59,10 +59,10 @@ export function InstallPrompt() {
         
         <div className="min-w-0 flex-1 pt-0.5">
           <p className="text-sm font-semibold tracking-tight text-[#252331]">
-            Install StoryBoard
+            Install Reqly
           </p>
           <p className="mt-1 text-xs text-[#706C7D] leading-relaxed pr-2">
-            Install StoryBoard for a faster, app-like experience.
+            Install Reqly for a faster, app-like experience.
           </p>
           
           <div className="mt-3 flex items-center gap-3">

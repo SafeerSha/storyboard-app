@@ -14,12 +14,12 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "StoryBoard",
-  description: "Turn vague client requirements into clear, approved feature stories.",
+  title: "REQly",
+  description: "From requirements to delivery.",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "StoryBoard",
+    title: "REQly",
   },
   icons: {
     apple: "/icon.svg",
