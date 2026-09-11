@@ -363,7 +363,7 @@ export function PublishEstimateModal({
             type="text"
             value={fromEmail}
             onChange={(e) => setFromEmail(e.target.value)}
-            placeholder='e.g., Project Workspace <onboarding@resend.dev> or Safeer <hello@yourdomain.com>'
+            placeholder='e.g., Your Name <your-email@reqly.in>'
             className="w-full rounded-xl border border-zinc-200 px-3 py-2 text-xs text-zinc-900 placeholder:text-zinc-400 focus:border-[#B8944E] focus:ring-1 focus:ring-[#B8944E]/30 focus:outline-none"
           />
           <p className="text-[11px] text-zinc-500">
