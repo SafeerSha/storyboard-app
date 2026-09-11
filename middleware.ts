@@ -1,3 +1,5 @@
+// Validate all required env vars at startup — fails fast with a clear error message.
+import "@/lib/env";
 import { type NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import { createAdminClient } from "@/lib/supabase/admin";
