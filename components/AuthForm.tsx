@@ -94,13 +94,13 @@ export function AuthForm() {
           <span
             style={{
               fontSize: "10px",
-              fontWeight: 500,
+              fontWeight: 700,
               letterSpacing: "0.08em",
               textTransform: "uppercase",
-              color: "#9994A5",
+              color: "#252331", // Default to black/dark for the base text
             }}
           >
-            From requirements to delivery
+            From <span style={{ color: "#B8944E" }}>requirements</span> to <span style={{ color: "#B8944E" }}>delivery</span>
           </span>
         </div>
       </div>

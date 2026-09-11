@@ -127,13 +127,13 @@ export default function Loading() {
               style={{
                 margin: 0,
                 fontSize: "11px",
-                fontWeight: 500,
+                fontWeight: 700,
                 letterSpacing: "0.06em",
                 textTransform: "uppercase",
-                color: "#9994A5",
+                color: "#252331", // Default to black/dark for the base text
               }}
             >
-              From requirements to delivery
+              From <span style={{ color: "#B8944E" }}>requirements</span> to <span style={{ color: "#B8944E" }}>delivery</span>
             </p>
           </div>
 
