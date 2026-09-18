@@ -12,6 +12,59 @@ export type Epic = {
   updated_at: string;
 };
 
+export type ProjectNoteStatus = "active" | "converted" | "archived";
+
+export type ProjectNote = {
+  id: string;
+  project_id: string;
+  title: string;
+  content: string;
+  tags?: string[];
+  status: ProjectNoteStatus;
+  converted_epic_id?: string | null;
+  converted_at?: string | null;
+  created_by_id?: string | null;
+  created_by_name?: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type ConvertNotePreviewStory = {
+  title: string;
+  description: string;
+  acceptanceCriteria: string[];
+  assumptions: string[];
+  clarifications: string[];
+  status?: StoryStatus;
+  enabled?: boolean;
+};
+
+export type ConvertNotePreviewResult = {
+  epic: {
+    name: string;
+    description: string;
+  };
+  stories: ConvertNotePreviewStory[];
+};
+
+export type ConvertNoteCommitPayload = {
+  mode: "new_epic_and_stories" | "existing_epic_stories" | "epic_only";
+  targetEpicId?: string | null;
+  epic?: {
+    name: string;
+    description: string;
+  };
+  stories: Array<{
+    title: string;
+    description: string;
+    acceptanceCriteria: string[];
+    assumptions: string[];
+    clarifications: string[];
+    status?: StoryStatus;
+  }>;
+};
+
+
 export type Story = {
   id: string;
   project_id: string;

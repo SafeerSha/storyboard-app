@@ -16,6 +16,7 @@ import {
   Users,
   X,
   MessageSquare,
+  FileText,
 } from "lucide-react";
 import { GenerateStoriesModal } from "@/components/GenerateStoriesModal";
 import { StoryEditor } from "@/components/StoryEditor";
@@ -27,10 +28,11 @@ import { DropdownMenu } from "@/components/ui/DropdownMenu";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { VoiceTextarea } from "@/components/ui/VoiceTextarea";
 import { toast } from "@/lib/toast";
-import type { Story, Epic, StoryStatus } from "@/lib/types";
+import type { Story, Epic, StoryStatus, ProjectNote } from "@/lib/types";
 import { EpicFolder } from "@/components/epics/EpicFolder";
 import { EpicFeedbackThread } from "@/components/epics/EpicFeedbackThread";
 import { sortEpics, sortStories } from "@/lib/epic-story-utils";
+import { ProjectNotesWorkspace } from "@/components/notes/ProjectNotesWorkspace";
 
 interface TeamWorkspaceProps {
   teamUser: {
@@ -47,6 +49,7 @@ interface TeamWorkspaceProps {
   };
   initialStories: Story[];
   initialEpics: Epic[];
+  initialNotes?: ProjectNote[];
   initialTargetStoryId?: string;
 }
 
@@ -55,13 +58,17 @@ export function TeamWorkspace({
   project,
   initialStories,
   initialEpics,
+  initialNotes,
   initialTargetStoryId,
 }: TeamWorkspaceProps) {
   const [stories, setStories] = useState<Story[]>(initialStories);
   const [epics, setEpics] = useState<Epic[]>(initialEpics);
+  const [notes, setNotes] = useState<ProjectNote[]>(initialNotes || []);
+  const [activeTab, setActiveTab] = useState<"hierarchy" | "notes">("hierarchy");
   const [feedbackCounts, setFeedbackCounts] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
 
   // Currently selected story for Document Inspector / StoryEditor (Right column)
   const [editingStory, setEditingStory] = useState<Story | null>(() => {
@@ -174,12 +181,49 @@ export function TeamWorkspace({
     };
   }, [loadFeedbackCounts, reloadStories]);
 
+  const handleNoteConversionComplete = useCallback(
+    (result: { epic: Epic; stories: Story[]; note: ProjectNote }) => {
+      setEpics((prev) => {
+        const exists = prev.some((e) => e.id === result.epic.id);
+        if (exists) {
+          return prev.map((e) => (e.id === result.epic.id ? result.epic : e));
+        }
+        return [result.epic, ...prev];
+      });
+
+      if (result.stories && result.stories.length > 0) {
+        setStories((prev) => [...result.stories, ...prev]);
+        if (result.stories[0]) {
+          setEditingStory(result.stories[0]);
+        }
+      }
+
+      setNotes((prev) =>
+        prev.map((n) => (n.id === result.note.id ? result.note : n))
+      );
+
+      setExpandedEpicIds((prev) => {
+        const next = new Set(prev);
+        next.add(result.epic.id);
+        return next;
+      });
+      setEpicFilter("all");
+
+      setActiveTab("hierarchy");
+      toast.success(`Successfully converted note into Epic "${result.epic.name}"!`);
+    },
+    []
+  );
+
+
   useEffect(() => {
     setStories(initialStories);
     setEpics(initialEpics);
+    if (initialNotes) setNotes(initialNotes);
     loadFeedbackCounts();
     loadTeamMembers();
-  }, [initialStories, initialEpics, loadFeedbackCounts, loadTeamMembers]);
+  }, [initialStories, initialEpics, initialNotes, loadFeedbackCounts, loadTeamMembers]);
+
 
   // Auto-expand and select target story when opened from notifications / review queue
   useEffect(() => {
@@ -579,11 +623,20 @@ export function TeamWorkspace({
                   </span>
                 </div>
 
-                {/* Mobile-only compact Add Epic button */}
+                {/* Mobile-only compact action buttons */}
+                <Button
+                  variant={activeTab === "notes" ? "primary" : "secondary"}
+                  size="sm"
+                  leftIcon={<FileText size={12} />}
+                  onClick={() => setActiveTab("notes")}
+                  className="sm:hidden shrink-0 text-xs px-2.5 py-1"
+                >
+                  Notes ({notes.length})
+                </Button>
                 <Button
                   variant="primary"
                   size="sm"
-                  leftIcon={<Plus size={13} />}
+                  leftIcon={<Plus size={12} />}
                   onClick={() => openCreateEpic()}
                   className="sm:hidden shrink-0 text-xs px-2.5 py-1"
                 >
@@ -596,8 +649,22 @@ export function TeamWorkspace({
               </p>
             </div>
 
-            {/* Desktop Add Epic Button */}
+            {/* Desktop Actions */}
             <div className="hidden sm:flex items-center gap-2 shrink-0">
+              <Button
+                variant={activeTab === "notes" ? "primary" : "secondary"}
+                size="md"
+                leftIcon={<FileText size={14} />}
+                onClick={() => setActiveTab("notes")}
+                title="Discussion Notes"
+              >
+                <span>Notes</span>
+                {notes.length > 0 && (
+                  <span className="ml-1 rounded-full bg-[rgba(74,61,100,0.12)] px-1.5 py-0.2 text-[10px] font-bold">
+                    {notes.length}
+                  </span>
+                )}
+              </Button>
               <Button
                 variant="primary"
                 size="md"
@@ -612,11 +679,66 @@ export function TeamWorkspace({
       </header>
 
       <main className="mx-auto max-w-6xl px-4 py-5 sm:px-6 sm:py-8 lg:px-8 space-y-5 sm:space-y-6">
+        {/* View Switcher Tabs between Requirements Hierarchy and Discussion Notes */}
+        <div className="flex items-center gap-2 border-b border-[rgba(74,61,100,0.08)] pb-2 overflow-x-auto">
+          <button
+            type="button"
+            onClick={() => setActiveTab("hierarchy")}
+            className={`inline-flex items-center gap-2 px-3.5 py-2 text-xs sm:text-sm font-semibold rounded-xl transition cursor-pointer whitespace-nowrap ${
+              activeTab === "hierarchy"
+                ? "bg-white text-[#252331] shadow-2xs border border-[rgba(74,61,100,0.12)]"
+                : "text-[#706C7D] hover:text-[#252331] hover:bg-white/60"
+            }`}
+          >
+            <Layers size={14} className={activeTab === "hierarchy" ? "text-[#B8944E]" : "text-[#9994A5]"} />
+            <span>Requirements Hierarchy</span>
+            <span className="rounded-full bg-[rgba(184,148,78,0.10)] px-2 py-0.5 text-[10px] font-bold text-[#80642F]">
+              {epics.length} Epics • {stories.length} Stories
+            </span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab("notes")}
+            className={`inline-flex items-center gap-2 px-3.5 py-2 text-xs sm:text-sm font-semibold rounded-xl transition cursor-pointer whitespace-nowrap ${
+              activeTab === "notes"
+                ? "bg-white text-[#252331] shadow-2xs border border-[rgba(74,61,100,0.12)]"
+                : "text-[#706C7D] hover:text-[#252331] hover:bg-white/60"
+            }`}
+          >
+            <FileText size={14} className={activeTab === "notes" ? "text-[#B8944E]" : "text-[#9994A5]"} />
+            <span>Discussion Notes</span>
+            <span className="rounded-full bg-[rgba(74,61,100,0.08)] px-2 py-0.5 text-[10px] font-bold text-[#252331]">
+              {notes.length}
+            </span>
+          </button>
+        </div>
+
+        {activeTab === "notes" ? (
+          <ProjectNotesWorkspace
+            projectId={project.id}
+            epics={epics}
+            initialNotes={notes}
+            onConversionComplete={handleNoteConversionComplete}
+            onNavigateToEpic={(epicId) => {
+              setActiveTab("hierarchy");
+              setExpandedEpicIds((prev) => {
+                const next = new Set(prev);
+                next.add(epicId);
+                return next;
+              });
+              setEpicFilter("all");
+            }}
+
+          />
+        ) : (
+          <>
         {error && (
           <div className="rounded-xl border border-rose-200/80 bg-rose-50/80 p-4 text-xs sm:text-sm text-[#C25D72]">
             {error}
           </div>
         )}
+
 
         {/* Filter & Quick Folding Toolbar */}
         <div className="flex flex-wrap items-center justify-between gap-2.5 sm:gap-3">
@@ -878,7 +1000,10 @@ export function TeamWorkspace({
             )}
           </div>
         </div>
+          </>
+        )}
       </main>
+
 
       {/* Epic Modal (Create / Edit with AI Auto-format) */}
       <Modal

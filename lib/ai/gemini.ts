@@ -1,5 +1,5 @@
 import { GoogleGenAI } from "@google/genai";
-import { generatedStoriesSchema } from "./story-schema";
+import { generatedStoriesSchema, convertedRequirementsSchema } from "./story-schema";
 
 const systemPrompt = `
 You are a senior product requirements analyst helping a freelance software developer produce clear, practical, and client-friendly feature stories.
@@ -173,3 +173,116 @@ export async function correctEpicName(rawName: string, currentDescription?: stri
     suggestedDescription: String(parsed.suggestedDescription || "").trim()
   };
 }
+
+const convertNotePrompt = `
+You are an expert agile product manager and senior business analyst.
+Your task is to take informal discussion notes, meeting minutes, brainstorming bullets, or client discussion points and convert them into a structured, client-ready Epic and User Stories.
+
+CORE INSTRUCTIONS:
+1. EPIC SYNTHESIS:
+- If a Target Epic is NOT specified, identify the overarching theme or feature module represented in the notes.
+- Formulate a clear, professional, Title-Cased Epic Name (2-5 words, e.g., "User Authentication & Authorization", "Checkout & Payment Flow", "Order Tracking & Fulfillment").
+- Write a 1-2 sentence Epic Description summarizing the business scope and user value.
+- If a Target Epic IS specified, keep that Epic Name and formulate a description aligned with the note's scope.
+
+2. STORY DECOMPOSITION:
+- Break down the notes, decisions, and discussion items into cohesive, independently deliverable User Stories.
+- Avoid combining disparate workflows into a single story. Split by business capability (e.g., registration vs. password reset vs. profile editing).
+- Avoid micro-splitting trivial tasks; group cohesive CRUD or operational flows into a meaningful feature unit.
+
+3. ACCEPTANCE CRITERIA CONSOLIDATION:
+- Each story must have 2 to 6 concise, outcome-oriented acceptance criteria.
+- Client-friendly language (e.g. "Users can...", "The system validates...", "Admins can...").
+- ZERO technical code/implementation details (no React components, endpoints, database schemas, CSS).
+- Combine related validations and error cases into unified outcome statements.
+
+4. ASSUMPTIONS & CLARIFICATIONS:
+- Extract sensible business assumptions discussed or implied by the notes.
+- Flag any ambiguities, unresolved questions, or edge cases from the meeting notes as clarifications.
+- Status must always be "draft".
+`;
+
+export async function convertNoteToRequirements(
+  noteTitle: string,
+  noteContent: string,
+  options?: { targetEpicName?: string }
+) {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) throw new Error("GEMINI_API_KEY is not configured.");
+
+  const ai = new GoogleGenAI({ apiKey });
+  const model = process.env.GEMINI_MODEL || "gemini-2.5-flash";
+
+  let promptContext = `Note Title: "${noteTitle}"\nNote Content / Discussion Points:\n${noteContent}`;
+  if (options?.targetEpicName) {
+    promptContext += `\n\nTarget Epic: "${options.targetEpicName}" (Generate stories directly belonging to this existing Epic)`;
+  }
+
+  let response;
+  let lastError: unknown;
+
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    try {
+      response = await ai.models.generateContent({
+        model,
+        contents: `${convertNotePrompt}\n\n${promptContext}`,
+        config: {
+          responseMimeType: "application/json",
+          responseSchema: {
+            type: "object",
+            properties: {
+              epic: {
+                type: "object",
+                properties: {
+                  name: { type: "string" },
+                  description: { type: "string" }
+                },
+                required: ["name", "description"]
+              },
+              stories: {
+                type: "array",
+                items: {
+                  type: "object",
+                  properties: {
+                    title: { type: "string" },
+                    description: { type: "string" },
+                    acceptanceCriteria: { type: "array", items: { type: "string" } },
+                    assumptions: { type: "array", items: { type: "string" } },
+                    clarifications: { type: "array", items: { type: "string" } },
+                    status: { type: "string", enum: ["draft"] },
+                    suggestedEpic: { type: "string", nullable: true }
+                  },
+                  required: ["title", "description", "acceptanceCriteria", "assumptions", "clarifications", "status"]
+                }
+              }
+            },
+            required: ["epic", "stories"]
+          }
+        }
+      });
+      break;
+    } catch (err: unknown) {
+      lastError = err;
+      const status = (err as { status?: number })?.status;
+      const message = String((err as Error)?.message || "");
+      const isTransient =
+        status === 503 ||
+        status === 429 ||
+        message.includes("503") ||
+        message.includes("high demand");
+      if (isTransient && attempt < 3) {
+        await new Promise((resolve) => setTimeout(resolve, 1500 * attempt));
+        continue;
+      }
+      throw err;
+    }
+  }
+
+  if (!response) {
+    throw lastError || new Error("Failed to generate response from AI");
+  }
+
+  const parsed = JSON.parse(response.text || "{}");
+  return convertedRequirementsSchema.parse(parsed);
+}
+

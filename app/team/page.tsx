@@ -4,7 +4,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { getReviewersForStories, isTeamUserProjectMember } from "@/lib/story-reviewer-auth";
 import { autoSyncStoriesFeedbackStatus } from "@/lib/feedback-store";
 import { TeamWorkspace } from "@/components/TeamWorkspace";
-import type { Story, Epic } from "@/lib/types";
+import type { Story, Epic, ProjectNote } from "@/lib/types";
 
 export default async function TeamDashboardPage({
   searchParams,
@@ -44,11 +44,12 @@ export default async function TeamDashboardPage({
     activeProjectId = firstMembership?.project_id || "";
   }
 
-  // Fetch project, epics, and stories in parallel
+  // Fetch project, epics, stories, and notes in parallel
   const [
     { data: project },
     { data: epicsData },
     { data: storiesData },
+    { data: notesData },
   ] = await Promise.all([
     admin
       .from("projects")
@@ -66,6 +67,11 @@ export default async function TeamDashboardPage({
       .eq("project_id", activeProjectId)
       .order("updated_at", { ascending: false })
       .order("created_at", { ascending: false }),
+    admin
+      .from("project_notes")
+      .select("*")
+      .eq("project_id", activeProjectId)
+      .order("updated_at", { ascending: false }),
   ]);
 
   if (!project) {
@@ -109,7 +115,9 @@ export default async function TeamDashboardPage({
       project={project}
       initialStories={initialStories}
       initialEpics={initialEpics}
+      initialNotes={(notesData || []) as ProjectNote[]}
       initialTargetStoryId={initialTargetStoryId}
     />
   );
 }
+

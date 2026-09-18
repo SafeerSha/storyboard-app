@@ -14,5 +14,14 @@ export const generatedStoriesSchema = z.object({
   stories: z.array(storySchema)
 });
 
+export const convertedRequirementsSchema = z.object({
+  epic: z.object({
+    name: z.string(),
+    description: z.string().default("")
+  }),
+  stories: z.array(storySchema)
+});
+
 export type GeneratedStory = z.infer<typeof storySchema>;
 export type GeneratedStories = z.infer<typeof generatedStoriesSchema>;
+export type ConvertedRequirements = z.infer<typeof convertedRequirementsSchema>;

@@ -5,7 +5,7 @@ import { ProjectWorkspace } from "@/components/ProjectWorkspace";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Button } from "@/components/ui/Button";
 
-import { Story } from "@/lib/types";
+import { Story, ProjectNote } from "@/lib/types";
 import { getReviewersForStories } from "@/lib/story-reviewer-auth";
 import { autoSyncStoriesFeedbackStatus } from "@/lib/feedback-store";
 
@@ -41,7 +41,7 @@ export default async function ProjectPage({
     );
   }
 
-  const [{ data: rawStories }, { data: epics }] = await Promise.all([
+  const [{ data: rawStories }, { data: epics }, { data: notesData }] = await Promise.all([
     db
       .from("stories")
       .select("id,project_id,epic_id,title,description,acceptance_criteria,assumptions,clarifications,status,team_review_status,team_approved_by_id,team_approved_by_name,team_approved_at,client_review_status,client_approved_by_id,client_approved_by_name,client_approved_at,created_by_id,created_at,updated_at")
@@ -53,6 +53,11 @@ export default async function ProjectPage({
       .select("id,project_id,name,description,status,sort_order,created_at,updated_at")
       .eq("project_id", id)
       .order("created_at", { ascending: false }),
+    db
+      .from("project_notes")
+      .select("*")
+      .eq("project_id", id)
+      .order("updated_at", { ascending: false }),
   ]);
 
   const storyList = (rawStories || []) as Story[];
@@ -79,6 +84,8 @@ export default async function ProjectPage({
       projectStatus={project.status || "active"}
       initialStories={initialStories}
       initialEpics={epics ?? []}
+      initialNotes={(notesData || []) as ProjectNote[]}
     />
   );
 }
+
