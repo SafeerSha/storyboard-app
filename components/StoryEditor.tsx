@@ -61,6 +61,7 @@ export function StoryEditor({
   onCreateEpic,
   onDelete,
   onFeedbackChange,
+  onStatusChange,
   viewerType,
   currentUserId,
   isReviewer,
