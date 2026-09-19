@@ -17,8 +17,18 @@ const schema = z.object({
   raw_requirement: z.string().max(10000).optional().default(""),
   reviewer_ids: z.array(z.string().uuid()).optional(),
   status: z
-    .enum(["draft", "review", "changes_requested", "approved", "in_development", "completed"])
-    .default("draft"),
+    .enum([
+      "new",
+      "active",
+      "done",
+      "draft",
+      "review",
+      "changes_requested",
+      "approved",
+      "in_development",
+      "completed",
+    ])
+    .default("new"),
 });
 
 export async function GET(req: Request) {

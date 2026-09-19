@@ -112,7 +112,7 @@ export async function POST(request: Request) {
       acceptance_criteria: story.acceptanceCriteria || [],
       assumptions: story.assumptions || [],
       clarifications: story.clarifications || [],
-      status: story.status || "draft",
+      status: story.status || "new",
       raw_requirement: requirement,
       created_by_id: creatorId,
     }));

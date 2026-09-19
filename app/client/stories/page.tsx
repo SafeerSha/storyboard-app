@@ -321,9 +321,11 @@ export default function ClientAllStoriesPage() {
                 className="bg-transparent text-sm font-semibold text-[#252331] focus:outline-none cursor-pointer"
               >
                 <option value="all">All Statuses</option>
+                <option value="new">New</option>
+                <option value="active">Active</option>
+                <option value="done">Done</option>
                 <option value="approved">Approved</option>
                 <option value="changes_requested">Changes Requested</option>
-                <option value="draft">Draft / Review</option>
               </select>
             </div>
 

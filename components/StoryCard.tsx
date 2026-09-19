@@ -3,7 +3,7 @@
 import React from "react";
 import { CheckCircle2, MessageSquare } from "lucide-react";
 import { Badge, type BadgeVariant } from "@/components/ui/Badge";
-import type { Story } from "@/lib/types";
+import { normalizeStoryStatus, type Story } from "@/lib/types";
 
 interface StoryCardProps {
   story: Story;
@@ -20,7 +20,7 @@ export function StoryCard({
   creatorName,
   onClick,
 }: StoryCardProps) {
-  const statusVariant = (story.status || "review") as BadgeVariant;
+  const statusVariant = normalizeStoryStatus(story.status);
   const criteriaCount = story.acceptance_criteria?.length ?? 0;
   const assumptionsCount = story.assumptions?.length ?? 0;
   const clarificationsCount = story.clarifications?.length ?? 0;

@@ -13,7 +13,9 @@ import {
 } from "lucide-react";
 import { ClientStoryReview } from "@/components/ClientStoryReview";
 import { Button } from "@/components/ui/Button";
+import { Badge } from "@/components/ui/Badge";
 import type { Story } from "@/lib/types";
+import { normalizeStoryStatus } from "@/lib/types";
 
 export interface EnrichedClientStory extends Story {
   epic_name?: string;
@@ -188,7 +190,10 @@ export function ClientStoryCard({
 
           {/* Bottom Action & Status Badge */}
           <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
-            <div className="flex items-center gap-2.5">
+            <div className="flex items-center gap-2.5 flex-wrap">
+              {/* Development Status Badge (Read-only) */}
+              <Badge variant={normalizeStoryStatus(story.status)} size="sm" />
+
               {/* Client Status Badge */}
               <span
                 className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold border ${statusMeta.colorClasses}`}

@@ -12,9 +12,11 @@ import {
 } from "lucide-react";
 import { ContextualFeedbackThread } from "@/components/ContextualFeedbackThread";
 import { Button } from "@/components/ui/Button";
+import { Badge } from "@/components/ui/Badge";
 import { Modal } from "@/components/ui/Modal";
 import { toast } from "@/lib/toast";
 import type { Story, FeedbackThread, FeedbackMessage, FeedbackThreadStatus } from "@/lib/types";
+import { normalizeStoryStatus } from "@/lib/types";
 import { AiAgentPromptModal } from "@/components/stories/AiAgentPromptModal";
 
 interface ClientStoryReviewProps {
@@ -163,6 +165,15 @@ export function ClientStoryReview({
 
   return (
     <div className="space-y-6 pt-2">
+      {/* Story Development Status (Read-only for clients) */}
+      <div className="flex items-center justify-between gap-3 pb-3 border-b border-zinc-100">
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-semibold uppercase tracking-wider text-zinc-400">Status:</span>
+          <Badge variant={normalizeStoryStatus(story.status)} size="sm" />
+        </div>
+        <span className="text-[11px] text-zinc-400 font-medium italic">Read-only for client</span>
+      </div>
+
       {/* 1. Acceptance Criteria */}
       <section className="space-y-3">
         <div>

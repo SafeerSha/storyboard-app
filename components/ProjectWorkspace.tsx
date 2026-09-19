@@ -31,6 +31,7 @@ import { DropdownMenu } from "@/components/ui/DropdownMenu";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { toast } from "@/lib/toast";
 import type { Story, Epic, StoryStatus, ProjectNote } from "@/lib/types";
+import { normalizeStoryStatus } from "@/lib/types";
 import { EpicFolder } from "@/components/epics/EpicFolder";
 import { EpicFeedbackThread } from "@/components/epics/EpicFeedbackThread";
 import { VoiceTextarea } from "@/components/ui/VoiceTextarea";
@@ -436,14 +437,14 @@ export function ProjectWorkspace({
 
   // Progress metrics
   const totalStoriesCount = stories.length;
-  const approvedStoriesCount = stories.filter((s) => s.status === "approved").length;
+  const newStoriesCount = stories.filter((s) => normalizeStoryStatus(s.status) === "new").length;
+  const activeStoriesCount = stories.filter((s) => normalizeStoryStatus(s.status) === "active").length;
+  const doneStoriesCount = stories.filter((s) => normalizeStoryStatus(s.status) === "done").length;
+  const approvedStoriesCount = stories.filter((s) => s.status === "approved" || s.client_review_status === "approved").length;
   const changesRequestedCount = stories.filter((s) => s.status === "changes_requested").length;
-  const draftStoriesCount = stories.filter(
-    (s) => !s.status || s.status === "draft" || s.status === "review"
-  ).length;
 
   const progressPercent = totalStoriesCount
-    ? Math.round((approvedStoriesCount / totalStoriesCount) * 100)
+    ? Math.round((doneStoriesCount / totalStoriesCount) * 100)
     : 0;
 
   const sortedEpics = useMemo(() => sortEpics(epics), [epics]);
@@ -584,7 +585,15 @@ export function ProjectWorkspace({
             <div className="flex items-center gap-2 sm:gap-2.5 text-xs flex-wrap shrink-0">
               <span className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-50/90 px-2.5 py-1 font-semibold text-emerald-700 border border-emerald-200/70 shadow-2xs">
                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                {approvedStoriesCount} Approved
+                {doneStoriesCount} Done
+              </span>
+              <span className="inline-flex items-center gap-1.5 rounded-lg bg-[rgba(184,148,78,0.10)] px-2.5 py-1 font-semibold text-[#80642F] border border-[rgba(184,148,78,0.20)] shadow-2xs">
+                <span className="h-1.5 w-1.5 rounded-full bg-[#B8944E]" />
+                {activeStoriesCount} Active
+              </span>
+              <span className="inline-flex items-center gap-1.5 rounded-lg bg-sky-50 px-2.5 py-1 font-semibold text-sky-700 border border-sky-200/80 shadow-2xs">
+                <span className="h-1.5 w-1.5 rounded-full bg-sky-500" />
+                {newStoriesCount} New
               </span>
               {changesRequestedCount > 0 && (
                 <span className="inline-flex items-center gap-1.5 rounded-lg bg-rose-50/90 px-2.5 py-1 font-semibold text-rose-700 border border-rose-200/70 shadow-2xs">
@@ -592,10 +601,6 @@ export function ProjectWorkspace({
                   {changesRequestedCount} Changes Requested
                 </span>
               )}
-              <span className="inline-flex items-center gap-1.5 rounded-lg bg-[#FAF9FC] px-2.5 py-1 font-medium text-[#706C7D] border border-[rgba(74,61,100,0.10)] shadow-2xs">
-                <span className="h-1.5 w-1.5 rounded-full bg-[#9994A5]" />
-                {draftStoriesCount} In Review
-              </span>
             </div>
           </div>
 

@@ -21,7 +21,17 @@ const patchSchema = z.object({
   raw_requirement: z.string().max(10000).optional(),
   reviewer_ids: z.array(z.string().uuid()).optional(),
   status: z
-    .enum(["draft", "review", "changes_requested", "approved", "in_development", "completed"])
+    .enum([
+      "new",
+      "active",
+      "done",
+      "draft",
+      "review",
+      "changes_requested",
+      "approved",
+      "in_development",
+      "completed",
+    ])
     .optional(),
   team_review_status: z.enum(["pending", "approved", "changes_requested"]).optional(),
 });

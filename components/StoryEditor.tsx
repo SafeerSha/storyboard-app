@@ -14,20 +14,26 @@ import {
   Users,
   X,
   Bot,
+  Sparkles,
+  Clock,
 } from "lucide-react";
+import { Badge } from "@/components/ui/Badge";
 import { ContextualFeedbackThread } from "@/components/ContextualFeedbackThread";
 import { Button } from "@/components/ui/Button";
 import { VoiceTextarea } from "@/components/ui/VoiceTextarea";
 import { VoiceInput } from "@/components/ui/VoiceInput";
 import { AiAgentPromptModal } from "@/components/stories/AiAgentPromptModal";
-import type {
-  GeneratedStory,
-  Epic,
-  Story,
-  StoryStatus,
-  FeedbackThread,
-  FeedbackAuthorType,
-  FeedbackThreadStatus,
+import {
+  normalizeStoryStatus,
+  getStoryStatusLabel,
+  type StoryLifecycleStatus,
+  type GeneratedStory,
+  type Epic,
+  type Story,
+  type StoryStatus,
+  type FeedbackThread,
+  type FeedbackAuthorType,
+  type FeedbackThreadStatus,
 } from "@/lib/types";
 
 interface StoryFormState {
@@ -91,7 +97,7 @@ export function StoryEditor({
     assumptions: Array.isArray(s?.assumptions) ? s.assumptions : [],
     clarifications: Array.isArray(s?.clarifications) ? s.clarifications : [],
     reviewer_ids: Array.isArray(s?.reviewer_ids) ? s.reviewer_ids : [],
-    status: (s?.status as StoryStatus) || "review",
+    status: (s?.status as StoryStatus) || "new",
   });
 
   const [value, setValue] = useState<StoryFormState>(() => normalizeStory(story));
@@ -250,12 +256,68 @@ export function StoryEditor({
   const openFeedbackCount = threads.filter((t) => t.status === "open").length;
 
   const assignedEpic = epics.find((e) => e.id === value.epic_id);
-  const statusLabel =
-    value.status === "approved"
-      ? "Story · Approved"
-      : value.status === "changes_requested"
-        ? "Story · Changes Requested"
-        : "Story · In Review";
+  const normalizedStatus = normalizeStoryStatus(value.status);
+  const statusLabel = `Story · ${getStoryStatusLabel(value.status)}`;
+
+  const handleStatusChange = (newStatus: StoryLifecycleStatus) => {
+    if (isReadOnly) return;
+    setValue((prev) => ({ ...prev, status: newStatus }));
+  };
+
+  const renderStatusSelector = () => (
+    <div className="space-y-1.5">
+      <label className="block text-xs font-semibold uppercase tracking-wider text-[#9994A5]">
+        Story Status
+      </label>
+      {isReadOnly ? (
+        <div className="flex items-center gap-2">
+          <Badge variant={normalizedStatus} size="sm" />
+          <span className="text-xs text-[#706C7D]">Read-only status</span>
+        </div>
+      ) : (
+        <div className="inline-flex rounded-xl p-1 bg-[#FAF9FC] border border-[rgba(74,61,100,0.10)] gap-1">
+          <button
+            type="button"
+            onClick={() => handleStatusChange("new")}
+            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer ${
+              normalizedStatus === "new"
+                ? "bg-white text-sky-700 shadow-xs border border-sky-200/80 ring-1 ring-sky-500/10"
+                : "text-[#706C7D] hover:text-[#252331] hover:bg-white/60"
+            }`}
+          >
+            <Sparkles size={12} className={normalizedStatus === "new" ? "text-sky-600" : "text-[#9994A5]"} />
+            <span>New</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => handleStatusChange("active")}
+            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer ${
+              normalizedStatus === "active"
+                ? "bg-white text-[#80642F] shadow-xs border border-[rgba(184,148,78,0.30)] ring-1 ring-[#B8944E]/15"
+                : "text-[#706C7D] hover:text-[#252331] hover:bg-white/60"
+            }`}
+          >
+            <Clock size={12} className={normalizedStatus === "active" ? "text-[#B8944E]" : "text-[#9994A5]"} />
+            <span>Active</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => handleStatusChange("done")}
+            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer ${
+              normalizedStatus === "done"
+                ? "bg-white text-[#2E8B70] shadow-xs border border-[rgba(46,139,112,0.30)] ring-1 ring-[#2E8B70]/15"
+                : "text-[#706C7D] hover:text-[#252331] hover:bg-white/60"
+            }`}
+          >
+            <CheckCircle2 size={12} className={normalizedStatus === "done" ? "text-[#2E8B70]" : "text-[#9994A5]"} />
+            <span>Done</span>
+          </button>
+        </div>
+      )}
+    </div>
+  );
 
   return (
     <div className="rounded-[18px] border border-[rgba(74,61,100,0.08)] bg-white p-4 sm:p-7 shadow-[0_8px_30px_rgba(70,55,95,0.055)] space-y-5 sm:space-y-6">
@@ -332,7 +394,7 @@ export function StoryEditor({
               onClick={() =>
                 onSave({
                   ...value,
-                  status: (value.status || "review") as StoryStatus,
+                  status: (value.status || "new") as StoryStatus,
                   reviewer_ids: selectedReviewerIds,
                 } as any)
               }
@@ -502,6 +564,9 @@ export function StoryEditor({
 
           </div>
           <div className="space-y-5 sm:space-y-6">
+            {/* Story Status Control */}
+            {renderStatusSelector()}
+
             {/* Epic Assignment */}
             <div>
               <label className="block text-xs font-semibold uppercase tracking-wider text-[#9994A5] mb-1.5">
@@ -840,6 +905,9 @@ export function StoryEditor({
               </div>
             </div>
           )}
+
+          {/* Story Status Control */}
+          {renderStatusSelector()}
 
           {/* Epic Assignment */}
           <div>
@@ -1337,7 +1405,7 @@ export function StoryEditor({
               onClick={() =>
                 onSave({
                   ...value,
-                  status: (value.status || "review") as StoryStatus,
+                  status: (value.status || "new") as StoryStatus,
                   reviewer_ids: selectedReviewerIds,
                 } as any)
               }

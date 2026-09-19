@@ -4,12 +4,12 @@ import { ChevronDown } from "lucide-react";
 import { Badge, type BadgeVariant } from "@/components/ui/Badge";
 import { ClientStoryReview } from "@/components/ClientStoryReview";
 import { useStoryAccordion } from "./StoryAccordionContext";
-import type { Story } from "@/lib/types";
+import { normalizeStoryStatus, type Story } from "@/lib/types";
 
 export function StoryArticle({ story, viewerId }: { story: Story; viewerId?: string }) {
   const { openStoryId, setOpenStoryId } = useStoryAccordion();
   const isOpen = openStoryId === story.id;
-  const statusVariant = (story.status || "review") as BadgeVariant;
+  const statusVariant = normalizeStoryStatus(story.status);
 
   return (
     <div className="rounded-xl border border-zinc-200/80 bg-white shadow-xs overflow-hidden transition-all">

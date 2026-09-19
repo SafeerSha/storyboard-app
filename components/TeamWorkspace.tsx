@@ -28,7 +28,8 @@ import { DropdownMenu } from "@/components/ui/DropdownMenu";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { VoiceTextarea } from "@/components/ui/VoiceTextarea";
 import { toast } from "@/lib/toast";
-import type { Story, Epic, StoryStatus, ProjectNote } from "@/lib/types";
+import type { Story, Epic, StoryStatus, ProjectNote, StoryLifecycleStatus } from "@/lib/types";
+import { normalizeStoryStatus } from "@/lib/types";
 import { EpicFolder } from "@/components/epics/EpicFolder";
 import { EpicFeedbackThread } from "@/components/epics/EpicFeedbackThread";
 import { sortEpics, sortStories } from "@/lib/epic-story-utils";
@@ -90,6 +91,7 @@ export function TeamWorkspace({
   const [manualStoryAssumptions, setManualStoryAssumptions] = useState<string[]>([]);
   const [manualStoryClarifications, setManualStoryClarifications] = useState<string[]>([]);
   const [manualStoryReviewerIds, setManualStoryReviewerIds] = useState<string[]>([teamUser.id]);
+  const [manualStoryStatus, setManualStoryStatus] = useState<StoryLifecycleStatus>("new");
   const [manualStoryError, setManualStoryError] = useState("");
   const [creatingManualStory, setCreatingManualStory] = useState(false);
 
@@ -533,6 +535,7 @@ export function TeamWorkspace({
     setManualStoryAssumptions([]);
     setManualStoryClarifications([]);
     setManualStoryReviewerIds([]);
+    setManualStoryStatus("new");
     setManualStoryError("");
     setManualStoryModalOpen(true);
     loadTeamMembers();
@@ -564,7 +567,7 @@ export function TeamWorkspace({
           acceptance_criteria: manualStoryCriteria.filter((c) => c.trim()),
           assumptions: manualStoryAssumptions.filter((a) => a.trim()),
           clarifications: manualStoryClarifications.filter((cl) => cl.trim()),
-          status: "review",
+          status: manualStoryStatus,
           reviewer_ids: manualStoryReviewerIds,
         }),
       });
@@ -814,6 +817,8 @@ export function TeamWorkspace({
               <>
                 {filteredEpics.map((epic) => {
                   const epicStories = sortStories(stories.filter((s) => s.epic_id === epic.id));
+                  const doneCount = epicStories.filter((s) => normalizeStoryStatus(s.status) === "done").length;
+                  const activeCount = epicStories.filter((s) => normalizeStoryStatus(s.status) === "active").length;
                   const approvedCount = epicStories.filter((s) => s.status === "approved" || s.team_review_status === "approved").length;
                   const changesCount = epicStories.filter((s) => s.status === "changes_requested").length;
 
@@ -1190,6 +1195,33 @@ export function TeamWorkspace({
               placeholder="e.g. User Profile Avatar Upload"
               className="h-10 w-full rounded-xl border border-[#EBE7F2] px-3.5 text-sm text-[#252331] outline-none transition focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)]"
             />
+          </div>
+
+          {/* Story Status */}
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-[#9994A5] mb-1.5">
+              Status
+            </label>
+            <div className="flex gap-2">
+              {(["new", "active", "done"] as const).map((st) => (
+                <button
+                  key={st}
+                  type="button"
+                  onClick={() => setManualStoryStatus(st)}
+                  className={`flex-1 py-1.5 px-3 rounded-xl border text-xs font-semibold capitalize transition cursor-pointer ${
+                    manualStoryStatus === st
+                      ? st === "new"
+                        ? "border-sky-200 bg-sky-50 text-sky-800 ring-1 ring-sky-500/20"
+                        : st === "active"
+                        ? "border-[rgba(184,148,78,0.30)] bg-[rgba(184,148,78,0.10)] text-[#80642F] ring-1 ring-[#B8944E]/20"
+                        : "border-[rgba(46,139,112,0.30)] bg-[rgba(46,139,112,0.10)] text-[#2E8B70] ring-1 ring-[#2E8B70]/20"
+                      : "border-[#EBE7F2] bg-white text-[#706C7D] hover:bg-[#FAF9FC]"
+                  }`}
+                >
+                  {st === "new" ? "New" : st === "active" ? "Active" : "Done"}
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* Story Description */}

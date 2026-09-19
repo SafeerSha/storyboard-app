@@ -1,7 +1,10 @@
 import React from "react";
-import { Check, AlertCircle, Clock, CheckCircle2, Circle } from "lucide-react";
+import { Check, AlertCircle, Clock, CheckCircle2, Circle, Sparkles } from "lucide-react";
 
 export type BadgeVariant =
+  | "new"
+  | "active"
+  | "done"
   | "draft"
   | "review"
   | "changes_requested"
@@ -25,6 +28,27 @@ const variantStyles: Record<
   BadgeVariant,
   { bg: string; text: string; border: string; icon: React.ComponentType<{ size: number; className?: string }> | null; label: string }
 > = {
+  new: {
+    bg: "bg-sky-50",
+    text: "text-sky-700",
+    border: "border-sky-200/80",
+    icon: Sparkles,
+    label: "New",
+  },
+  active: {
+    bg: "bg-[rgba(184,148,78,0.10)]",
+    text: "text-[#80642F]",
+    border: "border-[rgba(184,148,78,0.22)]",
+    icon: Clock,
+    label: "Active",
+  },
+  done: {
+    bg: "bg-[rgba(46,139,112,0.08)]",
+    text: "text-[#2E8B70]",
+    border: "border-[rgba(46,139,112,0.16)]",
+    icon: CheckCircle2,
+    label: "Done",
+  },
   draft: {
     bg: "bg-[#FAF9FC]",
     text: "text-[#706C7D]",

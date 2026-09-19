@@ -1,4 +1,35 @@
-export type StoryStatus = "draft" | "review" | "changes_requested" | "approved" | "in_development" | "completed";
+export type StoryLifecycleStatus = "new" | "active" | "done";
+
+export type StoryStatus =
+  | "new"
+  | "active"
+  | "done"
+  | "draft"
+  | "review"
+  | "changes_requested"
+  | "approved"
+  | "in_development"
+  | "completed";
+
+export function normalizeStoryStatus(status?: string | null): StoryLifecycleStatus {
+  if (!status) return "new";
+  const s = status.toLowerCase();
+  if (s === "done" || s === "completed" || s === "approved") return "done";
+  if (s === "active" || s === "in_development") return "active";
+  return "new";
+}
+
+export function getStoryStatusLabel(status?: string | null): "New" | "Active" | "Done" {
+  const norm = normalizeStoryStatus(status);
+  switch (norm) {
+    case "new":
+      return "New";
+    case "active":
+      return "Active";
+    case "done":
+      return "Done";
+  }
+}
 
 export type Epic = {
   id: string;
