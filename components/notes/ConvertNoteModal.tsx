@@ -15,10 +15,12 @@ import {
   ArrowRight,
   RotateCcw,
   Check,
+  Bot,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { toast } from "@/lib/toast";
 import type { Epic, Story, ProjectNote } from "@/lib/types";
+import { AiAgentPromptModal } from "@/components/stories/AiAgentPromptModal";
 
 interface ConvertNoteModalProps {
   projectId: string;
@@ -68,6 +70,7 @@ export function ConvertNoteModal({
   const [previewEpic, setPreviewEpic] = useState({ name: "", description: "" });
   const [previewStories, setPreviewStories] = useState<PreviewStory[]>([]);
   const [hasPreview, setHasPreview] = useState(false);
+  const [promptStory, setPromptStory] = useState<PreviewStory | null>(null);
 
   const steps = [
     "Reading discussion notes & context...",
@@ -521,6 +524,16 @@ export function ConvertNoteModal({
 
                           <button
                             type="button"
+                            onClick={() => setPromptStory(story)}
+                            className="inline-flex items-center gap-1 text-[11px] font-medium text-[#80642F] bg-[rgba(184,148,78,0.08)] hover:bg-[rgba(184,148,78,0.16)] px-2 py-1 rounded-lg border border-[rgba(184,148,78,0.18)] transition shrink-0 cursor-pointer"
+                            title="Convert to AI Agent Prompt"
+                          >
+                            <Bot size={12} />
+                            <span className="hidden sm:inline">AI Prompt</span>
+                          </button>
+
+                          <button
+                            type="button"
                             onClick={() =>
                               setPreviewStories((prev) =>
                                 prev.map((s, i) =>
@@ -541,7 +554,7 @@ export function ConvertNoteModal({
 
                         {/* Expandable Criteria Checklist */}
                         {story.isExpanded && story.enabled && (
-                          <div className="pl-6 pt-1 border-t border-[rgba(74,61,100,0.06)] space-y-1.5 text-xs">
+                          <div className="pl-6 pt-1 border-t border-[rgba(74,61,100,0.06)] space-y-2 text-xs">
                             <span className="text-[10px] font-bold uppercase tracking-wider text-[#9994A5]">
                               Acceptance Criteria ({story.acceptanceCriteria.length})
                             </span>
@@ -553,6 +566,17 @@ export function ConvertNoteModal({
                                 </li>
                               ))}
                             </ul>
+                            <div className="pt-2 flex items-center justify-between border-t border-[rgba(74,61,100,0.06)] text-[11px]">
+                              <span className="text-[#706C7D]">Ready for AI agent?</span>
+                              <button
+                                type="button"
+                                onClick={() => setPromptStory(story)}
+                                className="inline-flex items-center gap-1 font-semibold text-[#80642F] hover:text-[#B8944E] cursor-pointer"
+                              >
+                                <Bot size={12} />
+                                <span>Get AI Agent Prompt &rarr;</span>
+                              </button>
+                            </div>
                           </div>
                         )}
                       </div>
@@ -593,6 +617,16 @@ export function ConvertNoteModal({
           )}
         </div>
       </div>
+
+      {promptStory && (
+        <AiAgentPromptModal
+          isOpen={Boolean(promptStory)}
+          onClose={() => setPromptStory(null)}
+          story={promptStory}
+          epicName={previewEpic.name}
+          epicDescription={previewEpic.description}
+        />
+      )}
     </div>
   );
 }

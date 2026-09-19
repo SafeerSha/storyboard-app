@@ -8,12 +8,14 @@ import {
   HelpCircle,
   MessageSquare,
   ShieldCheck,
+  Bot,
 } from "lucide-react";
 import { ContextualFeedbackThread } from "@/components/ContextualFeedbackThread";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
 import { toast } from "@/lib/toast";
 import type { Story, FeedbackThread, FeedbackMessage, FeedbackThreadStatus } from "@/lib/types";
+import { AiAgentPromptModal } from "@/components/stories/AiAgentPromptModal";
 
 interface ClientStoryReviewProps {
   story: Story;
@@ -33,6 +35,7 @@ export function ClientStoryReview({
   const [approving, setApproving] = useState(false);
   const [approvalError, setApprovalError] = useState("");
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [agentPromptOpen, setAgentPromptOpen] = useState(false);
 
   // Fetch feedback threads on mount if not provided
   useEffect(() => {
@@ -338,13 +341,27 @@ export function ClientStoryReview({
         )}
 
         {isApproved ? (
-          <div className="flex items-center gap-3 rounded-xl bg-emerald-50 border border-emerald-200 p-4 text-xs sm:text-sm text-emerald-900">
-            <CheckCircle2 size={20} className="text-emerald-600 shrink-0 stroke-[2.5]" />
-            <div>
-              <p className="font-semibold">Story Approved by Client</p>
-              <p className="text-xs text-emerald-700 mt-0.5">
-                This requirement is confirmed and ready for development.
-              </p>
+          <div className="rounded-xl bg-emerald-50 border border-emerald-200 p-4 text-xs sm:text-sm text-emerald-900 space-y-3">
+            <div className="flex items-center gap-3">
+              <CheckCircle2 size={20} className="text-emerald-600 shrink-0 stroke-[2.5]" />
+              <div>
+                <p className="font-semibold">Story Approved by Client</p>
+                <p className="text-xs text-emerald-700 mt-0.5">
+                  This requirement is confirmed and ready for development.
+                </p>
+              </div>
+            </div>
+            <div className="pt-2 border-t border-emerald-200/60 flex items-center justify-between">
+              <span className="text-xs text-emerald-800">Ready to build this feature in your app?</span>
+              <Button
+                variant="outline"
+                size="sm"
+                leftIcon={<Bot size={13} className="text-[#80642F]" />}
+                onClick={() => setAgentPromptOpen(true)}
+                className="bg-white text-slate-800 border-emerald-300 hover:bg-emerald-100/50"
+              >
+                AI Agent Prompt
+              </Button>
             </div>
           </div>
         ) : (
@@ -407,7 +424,16 @@ export function ClientStoryReview({
               </div>
             )}
 
-            <div className="flex items-center justify-end gap-2 pt-1">
+            <div className="flex items-center justify-between gap-2 pt-1">
+              <Button
+                variant="outline"
+                size="sm"
+                leftIcon={<Bot size={14} className="text-[#80642F]" />}
+                onClick={() => setAgentPromptOpen(true)}
+                title="Convert to AI Agent Prompt"
+              >
+                AI Agent Prompt
+              </Button>
               <Button
                 variant="primary"
                 size="md"
@@ -450,6 +476,14 @@ export function ClientStoryReview({
           Make sure your team is aligned on the requirements before giving final sign-off.
         </p>
       </Modal>
+
+      {agentPromptOpen && (
+        <AiAgentPromptModal
+          isOpen={agentPromptOpen}
+          onClose={() => setAgentPromptOpen(false)}
+          story={story}
+        />
+      )}
     </div>
   );
 }

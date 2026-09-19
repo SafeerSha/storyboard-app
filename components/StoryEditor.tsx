@@ -13,11 +13,13 @@ import {
   Trash2,
   Users,
   X,
+  Bot,
 } from "lucide-react";
 import { ContextualFeedbackThread } from "@/components/ContextualFeedbackThread";
 import { Button } from "@/components/ui/Button";
 import { VoiceTextarea } from "@/components/ui/VoiceTextarea";
 import { VoiceInput } from "@/components/ui/VoiceInput";
+import { AiAgentPromptModal } from "@/components/stories/AiAgentPromptModal";
 import type {
   GeneratedStory,
   Epic,
@@ -93,6 +95,7 @@ export function StoryEditor({
   });
 
   const [value, setValue] = useState<StoryFormState>(() => normalizeStory(story));
+  const [agentPromptOpen, setAgentPromptOpen] = useState(false);
   const storyId = story.id;
   const [threads, setThreads] = useState<FeedbackThread[]>([]);
   const effectiveViewer = viewerType || "freelancer";
@@ -298,6 +301,15 @@ export function StoryEditor({
                 </Button>
               </Link>
             )}
+            <Button
+              variant="outline"
+              size="sm"
+              leftIcon={<Bot size={14} className="text-[#80642F]" />}
+              onClick={() => setAgentPromptOpen(true)}
+              title="Convert this story implementation into an AI agent prompt"
+            >
+              AI Agent Prompt
+            </Button>
             {onApprove && !isReadOnly && (
               <Button
                 variant={isTeamApproved ? "secondary" : "primary"}
@@ -339,14 +351,25 @@ export function StoryEditor({
             )}
           </div>
         ) : (
-          <button
-            type="button"
-            onClick={onCancel}
-            aria-label="Close story editor"
-            className="grid h-8 w-8 shrink-0 place-items-center rounded-lg text-[#9994A5] hover:bg-[#E9E3F4]/30 hover:text-[#252331] transition"
-          >
-            <X size={16} />
-          </button>
+          <div className="flex items-center gap-1.5 shrink-0">
+            <button
+              type="button"
+              onClick={() => setAgentPromptOpen(true)}
+              className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-[#80642F] bg-[rgba(184,148,78,0.08)] hover:bg-[rgba(184,148,78,0.16)] border border-[rgba(184,148,78,0.20)] transition cursor-pointer shadow-2xs"
+              title="Convert to AI Agent Prompt for Cursor, Claude Code, Copilot, Antigravity"
+            >
+              <Bot size={13} />
+              <span className="hidden sm:inline">AI Agent Prompt</span>
+            </button>
+            <button
+              type="button"
+              onClick={onCancel}
+              aria-label="Close story editor"
+              className="grid h-8 w-8 shrink-0 place-items-center rounded-lg text-[#9994A5] hover:bg-[#E9E3F4]/30 hover:text-[#252331] transition"
+            >
+              <X size={16} />
+            </button>
+          </div>
         )}
       </div>
 
@@ -1323,6 +1346,16 @@ export function StoryEditor({
             </Button>
           </div>
         </div>
+      )}
+
+      {agentPromptOpen && (
+        <AiAgentPromptModal
+          isOpen={agentPromptOpen}
+          onClose={() => setAgentPromptOpen(false)}
+          story={value}
+          epicName={assignedEpic?.name}
+          epicDescription={assignedEpic?.description || undefined}
+        />
       )}
     </div>
   );
