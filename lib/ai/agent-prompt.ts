@@ -219,3 +219,135 @@ ${JSON.stringify(contextData, null, 2)}
     return buildDeterministicAgentPrompt(input);
   }
 }
+
+export interface EpicPromptInput {
+  epic: {
+    name: string;
+    description?: string;
+  };
+  stories: {
+    title: string;
+    description?: string;
+    acceptanceCriteria: string[];
+  }[];
+  techStackHint?: string;
+  preset?: AgentPromptPreset;
+}
+
+export function buildDeterministicEpicAgentPrompt(input: EpicPromptInput): string {
+  const {
+    epic,
+    stories,
+    techStackHint = "Next.js (App Router), TypeScript, Tailwind CSS, Supabase",
+    preset = "fullstack",
+  } = input;
+
+  let prompt = `# 🚀 AI Coding Agent Epic Specification: ${epic.name.trim()}\n\n`;
+
+  prompt += `> **Task Objective**: Implement the following Epic, comprising multiple related feature stories, with highest fidelity, strict type-safety, and complete test verification.\n`;
+  prompt += `> **Implementation Focus**: ${preset} architecture.\n\n`;
+
+  prompt += `## 1. Epic Overview\n`;
+  prompt += `- **Epic Name**: ${epic.name.trim()}\n`;
+  if (epic.description?.trim()) {
+    prompt += `- **Description**: ${epic.description.trim()}\n`;
+  }
+  if (techStackHint.trim()) {
+    prompt += `- **Target Tech Stack**: ${techStackHint.trim()}\n`;
+  }
+  prompt += `\n`;
+
+  prompt += `## 2. Feature Stories (${stories.length})\n`;
+  prompt += `The implementation must fulfill the following stories and their acceptance criteria:\n\n`;
+
+  stories.forEach((story, idx) => {
+    prompt += `### Story ${idx + 1}: ${story.title.trim()}\n`;
+    if (story.description?.trim()) {
+      prompt += `**Goal**: ${story.description.trim()}\n`;
+    }
+    if (story.acceptanceCriteria.length > 0) {
+      prompt += `**Acceptance Criteria**:\n`;
+      story.acceptanceCriteria.forEach((ac, acIdx) => {
+        prompt += `- [ ] AC-${idx + 1}.${acIdx + 1}: ${ac.trim()}\n`;
+      });
+    } else {
+      prompt += `*(No specific criteria provided. Implement standard industry best practices).* \n`;
+    }
+    prompt += `\n`;
+  });
+
+  prompt += `## 3. Step-by-Step AI Agent Execution Plan\n`;
+  prompt += `1. **Reconnaissance**: Review existing relevant files, types, and components in the repository to maintain architectural consistency.\n`;
+  prompt += `2. **Data Contracts & Types**: Define or update TypeScript types/interfaces and validation schemas required across the Epic.\n`;
+  prompt += `3. **Backend / Logic**: Implement core endpoints, server actions, or business algorithms with appropriate error handling.\n`;
+  prompt += `4. **UI & User Flow**: Build or integrate the interactive UI components, loading states, and feedback toasts.\n`;
+  prompt += `5. **Edge Case Hardening**: Ensure resilience against empty inputs, race conditions, and network failures.\n`;
+  prompt += `6. **Self-Verification**: Validate the implementation against all acceptance criteria listed above.\n\n`;
+
+  prompt += `## 4. Verification Checklist (Agent Sign-off)\n`;
+  prompt += `- [ ] All stories fully implemented and verified\n`;
+  prompt += `- [ ] Responsive across screen sizes and accessible\n`;
+  prompt += `- [ ] No regression introduced into adjacent modules\n`;
+  prompt += `- [ ] Code builds cleanly without TypeScript or lint errors\n`;
+
+  return prompt;
+}
+
+const geminiEpicEnhanceSystemPrompt = `
+You are a Staff Principal Software Engineer and AI Coding Agent Prompter.
+Your task is to take an Epic (Title, Description) and its associated Stories (Titles, Descriptions, Acceptance Criteria) and transform it into an ultra-detailed, highly actionable specification prompt for an autonomous AI coding agent (like Cursor Composer, Claude Code, GitHub Copilot Workspace, Antigravity, or Devin).
+
+REQUIREMENTS FOR YOUR GENERATED PROMPT:
+1. Output in pristine GitHub Markdown.
+2. Structure the prompt logically:
+   - Epic Overview & Scope
+   - Feature Breakdown (Stories and their specific ACs)
+   - Concrete File & Component Architecture Recommendations for the Epic
+   - Data Models & TypeScript Schema specifications
+   - Security, Auth, and Input Sanitization rules
+   - Step-by-Step Agent Execution Sequence
+   - Complete Acceptance Criteria Verification Checklist
+3. Tailor instructions to the requested preset (fullstack, frontend, backend, or tdd).
+4. Be explicit, thorough, and unambiguous so an AI agent can execute without hallucinating missing business logic.
+5. Return ONLY the markdown prompt content. Do NOT wrap in conversational greetings or markdown meta-fences.
+`;
+
+export async function generateGeminiEpicAgentPrompt(input: EpicPromptInput): Promise<string> {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    return buildDeterministicEpicAgentPrompt(input);
+  }
+
+  const ai = new GoogleGenAI({ apiKey });
+  const model = process.env.GEMINI_MODEL || "gemini-2.5-flash";
+
+  const contextData = {
+    epicName: input.epic.name,
+    epicDescription: input.epic.description || "None provided",
+    stories: input.stories,
+    preset: input.preset || "fullstack",
+    techStack: input.techStackHint || "Next.js, TypeScript, Tailwind CSS, Supabase",
+  };
+
+  const userPrompt = `Please synthesize an in-depth AI coding agent prompt for this Epic and its stories:
+
+${JSON.stringify(contextData, null, 2)}
+`;
+
+  try {
+    const response = await ai.models.generateContent({
+      model,
+      contents: `${geminiEpicEnhanceSystemPrompt}\n\n${userPrompt}`,
+    });
+
+    const text = response.text?.trim();
+    if (!text) {
+      return buildDeterministicEpicAgentPrompt(input);
+    }
+    return text;
+  } catch (error) {
+    console.error("Gemini epic agent prompt enhancement failed, falling back to deterministic:", error);
+    return buildDeterministicEpicAgentPrompt(input);
+  }
+}
+

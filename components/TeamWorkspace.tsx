@@ -8,6 +8,7 @@ import {
   CheckCircle2,
   ChevronDown,
   ChevronUp,
+  Code2,
   Edit2,
   Layers,
   Plus,
@@ -33,6 +34,7 @@ import type { Story, Epic, StoryStatus, ProjectNote, StoryLifecycleStatus } from
 import { normalizeStoryStatus, getStoryStatusLabel } from "@/lib/types";
 import { EpicFolder } from "@/components/epics/EpicFolder";
 import { EpicFeedbackThread } from "@/components/epics/EpicFeedbackThread";
+import { AiEpicAgentPromptModal } from "@/components/epics/AiEpicAgentPromptModal";
 import { sortEpics, sortStories } from "@/lib/epic-story-utils";
 import { ProjectNotesWorkspace } from "@/components/notes/ProjectNotesWorkspace";
 
@@ -109,6 +111,7 @@ export function TeamWorkspace({
   const [aiSuggestions, setAiSuggestions] = useState<string[] | null>(null);
   const [aiError, setAiError] = useState("");
   const [savingEpic, setSavingEpic] = useState(false);
+  const [epicPromptTarget, setEpicPromptTarget] = useState<Epic | null>(null);
 
   // Filter and Folding state (Record ensures pure serializable state and reliable re-rendering)
   const [epicFilter, setEpicFilter] = useState<string>("all");
@@ -989,6 +992,11 @@ export function TeamWorkspace({
                               ariaLabel={`Actions for ${epic.name}`}
                               items={[
                                 {
+                                  label: "Generate AI Prompt",
+                                  icon: <Code2 size={14} />,
+                                  onClick: () => setEpicPromptTarget(epic),
+                                },
+                                {
                                   label: "Add Story manually",
                                   icon: <Plus size={14} />,
                                   onClick: () => openAddStoryManually(epic),
@@ -1546,6 +1554,16 @@ export function TeamWorkspace({
           The open discussions will remain visible for client review.
         </p>
       </Modal>
+
+      {/* Ai Epic Agent Prompt Modal */}
+      {epicPromptTarget && (
+        <AiEpicAgentPromptModal
+          isOpen={true}
+          onClose={() => setEpicPromptTarget(null)}
+          epic={epicPromptTarget}
+          stories={sortStories(stories.filter(s => s.epic_id === epicPromptTarget.id))}
+        />
+      )}
     </div>
   );
 }

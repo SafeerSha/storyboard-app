@@ -9,6 +9,7 @@ import {
   CheckCircle2,
   ChevronDown,
   ChevronUp,
+  Code2,
   Copy,
   Edit2,
   ExternalLink,
@@ -22,6 +23,7 @@ import {
   X,
 } from "lucide-react";
 import { DashboardHeader } from "@/components/layout/DashboardHeader";
+import { AiEpicAgentPromptModal } from "@/components/epics/AiEpicAgentPromptModal";
 import { GenerateStoriesModal } from "@/components/GenerateStoriesModal";
 import { StoryEditor } from "@/components/StoryEditor";
 import { StoryCard } from "@/components/StoryCard";
@@ -155,6 +157,7 @@ export function ProjectWorkspace({
   // ConfirmDialog states for deletions
   const [deletingStoryId, setDeletingStoryId] = useState<string | null>(null);
   const [deletingEpicItem, setDeletingEpicItem] = useState<Epic | null>(null);
+  const [epicPromptTarget, setEpicPromptTarget] = useState<Epic | null>(null);
 
   const loadFeedbackCounts = useCallback(async () => {
     try {
@@ -855,6 +858,11 @@ export function ProjectWorkspace({
                               ariaLabel={`Actions for ${epic.name}`}
                               items={[
                                 {
+                                  label: "Generate AI Prompt",
+                                  icon: <Code2 size={14} />,
+                                  onClick: () => setEpicPromptTarget(epic),
+                                },
+                                {
                                   label: "Edit Epic",
                                   icon: <Edit2 size={14} />,
                                   onClick: () => openEditEpic(epic),
@@ -1138,7 +1146,6 @@ export function ProjectWorkspace({
         isLoading={loading}
       />
 
-      {/* Delete Epic Confirmation Dialog */}
       <ConfirmDialog
         isOpen={Boolean(deletingEpicItem)}
         onClose={() => setDeletingEpicItem(null)}
@@ -1149,6 +1156,16 @@ export function ProjectWorkspace({
         variant="danger"
         isLoading={loading}
       />
+
+      {/* Ai Epic Agent Prompt Modal */}
+      {epicPromptTarget && (
+        <AiEpicAgentPromptModal
+          isOpen={true}
+          onClose={() => setEpicPromptTarget(null)}
+          epic={epicPromptTarget}
+          stories={sortStories(stories.filter(s => s.epic_id === epicPromptTarget.id))}
+        />
+      )}
     </div>
   );
 }
