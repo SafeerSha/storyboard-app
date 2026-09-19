@@ -17,6 +17,7 @@ import {
   X,
   MessageSquare,
   FileText,
+  Filter,
 } from "lucide-react";
 import { GenerateStoriesModal } from "@/components/GenerateStoriesModal";
 import { StoryEditor } from "@/components/StoryEditor";
@@ -29,7 +30,7 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { VoiceTextarea } from "@/components/ui/VoiceTextarea";
 import { toast } from "@/lib/toast";
 import type { Story, Epic, StoryStatus, ProjectNote, StoryLifecycleStatus } from "@/lib/types";
-import { normalizeStoryStatus } from "@/lib/types";
+import { normalizeStoryStatus, getStoryStatusLabel } from "@/lib/types";
 import { EpicFolder } from "@/components/epics/EpicFolder";
 import { EpicFeedbackThread } from "@/components/epics/EpicFeedbackThread";
 import { sortEpics, sortStories } from "@/lib/epic-story-utils";
@@ -111,6 +112,7 @@ export function TeamWorkspace({
 
   // Filter and Folding state (Record ensures pure serializable state and reliable re-rendering)
   const [epicFilter, setEpicFilter] = useState<string>("all");
+  const [statusFilter, setStatusFilter] = useState<"all" | StoryLifecycleStatus>("all");
   const [expandedEpicIds, setExpandedEpicIds] = useState<Set<string>>(() => new Set());
 
   // ConfirmDialog states
@@ -414,6 +416,26 @@ export function TeamWorkspace({
   }
 
   // Story Inspector Actions
+  async function handleStoryStatusChange(storyId: string, newStatus: StoryLifecycleStatus) {
+    try {
+      const res = await fetch(`/api/stories/${storyId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: newStatus }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to update story status");
+
+      setStories((v) => v.map((s) => (s.id === storyId ? data.story : s)));
+      setEditingStory((prev: any) => (prev && prev.id === storyId ? data.story : prev));
+      loadFeedbackCounts();
+      toast.success(`Story status updated to ${getStoryStatusLabel(newStatus)}`);
+    } catch (e: any) {
+      toast.error(e.message || "Unable to update story status");
+      throw e;
+    }
+  }
+
   async function handleSaveStoryEditor(updated: any) {
     if (!editingStory) return;
     try {
@@ -590,16 +612,36 @@ export function TeamWorkspace({
 
 
 
+  const totalStoriesCount = stories.length;
+  const newStoriesCount = stories.filter((s) => normalizeStoryStatus(s.status) === "new").length;
+  const activeStoriesCount = stories.filter((s) => normalizeStoryStatus(s.status) === "active").length;
+  const doneStoriesCount = stories.filter((s) => normalizeStoryStatus(s.status) === "done").length;
+
   // Sorted and filtered epics
   const sortedEpics = useMemo(() => sortEpics(epics), [epics]);
   const filteredEpics = useMemo(
     () => (epicFilter === "all" ? sortedEpics : sortedEpics.filter((e) => e.id === epicFilter)),
     [sortedEpics, epicFilter]
   );
+  const filteredStories = useMemo(() => {
+    if (statusFilter === "all") return stories;
+    return stories.filter((s) => normalizeStoryStatus(s.status) === statusFilter);
+  }, [stories, statusFilter]);
+
   const uncategorizedStories = useMemo(
-    () => sortStories(stories.filter((s) => !s.epic_id)),
-    [stories]
+    () => sortStories(filteredStories.filter((s) => !s.epic_id)),
+    [filteredStories]
   );
+
+  const visibleEpics = useMemo(() => {
+    if (statusFilter === "all" || epicFilter !== "all") {
+      return filteredEpics;
+    }
+    const withStories = filteredEpics.filter((epic) =>
+      filteredStories.some((s) => s.epic_id === epic.id)
+    );
+    return withStories.length > 0 ? withStories : filteredEpics;
+  }, [filteredEpics, filteredStories, statusFilter, epicFilter]);
 
   return (
     <div className="pb-24">
@@ -764,6 +806,70 @@ export function TeamWorkspace({
               </select>
             </div>
 
+            <div className="flex items-center gap-1.5 sm:gap-2 flex-1 sm:flex-none min-w-0">
+              <span className="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-[#9994A5] shrink-0">
+                Status:
+              </span>
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value as any)}
+                className="h-8 sm:h-9 w-full sm:w-auto rounded-xl border border-[rgba(74,61,100,0.11)] bg-white/85 px-2.5 sm:px-3 text-xs font-medium text-[#252331] outline-none transition focus:border-[#B8944E] cursor-pointer truncate"
+              >
+                <option value="all">All Statuses ({totalStoriesCount})</option>
+                <option value="new">New ({newStoriesCount})</option>
+                <option value="active">Active ({activeStoriesCount})</option>
+                <option value="done">Done ({doneStoriesCount})</option>
+              </select>
+            </div>
+
+            {/* Quick Status Pills */}
+            <div className="hidden md:inline-flex items-center rounded-xl border border-[rgba(74,61,100,0.11)] bg-white/80 p-0.5 text-xs shadow-2xs gap-0.5">
+              <button
+                type="button"
+                onClick={() => setStatusFilter("all")}
+                className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition cursor-pointer ${
+                  statusFilter === "all"
+                    ? "bg-[#252331] text-white shadow-2xs"
+                    : "text-[#706C7D] hover:text-[#252331] hover:bg-[#FAF9FC]"
+                }`}
+              >
+                All ({totalStoriesCount})
+              </button>
+              <button
+                type="button"
+                onClick={() => setStatusFilter(statusFilter === "new" ? "all" : "new")}
+                className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition cursor-pointer ${
+                  statusFilter === "new"
+                    ? "bg-sky-100 text-sky-800 border-2 border-sky-500/70 ring-2 ring-sky-500/20"
+                    : "text-[#706C7D] hover:text-[#252331] hover:bg-[#FAF9FC]"
+                }`}
+              >
+                New ({newStoriesCount})
+              </button>
+              <button
+                type="button"
+                onClick={() => setStatusFilter(statusFilter === "active" ? "all" : "active")}
+                className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition cursor-pointer ${
+                  statusFilter === "active"
+                    ? "bg-[rgba(184,148,78,0.22)] text-[#80642F] border-2 border-[#B8944E] ring-2 ring-[#B8944E]/20"
+                    : "text-[#706C7D] hover:text-[#252331] hover:bg-[#FAF9FC]"
+                }`}
+              >
+                Active ({activeStoriesCount})
+              </button>
+              <button
+                type="button"
+                onClick={() => setStatusFilter(statusFilter === "done" ? "all" : "done")}
+                className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition cursor-pointer ${
+                  statusFilter === "done"
+                    ? "bg-emerald-100 text-emerald-800 border-2 border-emerald-500/70 ring-2 ring-emerald-500/20"
+                    : "text-[#706C7D] hover:text-[#252331] hover:bg-[#FAF9FC]"
+                }`}
+              >
+                Done ({doneStoriesCount})
+              </button>
+            </div>
+
             {/* Segmented Quick Fold / Expand Controls */}
             <div className="inline-flex items-center rounded-xl border border-[rgba(74,61,100,0.11)] bg-white/80 p-0.5 text-xs shrink-0 shadow-2xs">
               <button
@@ -813,10 +919,31 @@ export function TeamWorkspace({
                   </Button>
                 }
               />
+            ) : filteredStories.length === 0 && statusFilter !== "all" ? (
+              <div className="rounded-[18px] border border-dashed border-[rgba(74,61,100,0.12)] bg-white/80 backdrop-blur-[16px] p-8 sm:p-12 text-center shadow-[0_8px_30px_rgba(70,55,95,0.04)]">
+                <div className="mx-auto grid h-10 w-10 place-items-center rounded-xl bg-[rgba(184,148,78,0.10)] text-[#B8944E] mb-3 shadow-sm border border-[rgba(184,148,78,0.15)]">
+                  <Filter size={18} />
+                </div>
+                <h4 className="text-sm font-semibold text-[#252331]">
+                  No {getStoryStatusLabel(statusFilter)} stories found
+                </h4>
+                <p className="mt-1 text-xs text-[#706C7D] max-w-xs mx-auto leading-relaxed">
+                  There are currently no stories matching the &ldquo;{getStoryStatusLabel(statusFilter)}&rdquo; status in this project.
+                </p>
+                <div className="mt-4">
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => setStatusFilter("all")}
+                  >
+                    Show all stories ({totalStoriesCount})
+                  </Button>
+                </div>
+              </div>
             ) : (
               <>
-                {filteredEpics.map((epic) => {
-                  const epicStories = sortStories(stories.filter((s) => s.epic_id === epic.id));
+                {visibleEpics.map((epic) => {
+                  const epicStories = sortStories(filteredStories.filter((s) => s.epic_id === epic.id));
                   const doneCount = epicStories.filter((s) => normalizeStoryStatus(s.status) === "done").length;
                   const activeCount = epicStories.filter((s) => normalizeStoryStatus(s.status) === "active").length;
                   const approvedCount = epicStories.filter((s) => s.status === "approved" || s.team_review_status === "approved").length;
@@ -889,7 +1016,7 @@ export function TeamWorkspace({
                           </Link>
                         </div>
                       }
-                      emptyMessage="No stories in this Epic yet."
+                      emptyMessage={statusFilter !== "all" ? `No ${getStoryStatusLabel(statusFilter).toLowerCase()} stories in this Epic.` : "No stories in this Epic yet."}
                       emptyAction={
                         <Button
                           variant="ghost"
@@ -982,6 +1109,7 @@ export function TeamWorkspace({
                   }
                   onCancel={() => setEditingStory(null)}
                   onFeedbackChange={handleFeedbackChange}
+                  onStatusChange={(newStatus) => handleStoryStatusChange(editingStory.id, newStatus)}
                   onSave={handleSaveStoryEditor}
                   onCreateEpic={openCreateEpic}
                   onDelete={() => setDeletingStoryId(editingStory.id)}

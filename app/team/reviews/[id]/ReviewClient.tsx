@@ -3,7 +3,8 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { StoryEditor } from "@/components/StoryEditor";
-import type { Story, Epic } from "@/lib/types";
+import type { Story, Epic, StoryLifecycleStatus } from "@/lib/types";
+import { getStoryStatusLabel } from "@/lib/types";
 import { toast } from "@/lib/toast";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { Modal } from "@/components/ui/Modal";
@@ -24,6 +25,25 @@ export function ReviewClient({ initialStory, epics, teamUser, isReviewer }: Revi
   const [confirmUnresolved, setConfirmUnresolved] = useState<{ storyId: string; count: number } | null>(null);
   const [loading, setLoading] = useState(false);
   const [feedbackKey, setFeedbackKey] = useState(0); // For forcing feedback reload
+
+  async function handleStoryStatusChange(storyId: string, newStatus: StoryLifecycleStatus) {
+    try {
+      const res = await fetch(`/api/stories/${storyId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: newStatus }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to update story status");
+
+      setStory(data.story);
+      setFeedbackKey((k) => k + 1);
+      toast.success(`Story status updated to ${getStoryStatusLabel(newStatus)}`);
+    } catch (e: any) {
+      toast.error(e.message || "Unable to update story status");
+      throw e;
+    }
+  }
 
   async function handleSaveStoryEditor(updated: any) {
     try {
@@ -122,6 +142,7 @@ export function ReviewClient({ initialStory, epics, teamUser, isReviewer }: Revi
           isReviewer={isReviewer}
           onCancel={() => router.push("/team/reviews")}
           onFeedbackChange={() => setFeedbackKey((k) => k + 1)}
+          onStatusChange={(newStatus) => handleStoryStatusChange(story.id, newStatus)}
           onSave={handleSaveStoryEditor}
           onCreateEpic={() => {
             toast.error("Epic creation is disabled in single review mode.");

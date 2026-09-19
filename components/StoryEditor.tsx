@@ -16,7 +16,9 @@ import {
   Bot,
   Sparkles,
   Clock,
+  Loader2,
 } from "lucide-react";
+import { toast } from "@/lib/toast";
 import { Badge } from "@/components/ui/Badge";
 import { ContextualFeedbackThread } from "@/components/ContextualFeedbackThread";
 import { Button } from "@/components/ui/Button";
@@ -81,6 +83,7 @@ export function StoryEditor({
   onCreateEpic: (name: string) => void;
   onDelete?: () => void;
   onFeedbackChange?: (storyId?: string, newStatus?: StoryStatus) => void;
+  onStatusChange?: (newStatus: StoryLifecycleStatus) => Promise<void> | void;
   viewerType?: FeedbackAuthorType;
   currentUserId?: string;
   isReviewer?: boolean;
@@ -258,17 +261,62 @@ export function StoryEditor({
   const assignedEpic = epics.find((e) => e.id === value.epic_id);
   const normalizedStatus = normalizeStoryStatus(value.status);
   const statusLabel = `Story · ${getStoryStatusLabel(value.status)}`;
+  const [savingStatus, setSavingStatus] = useState(false);
 
-  const handleStatusChange = (newStatus: StoryLifecycleStatus) => {
-    if (isReadOnly) return;
+  const handleStatusChange = async (newStatus: StoryLifecycleStatus) => {
+    if (isReadOnly || savingStatus) return;
+    if (normalizeStoryStatus(value.status) === newStatus) return;
+
+    const prevStatus = value.status;
     setValue((prev) => ({ ...prev, status: newStatus }));
+
+    if (onStatusChange) {
+      try {
+        setSavingStatus(true);
+        await onStatusChange(newStatus);
+      } catch (err: any) {
+        setValue((prev) => ({ ...prev, status: prevStatus }));
+      } finally {
+        setSavingStatus(false);
+      }
+      return;
+    }
+
+    if (storyId) {
+      try {
+        setSavingStatus(true);
+        const res = await fetch(`/api/stories/${storyId}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status: newStatus }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Failed to update story status");
+
+        onFeedbackChange?.(storyId, newStatus);
+        toast.success(`Story status updated to ${getStoryStatusLabel(newStatus)}`);
+      } catch (err: any) {
+        setValue((prev) => ({ ...prev, status: prevStatus }));
+        toast.error(err.message || "Failed to update story status");
+      } finally {
+        setSavingStatus(false);
+      }
+    }
   };
 
   const renderStatusSelector = () => (
     <div className="space-y-1.5">
-      <label className="block text-xs font-semibold uppercase tracking-wider text-[#9994A5]">
-        Story Status
-      </label>
+      <div className="flex items-center justify-between">
+        <label className="block text-xs font-semibold uppercase tracking-wider text-[#9994A5]">
+          Story Status
+        </label>
+        {savingStatus && (
+          <span className="inline-flex items-center gap-1 text-[11px] text-[#B8944E] font-medium animate-pulse">
+            <Loader2 size={11} className="animate-spin" />
+            Saving...
+          </span>
+        )}
+      </div>
       {isReadOnly ? (
         <div className="flex items-center gap-2">
           <Badge variant={normalizedStatus} size="sm" />
@@ -278,8 +326,9 @@ export function StoryEditor({
         <div className="inline-flex rounded-xl p-1 bg-[#FAF9FC] border border-[rgba(74,61,100,0.10)] gap-1">
           <button
             type="button"
+            disabled={savingStatus}
             onClick={() => handleStatusChange("new")}
-            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer ${
+            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed ${
               normalizedStatus === "new"
                 ? "bg-white text-sky-700 shadow-xs border border-sky-200/80 ring-1 ring-sky-500/10"
                 : "text-[#706C7D] hover:text-[#252331] hover:bg-white/60"
@@ -291,8 +340,9 @@ export function StoryEditor({
 
           <button
             type="button"
+            disabled={savingStatus}
             onClick={() => handleStatusChange("active")}
-            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer ${
+            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed ${
               normalizedStatus === "active"
                 ? "bg-white text-[#80642F] shadow-xs border border-[rgba(184,148,78,0.30)] ring-1 ring-[#B8944E]/15"
                 : "text-[#706C7D] hover:text-[#252331] hover:bg-white/60"
@@ -304,8 +354,9 @@ export function StoryEditor({
 
           <button
             type="button"
+            disabled={savingStatus}
             onClick={() => handleStatusChange("done")}
-            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer ${
+            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed ${
               normalizedStatus === "done"
                 ? "bg-white text-[#2E8B70] shadow-xs border border-[rgba(46,139,112,0.30)] ring-1 ring-[#2E8B70]/15"
                 : "text-[#706C7D] hover:text-[#252331] hover:bg-white/60"
