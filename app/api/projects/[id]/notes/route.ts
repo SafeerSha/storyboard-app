@@ -64,20 +64,36 @@ export async function POST(
     const tags = Array.isArray(body.tags) ? body.tags.map(String) : [];
 
     const admin = createAdminClient();
-    const { data: note, error } = await admin
-      .from("project_notes")
-      .insert({
-        project_id: projectId,
-        title: title || "Untitled Discussion Note",
-        content,
-        tags,
-        status: "active",
-        created_by_id: actor.id,
-        created_by_name: actor.name,
-      })
+    const insertPayload: Record<string, any> = {
+      project_id: projectId,
+      title: title || "Untitled Discussion Note",
+      content,
+      tags,
+      images: Array.isArray(body.images) ? body.images : [],
+      status: "active",
+      created_by_id: actor.id,
+      created_by_name: actor.name,
+    };
 
+    let { data: note, error } = await admin
+      .from("project_notes")
+      .insert(insertPayload)
       .select()
       .single();
+
+    if (error && error.message?.includes("images")) {
+      delete insertPayload.images;
+      const retry = await admin
+        .from("project_notes")
+        .insert(insertPayload)
+        .select()
+        .single();
+      note = retry.data;
+      error = retry.error;
+      if (note) {
+        note.images = [];
+      }
+    }
 
     if (error) {
       console.error("Error creating note:", error);

@@ -16,6 +16,11 @@ import {
   Sparkles,
   User,
   Users,
+  Activity,
+  Volume2,
+  VolumeX,
+  Trash2,
+  ArrowRight,
 } from "lucide-react";
 import { DashboardHeader } from "@/components/layout/DashboardHeader";
 import { Badge } from "@/components/ui/Badge";
@@ -24,8 +29,19 @@ import { Modal } from "@/components/ui/Modal";
 import { createClient } from "@/lib/supabase/client";
 import { toast } from "@/lib/toast";
 import { RemunerationClient } from "@/app/(dashboard)/remuneration/RemunerationClient";
+import { useAssistant } from "@/hooks/useAssistant";
 
 export default function SettingsPage() {
+  const {
+    isEnabled: assistantEnabled,
+    setIsEnabled: setAssistantEnabled,
+    voiceFeedbackEnabled,
+    setVoiceFeedbackEnabled,
+    activityLogs,
+    clearActivityLogs,
+    setIsOpen: setAssistantOpen,
+  } = useAssistant();
+
   const [activeTab, setActiveTab] = useState<"general" | "remuneration" | "quotations">("general");
   const [email, setEmail] = useState<string | null>(null);
   const [role, setRole] = useState<string>("freelancer");
@@ -520,6 +536,162 @@ export default function SettingsPage() {
                   <p className="text-xs text-[#706C7D] leading-relaxed">
                     Freelancer accounts have access to their own projects, clients, inbox, and settings — but cannot access team member management or other users' data. Only Super Admins can create new freelancer accounts.
                   </p>
+                </div>
+              </section>
+            )}
+
+            {/* Centralized AI Assistant Card — Super Admin Only */}
+            {role === "super_admin" && (
+              <section className="rounded-2xl border border-[#D4B896] bg-[#FBF8F3]/90 p-5 sm:p-6 shadow-card backdrop-blur-xl space-y-5">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#EBE7F2] pb-5">
+                  <div className="flex items-center gap-3.5">
+                    <div className="grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-tr from-[#252331] to-[#3B384A] text-[#B8944E] shrink-0 shadow-sm">
+                      <Sparkles size={18} />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <h3 className="text-base font-semibold text-[#252331] tracking-tight">
+                          Centralized AI Assistant
+                        </h3>
+                        <span className="inline-flex items-center rounded-md bg-[rgba(184,148,78,0.12)] border border-[rgba(184,148,78,0.25)] px-2 py-0.5 text-[10px] font-semibold text-[#80642F]">
+                          Super Admin Only
+                        </span>
+                      </div>
+                      <p className="text-xs text-[#706C7D] mt-0.5">
+                        Autonomous command & voice orchestrator for workspace actions and live task logging
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2.5">
+                    {assistantEnabled && (
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        leftIcon={<Bot size={14} className="text-[#B8944E]" />}
+                        rightIcon={<ArrowRight size={13} />}
+                        onClick={() => setAssistantOpen(true)}
+                      >
+                        Open Panel
+                      </Button>
+                    )}
+                    <button
+                      type="button"
+                      role="switch"
+                      aria-checked={assistantEnabled}
+                      onClick={() => {
+                        const next = !assistantEnabled;
+                        setAssistantEnabled(next);
+                        if (next) {
+                          toast.success("Centralized AI Assistant enabled");
+                        } else {
+                          toast.info("Centralized AI Assistant disabled");
+                        }
+                      }}
+                      className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                        assistantEnabled ? "bg-[#2E8B70]" : "bg-[#D8D4E2]"
+                      }`}
+                    >
+                      <span
+                        className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                          assistantEnabled ? "translate-x-5" : "translate-x-0"
+                        }`}
+                      />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Sub-controls grid */}
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {/* Voice Speech Toggle */}
+                  <div className="rounded-xl border border-[#EBE7F2] bg-white/80 p-4 flex items-center justify-between shadow-xs">
+                    <div className="flex items-center gap-3">
+                      <div className={`grid h-8 w-8 place-items-center rounded-lg ${
+                        voiceFeedbackEnabled ? "bg-[#E3F4ED] text-[#2E8B70]" : "bg-[#F4F1F9] text-[#706C7D]"
+                      }`}>
+                        {voiceFeedbackEnabled ? <Volume2 size={16} /> : <VolumeX size={16} />}
+                      </div>
+                      <div>
+                        <p className="text-xs font-semibold text-[#252331]">Voice Speech Feedback</p>
+                        <p className="text-[11px] text-[#706C7D]">Speak execution outcomes aloud</p>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      role="switch"
+                      aria-checked={voiceFeedbackEnabled}
+                      disabled={!assistantEnabled}
+                      onClick={() => {
+                        setVoiceFeedbackEnabled(!voiceFeedbackEnabled);
+                        toast.info(voiceFeedbackEnabled ? "Voice output muted" : "Voice output enabled");
+                      }}
+                      className={`relative inline-flex h-5 w-9 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none disabled:opacity-40 ${
+                        voiceFeedbackEnabled ? "bg-[#B8944E]" : "bg-[#D8D4E2]"
+                      }`}
+                    >
+                      <span
+                        className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                          voiceFeedbackEnabled ? "translate-x-4" : "translate-x-0"
+                        }`}
+                      />
+                    </button>
+                  </div>
+
+                  {/* Activity Log Stats & Clear */}
+                  <div className="rounded-xl border border-[#EBE7F2] bg-white/80 p-4 flex items-center justify-between shadow-xs">
+                    <div className="flex items-center gap-3">
+                      <div className="grid h-8 w-8 place-items-center rounded-lg bg-[rgba(184,148,78,0.10)] text-[#80642F]">
+                        <Activity size={16} />
+                      </div>
+                      <div>
+                        <p className="text-xs font-semibold text-[#252331]">Task Activity Logs</p>
+                        <p className="text-[11px] text-[#706C7D]">
+                          {activityLogs.length} action{activityLogs.length === 1 ? "" : "s"} logged in history
+                        </p>
+                      </div>
+                    </div>
+                    {activityLogs.length > 0 && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        leftIcon={<Trash2 size={12} className="text-[#C2410C]" />}
+                        onClick={() => {
+                          clearActivityLogs();
+                          toast.info("Assistant activity logs cleared");
+                        }}
+                        className="text-xs text-[#C2410C] hover:bg-[#FFF5ED] px-2 py-1 h-7"
+                      >
+                        Clear
+                      </Button>
+                    )}
+                  </div>
+                </div>
+
+                {/* Capability tags */}
+                <div className="pt-1">
+                  <p className="text-[11px] font-semibold uppercase tracking-wider text-[#9994A5] mb-2">
+                    Orchestrated App Capabilities
+                  </p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {[
+                      "Create & List Projects",
+                      "Decompose Epics",
+                      "Create & Update Stories",
+                      "Post Discussion Notes",
+                      "Add Client Inbox Queries",
+                      "Invite Team Collaborators",
+                      "Voice Speech Dictation",
+                      "Instant App Navigation",
+                    ].map((cap) => (
+                      <span
+                        key={cap}
+                        className="inline-flex items-center gap-1 rounded-md bg-[#FAF9FC] border border-[#EBE7F2] px-2 py-0.5 text-[11px] font-medium text-[#4D4959]"
+                      >
+                        <span className="h-1.5 w-1.5 rounded-full bg-[#2E8B70]" />
+                        {cap}
+                      </span>
+                    ))}
+                  </div>
                 </div>
               </section>
             )}

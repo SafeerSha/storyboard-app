@@ -45,6 +45,19 @@ export type Epic = {
 
 export type ProjectNoteStatus = "active" | "converted" | "archived";
 
+export interface NoteImage {
+  id: string;
+  name: string;
+  url: string;
+  key: string;
+  size: number;
+  originalSize?: number;
+  type: "image/webp";
+  width?: number;
+  height?: number;
+  created_at: string;
+}
+
 export type ProjectNote = {
   id: string;
   project_id: string;
@@ -52,6 +65,7 @@ export type ProjectNote = {
   content: string;
   tags?: string[];
   status: ProjectNoteStatus;
+  images?: NoteImage[];
   converted_epic_id?: string | null;
   converted_at?: string | null;
   created_by_id?: string | null;

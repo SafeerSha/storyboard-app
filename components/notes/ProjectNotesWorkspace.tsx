@@ -18,13 +18,16 @@ import {
   ExternalLink,
   Layers,
   Mic,
+  Image as ImageIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { VoiceTextarea } from "@/components/ui/VoiceTextarea";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { ConvertNoteModal } from "@/components/notes/ConvertNoteModal";
+import { NoteImageGallery } from "@/components/notes/NoteImageGallery";
+import { convertImageToWebP } from "@/lib/image-utils";
 import { toast } from "@/lib/toast";
-import type { ProjectNote, Epic, Story } from "@/lib/types";
+import type { ProjectNote, Epic, Story, NoteImage } from "@/lib/types";
 
 interface ProjectNotesWorkspaceProps {
   projectId: string;
@@ -54,6 +57,7 @@ export function ProjectNotesWorkspace({
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [tags, setTags] = useState<string[]>([]);
+  const [images, setImages] = useState<NoteImage[]>([]);
   const [tagInput, setTagInput] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [saveStatus, setSaveStatus] = useState<"saved" | "unsaved" | "saving">("saved");
@@ -83,11 +87,13 @@ export function ProjectNotesWorkspace({
       setTitle(activeNote.title);
       setContent(activeNote.content);
       setTags(activeNote.tags || []);
+      setImages(activeNote.images || []);
       setSaveStatus("saved");
     } else {
       setTitle("");
       setContent("");
       setTags([]);
+      setImages([]);
       setSaveStatus("saved");
     }
   }, [activeNoteId]);
@@ -102,7 +108,7 @@ export function ProjectNotesWorkspace({
 
   // Save changes to backend
   const saveActiveNote = useCallback(
-    async (noteTitle: string, noteContent: string, noteTags: string[]) => {
+    async (noteTitle: string, noteContent: string, noteTags: string[], noteImages?: NoteImage[]) => {
       if (!activeNoteId) return;
 
       setIsSaving(true);
@@ -116,6 +122,7 @@ export function ProjectNotesWorkspace({
             title: noteTitle,
             content: noteContent,
             tags: noteTags,
+            images: noteImages !== undefined ? noteImages : images,
           }),
         });
 
@@ -134,7 +141,7 @@ export function ProjectNotesWorkspace({
         setIsSaving(false);
       }
     },
-    [activeNoteId, projectId]
+    [activeNoteId, projectId, images]
   );
 
   // Trigger auto-save on field edits
@@ -144,7 +151,7 @@ export function ProjectNotesWorkspace({
 
     if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
     saveTimeoutRef.current = setTimeout(() => {
-      saveActiveNote(title, newContent, tags);
+      saveActiveNote(title, newContent, tags, images);
     }, 1400);
   };
 
@@ -154,8 +161,61 @@ export function ProjectNotesWorkspace({
 
     if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
     saveTimeoutRef.current = setTimeout(() => {
-      saveActiveNote(newTitle, content, tags);
+      saveActiveNote(newTitle, content, tags, images);
     }, 1400);
+  };
+
+  // Clipboard paste handler for screenshots & images directly in editor
+  const handlePasteInEditor = async (e: React.ClipboardEvent) => {
+    const items = e.clipboardData?.items;
+    if (!items || !activeNoteId) return;
+
+    const filesToUpload: File[] = [];
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      if (item.type.startsWith("image/")) {
+        const file = item.getAsFile();
+        if (file) filesToUpload.push(file);
+      }
+    }
+
+    if (filesToUpload.length === 0) return;
+
+    e.preventDefault();
+    try {
+      for (const rawFile of filesToUpload) {
+        toast.info("Converting pasted screenshot to WebP...");
+        const conversion = await convertImageToWebP(rawFile, { quality: 0.88 });
+
+        const formData = new FormData();
+        formData.append("file", conversion.file);
+        formData.append("name", `screenshot-${Date.now()}.webp`);
+        formData.append("width", String(conversion.width));
+        formData.append("height", String(conversion.height));
+        formData.append("originalSize", String(conversion.originalSize));
+
+        const res = await fetch(`/api/projects/${projectId}/notes/${activeNoteId}/images`, {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!res.ok) {
+          throw new Error("Failed to upload pasted image");
+        }
+
+        const data = await res.json();
+        if (data.image) {
+          const updated = [...images, data.image];
+          setImages(updated);
+          setNotes((prev) =>
+            prev.map((n) => (n.id === activeNoteId ? { ...n, images: updated } : n))
+          );
+          toast.success("Pasted screenshot converted to WebP & attached!");
+        }
+      }
+    } catch (err: any) {
+      toast.error(err.message || "Failed to process pasted screenshot");
+    }
   };
 
   // Add new note
@@ -219,14 +279,14 @@ export function ProjectNotesWorkspace({
       const updated = [...tags, trimmed];
       setTags(updated);
       setTagInput("");
-      saveActiveNote(title, content, updated);
+      saveActiveNote(title, content, updated, images);
     }
   }
 
   function handleRemoveTag(t: string) {
     const updated = tags.filter((x) => x !== t);
     setTags(updated);
-    saveActiveNote(title, content, updated);
+    saveActiveNote(title, content, updated, images);
   }
 
   // Filter notes
@@ -380,13 +440,24 @@ export function ProjectNotesWorkspace({
                     </p>
 
                     <div className="flex items-center justify-between text-[10px] text-[#9994A5] pt-1">
-                      <span className="flex items-center gap-1">
-                        <Clock size={10} />
-                        {new Date(noteItem.updated_at || noteItem.created_at).toLocaleDateString(undefined, {
-                          month: "short",
-                          day: "numeric",
-                        })}
-                      </span>
+                      <div className="flex items-center gap-1.5">
+                        <span className="flex items-center gap-1">
+                          <Clock size={10} />
+                          {new Date(noteItem.updated_at || noteItem.created_at).toLocaleDateString(undefined, {
+                            month: "short",
+                            day: "numeric",
+                          })}
+                        </span>
+                        {noteItem.images && noteItem.images.length > 0 && (
+                          <span
+                            className="inline-flex items-center gap-0.5 rounded-md bg-[rgba(184,148,78,0.12)] px-1.5 py-0.2 text-[9px] font-bold text-[#80642F]"
+                            title={`${noteItem.images.length} image(s) attached`}
+                          >
+                            <ImageIcon size={9} />
+                            {noteItem.images.length}
+                          </span>
+                        )}
+                      </div>
                       {noteItem.created_by_name && (
                         <span className="truncate max-w-[100px]">
                           {noteItem.created_by_name}
@@ -532,13 +603,15 @@ export function ProjectNotesWorkspace({
                 />
               </div>
 
-              {/* Content Textarea with Voice Dictation */}
-              <div className="flex-1 flex flex-col pt-2">
+              {/* Content Textarea with Voice Dictation & Screenshot Paste */}
+              <div className="flex-1 flex flex-col pt-2" onPaste={handlePasteInEditor}>
                 <VoiceTextarea
                   value={content}
                   onChange={(e) => handleContentChange(e.target.value)}
-                  rows={14}
+                  rows={10}
                   placeholder={`Capture discussion points, client decisions, and meeting notes here...
+
+Tip: You can paste screenshots (Ctrl+V) directly into this editor.
 
 Example:
 • Client wants multi-tenant team members with custom roles.
@@ -546,6 +619,25 @@ Example:
 • Profile page should allow changing notification preferences.
 • Stripe integration needed for monthly recurring subscriptions.`}
                   className="w-full flex-1 rounded-xl border border-[rgba(74,61,100,0.10)] p-4 text-xs sm:text-sm text-[#252331] leading-relaxed outline-none focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)] bg-[#FAF9FC]/30 resize-none font-sans"
+                />
+              </div>
+
+              {/* Discussion Note Attached Images Gallery & Upload Controls */}
+              <div className="border-t border-[rgba(74,61,100,0.08)] pt-3">
+                <NoteImageGallery
+                  projectId={projectId}
+                  noteId={activeNote.id}
+                  images={images}
+                  onImagesChange={(newImages) => {
+                    setImages(newImages);
+                    setNotes((prev) =>
+                      prev.map((n) => (n.id === activeNote.id ? { ...n, images: newImages } : n))
+                    );
+                  }}
+                  onInsertMarkdown={(snippet) => {
+                    const updated = content + snippet;
+                    handleContentChange(updated);
+                  }}
                 />
               </div>
             </div>
