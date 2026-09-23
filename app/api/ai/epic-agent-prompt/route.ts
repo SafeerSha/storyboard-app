@@ -5,9 +5,37 @@ import {
   type EpicPromptInput,
   type AgentPromptPreset,
 } from "@/lib/ai/agent-prompt";
+import { createClient } from "@/lib/supabase/server";
+import { getAuthenticatedTeamUser } from "@/lib/team-session";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
 export async function POST(req: Request) {
   try {
+    // 1. Authenticate caller (Freelancer or Team User)
+    const auth = await createClient();
+    const {
+      data: { user },
+    } = await auth.auth.getUser();
+
+    const teamUser = !user ? await getAuthenticatedTeamUser() : null;
+    if (!user && !teamUser) {
+      return NextResponse.json({ error: "Unauthorized. Please log in." }, { status: 401 });
+    }
+
+    // 2. Abuse prevention rate limiting (max 20 prompt generations per minute)
+    const actorId = user ? user.id : teamUser!.id;
+    const ip = getClientIp(req);
+    const rateLimit = checkRateLimit(`ai-epic-agent-prompt:${actorId}:${ip}`, {
+      limit: 20,
+      windowSeconds: 60,
+    });
+    if (!rateLimit.success) {
+      return NextResponse.json(
+        { error: `Too many AI prompt requests. Please wait ${rateLimit.resetInSeconds} seconds.` },
+        { status: 429 }
+      );
+    }
+
     const body = await req.json().catch(() => ({}));
     const {
       epic,

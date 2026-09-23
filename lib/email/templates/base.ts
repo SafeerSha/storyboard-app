@@ -8,6 +8,16 @@ export interface EmailBaseProps {
   secondaryHtml?: string;
 }
 
+export function escapeHtml(str: unknown): string {
+  if (str === null || str === undefined) return "";
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 export function renderEmailBase({
   title,
   preheader,
@@ -20,6 +30,12 @@ export function renderEmailBase({
   const brandGold = "#B8944E";
   const brandDark = "#09090b";
 
+  const safeTitle = escapeHtml(title);
+  const safePreheader = preheader ? escapeHtml(preheader) : "";
+  const safeBadgeText = escapeHtml(badgeText);
+  const safeActionText = actionText ? escapeHtml(actionText) : "";
+  const safeActionUrl = actionUrl ? escapeHtml(actionUrl) : "";
+
   return `
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
@@ -28,8 +44,8 @@ export function renderEmailBase({
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="x-apple-disable-message-reformatting" />
   <meta name="format-detection" content="telephone=no, date=no, address=no, email=no" />
-  <title>${title}</title>
-  ${preheader ? `<span style="display:none;font-size:1px;color:#ffffff;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;mso-hide:all;">${preheader}</span>` : ""}
+  <title>${safeTitle}</title>
+  ${safePreheader ? `<span style="display:none;font-size:1px;color:#ffffff;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;mso-hide:all;">${safePreheader}</span>` : ""}
   <style type="text/css">
     body, table, td, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
     table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
@@ -91,8 +107,8 @@ export function renderEmailBase({
                       <table role="presentation" border="0" cellspacing="0" cellpadding="0">
                         <tr>
                           <td align="center" style="border-radius: 8px; background-color: #09090b; box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);">
-                            <a href="${actionUrl}" target="_blank" class="btn-action" style="display: inline-block; padding: 14px 36px; font-size: 14px; font-weight: 700; color: #ffffff; text-decoration: none; border-radius: 8px; background-color: #09090b; letter-spacing: 0.3px; text-align: center;">
-                              ${actionText} &rarr;
+                            <a href="${safeActionUrl}" target="_blank" class="btn-action" style="display: inline-block; padding: 14px 36px; font-size: 14px; font-weight: 700; color: #ffffff; text-decoration: none; border-radius: 8px; background-color: #09090b; letter-spacing: 0.3px; text-align: center;">
+                              ${safeActionText} &rarr;
                             </a>
                           </td>
                         </tr>

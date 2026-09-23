@@ -6,12 +6,36 @@ import type { NoteImage } from "@/lib/types";
 import path from "path";
 import fs from "fs/promises";
 
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const ALLOWED_MIME_TYPES = new Set(["image/webp", "image/png", "image/jpeg", "image/jpg"]);
+
+function isValidImageBuffer(buffer: Buffer): boolean {
+  if (buffer.length < 12) return false;
+  // WebP: RIFF....WEBP
+  const isWebp =
+    buffer[0] === 0x52 && buffer[1] === 0x49 && buffer[2] === 0x46 && buffer[3] === 0x46 &&
+    buffer[8] === 0x57 && buffer[9] === 0x45 && buffer[10] === 0x42 && buffer[11] === 0x50;
+  // PNG: 89 50 4E 47 0D 0A 1A 0A
+  const isPng =
+    buffer[0] === 0x89 && buffer[1] === 0x50 && buffer[2] === 0x4E && buffer[3] === 0x47 &&
+    buffer[4] === 0x0D && buffer[5] === 0x0A && buffer[6] === 0x1A && buffer[7] === 0x0A;
+  // JPEG: FF D8 FF
+  const isJpeg = buffer[0] === 0xff && buffer[1] === 0xd8 && buffer[2] === 0xff;
+
+  return isWebp || isPng || isJpeg;
+}
+
 export async function POST(
   req: Request,
   { params }: { params: Promise<{ id: string; noteId: string }> }
 ) {
   try {
     const { id: projectId, noteId } = await params;
+    if (!UUID_REGEX.test(projectId) || !UUID_REGEX.test(noteId)) {
+      return NextResponse.json({ error: "Invalid identifier format" }, { status: 400 });
+    }
+
     const auth = await authorizeProjectMember(projectId);
     if (!auth.authorized) {
       return NextResponse.json({ error: auth.error || "Unauthorized" }, { status: 403 });
@@ -24,7 +48,19 @@ export async function POST(
       return NextResponse.json({ error: "No image file provided" }, { status: 400 });
     }
 
-    const name = (formData.get("name") as string) || file.name || "discussion-note-image.webp";
+    if (file.size > MAX_FILE_SIZE) {
+      return NextResponse.json({ error: "File size exceeds the 5MB limit" }, { status: 400 });
+    }
+
+    if (!ALLOWED_MIME_TYPES.has(file.type.toLowerCase())) {
+      return NextResponse.json(
+        { error: "Invalid file type. Only WebP, PNG, and JPEG images are allowed" },
+        { status: 400 }
+      );
+    }
+
+    const rawName = (formData.get("name") as string) || file.name || "discussion-note-image.webp";
+    const name = path.basename(rawName).replace(/[^a-zA-Z0-9._-]/g, "_");
     const widthStr = formData.get("width") as string | null;
     const heightStr = formData.get("height") as string | null;
     const originalSizeStr = formData.get("originalSize") as string | null;
@@ -35,6 +71,13 @@ export async function POST(
 
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
+
+    if (!isValidImageBuffer(buffer)) {
+      return NextResponse.json(
+        { error: "Corrupted or invalid image content" },
+        { status: 400 }
+      );
+    }
 
     const imageId = crypto.randomUUID();
     const storageKey = `Project-Notes/${projectId}/${noteId}/${imageId}.webp`;
@@ -63,7 +106,11 @@ export async function POST(
     // 2. Fallback to public upload directory if R2 is not configured or failed
     if (!imageUrl) {
       try {
-        const uploadsDir = path.join(process.cwd(), "public", "uploads", "notes", projectId, noteId);
+        const uploadsBaseDir = path.resolve(process.cwd(), "public", "uploads", "notes");
+        const uploadsDir = path.resolve(uploadsBaseDir, projectId, noteId);
+        if (!uploadsDir.startsWith(uploadsBaseDir)) {
+          throw new Error("Invalid destination directory");
+        }
         await fs.mkdir(uploadsDir, { recursive: true });
         const filePath = path.join(uploadsDir, `${imageId}.webp`);
         await fs.writeFile(filePath, buffer);
@@ -141,6 +188,10 @@ export async function DELETE(
 ) {
   try {
     const { id: projectId, noteId } = await params;
+    if (!UUID_REGEX.test(projectId) || !UUID_REGEX.test(noteId)) {
+      return NextResponse.json({ error: "Invalid identifier format" }, { status: 400 });
+    }
+
     const auth = await authorizeProjectMember(projectId);
     if (!auth.authorized) {
       return NextResponse.json({ error: auth.error || "Unauthorized" }, { status: 403 });
@@ -158,8 +209,8 @@ export async function DELETE(
       }
     }
 
-    if (!imageId) {
-      return NextResponse.json({ error: "Image ID is required" }, { status: 400 });
+    if (!imageId || !UUID_REGEX.test(imageId)) {
+      return NextResponse.json({ error: "Valid Image ID is required" }, { status: 400 });
     }
 
     const admin = createAdminClient();
@@ -189,16 +240,16 @@ export async function DELETE(
 
       // 2. Delete from local uploads if exists
       try {
-        const localPath = path.join(
-          process.cwd(),
-          "public",
-          "uploads",
-          "notes",
+        const uploadsBaseDir = path.resolve(process.cwd(), "public", "uploads", "notes");
+        const localPath = path.resolve(
+          uploadsBaseDir,
           projectId,
           noteId,
           `${imageId}.webp`
         );
-        await fs.unlink(localPath);
+        if (localPath.startsWith(uploadsBaseDir)) {
+          await fs.unlink(localPath);
+        }
       } catch {
         // File may not exist locally, ignore
       }

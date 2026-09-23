@@ -129,7 +129,10 @@ export async function sendEmail({
 }: SendEmailOptions): Promise<SendEmailResult> {
   const smtpUser = process.env.SMTP_USER;
   const smtpPass = process.env.SMTP_PASS;
-  const from = customFrom?.trim() || await getDefaultFromEmail();
+  const sanitizedCustomFrom = customFrom ? customFrom.replace(/[\r\n]/g, "").trim() : undefined;
+  const from = sanitizedCustomFrom || (await getDefaultFromEmail());
+  const sanitizedSubject = subject.replace(/[\r\n]/g, " ").trim();
+  const sanitizedReplyTo = replyTo ? replyTo.replace(/[\r\n]/g, "").trim() : undefined;
   const recipientList = Array.isArray(to) ? to.filter(Boolean) : [to].filter(Boolean);
 
   if (recipientList.length === 0) {
@@ -142,7 +145,7 @@ export async function sendEmail({
     console.log("\n================ [EMAIL NOTIFICATION (DEV MODE)] ================");
     console.log(`To:          ${recipientList.join(", ")}`);
     console.log(`From:        ${from}`);
-    console.log(`Subject:     ${subject}`);
+    console.log(`Subject:     ${sanitizedSubject}`);
     if (attachments && attachments.length > 0) {
       console.log(`Attachments: ${attachments.map((a) => a.filename).join(", ")}`);
     }
@@ -166,10 +169,10 @@ export async function sendEmail({
     const info = await transporter.sendMail({
       from,
       to: recipientList.join(", "),
-      subject,
+      subject: sanitizedSubject,
       html,
       text: text || undefined,
-      replyTo: replyTo || undefined,
+      replyTo: sanitizedReplyTo,
       attachments:
         attachments && attachments.length > 0
           ? attachments.map((a) => ({

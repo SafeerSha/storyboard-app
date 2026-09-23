@@ -1,4 +1,4 @@
-import { renderEmailBase } from "./base";
+import { renderEmailBase, escapeHtml } from "./base";
 
 export interface QuotationChangesRequestedEmailProps {
   freelancerName: string;
@@ -15,12 +15,17 @@ export function generateQuotationChangesRequestedEmail({
   clientNote,
   viewUrl,
 }: QuotationChangesRequestedEmailProps) {
-  const preheader = `${clientName} has requested adjustments or provided feedback on the quotation for ${projectName}.`;
+  const safeFreelancerName = escapeHtml(freelancerName);
+  const safeClientName = escapeHtml(clientName);
+  const safeProjectName = escapeHtml(projectName);
+  const safeClientNote = escapeHtml(clientNote);
+
+  const preheader = `${safeClientName} has requested adjustments or provided feedback on the quotation for ${safeProjectName}.`;
 
   const contentHtml = `
-    <p style="margin: 0 0 16px 0;">Hi <strong>${freelancerName}</strong>,</p>
+    <p style="margin: 0 0 16px 0;">Hi <strong>${safeFreelancerName}</strong>,</p>
     <p style="margin: 0 0 20px 0;">
-      <strong>${clientName}</strong> has reviewed the quotation for <strong>${projectName}</strong> and requested revisions or clarification on the scope.
+      <strong>${safeClientName}</strong> has reviewed the quotation for <strong>${safeProjectName}</strong> and requested revisions or clarification on the scope.
     </p>
 
     <!-- Revision Request Box -->
@@ -34,11 +39,11 @@ export function generateQuotationChangesRequestedEmail({
     </table>
 
     ${
-      clientNote
+      safeClientNote
         ? `
       <div style="margin: 0 0 24px 0; padding: 14px 18px; background-color: #fafaf9; border-left: 4px solid #f59e0b; border-radius: 6px;">
         <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: #78716c; margin-bottom: 4px;">Client Feedback / Target Requirements:</div>
-        <div style="font-size: 13px; color: #1c1917; font-style: italic; line-height: 1.5;">&ldquo;${clientNote}&rdquo;</div>
+        <div style="font-size: 13px; color: #1c1917; font-style: italic; line-height: 1.5;">&ldquo;${safeClientNote}&rdquo;</div>
       </div>
     `
         : ""

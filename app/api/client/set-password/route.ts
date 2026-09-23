@@ -8,8 +8,8 @@ import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 export const dynamic = "force-dynamic";
 
 const schema = z.object({
-  newPassword: z.string().min(1, "New password is required."),
-  confirmPassword: z.string().min(1, "Password confirmation is required."),
+  newPassword: z.string().min(8, "Password must be at least 8 characters long."),
+  confirmPassword: z.string().min(8, "Password confirmation must be at least 8 characters long."),
 });
 
 export async function POST(req: Request) {

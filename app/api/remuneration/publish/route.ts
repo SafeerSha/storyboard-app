@@ -4,6 +4,37 @@ import { createClient } from "@/lib/supabase/server";
 import { sendQuotationPublishedNotification } from "@/lib/email/resend";
 import { generateRemunerationPDFBuffer } from "@/lib/remuneration-export";
 
+async function getVerifiedFromEmail(
+  admin: any,
+  userId: string,
+  userAuthEmail?: string,
+  requestedFromEmail?: string
+): Promise<string | undefined> {
+  if (!requestedFromEmail) return undefined;
+  const cleanRequested = requestedFromEmail.replace(/[\r\n]/g, "").trim();
+  if (!cleanRequested) return undefined;
+
+  const allowedEmails = new Set<string>();
+  if (userAuthEmail) {
+    allowedEmails.add(userAuthEmail.toLowerCase().trim());
+  }
+
+  const { data: profile } = await admin
+    .from("freelancer_profiles")
+    .select("email, email_from")
+    .eq("id", userId)
+    .maybeSingle();
+
+  if (profile?.email) allowedEmails.add(profile.email.toLowerCase().trim());
+  if (profile?.email_from) allowedEmails.add(profile.email_from.toLowerCase().trim());
+
+  if (allowedEmails.has(cleanRequested.toLowerCase())) {
+    return cleanRequested;
+  }
+
+  return undefined;
+}
+
 async function notifyClientsOnPublish({
   admin,
   userId,
@@ -157,6 +188,8 @@ export async function POST(req: Request) {
       };
     });
 
+    const verifiedFromEmail = await getVerifiedFromEmail(admin, user.id, user.email, fromEmail);
+
     let targetEstimateId = estimateId;
 
     // If estimateId is not provided, we first save the estimate
@@ -196,7 +229,7 @@ export async function POST(req: Request) {
         published_to_client_ids: selectedClientIds,
         published_to_clients: publishedClientsList,
         client_emails: clientEmails,
-        from_email: fromEmail?.trim() || undefined,
+        from_email: verifiedFromEmail,
         publish_note: publishNote,
         estimate_label: estimateLabelToUse,
         client_action: {
@@ -266,7 +299,7 @@ export async function POST(req: Request) {
         projectId: project_id,
         selectedClientIds,
         clientEmails,
-        fromEmail: fromEmail?.trim() || undefined,
+        fromEmail: verifiedFromEmail,
         totalHours: Number(estimateData.final_total_hours || 0),
         totalAmount: Number(estimateData.final_amount || 0),
         currency: estimateData.currency || "USD",
@@ -298,13 +331,36 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: "Estimate not found" }, { status: 404 });
       }
 
+      // Check project ownership or super admin
+      const { data: project } = await admin
+        .from("projects")
+        .select("id, owner_id")
+        .eq("id", existing.project_id)
+        .maybeSingle();
+
+      if (!project) {
+        return NextResponse.json({ error: "Project not found" }, { status: 404 });
+      }
+
+      if (project.owner_id !== user.id && existing.created_by !== user.id) {
+        const { data: profile } = await admin
+          .from("freelancer_profiles")
+          .select("role")
+          .eq("id", user.id)
+          .maybeSingle();
+
+        if (profile?.role !== "super_admin") {
+          return NextResponse.json({ error: "Forbidden: You do not have permission to publish this estimate" }, { status: 403 });
+        }
+      }
+
       const existingPublishing = existing.project_summary?.publishing || {};
       const mergedClientEmails = {
         ...(existingPublishing.client_emails || {}),
         ...clientEmails,
       };
 
-      const finalFromEmail = fromEmail?.trim() || existingPublishing.from_email || undefined;
+      const finalFromEmail = verifiedFromEmail || existingPublishing.from_email || undefined;
       const finalEstimateLabel = estimateLabel?.trim() || existingPublishing.estimate_label || existing.project_summary?.estimate_label || undefined;
 
       const updatedPublishing = {

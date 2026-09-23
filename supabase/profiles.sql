@@ -30,11 +30,11 @@ create or replace function public.is_super_admin()
 returns boolean as $$
 begin
   return exists (
-    select 1 from freelancer_profiles
+    select 1 from public.freelancer_profiles
     where id = auth.uid() and role = 'super_admin'
   );
 end;
-$$ language plpgsql security definer;
+$$ language plpgsql security definer set search_path = public, pg_temp;
 
 -- Drop existing policies that need updating
 drop policy if exists "owners can manage projects" on projects;

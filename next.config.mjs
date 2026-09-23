@@ -30,12 +30,26 @@ const nextConfig = {
         "connect-src 'self'",
         "https://*.supabase.co",
         "wss://*.supabase.co",
-        "https://generativelanguage.googleapis.com",
         isDev ? "ws://localhost:*" : "",
       ]
         .filter(Boolean)
         .join(" "),
-      "img-src 'self' data: blob: https://*.supabase.co",
+      (() => {
+        let r2Origin = "";
+        try {
+          if (process.env.R2_PUBLIC_URL) {
+            r2Origin = new URL(process.env.R2_PUBLIC_URL).origin;
+          }
+        } catch {
+          // ignore invalid url
+        }
+        return [
+          "img-src 'self' data: blob: https://*.supabase.co https://*.r2.dev https://*.r2.cloudflarestorage.com",
+          r2Origin,
+        ]
+          .filter(Boolean)
+          .join(" ");
+      })(),
       "media-src 'self' blob:",
       "frame-ancestors 'none'",
       "object-src 'none'",

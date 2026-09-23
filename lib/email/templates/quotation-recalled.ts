@@ -1,4 +1,4 @@
-import { renderEmailBase } from "./base";
+import { renderEmailBase, escapeHtml } from "./base";
 
 export interface QuotationRecalledEmailProps {
   clientName: string;
@@ -15,16 +15,22 @@ export function generateQuotationRecalledEmail({
   recallReason,
   estimateLabel,
 }: QuotationRecalledEmailProps) {
-  const labelSuffix = estimateLabel ? ` (${estimateLabel})` : "";
-  const preheader = `The quotation and scope proposal for ${projectName}${labelSuffix} has been recalled for revisions.`;
+  const safeClientName = escapeHtml(clientName);
+  const safeProjectName = escapeHtml(projectName);
+  const safeFreelancerName = escapeHtml(freelancerName);
+  const safeRecallReason = escapeHtml(recallReason);
+  const safeEstimateLabel = escapeHtml(estimateLabel);
+
+  const labelSuffix = safeEstimateLabel ? ` (${safeEstimateLabel})` : "";
+  const preheader = `The quotation and scope proposal for ${safeProjectName}${labelSuffix} has been recalled for revisions.`;
 
   const contentHtml = `
     <!-- Greeting & Overview -->
     <div style="font-size: 16px; font-weight: 700; color: #09090b; margin-bottom: 8px; letter-spacing: -0.2px;">
-      Hi ${clientName},
+      Hi ${safeClientName},
     </div>
     <p style="margin: 0 0 24px 0; font-size: 14.5px; line-height: 1.6; color: #3f3f46;">
-      Please be advised that the formal scope and estimation proposal previously published for <strong>${projectName}</strong>${estimateLabel ? ` (<em>${estimateLabel}</em>)` : ""} has been <strong>recalled by ${freelancerName}</strong> for internal review and scope adjustments.
+      Please be advised that the formal scope and estimation proposal previously published for <strong>${safeProjectName}</strong>${safeEstimateLabel ? ` (<em>${safeEstimateLabel}</em>)` : ""} has been <strong>recalled by ${safeFreelancerName}</strong> for internal review and scope adjustments.
     </p>
 
     <!-- Withdrawal Status Box -->
@@ -45,15 +51,15 @@ export function generateQuotationRecalledEmail({
     </table>
 
     ${
-      recallReason
+      safeRecallReason
         ? `
       <!-- Reason for Recall -->
       <div style="margin: 0 0 24px 0; padding: 14px 18px; background-color: #fafafa; border-left: 3px solid #d97706; border-radius: 4px; border-top: 1px solid #f4f4f5; border-right: 1px solid #f4f4f5; border-bottom: 1px solid #f4f4f5;">
         <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: #71717a; margin-bottom: 4px; letter-spacing: 0.5px;">
-          Note from ${freelancerName}:
+          Note from ${safeFreelancerName}:
         </div>
         <div style="font-size: 13.5px; color: #27272a; font-style: italic; line-height: 1.55;">
-          &ldquo;${recallReason}&rdquo;
+          &ldquo;${safeRecallReason}&rdquo;
         </div>
       </div>
     `

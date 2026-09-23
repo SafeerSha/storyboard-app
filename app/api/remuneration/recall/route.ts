@@ -33,6 +33,25 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Estimate not found." }, { status: 404 });
     }
 
+    // Authorize caller: must be super_admin, creator of estimate, or owner of project
+    const { data: project } = await admin
+      .from("projects")
+      .select("id, owner_id")
+      .eq("id", existing.project_id)
+      .maybeSingle();
+
+    const isOwner = project?.owner_id === user.id || existing.created_by === user.id;
+    if (!isOwner) {
+      const { data: profile } = await admin
+        .from("freelancer_profiles")
+        .select("role")
+        .eq("id", user.id)
+        .maybeSingle();
+      if (profile?.role !== "super_admin") {
+        return NextResponse.json({ error: "Forbidden: Access denied to this quotation." }, { status: 403 });
+      }
+    }
+
     const existingPublishing = existing.project_summary?.publishing || {};
     const previousClientIds: string[] = existingPublishing.published_to_client_ids || [];
     const clientEmails: Record<string, string> = existingPublishing.client_emails || {};

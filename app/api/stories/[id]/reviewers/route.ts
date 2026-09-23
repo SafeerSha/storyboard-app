@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { canManageStoryReviewers, syncFreelancerToTeam } from "@/lib/story-reviewer-auth";
+import { authorizeProjectMember } from "@/lib/project-auth";
 import { logAudit } from "@/lib/audit";
 
 export const dynamic = "force-dynamic";
@@ -25,6 +26,11 @@ export async function GET(
 
   if (!story) {
     return NextResponse.json({ error: "Story not found." }, { status: 404 });
+  }
+
+  const auth = await authorizeProjectMember(story.project_id);
+  if (!auth.authorized) {
+    return NextResponse.json({ error: auth.error || "Unauthorized" }, { status: 403 });
   }
 
   // Fetch reviewers mapped to story

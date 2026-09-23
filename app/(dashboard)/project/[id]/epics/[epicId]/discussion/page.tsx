@@ -24,7 +24,7 @@ export default async function AdminEpicDiscussionPage({
     const cookieStore = await cookies();
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || process.env.SUPABASE_PUBLISHABLE_KEY!,
       {
         cookies: {
           getAll() {
@@ -78,12 +78,19 @@ export default async function AdminEpicDiscussionPage({
     );
   }
 
-  // Fetch project name for context
+  // Fetch project and authorize viewer
   const { data: project } = await admin
     .from("projects")
-    .select("name")
+    .select("name, owner_id")
     .eq("id", epic.project_id)
     .maybeSingle();
+
+  const isSuperAdmin = viewerType === "super_admin";
+  const isOwner = project?.owner_id === viewerId;
+
+  if (!project || (!isOwner && !isSuperAdmin)) {
+    redirect("/login");
+  }
 
   return (
     <main className="mx-auto max-w-4xl p-4 sm:p-8">

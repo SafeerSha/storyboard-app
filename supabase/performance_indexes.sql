@@ -85,7 +85,7 @@ BEGIN
     WHERE id = (SELECT auth.uid()) AND role = 'super_admin'
   );
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER STABLE;
+$$ LANGUAGE plpgsql SECURITY DEFINER STABLE SET search_path = public, pg_temp;
 
 -- ------------------------------------------------------------------------------
 -- 3. RLS POLICIES WITH SUBQUERY CACHING (INITPLAN) & AUTHENTICATED SCOPING

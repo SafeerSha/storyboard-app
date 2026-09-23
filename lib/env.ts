@@ -22,19 +22,20 @@ const envSchema = z.object({
     .string()
     .min(10, "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY is required"),
 
-  // Client portal session signing secret
+  // Client portal session signing secret (optional; sessions are cryptographically stored in DB)
   CLIENT_SESSION_SECRET: z
     .string()
-    .min(32, "CLIENT_SESSION_SECRET must be at least 32 characters"),
+    .min(32, "CLIENT_SESSION_SECRET must be at least 32 characters")
+    .optional(),
 
   // AI
   GEMINI_API_KEY: z.string().min(10, "GEMINI_API_KEY is required"),
 
-  // Email
-  SMTP_HOST: z.string().min(1, "SMTP_HOST is required"),
-  SMTP_PORT: z.coerce.number().int().positive("SMTP_PORT must be a positive integer"),
-  SMTP_USER: z.string().email("SMTP_USER must be a valid email address"),
-  SMTP_PASS: z.string().min(1, "SMTP_PASS is required"),
+  // Email (Optional — lib/email/resend.ts simulates sending when unconfigured)
+  SMTP_HOST: z.string().min(1, "SMTP_HOST is required").optional(),
+  SMTP_PORT: z.coerce.number().int().positive("SMTP_PORT must be a positive integer").optional(),
+  SMTP_USER: z.string().email("SMTP_USER must be a valid email address").optional(),
+  SMTP_PASS: z.string().min(1, "SMTP_PASS is required").optional(),
 });
 
 function validateEnv() {

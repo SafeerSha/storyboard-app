@@ -22,9 +22,12 @@ export function SetPasswordForm({ clientName }: SetPasswordFormProps) {
     e.preventDefault();
     setError("");
 
-    // Validate only empty and match per Section 9
     if (!newPassword.trim()) {
       setError("Please enter a new password.");
+      return;
+    }
+    if (newPassword.length < 8) {
+      setError("Password must be at least 8 characters long.");
       return;
     }
     if (!confirmPassword.trim()) {

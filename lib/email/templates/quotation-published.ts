@@ -1,4 +1,4 @@
-import { renderEmailBase } from "./base";
+import { renderEmailBase, escapeHtml } from "./base";
 
 export interface QuotationPublishedEmailProps {
   clientName: string;
@@ -25,22 +25,29 @@ export function generateQuotationPublishedEmail({
   clientLoginPin,
   estimateLabel,
 }: QuotationPublishedEmailProps) {
+  const safeClientName = escapeHtml(clientName);
+  const safeProjectName = escapeHtml(projectName);
+  const safeFreelancerName = escapeHtml(freelancerName);
+  const safePublishNote = escapeHtml(publishNote);
+  const safeEstimateLabel = escapeHtml(estimateLabel);
+  const safeClientLoginPin = escapeHtml(clientLoginPin);
+
   const formattedAmount = new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: currency || "USD",
     maximumFractionDigits: 0,
   }).format(totalAmount);
 
-  const labelSuffix = estimateLabel ? ` (${estimateLabel})` : "";
-  const preheader = `Formal quotation and scope proposal for ${projectName}${labelSuffix} is ready for your review.`;
+  const labelSuffix = safeEstimateLabel ? ` (${safeEstimateLabel})` : "";
+  const preheader = `Formal quotation and scope proposal for ${safeProjectName}${labelSuffix} is ready for your review.`;
 
   const contentHtml = `
     <!-- Greeting & Overview -->
     <div style="font-size: 16px; font-weight: 700; color: #09090b; margin-bottom: 8px; letter-spacing: -0.2px;">
-      Hi ${clientName},
+      Hi ${safeClientName},
     </div>
     <p style="margin: 0 0 24px 0; font-size: 14.5px; line-height: 1.6; color: #3f3f46;">
-      Here is the remuneration quotation for <strong>${projectName}</strong>${estimateLabel ? ` (<em>${estimateLabel}</em>)` : ""}. Please review the summary below or view the detailed breakdown in the Client Portal.
+      Here is the remuneration quotation for <strong>${safeProjectName}</strong>${safeEstimateLabel ? ` (<em>${safeEstimateLabel}</em>)` : ""}. Please review the summary below or view the detailed breakdown in the Client Portal.
     </p>
 
     <!-- Executive KPI Summary Card -->
@@ -54,7 +61,7 @@ export function generateQuotationPublishedEmail({
                   Total Estimated Effort
                 </div>
                 <div style="font-size: 26px; font-weight: 800; color: #09090b; margin-top: 6px; letter-spacing: -0.5px;">
-                  ${totalHours} <span style="font-size: 14px; font-weight: 500; color: #71717a;">hrs</span>
+                  ${Number(totalHours) || 0} <span style="font-size: 14px; font-weight: 500; color: #71717a;">hrs</span>
                 </div>
                 <div style="font-size: 11.5px; color: #a1a1aa; margin-top: 4px;">
                   Engineering &amp; Quality Assurance
@@ -78,21 +85,21 @@ export function generateQuotationPublishedEmail({
     <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="border: 1px solid #e4e4e7; border-radius: 10px; margin-bottom: 24px; background-color: #ffffff; overflow: hidden;">
       <tr>
         <td style="padding: 11px 18px; border-bottom: 1px solid #f4f4f5; font-size: 13px; color: #71717a; width: 36%;">Project</td>
-        <td style="padding: 11px 18px; border-bottom: 1px solid #f4f4f5; font-size: 13px; font-weight: 600; color: #18181b;">${projectName}</td>
+        <td style="padding: 11px 18px; border-bottom: 1px solid #f4f4f5; font-size: 13px; font-weight: 600; color: #18181b;">${safeProjectName}</td>
       </tr>
       <tr>
-        <td style="padding: 11px 18px; border-bottom: ${clientLoginPin ? "1px solid #f4f4f5" : "none"}; font-size: 13px; color: #71717a;">Document Format</td>
-        <td style="padding: 11px 18px; border-bottom: ${clientLoginPin ? "1px solid #f4f4f5" : "none"}; font-size: 13px; color: #18181b;">
+        <td style="padding: 11px 18px; border-bottom: ${safeClientLoginPin ? "1px solid #f4f4f5" : "none"}; font-size: 13px; color: #71717a;">Document Format</td>
+        <td style="padding: 11px 18px; border-bottom: ${safeClientLoginPin ? "1px solid #f4f4f5" : "none"}; font-size: 13px; color: #18181b;">
           <strong style="color: #09090b;">Itemized PDF Attached</strong> <span style="font-size: 12px; color: #71717a;">+ Interactive Client Portal</span>
         </td>
       </tr>
       ${
-        clientLoginPin
+        safeClientLoginPin
           ? `
         <tr>
           <td style="padding: 11px 18px; font-size: 13px; color: #71717a;">Client Portal PIN</td>
           <td style="padding: 11px 18px; font-size: 13px;">
-            <code style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 13px; font-weight: 700; color: #09090b; background-color: #f4f4f5; padding: 3px 10px; border-radius: 4px; border: 1px solid #e4e4e7; letter-spacing: 1px;">${clientLoginPin}</code>
+            <code style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 13px; font-weight: 700; color: #09090b; background-color: #f4f4f5; padding: 3px 10px; border-radius: 4px; border: 1px solid #e4e4e7; letter-spacing: 1px;">${safeClientLoginPin}</code>
           </td>
         </tr>
       `
@@ -101,15 +108,15 @@ export function generateQuotationPublishedEmail({
     </table>
 
     ${
-      publishNote
+      safePublishNote
         ? `
       <!-- Personal Note from Project Lead -->
       <div style="margin: 0 0 24px 0; padding: 14px 18px; background-color: #fafafa; border-left: 3px solid #B8944E; border-radius: 4px; border-top: 1px solid #f4f4f5; border-right: 1px solid #f4f4f5; border-bottom: 1px solid #f4f4f5;">
         <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: #71717a; margin-bottom: 4px; letter-spacing: 0.5px;">
-          Note from ${freelancerName}:
+          Note from ${safeFreelancerName}:
         </div>
         <div style="font-size: 13.5px; color: #27272a; font-style: italic; line-height: 1.55;">
-          &ldquo;${publishNote}&rdquo;
+          &ldquo;${safePublishNote}&rdquo;
         </div>
       </div>
     `
@@ -154,7 +161,7 @@ export function generateQuotationPublishedEmail({
     <!-- Executive Sign-off -->
     <div style="margin-top: 20px; font-size: 13px; color: #3f3f46; line-height: 1.6;">
       Warm regards,<br />
-      <strong style="color: #09090b;">${freelancerName}</strong><br />
+      <strong style="color: #09090b;">${safeFreelancerName}</strong><br />
     </div>
   `;
 

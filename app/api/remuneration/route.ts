@@ -48,15 +48,26 @@ export async function GET() {
       .eq("created_by", user.id)
       .order("created_at", { ascending: false });
 
-    // Fetch clients so UI can display recipient client names and emails for any estimate
-    const { data: allClients } = await admin
-      .from("clients")
-      .select("id, name, email, login_id, project_id");
+    // Fetch clients scoped to this user's projects to prevent multi-tenant data leakage
+    const userProjectIds = projectsData.map((p) => p.id);
+    let clientsData: any[] = [];
+    if (profile?.role === "super_admin") {
+      const { data: allClients } = await admin
+        .from("clients")
+        .select("id, name, email, login_id, project_id");
+      clientsData = allClients || [];
+    } else if (userProjectIds.length > 0) {
+      const { data: userClients } = await admin
+        .from("clients")
+        .select("id, name, email, login_id, project_id")
+        .in("project_id", userProjectIds);
+      clientsData = userClients || [];
+    }
 
     return NextResponse.json({
       projects: projectsData,
       savedEstimates: savedEstimates || [],
-      clients: allClients || [],
+      clients: clientsData,
     });
   } catch (err: any) {
     return NextResponse.json({ error: err.message || "Internal server error" }, { status: 500 });
