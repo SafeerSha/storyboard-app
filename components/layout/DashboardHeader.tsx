@@ -4,6 +4,7 @@ import React from "react";
 import Link from "next/link";
 import { ArrowLeft, Menu } from "lucide-react";
 import { useDashboard } from "./FreelancerLayout";
+import { NotificationCenter } from "@/components/notifications/NotificationCenter";
 
 interface DashboardHeaderProps {
   category?: string;
@@ -15,6 +16,7 @@ interface DashboardHeaderProps {
   badge?: React.ReactNode;
   actions?: React.ReactNode;
   maxWidth?: string;
+  hideNotifications?: boolean;
 }
 
 export function DashboardHeader({
@@ -27,6 +29,7 @@ export function DashboardHeader({
   badge,
   actions,
   maxWidth = "max-w-6xl",
+  hideNotifications = false,
 }: DashboardHeaderProps) {
   const { toggleMobile } = useDashboard();
   const label = eyebrow || category;
@@ -79,11 +82,10 @@ export function DashboardHeader({
           </div>
         </div>
 
-        {actions && (
-          <div className="flex items-center gap-2.5 shrink-0 flex-wrap sm:flex-nowrap pt-1 sm:pt-0 pl-12 sm:pl-0">
-            {actions}
-          </div>
-        )}
+        <div className="flex items-center gap-2.5 shrink-0 flex-wrap sm:flex-nowrap pt-1 sm:pt-0 pl-12 sm:pl-0">
+          {actions}
+          {!hideNotifications && <NotificationCenter />}
+        </div>
       </div>
     </header>
   );

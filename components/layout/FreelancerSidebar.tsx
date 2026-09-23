@@ -10,6 +10,7 @@ import {
   Lightbulb,
   LogOut,
   PanelBottom,
+  Receipt,
   Settings,
   ShieldCheck,
   Users,
@@ -99,6 +100,7 @@ export function FreelancerSidebar({
   const isClientsActive = pathname.startsWith("/clients");
   const isSettingsActive = pathname.startsWith("/settings") || pathname.startsWith("/remuneration");
   const isUsersActive = pathname.startsWith("/users");
+  const isRemunerationsActive = pathname.startsWith("/remunerations");
 
   const closeMobile = () => setMobileOpen(false);
 
@@ -140,6 +142,14 @@ export function FreelancerSidebar({
       href: "/inbox",
       icon: Lightbulb,
       isActive: isInboxActive,
+      onClick: closeMobile,
+    },
+    {
+      id: "dock-remunerations",
+      label: "Payments",
+      href: "/remunerations",
+      icon: Receipt,
+      isActive: isRemunerationsActive,
       onClick: closeMobile,
     },
     {
@@ -189,6 +199,14 @@ export function FreelancerSidebar({
       id: "manage",
       title: "Manage & Administration",
       items: [
+        {
+          id: "sheet-remunerations",
+          label: "Remunerations",
+          href: "/remunerations",
+          icon: Receipt,
+          isActive: isRemunerationsActive,
+          description: "Track client payments, installments & proofs",
+        },
         {
           id: "sheet-clients",
           label: "Clients",
@@ -247,6 +265,13 @@ export function FreelancerSidebar({
     {
       id: "dock-manage",
       items: [
+        {
+          id: "dock-remunerations",
+          label: "Payments",
+          href: "/remunerations",
+          icon: Receipt,
+          isActive: isRemunerationsActive,
+        },
         {
           id: "dock-clients",
           label: "Clients",
@@ -357,6 +382,20 @@ export function FreelancerSidebar({
             Manage
           </p>
           <nav className="space-y-0.5">
+            <Link
+              href="/remunerations"
+              className={`flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-xs sm:text-sm transition-colors ${
+                isRemunerationsActive
+                  ? "bg-[rgba(184,148,78,0.09)] border border-[rgba(184,148,78,0.12)] text-[#80642F] font-medium"
+                  : "text-[#706C7D] hover:bg-[rgba(184,148,78,0.04)] hover:text-[#80642F] border border-transparent font-medium"
+              }`}
+            >
+              <Receipt
+                size={16}
+                className={isRemunerationsActive ? "text-[#B8944E]" : "text-[#9994A5]"}
+              />
+              <span>Remunerations</span>
+            </Link>
             <Link
               href="/clients"
               className={`flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-xs sm:text-sm transition-colors ${
