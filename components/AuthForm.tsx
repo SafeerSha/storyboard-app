@@ -14,12 +14,14 @@ export function AuthForm() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [isRedirecting, setIsRedirecting] = useState(false);
   const router = useRouter();
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
     setError("");
+    let success = false;
 
     try {
       const res = await fetch("/api/auth/login", {
@@ -39,6 +41,8 @@ export function AuthForm() {
 
         if (authError) throw authError;
 
+        success = true;
+        setIsRedirecting(true);
         toast.success("Login successful");
         router.push("/");
         router.refresh();
@@ -49,6 +53,8 @@ export function AuthForm() {
         throw new Error(data.error || "Failed to sign in");
       }
 
+      success = true;
+      setIsRedirecting(true);
       toast.success("Login successful");
       router.push(data.redirectTo || "/");
       router.refresh();
@@ -57,7 +63,9 @@ export function AuthForm() {
       setError(userMessage);
       toast.error("Unable to sign in", "Please check your credentials and try again.");
     } finally {
-      setLoading(false);
+      if (!success) {
+        setLoading(false);
+      }
     }
   }
 
@@ -122,13 +130,14 @@ export function AuthForm() {
               type="text"
               required
               autoFocus
+              disabled={loading || isRedirecting}
               autoCapitalize="none"
               autoCorrect="off"
               spellCheck="false"
               value={identifier}
               onChange={(e) => setIdentifier(e.target.value)}
               placeholder="Login Id"
-              className="h-10 w-full rounded-xl border border-[rgba(74,61,100,0.11)] bg-white/85 pl-10 pr-3.5 text-sm text-[#252331] placeholder-[#9994A5] outline-none transition focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)]"
+              className="h-10 w-full rounded-xl border border-[rgba(74,61,100,0.11)] bg-white/85 pl-10 pr-3.5 text-sm text-[#252331] placeholder-[#9994A5] outline-none transition focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)] disabled:opacity-60 disabled:cursor-not-allowed"
             />
           </div>
         </div>
@@ -146,10 +155,11 @@ export function AuthForm() {
               type="password"
               required
               minLength={6}
+              disabled={loading || isRedirecting}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
-              className="h-10 w-full rounded-xl border border-[rgba(74,61,100,0.11)] bg-white/85 pl-10 pr-3.5 text-sm text-[#252331] placeholder-[#9994A5] outline-none transition focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)]"
+              className="h-10 w-full rounded-xl border border-[rgba(74,61,100,0.11)] bg-white/85 pl-10 pr-3.5 text-sm text-[#252331] placeholder-[#9994A5] outline-none transition focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)] disabled:opacity-60 disabled:cursor-not-allowed"
             />
           </div>
         </div>
@@ -165,10 +175,11 @@ export function AuthForm() {
           variant="primary"
           size="lg"
           className="w-full mt-2"
-          isLoading={loading}
-          rightIcon={<ArrowRight size={15} />}
+          isLoading={loading || isRedirecting}
+          disabled={loading || isRedirecting}
+          rightIcon={!loading && !isRedirecting ? <ArrowRight size={15} /> : undefined}
         >
-          Sign in
+          {isRedirecting ? "Redirecting..." : loading ? "Signing in..." : "Sign in"}
         </Button>
       </form>
     </div>

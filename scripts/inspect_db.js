@@ -17,6 +17,9 @@ const key = env.SUPABASE_SERVICE_ROLE_KEY;
 const supabase = createClient(url, key);
 
 async function run() {
+  const { data: usersData } = await supabase.auth.admin.listUsers();
+  console.log('AUTH_USERS:', JSON.stringify(usersData?.users?.map(u => ({ id: u.id, email: u.email, metadata: u.user_metadata })), null, 2));
+
   const { data: fps, error: e1 } = await supabase.from('freelancer_profiles').select('id, name, email, role, status');
   console.log('FREELANCERS:', JSON.stringify(fps, null, 2));
 

@@ -81,11 +81,34 @@ export async function middleware(request: NextRequest) {
 
   if (user) {
     const adminClient = createAdminClient();
-    const { data: profile } = await adminClient
+    let { data: profile } = await adminClient
       .from("freelancer_profiles")
       .select("name, role, status")
       .eq("id", user.id)
       .maybeSingle();
+
+    if (!profile) {
+      const defaultName =
+        user.user_metadata?.name ||
+        user.user_metadata?.full_name ||
+        user.email?.split("@")[0] ||
+        "Freelancer";
+
+      const { data: createdProfile } = await adminClient
+        .from("freelancer_profiles")
+        .insert({
+          id: user.id,
+          email: user.email || "",
+          name: defaultName,
+          role: "freelancer",
+          status: "active",
+          updated_at: new Date().toISOString(),
+        })
+        .select("name, role, status")
+        .maybeSingle();
+
+      profile = createdProfile;
+    }
 
     if (profile?.status === "disabled") {
       await supabase.auth.signOut();

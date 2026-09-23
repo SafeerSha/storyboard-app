@@ -48,17 +48,46 @@ export async function getAuthenticatedInboxActor(): Promise<InboxActor | null> {
 
     if (user) {
       const adminClient = createAdminClient();
-      const { data: profile } = await adminClient
+      let { data: profile } = await adminClient
         .from("freelancer_profiles")
         .select("id, name, email, role, status")
         .eq("id", user.id)
         .maybeSingle();
 
-      if (profile && profile.status === "active") {
+      if (!profile) {
+        const defaultName =
+          user.user_metadata?.name ||
+          user.user_metadata?.full_name ||
+          user.email?.split("@")[0] ||
+          "Freelancer";
+
+        const { data: createdProfile } = await adminClient
+          .from("freelancer_profiles")
+          .insert({
+            id: user.id,
+            email: user.email || "",
+            name: defaultName,
+            role: "freelancer",
+            status: "active",
+            updated_at: new Date().toISOString(),
+          })
+          .select("id, name, email, role, status")
+          .maybeSingle();
+
+        profile = createdProfile || {
+          id: user.id,
+          name: defaultName,
+          email: user.email || "",
+          role: "freelancer",
+          status: "active",
+        };
+      }
+
+      if (profile && profile.status !== "disabled") {
         return {
           id: user.id,
           name: profile.name || user.email?.split("@")[0] || "Freelancer",
-          emailOrUsername: profile.email,
+          emailOrUsername: profile.email || user.email || "",
           type: "freelancer",
           isSuperAdmin: profile.role === "super_admin",
         };
