@@ -133,14 +133,7 @@ export async function notifyPaymentRequested({
     metadata: { installmentNumber, amount, currency, dueDate },
   });
 
-  // 2. In-App Notification for internal user
-  await createInAppNotification({
-    userId: ownerId,
-    title: "Payment Requested",
-    message: `Payment of ${currency} ${amount.toLocaleString()} requested for ${projectName} (Installment #${installmentNumber}).`,
-    linkUrl: remUrl,
-    type: "payment_requested",
-  });
+  // 2. (No self-notification — the freelancer clicked Request themselves; audit trail is sufficient)
 
   // 3. Email to Client if client email exists
   if (clientEmail && clientEmail.includes("@")) {

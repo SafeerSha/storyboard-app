@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createRemunerationSchema } from "@/lib/types/remuneration";
-import { recordRemunerationAuditEvent, createInAppNotification } from "@/lib/notifications/service";
+import { recordRemunerationAuditEvent } from "@/lib/notifications/service";
 
 export const dynamic = "force-dynamic";
 
@@ -355,14 +355,7 @@ export async function POST(req: Request) {
       },
     });
 
-    // 6. In-App Notification
-    await createInAppNotification({
-      userId: user.id,
-      title: "Remuneration Created",
-      message: `Remuneration of ${data.currency} ${data.totalAmount.toLocaleString()} configured for ${project.name}.`,
-      linkUrl: `/remunerations/${remuneration.id}`,
-      type: "remuneration_created",
-    });
+    // Step 6: (no self-notification on creation — audit trail above is sufficient)
 
     return NextResponse.json(
       {

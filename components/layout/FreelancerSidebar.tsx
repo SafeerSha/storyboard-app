@@ -98,7 +98,7 @@ export function FreelancerSidebar({
   const isProjectsActive = pathname.startsWith("/project") || pathname.startsWith("/projects");
   const isInboxActive = pathname.startsWith("/inbox");
   const isClientsActive = pathname.startsWith("/clients");
-  const isSettingsActive = pathname.startsWith("/settings") || pathname.startsWith("/remuneration");
+  const isSettingsActive = pathname.startsWith("/settings") || pathname === "/remuneration" || pathname.startsWith("/remuneration/");
   const isUsersActive = pathname.startsWith("/users");
   const isRemunerationsActive = pathname.startsWith("/remunerations");
 
