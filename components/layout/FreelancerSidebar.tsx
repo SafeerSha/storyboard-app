@@ -217,11 +217,11 @@ export function FreelancerSidebar({
         },
         {
           id: "sheet-users",
-          label: "Team Members",
+          label: "Users",
           href: "/users",
           icon: ShieldCheck,
           isActive: isUsersActive,
-          description: "Manage your team's access & project assignments",
+          description: "Manage platform users, freelancers & project access",
         },
         {
           id: "sheet-settings-item",
@@ -281,7 +281,7 @@ export function FreelancerSidebar({
         },
         {
           id: "dock-users",
-          label: "Team",
+          label: "Users",
           href: "/users",
           icon: ShieldCheck,
           isActive: isUsersActive,
@@ -422,7 +422,7 @@ export function FreelancerSidebar({
                 size={16}
                 className={isUsersActive ? "text-[#B8944E]" : "text-[#9994A5]"}
               />
-              <span>Team Members</span>
+              <span>Users</span>
             </Link>
             <Link
               href="/settings"
@@ -531,7 +531,7 @@ export function FreelancerSidebar({
 
       {/* Desktop Persistent Sidebar (when sidebar mode selected) */}
       {desktopNavMode === "sidebar" && (
-        <aside className="fixed inset-y-0 left-0 z-30 hidden w-56 border-r border-[rgba(74,61,100,0.08)] bg-[rgba(250,249,252,0.80)] backdrop-blur-[20px] lg:flex lg:flex-col">
+        <aside className="fixed inset-y-0 left-0 z-30 hidden w-56 border-r border-[rgba(74,61,100,0.08)] bg-[rgba(250,249,252,0.80)] backdrop-blur-[20px] md:flex md:flex-col">
           {renderDesktopNav()}
         </aside>
       )}

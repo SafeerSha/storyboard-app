@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { verifyAnyFreelancer } from "@/lib/super-admin";
 import bcrypt from "bcryptjs";
 import { generateTemporaryPassword } from "@/lib/client-credentials";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
@@ -9,15 +9,12 @@ export const dynamic = "force-dynamic";
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const actor = await verifyAnyFreelancer();
+  if (!actor) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   // Rate limit password resets: max 10 per minute per user
   const ip = getClientIp(req);
-  const rateLimit = checkRateLimit(`reset-client-password:${user.id}:${ip}`, {
+  const rateLimit = checkRateLimit(`reset-client-password:${actor.id}:${ip}`, {
     limit: 10,
     windowSeconds: 60,
   });
@@ -28,14 +25,20 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     );
   }
 
+  const admin = createAdminClient();
+
   try {
     // Check ownership and load client info
-    const { data: existingClient, error: clientError } = await supabase
+    let clientQuery = admin
       .from("clients")
       .select("id, name, login_id, project_id, projects!inner(name, owner_id)")
-      .eq("id", id)
-      .eq("projects.owner_id", user.id)
-      .maybeSingle();
+      .eq("id", id);
+
+    if (!actor.isSuperAdmin) {
+      clientQuery = clientQuery.eq("projects.owner_id", actor.id);
+    }
+
+    const { data: existingClient, error: clientError } = await clientQuery.maybeSingle();
 
     if (clientError || !existingClient) {
       return NextResponse.json({ error: "Client not found or unauthorized." }, { status: 404 });
@@ -44,8 +47,6 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     // Generate a secure new initial password
     const initialPassword = generateTemporaryPassword();
     const password_hash = await bcrypt.hash(initialPassword, 12);
-
-    const admin = createAdminClient();
 
     // Update password_hash and set is_password_changed = false
     let updatePayload: Record<string, any> = {

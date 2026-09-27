@@ -49,7 +49,7 @@ export function AppDock({
   user,
   onToggleLayout,
   layoutMode = "dock",
-  className = "",
+  className = "hidden md:flex",
 }: AppDockProps) {
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [showAccountMenu, setShowAccountMenu] = useState(false);

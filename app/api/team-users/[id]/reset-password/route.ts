@@ -23,13 +23,15 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
 
     const adminClient = createAdminClient();
 
-    // Verify team user exists AND belongs to this actor
-    const { data: user, error: fetchError } = await adminClient
+    // Verify team user exists (scoped by owner_id for non-super-admins)
+    let userQuery = adminClient
       .from("team_users")
       .select("id, username, owner_id")
-      .eq("id", id)
-      .eq("owner_id", actor.id)
-      .maybeSingle();
+      .eq("id", id);
+    if (!actor.isSuperAdmin) {
+      userQuery = userQuery.eq("owner_id", actor.id);
+    }
+    const { data: user, error: fetchError } = await userQuery.maybeSingle();
 
     if (fetchError || !user) {
       return NextResponse.json({ error: "Team user not found." }, { status: 404 });

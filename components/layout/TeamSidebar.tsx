@@ -1,15 +1,19 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState, useRef, useMemo } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
+  Check,
+  ChevronDown,
+  ChevronsUpDown,
   ClipboardCheck,
   FolderKanban,
   Layers,
   LogOut,
   MessageSquare,
   PanelBottom,
+  Search,
 } from "lucide-react";
 import { toast } from "@/lib/toast";
 import { StoryBoardLogo } from "@/components/brand/StoryBoardLogo";
@@ -17,9 +21,18 @@ import { MobileNavigationSheet, NavSheetItem, NavSheetSection } from "./MobileNa
 import { MobileBottomDock, MobileDockItem } from "./MobileBottomDock";
 import { AppDock, DockSectionConfig } from "./AppDock";
 
+export interface AssignedProjectItem {
+  id: string;
+  name: string;
+  description?: string | null;
+  status?: string;
+}
+
 interface TeamSidebarProps {
   userName: string;
   projectName: string;
+  assignedProjects?: AssignedProjectItem[];
+  activeProjectId?: string;
   mobileOpen: boolean;
   setMobileOpen: (open: boolean) => void;
   desktopNavMode?: "dock" | "sidebar";
@@ -29,15 +42,41 @@ interface TeamSidebarProps {
 export function TeamSidebar({
   userName,
   projectName,
+  assignedProjects = [],
+  activeProjectId,
   mobileOpen,
   setMobileOpen,
   desktopNavMode = "dock",
   onToggleLayout,
 }: TeamSidebarProps) {
   const pathname = usePathname();
+  const router = useRouter();
   const [pendingReviewsCount, setPendingReviewsCount] = React.useState<number>(0);
   const [epics, setEpics] = React.useState<Array<{ id: string; name: string; storyCount: number }>>([]);
   const [hasInboxAccess, setHasInboxAccess] = React.useState<boolean>(false);
+
+  // Project Switcher popover state
+  const [projectSwitcherOpen, setProjectSwitcherOpen] = useState(false);
+  const [projectSearch, setProjectSearch] = useState("");
+  const switcherRef = useRef<HTMLDivElement>(null);
+
+  const filteredProjects = useMemo(() => {
+    if (!projectSearch.trim()) return assignedProjects;
+    const query = projectSearch.toLowerCase();
+    return assignedProjects.filter((p) => p.name.toLowerCase().includes(query));
+  }, [assignedProjects, projectSearch]);
+
+  // Click outside to close project switcher
+  useEffect(() => {
+    if (!projectSwitcherOpen) return;
+    function handleClickOutside(e: MouseEvent) {
+      if (switcherRef.current && !switcherRef.current.contains(e.target as Node)) {
+        setProjectSwitcherOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [projectSwitcherOpen]);
 
   const fetchCount = React.useCallback(() => {
     fetch("/api/team/reviews/count")
@@ -51,7 +90,8 @@ export function TeamSidebar({
   }, []);
 
   const fetchEpics = React.useCallback(() => {
-    fetch("/api/team/epics")
+    const qs = activeProjectId ? `?projectId=${activeProjectId}` : "";
+    fetch(`/api/team/epics${qs}`)
       .then((r) => (r.ok ? r.json() : { epics: [] }))
       .then((d) => {
         if (Array.isArray(d.epics)) {
@@ -59,7 +99,7 @@ export function TeamSidebar({
         }
       })
       .catch(() => {});
-  }, []);
+  }, [activeProjectId]);
 
   const fetchInboxAccess = React.useCallback(() => {
     fetch("/api/inbox?status=all")
@@ -104,13 +144,29 @@ export function TeamSidebar({
   const closeMobile = () => setMobileOpen(false);
   const initials = userName ? userName.slice(0, 2).toUpperCase() : "TU";
 
+  const workspaceHref = activeProjectId ? `/team?projectId=${activeProjectId}` : "/team";
+
   // Mobile Bottom Dock shortcuts
   const mobileDockItems: MobileDockItem[] = [
     {
-      id: "dock-team-project",
-      label: "Project",
-      href: "/team",
+      id: "dock-team-projects",
+      label: "Projects",
+      href: "/team/projects",
       icon: FolderKanban,
+      isActive: pathname === "/team/projects",
+      onClick: closeMobile,
+      badge:
+        assignedProjects.length > 1 ? (
+          <span className="rounded-full bg-[rgba(184,148,78,0.2)] px-1.5 py-0.2 text-[9px] font-bold text-[#80642F]">
+            {assignedProjects.length}
+          </span>
+        ) : undefined,
+    },
+    {
+      id: "dock-team-workspace",
+      label: "Workspace",
+      href: workspaceHref,
+      icon: Layers,
       isActive: pathname === "/team",
       onClick: closeMobile,
     },
@@ -145,10 +201,23 @@ export function TeamSidebar({
   // Mobile Sheet quick tiles
   const sheetQuickTiles: NavSheetItem[] = [
     {
-      id: "sheet-team-project",
-      label: "Project",
-      href: "/team",
+      id: "sheet-team-projects",
+      label: "All Projects",
+      href: "/team/projects",
       icon: FolderKanban,
+      isActive: pathname === "/team/projects",
+      badge:
+        assignedProjects.length > 0 ? (
+          <span className="rounded-full bg-[rgba(184,148,78,0.12)] px-1.5 py-0.2 text-[10px] font-bold text-[#80642F]">
+            {assignedProjects.length}
+          </span>
+        ) : undefined,
+    },
+    {
+      id: "sheet-team-workspace",
+      label: "Workspace",
+      href: workspaceHref,
+      icon: Layers,
       isActive: pathname === "/team",
     },
     {
@@ -196,24 +265,66 @@ export function TeamSidebar({
 
   const customSheetContent = (
     <div className="space-y-4">
-      {/* Scope Indicator */}
+      {/* Scope Indicator & Multi-Project Switcher on Mobile */}
       <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-3.5 shadow-2xs">
-        <div className="flex items-center gap-2.5">
-          <div className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-emerald-50 text-xs font-bold text-emerald-700 border border-emerald-200">
-            {projectName.slice(0, 1).toUpperCase()}
-          </div>
-          <div className="min-w-0 flex-1">
-            <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">
-              Assigned Project
-            </p>
-            <p className="truncate text-sm font-bold text-zinc-900">
-              {projectName}
-            </p>
-          </div>
+        <div className="flex items-center justify-between pb-2 mb-2 border-b border-zinc-200">
+          <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">
+            {assignedProjects.length > 1
+              ? `Assigned Projects (${assignedProjects.length})`
+              : "Assigned Project"}
+          </p>
+          {assignedProjects.length > 1 && (
+            <Link
+              href="/team/projects"
+              onClick={closeMobile}
+              className="text-[11px] font-semibold text-[#80642F] hover:underline"
+            >
+              View All →
+            </Link>
+          )}
         </div>
+
+        {assignedProjects.length > 1 ? (
+          <div className="space-y-1 max-h-48 overflow-y-auto">
+            {assignedProjects.map((p) => {
+              const isCurrent = p.id === activeProjectId;
+              return (
+                <Link
+                  key={p.id}
+                  href={`/team?projectId=${p.id}`}
+                  onClick={closeMobile}
+                  className={`flex items-center justify-between px-2.5 py-2 rounded-xl text-xs font-semibold transition ${
+                    isCurrent
+                      ? "bg-[#80642F] text-white shadow-2xs"
+                      : "text-zinc-800 hover:bg-zinc-100"
+                  }`}
+                >
+                  <div className="flex items-center gap-2 truncate">
+                    <span
+                      className={`h-2 w-2 rounded-full shrink-0 ${
+                        isCurrent ? "bg-emerald-400" : "bg-zinc-400"
+                      }`}
+                    />
+                    <span className="truncate">{p.name}</span>
+                  </div>
+                  {isCurrent && <Check size={13} className="shrink-0 ml-1 text-white" />}
+                </Link>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="flex items-center gap-2.5">
+            <div className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-emerald-50 text-xs font-bold text-emerald-700 border border-emerald-200">
+              {projectName.slice(0, 1).toUpperCase()}
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-bold text-zinc-900">{projectName}</p>
+            </div>
+          </div>
+        )}
       </div>
 
-      {/* Epics List */}
+      {/* Epics List for Active Project */}
       {epics.length > 0 && (
         <div>
           <div className="px-1 pb-2 text-xs font-bold uppercase tracking-wider text-zinc-500 flex items-center justify-between">
@@ -246,10 +357,18 @@ export function TeamSidebar({
       id: "dock-team-main",
       items: [
         {
-          id: "dock-team-project",
-          label: "Project",
-          href: "/team",
+          id: "dock-team-projects",
+          label: "All Projects",
+          href: "/team/projects",
           icon: FolderKanban,
+          isActive: pathname === "/team/projects",
+          badge: assignedProjects.length > 0 ? assignedProjects.length : undefined,
+        },
+        {
+          id: "dock-team-workspace",
+          label: "Workspace",
+          href: workspaceHref,
+          icon: Layers,
           isActive: pathname === "/team",
         },
         {
@@ -287,6 +406,12 @@ export function TeamSidebar({
     },
   ];
 
+  const handleSelectProject = (pid: string) => {
+    setProjectSwitcherOpen(false);
+    setProjectSearch("");
+    router.push(`/team?projectId=${pid}`);
+  };
+
   const renderNavContent = () => (
     <div className="flex h-full flex-col bg-transparent">
       {/* Brand Header */}
@@ -294,23 +419,109 @@ export function TeamSidebar({
         <StoryBoardLogo size="md" variant="full" badge="Team" />
       </div>
 
-      {/* Assigned Project Scope Indicator */}
-      <div className="px-3 pt-4 pb-2">
-        <div className="rounded-xl border border-[rgba(74,61,100,0.08)] bg-white/80 p-3 shadow-glass backdrop-blur-md">
-          <div className="flex items-center gap-2.5">
-            <div className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-[rgba(46,139,112,0.12)] text-[11px] font-bold text-[#2E8B70]">
-              {projectName.slice(0, 1).toUpperCase()}
-            </div>
-            <div className="min-w-0 flex-1">
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-[#9994A5]">
-                Assigned Project
-              </p>
-              <p className="truncate text-xs sm:text-sm font-semibold text-[#252331]">
-                {projectName}
-              </p>
+      {/* Assigned Project Scope Indicator & Switcher */}
+      <div className="px-3 pt-4 pb-2 relative" ref={switcherRef}>
+        {assignedProjects.length > 1 ? (
+          <div className="rounded-xl border border-[rgba(74,61,100,0.08)] bg-white/80 p-2.5 shadow-glass backdrop-blur-md transition-all hover:border-[#B8944E]/40">
+            <button
+              type="button"
+              onClick={() => setProjectSwitcherOpen((prev) => !prev)}
+              className="w-full flex items-center justify-between text-left group cursor-pointer"
+              title="Click to switch project"
+            >
+              <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                <div className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-[rgba(184,148,78,0.12)] text-[11px] font-bold text-[#80642F]">
+                  {projectName.slice(0, 1).toUpperCase()}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center justify-between">
+                    <p className="text-[10px] font-semibold uppercase tracking-wider text-[#9994A5]">
+                      Project ({assignedProjects.length})
+                    </p>
+                  </div>
+                  <p className="truncate text-xs font-semibold text-[#252331] group-hover:text-[#80642F] transition-colors">
+                    {projectName}
+                  </p>
+                </div>
+              </div>
+              <ChevronsUpDown size={14} className="text-[#9994A5] group-hover:text-[#80642F] shrink-0 ml-1" />
+            </button>
+
+            {/* Switcher Dropdown Popover */}
+            {projectSwitcherOpen && (
+              <div className="absolute left-3 right-3 top-full mt-1.5 rounded-xl border border-[rgba(74,61,100,0.12)] bg-white/95 backdrop-blur-xl p-2 shadow-xl z-50 divide-y divide-zinc-100">
+                {assignedProjects.length > 4 && (
+                  <div className="pb-1.5">
+                    <div className="relative">
+                      <Search size={12} className="absolute left-2 top-2 text-zinc-400" />
+                      <input
+                        type="text"
+                        placeholder="Search projects..."
+                        value={projectSearch}
+                        onChange={(e) => setProjectSearch(e.target.value)}
+                        className="w-full pl-6 pr-2 py-1 text-xs rounded-md bg-zinc-100 border-none focus:outline-none focus:ring-1 focus:ring-[#B8944E]"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                <div className="py-1 max-h-48 overflow-y-auto space-y-0.5">
+                  <p className="px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-zinc-400">
+                    All Mapped Projects
+                  </p>
+                  {filteredProjects.map((p) => {
+                    const isCurrent = p.id === activeProjectId;
+                    return (
+                      <button
+                        key={p.id}
+                        type="button"
+                        onClick={() => handleSelectProject(p.id)}
+                        className={`w-full flex items-center justify-between px-2 py-1.5 rounded-lg text-xs font-medium text-left transition cursor-pointer ${
+                          isCurrent
+                            ? "bg-[rgba(184,148,78,0.12)] text-[#80642F] font-semibold"
+                            : "text-[#252331] hover:bg-zinc-100"
+                        }`}
+                      >
+                        <span className="truncate">{p.name}</span>
+                        {isCurrent && <Check size={12} className="text-[#80642F] shrink-0 ml-1" />}
+                      </button>
+                    );
+                  })}
+                  {filteredProjects.length === 0 && (
+                    <p className="text-[11px] text-zinc-400 p-2 text-center">No projects match</p>
+                  )}
+                </div>
+
+                <div className="pt-1.5">
+                  <Link
+                    href="/team/projects"
+                    onClick={() => setProjectSwitcherOpen(false)}
+                    className="flex items-center justify-between px-2 py-1 rounded-md text-[11px] font-semibold text-[#80642F] hover:bg-[rgba(184,148,78,0.08)] transition"
+                  >
+                    <span>View all projects cards</span>
+                    <span>→</span>
+                  </Link>
+                </div>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="rounded-xl border border-[rgba(74,61,100,0.08)] bg-white/80 p-3 shadow-glass backdrop-blur-md">
+            <div className="flex items-center gap-2.5">
+              <div className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-[rgba(46,139,112,0.12)] text-[11px] font-bold text-[#2E8B70]">
+                {projectName.slice(0, 1).toUpperCase()}
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-[#9994A5]">
+                  Assigned Project
+                </p>
+                <p className="truncate text-xs sm:text-sm font-semibold text-[#252331]">
+                  {projectName}
+                </p>
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Nav Content */}
@@ -318,24 +529,49 @@ export function TeamSidebar({
         {/* TEAM group */}
         <div>
           <p className="px-2.5 pb-1.5 text-[11px] font-semibold uppercase tracking-wider text-[#9994A5]">
-            TEAM
+            NAVIGATION
           </p>
           <nav className="space-y-0.5">
+            {/* All Projects link */}
             <Link
-              href="/team"
+              href="/team/projects"
+              className={`flex items-center justify-between rounded-lg px-2.5 py-1.5 text-xs sm:text-sm transition-colors ${
+                pathname === "/team/projects"
+                  ? "bg-[rgba(184,148,78,0.09)] text-[#80642F] font-medium border border-[rgba(184,148,78,0.12)]"
+                  : "text-[#706C7D] font-medium hover:bg-[rgba(184,148,78,0.04)] hover:text-[#80642F] border border-transparent"
+              }`}
+            >
+              <div className="flex items-center gap-2.5 min-w-0">
+                <FolderKanban
+                  size={16}
+                  className={pathname === "/team/projects" ? "text-[#B8944E]" : "text-[#9994A5]"}
+                />
+                <span className="truncate">All Projects</span>
+              </div>
+              {assignedProjects.length > 0 && (
+                <span className="rounded-full bg-[rgba(184,148,78,0.12)] px-1.5 py-0.2 text-[10px] font-bold text-[#80642F]">
+                  {assignedProjects.length}
+                </span>
+              )}
+            </Link>
+
+            {/* Current Project Workspace */}
+            <Link
+              href={workspaceHref}
               className={`flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-xs sm:text-sm transition-colors ${
                 pathname === "/team"
                   ? "bg-[rgba(184,148,78,0.09)] text-[#80642F] font-medium border border-[rgba(184,148,78,0.12)]"
                   : "text-[#706C7D] font-medium hover:bg-[rgba(184,148,78,0.04)] hover:text-[#80642F] border border-transparent"
               }`}
             >
-              <FolderKanban
+              <Layers
                 size={16}
                 className={pathname === "/team" ? "text-[#B8944E]" : "text-[#9994A5]"}
               />
-              <span>Project</span>
+              <span className="truncate">Workspace</span>
             </Link>
 
+            {/* My Reviews */}
             <Link
               href="/team/reviews"
               className={`flex items-center justify-between rounded-lg px-2.5 py-1.5 text-xs sm:text-sm transition-colors ${
@@ -377,7 +613,7 @@ export function TeamSidebar({
           </nav>
         </div>
 
-        {/* EPICS group */}
+        {/* EPICS group for Active Project */}
         {epics.length > 0 && (
           <div>
             <div className="px-2.5 pb-1.5 text-[11px] font-semibold uppercase tracking-wider text-[#9994A5] flex items-center justify-between">
@@ -388,7 +624,7 @@ export function TeamSidebar({
               {epics.map((epic) => (
                 <a
                   key={epic.id}
-                  href={`/team#epic-folder-${epic.id}`}
+                  href={`/team?projectId=${activeProjectId}#epic-folder-${epic.id}`}
                   className="flex items-center justify-between rounded-lg px-2.5 py-1.5 text-xs text-[#706C7D] font-medium hover:bg-[rgba(184,148,78,0.04)] hover:text-[#80642F] border border-transparent transition-colors group"
                   title={epic.name}
                 >

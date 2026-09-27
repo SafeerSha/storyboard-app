@@ -14,14 +14,24 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
   let isAuthorized = false;
 
   if (user) {
-    const { data: project } = await admin
-      .from("projects")
-      .select("id")
-      .eq("id", projectId)
-      .eq("owner_id", user.id)
+    const { data: profile } = await admin
+      .from("freelancer_profiles")
+      .select("role")
+      .eq("id", user.id)
       .maybeSingle();
 
-    if (project) isAuthorized = true;
+    if (profile?.role === "super_admin") {
+      isAuthorized = true;
+    } else {
+      const { data: project } = await admin
+        .from("projects")
+        .select("id")
+        .eq("id", projectId)
+        .eq("owner_id", user.id)
+        .maybeSingle();
+
+      if (project) isAuthorized = true;
+    }
   }
 
   // 2. Check Client

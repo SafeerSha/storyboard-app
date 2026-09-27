@@ -3,6 +3,7 @@ import { getAuthenticatedTeamUser } from "@/lib/team-session";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getReviewersForStories, isTeamUserProjectMember } from "@/lib/story-reviewer-auth";
 import { autoSyncStoriesFeedbackStatus } from "@/lib/feedback-store";
+import { getTeamUserAssignedProjects } from "@/lib/team-projects";
 import { TeamWorkspace } from "@/components/TeamWorkspace";
 import type { Story, Epic, ProjectNote } from "@/lib/types";
 
@@ -22,26 +23,40 @@ export default async function TeamDashboardPage({
 
   const admin = createAdminClient();
 
-  // Resolve active project ID: check requestedProjectId or fallback to user default / memberships
-  let activeProjectId = teamUser.project_id;
+  // Fetch all assigned projects for this team user
+  const assignedProjects = await getTeamUserAssignedProjects(
+    teamUser.id,
+    teamUser.project_id
+  );
+
+  if (assignedProjects.length === 0) {
+    return (
+      <main className="mx-auto max-w-4xl p-6 sm:p-12 text-center">
+        <div className="rounded-2xl border border-line bg-white p-8 shadow-soft">
+          <h2 className="text-xl font-bold text-neutral-900">No Projects Assigned</h2>
+          <p className="mt-2 text-sm text-neutral-500">
+            You do not currently have any projects mapped to your account.
+            Please contact your workspace administrator to assign you to a project.
+          </p>
+        </div>
+      </main>
+    );
+  }
+
+  // Resolve active project:
+  // 1. Requested project from query parameter (if authorized)
+  // 2. User's legacy default project if it is among assigned projects
+  // 3. Fallback to first assigned project
+  let activeProjectId = assignedProjects[0].id;
   if (requestedProjectId) {
     const isMember =
-      requestedProjectId === teamUser.project_id ||
+      assignedProjects.some((p) => p.id === requestedProjectId) ||
       (await isTeamUserProjectMember(teamUser.id, requestedProjectId));
     if (isMember) {
       activeProjectId = requestedProjectId;
     }
-  }
-
-  // If user has no activeProjectId, find first membership
-  if (!activeProjectId) {
-    const { data: firstMembership } = await admin
-      .from("project_team_members")
-      .select("project_id")
-      .eq("team_user_id", teamUser.id)
-      .limit(1)
-      .maybeSingle();
-    activeProjectId = firstMembership?.project_id || "";
+  } else if (teamUser.project_id && assignedProjects.some((p) => p.id === teamUser.project_id)) {
+    activeProjectId = teamUser.project_id;
   }
 
   // Fetch project, epics, stories, and notes in parallel
@@ -81,7 +96,7 @@ export default async function TeamDashboardPage({
           <h2 className="text-xl font-bold text-neutral-900">Project Not Found</h2>
           <p className="mt-2 text-sm text-neutral-500">
             The project assigned to your account could not be found or has been removed.
-            Please contact your workspace administrator.
+            Please select another project from your assigned projects or contact your workspace administrator.
           </p>
         </div>
       </main>
@@ -113,6 +128,7 @@ export default async function TeamDashboardPage({
     <TeamWorkspace
       teamUser={teamUser}
       project={project}
+      assignedProjects={assignedProjects}
       initialStories={initialStories}
       initialEpics={initialEpics}
       initialNotes={(notesData || []) as ProjectNote[]}
@@ -120,4 +136,3 @@ export default async function TeamDashboardPage({
     />
   );
 }
-

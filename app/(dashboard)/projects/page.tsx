@@ -4,6 +4,7 @@ import { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
 import {
   ArrowRight,
+  Briefcase,
   Edit3,
   FolderKanban,
   Plus,
@@ -30,6 +31,8 @@ type Project = {
   approved: number;
   epics?: number;
   created_at?: string;
+  owner_id?: string;
+  owner?: { id: string; name: string; email: string; role: string } | null;
 };
 
 export default function ProjectsPage() {
@@ -45,6 +48,7 @@ export default function ProjectsPage() {
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+  const [createOwnerId, setCreateOwnerId] = useState("");
   const [creating, setCreating] = useState(false);
   const [createError, setCreateError] = useState("");
 
@@ -53,8 +57,13 @@ export default function ProjectsPage() {
   const [editName, setEditName] = useState("");
   const [editDesc, setEditDesc] = useState("");
   const [editStatus, setEditStatus] = useState("active");
+  const [editOwnerId, setEditOwnerId] = useState("");
   const [updating, setUpdating] = useState(false);
   const [editError, setEditError] = useState("");
+
+  // Super Admin state & Freelancers
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
+  const [freelancers, setFreelancers] = useState<Array<{ id: string; name: string; email: string; role: string }>>([]);
 
   // Delete Project Confirmation Dialog State
   const [deletingProject, setDeletingProject] = useState<{ id: string; name: string } | null>(null);
@@ -68,6 +77,8 @@ export default function ProjectsPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to load projects");
       setProjects(data.projects ?? []);
+      setIsSuperAdmin(Boolean(data.isSuperAdmin));
+      setFreelancers(data.freelancers ?? []);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed to load projects");
     } finally {
@@ -88,13 +99,18 @@ export default function ProjectsPage() {
       const res = await fetch("/api/projects", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: name.trim(), description: description.trim() }),
+        body: JSON.stringify({
+          name: name.trim(),
+          description: description.trim(),
+          owner_id: createOwnerId || undefined,
+        }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to create project");
-      setProjects((v) => [data.project, ...v]);
+      await load();
       setName("");
       setDescription("");
+      setCreateOwnerId("");
       setCreateModalOpen(false);
       toast.success("Project created successfully");
     } catch (e) {
@@ -119,13 +135,12 @@ export default function ProjectsPage() {
           name: editName.trim(),
           description: editDesc.trim(),
           status: editStatus,
+          owner_id: isSuperAdmin ? editOwnerId || undefined : undefined,
         }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to update project");
-      setProjects((v) =>
-        v.map((p) => (p.id === editing.id ? { ...p, ...data.project } : p))
-      );
+      await load();
       setEditing(null);
       toast.success("Project updated successfully");
     } catch (e) {
@@ -306,7 +321,7 @@ export default function ProjectsPage() {
                           >
                             {project.name}
                           </Link>
-                          <div className="mt-1">
+                          <div className="mt-1 flex flex-wrap items-center gap-1.5">
                             <Badge
                               variant={badgeVariant}
                               size="sm"
@@ -314,6 +329,12 @@ export default function ProjectsPage() {
                             >
                               {project.status || "Active"}
                             </Badge>
+                            {isSuperAdmin && project.owner && (
+                              <span className="inline-flex items-center gap-1 rounded-md bg-rose-50 px-2 py-0.5 text-[10px] font-semibold text-rose-700 border border-rose-200">
+                                <Briefcase size={10} />
+                                {project.owner.name}
+                              </span>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -330,6 +351,7 @@ export default function ProjectsPage() {
                                 setEditName(project.name);
                                 setEditDesc(project.description || "");
                                 setEditStatus(project.status || "active");
+                                setEditOwnerId(project.owner_id || "");
                                 setEditError("");
                               },
                             },
@@ -443,6 +465,29 @@ export default function ProjectsPage() {
             />
           </div>
 
+          {isSuperAdmin && (
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-[#706C7D] mb-1.5">
+                Assign to Freelancer (Lead)
+              </label>
+              <select
+                value={createOwnerId}
+                onChange={(e) => setCreateOwnerId(e.target.value)}
+                className="h-10 w-full rounded-xl border border-[rgba(74,61,100,0.11)] bg-white px-3 text-sm text-[#252331] outline-none transition focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)] cursor-pointer"
+              >
+                <option value="">Default (Super Admin)</option>
+                {freelancers.map((f) => (
+                  <option key={f.id} value={f.id}>
+                    {f.name} ({f.email})
+                  </option>
+                ))}
+              </select>
+              <p className="mt-1 text-[11px] text-[#9994A5]">
+                The mapped freelancer will see this project on their dashboard with project lead access.
+              </p>
+            </div>
+          )}
+
           {createError && (
             <p className="text-xs text-rose-600 bg-rose-50 p-2.5 rounded-lg">
               {createError}
@@ -518,6 +563,29 @@ export default function ProjectsPage() {
               <option value="archived">Archived</option>
             </select>
           </div>
+
+          {isSuperAdmin && (
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-[#706C7D] mb-1.5">
+                Assigned Freelancer / Project Lead
+              </label>
+              <select
+                value={editOwnerId}
+                onChange={(e) => setEditOwnerId(e.target.value)}
+                className="h-10 w-full rounded-xl border border-[rgba(74,61,100,0.11)] bg-white px-3 text-sm text-[#252331] outline-none transition focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)] cursor-pointer"
+              >
+                <option value="">Unassigned (Super Admin)</option>
+                {freelancers.map((f) => (
+                  <option key={f.id} value={f.id}>
+                    {f.name} ({f.email})
+                  </option>
+                ))}
+              </select>
+              <p className="mt-1 text-[11px] text-[#9994A5]">
+                Reassigning this project will map it directly to the selected freelancer as Project Lead.
+              </p>
+            </div>
+          )}
 
           {editError && (
             <p className="text-xs text-rose-600 bg-rose-50 p-2.5 rounded-lg">

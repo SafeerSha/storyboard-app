@@ -1,6 +1,6 @@
 import React from "react";
 import { getAuthenticatedTeamUser } from "@/lib/team-session";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { getTeamUserAssignedProjects } from "@/lib/team-projects";
 import { TeamLayoutClient } from "@/components/layout/TeamLayoutClient";
 
 export default async function TeamRootLayout({
@@ -15,36 +15,19 @@ export default async function TeamRootLayout({
     return <>{children}</>;
   }
 
-  // Fetch assigned project name
-  const admin = createAdminClient();
-  let projectName = "Assigned Project";
-
-  if (teamUser.project_id) {
-    const { data: project } = await admin
-      .from("projects")
-      .select("name")
-      .eq("id", teamUser.project_id)
-      .maybeSingle();
-    if (project?.name) projectName = project.name;
-  } else {
-    const { data: membership } = await admin
-      .from("project_team_members")
-      .select("project_id")
-      .eq("team_user_id", teamUser.id)
-      .limit(1)
-      .maybeSingle();
-    if (membership?.project_id) {
-      const { data: p } = await admin
-        .from("projects")
-        .select("name")
-        .eq("id", membership.project_id)
-        .maybeSingle();
-      if (p?.name) projectName = p.name;
-    }
-  }
+  // Fetch all distinct projects assigned to this team member
+  const assignedProjects = await getTeamUserAssignedProjects(
+    teamUser.id,
+    teamUser.project_id
+  );
+  const defaultProjectName = assignedProjects[0]?.name || "Assigned Project";
 
   return (
-    <TeamLayoutClient userName={teamUser.name} projectName={projectName}>
+    <TeamLayoutClient
+      userName={teamUser.name}
+      projectName={defaultProjectName}
+      assignedProjects={assignedProjects}
+    >
       {children}
     </TeamLayoutClient>
   );

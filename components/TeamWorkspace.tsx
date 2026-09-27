@@ -5,11 +5,14 @@ import Link from "next/link";
 import {
   AlertCircle,
   ArrowLeft,
+  Check,
   CheckCircle2,
   ChevronDown,
+  ChevronsUpDown,
   ChevronUp,
   Code2,
   Edit2,
+  FolderKanban,
   Layers,
   Plus,
   Sparkles,
@@ -51,6 +54,12 @@ interface TeamWorkspaceProps {
     name: string;
     description: string | null;
   };
+  assignedProjects?: Array<{
+    id: string;
+    name: string;
+    description?: string | null;
+    status?: string;
+  }>;
   initialStories: Story[];
   initialEpics: Epic[];
   initialNotes?: ProjectNote[];
@@ -60,6 +69,7 @@ interface TeamWorkspaceProps {
 export function TeamWorkspace({
   teamUser,
   project,
+  assignedProjects = [],
   initialStories,
   initialEpics,
   initialNotes,
@@ -660,8 +670,8 @@ export function TeamWorkspace({
                   @{teamUser.username}
                 </span>
               </div>
-              <div className="flex items-center justify-between sm:justify-start gap-2.5 sm:gap-3">
-                <div className="flex items-center gap-2.5 min-w-0">
+              <div className="flex items-center justify-between sm:justify-start gap-2.5 sm:gap-3 flex-wrap">
+                <div className="flex items-center gap-2.5 min-w-0 flex-wrap">
                   <h1 className="text-lg sm:text-2xl font-bold tracking-tight text-[#252331] truncate">
                     {project.name}
                   </h1>
@@ -669,6 +679,34 @@ export function TeamWorkspace({
                     <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
                     Active
                   </span>
+
+                  {assignedProjects.length > 1 && (
+                    <DropdownMenu
+                      ariaLabel="Switch mapped project"
+                      trigger={
+                        <button
+                          type="button"
+                          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold text-[#80642F] bg-[rgba(184,148,78,0.12)] hover:bg-[rgba(184,148,78,0.20)] border border-[rgba(184,148,78,0.25)] transition cursor-pointer shrink-0"
+                          title="Switch project"
+                        >
+                          <span>{assignedProjects.length} Projects</span>
+                          <ChevronsUpDown size={13} />
+                        </button>
+                      }
+                      items={assignedProjects.map((p) => ({
+                        label: p.id === project.id ? `${p.name} (Current)` : p.name,
+                        icon:
+                          p.id === project.id ? (
+                            <Check size={14} className="text-[#80642F]" />
+                          ) : (
+                            <FolderKanban size={14} />
+                          ),
+                        onClick: () => {
+                          window.location.href = `/team?projectId=${p.id}`;
+                        },
+                      }))}
+                    />
+                  )}
                 </div>
 
                 {/* Mobile-only compact action buttons */}
@@ -695,6 +733,47 @@ export function TeamWorkspace({
                 {project.description ||
                   "Epics group focused product areas. Stories contain criteria and discussions."}
               </p>
+
+              {/* Mapped Projects Pill Bar */}
+              {assignedProjects.length > 1 && (
+                <div className="mt-3 pt-3 border-t border-[rgba(74,61,100,0.06)] flex flex-wrap items-center gap-2">
+                  <span className="text-[11px] font-semibold uppercase tracking-wider text-[#9994A5] flex items-center gap-1.5 mr-1">
+                    <FolderKanban size={13} className="text-[#80642F]" />
+                    Mapped Projects ({assignedProjects.length}):
+                  </span>
+                  {assignedProjects.map((p) => {
+                    const isActive = p.id === project.id;
+                    return (
+                      <Link
+                        key={p.id}
+                        href={`/team?projectId=${p.id}`}
+                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold transition-all ${
+                          isActive
+                            ? "bg-[#80642F] text-white shadow-2xs ring-2 ring-[#80642F]/20"
+                            : "bg-white/80 hover:bg-white text-[#706C7D] hover:text-[#252331] border border-[rgba(74,61,100,0.12)] hover:border-[#80642F]/40"
+                        }`}
+                      >
+                        <span
+                          className={`h-1.5 w-1.5 rounded-full ${
+                            isActive ? "bg-emerald-400" : "bg-zinc-400"
+                          }`}
+                        />
+                        <span>{p.name}</span>
+                        {isActive && (
+                          <span className="text-[10px] font-normal opacity-90">(Current)</span>
+                        )}
+                      </Link>
+                    );
+                  })}
+                  <Link
+                    href="/team/projects"
+                    className="text-xs font-semibold text-[#80642F] hover:underline ml-1 inline-flex items-center gap-1"
+                  >
+                    <span>View all cards</span>
+                    <span>→</span>
+                  </Link>
+                </div>
+              )}
             </div>
 
             {/* Desktop Actions */}

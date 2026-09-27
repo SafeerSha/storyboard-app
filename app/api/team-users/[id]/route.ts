@@ -16,13 +16,15 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     const body = await req.json();
     const adminClient = createAdminClient();
 
-    // Verify team user exists AND belongs to this actor
-    const { data: existingUser, error: fetchError } = await adminClient
+    // Verify team user exists (scoped by owner_id for non-super-admins)
+    let userQuery = adminClient
       .from("team_users")
       .select("id, name, username, project_id, status, owner_id")
-      .eq("id", id)
-      .eq("owner_id", actor.id)
-      .maybeSingle();
+      .eq("id", id);
+    if (!actor.isSuperAdmin) {
+      userQuery = userQuery.eq("owner_id", actor.id);
+    }
+    const { data: existingUser, error: fetchError } = await userQuery.maybeSingle();
 
     if (fetchError || !existingUser) {
       return NextResponse.json({ error: "Team user not found." }, { status: 404 });
@@ -43,22 +45,29 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
         ? body.projectIds
         : (body.projectId ? [body.projectId] : []);
       const projectIds = Array.isArray(rawProjectIds)
-        ? Array.from(new Set(rawProjectIds.map(String).map((s) => s.trim()).filter(Boolean)))
+        ? Array.from(new Set(rawProjectIds.map(String).map((s: string) => s.trim()).filter(Boolean)))
         : [];
 
       if (projectIds.length === 0) {
         return NextResponse.json({ error: "At least one project must be assigned." }, { status: 400 });
       }
 
-      // Verify all projects belong to this actor
-      const { data: validProjects, error: projErr } = await adminClient
+      // Verify all projects exist (and belong to actor if not super admin)
+      let projectQuery = adminClient
         .from("projects")
         .select("id, name")
-        .in("id", projectIds)
-        .eq("owner_id", actor.id);
+        .in("id", projectIds);
+      if (!actor.isSuperAdmin) {
+        projectQuery = projectQuery.eq("owner_id", actor.id);
+      }
+      const { data: validProjects, error: projErr } = await projectQuery;
 
       if (projErr || !validProjects || validProjects.length !== projectIds.length) {
-        return NextResponse.json({ error: "One or more selected projects do not belong to you." }, { status: 400 });
+        return NextResponse.json({
+          error: actor.isSuperAdmin
+            ? "One or more selected projects were not found."
+            : "One or more selected projects do not belong to you.",
+        }, { status: 400 });
       }
 
       // Sync project_team_members
@@ -100,12 +109,13 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
       .select("project_id, projects(id, name)")
       .eq("team_user_id", id);
 
-    const assignedProjects = (currentMemberships || [])
+    const rawAssigned = (currentMemberships || [])
       .filter((m: any) => m.projects)
       .map((m: any) => ({
         id: m.project_id,
         name: m.projects.name,
       }));
+    const assignedProjects = Array.from(new Map(rawAssigned.map((p: any) => [p.id, p])).values());
 
     if (updates.status === "disabled") {
       await invalidateAllTeamSessions(id);
@@ -169,13 +179,15 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
   try {
     const adminClient = createAdminClient();
 
-    // Verify team user exists AND belongs to this actor
-    const { data: existingUser, error: fetchError } = await adminClient
+    // Verify team user exists (scoped by owner_id for non-super-admins)
+    let deleteQuery = adminClient
       .from("team_users")
       .select("id, name, username, owner_id")
-      .eq("id", id)
-      .eq("owner_id", actor.id)
-      .maybeSingle();
+      .eq("id", id);
+    if (!actor.isSuperAdmin) {
+      deleteQuery = deleteQuery.eq("owner_id", actor.id);
+    }
+    const { data: existingUser, error: fetchError } = await deleteQuery.maybeSingle();
 
     if (fetchError || !existingUser) {
       return NextResponse.json({ error: "Team user not found." }, { status: 404 });

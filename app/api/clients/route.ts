@@ -19,18 +19,27 @@ export async function GET() {
 
   const admin = createAdminClient();
 
-  // First: fetch only project IDs that belong to this user.
-  // Filtering on a joined table with .eq("projects.owner_id") is a PostgREST
-  // join-filter, NOT a WHERE clause — it silently returns all rows.
-  // We must scope the query explicitly using the owner's project IDs.
-  const { data: userProjects, error: projectsError } = await admin
-    .from("projects")
-    .select("id")
-    .eq("owner_id", user.id);
+  const { data: profile } = await admin
+    .from("freelancer_profiles")
+    .select("role")
+    .eq("id", user.id)
+    .maybeSingle();
 
-  if (projectsError) return NextResponse.json({ error: projectsError.message }, { status: 500 });
+  const isSuperAdmin = profile?.role === "super_admin";
 
-  const projectIds = (userProjects ?? []).map((p: any) => p.id);
+  let projectIds: string[] = [];
+  if (isSuperAdmin) {
+    const { data: allProjects } = await admin.from("projects").select("id");
+    projectIds = (allProjects ?? []).map((p: any) => p.id);
+  } else {
+    const { data: userProjects, error: projectsError } = await admin
+      .from("projects")
+      .select("id")
+      .eq("owner_id", user.id);
+
+    if (projectsError) return NextResponse.json({ error: projectsError.message }, { status: 500 });
+    projectIds = (userProjects ?? []).map((p: any) => p.id);
+  }
 
   // No projects → no clients
   if (projectIds.length === 0) {
@@ -77,14 +86,21 @@ export async function POST(req: Request) {
   }
 
   const admin = createAdminClient();
-  const { data: project } = await admin
-    .from("projects")
-    .select("id,name")
-    .eq("id", projectId)
-    .eq("owner_id", user.id)
+  const { data: profile } = await admin
+    .from("freelancer_profiles")
+    .select("role")
+    .eq("id", user.id)
     .maybeSingle();
 
-  if (!project) return NextResponse.json({ error: "Project not found." }, { status: 404 });
+  const isSuperAdmin = profile?.role === "super_admin";
+
+  let projectQuery = admin.from("projects").select("id,name").eq("id", projectId);
+  if (!isSuperAdmin) {
+    projectQuery = projectQuery.eq("owner_id", user.id);
+  }
+  const { data: project } = await projectQuery.maybeSingle();
+
+  if (!project) return NextResponse.json({ error: "Project not found or access denied." }, { status: 404 });
 
   let loginId = String(body.loginId || "").trim();
   let password = String(body.password || "");

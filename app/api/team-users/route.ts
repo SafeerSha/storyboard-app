@@ -14,12 +14,17 @@ export async function GET() {
 
   const adminClient = createAdminClient();
 
-  // Scope to only this actor's own team members
-  const { data: users, error } = await adminClient
+  // Scope to only this actor's own team members (or all team members if super admin)
+  let query = adminClient
     .from("team_users")
     .select("id, project_id, name, username, role, status, created_at, updated_at, projects(id, name)")
-    .eq("owner_id", actor.id)
     .order("created_at", { ascending: false });
+
+  if (!actor.isSuperAdmin) {
+    query = query.eq("owner_id", actor.id);
+  }
+
+  const { data: users, error } = await query;
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
@@ -38,11 +43,14 @@ export async function GET() {
 
     (memberships || []).forEach((m: any) => {
       if (!memberMap[m.team_user_id]) memberMap[m.team_user_id] = [];
-      if (m.projects) {
-        memberMap[m.team_user_id].push({
-          id: m.project_id,
-          name: m.projects.name,
-        });
+      if (m.projects && m.projects.id) {
+        const alreadyHas = memberMap[m.team_user_id].some((p) => p.id === m.projects.id);
+        if (!alreadyHas) {
+          memberMap[m.team_user_id].push({
+            id: m.projects.id,
+            name: m.projects.name,
+          });
+        }
       }
     });
   }
@@ -52,11 +60,14 @@ export async function GET() {
     if (projs.length === 0 && u.project_id && u.projects?.name) {
       projs = [{ id: u.project_id, name: u.projects.name }];
     }
+    // Deduplicate by project id to guarantee unique display
+    const uniqueProjs = Array.from(new Map(projs.map((p) => [p.id, p])).values());
+
     return {
       ...u,
-      project_ids: projs.map((p) => p.id),
-      assigned_projects: projs,
-      projects: projs.length > 0 ? { name: projs.map((p) => p.name).join(", ") } : null,
+      project_ids: uniqueProjs.map((p) => p.id),
+      assigned_projects: uniqueProjs,
+      projects: uniqueProjs.length > 0 ? { name: uniqueProjs.map((p) => p.name).join(", ") } : null,
     };
   });
 
@@ -79,7 +90,7 @@ export async function POST(req: Request) {
 
     const rawProjectIds = body.projectIds || (body.projectId ? [body.projectId] : []);
     const projectIds = Array.isArray(rawProjectIds)
-      ? Array.from(new Set(rawProjectIds.map(String).map((s) => s.trim()).filter(Boolean)))
+      ? Array.from(new Set(rawProjectIds.map(String).map((s: string) => s.trim()).filter(Boolean)))
       : [];
 
     if (!name) {
@@ -100,15 +111,22 @@ export async function POST(req: Request) {
 
     const adminClient = createAdminClient();
 
-    // Verify all projects exist AND belong to this actor
-    const { data: validProjects, error: projectError } = await adminClient
+    // Verify all projects exist (and belong to actor if not super admin)
+    let projectQuery = adminClient
       .from("projects")
       .select("id, name")
-      .in("id", projectIds)
-      .eq("owner_id", actor.id);
+      .in("id", projectIds);
+    if (!actor.isSuperAdmin) {
+      projectQuery = projectQuery.eq("owner_id", actor.id);
+    }
+    const { data: validProjects, error: projectError } = await projectQuery;
 
     if (projectError || !validProjects || validProjects.length !== projectIds.length) {
-      return NextResponse.json({ error: "One or more selected projects were not found or do not belong to you." }, { status: 400 });
+      return NextResponse.json({
+        error: actor.isSuperAdmin
+          ? "One or more selected projects were not found."
+          : "One or more selected projects were not found or do not belong to you.",
+      }, { status: 400 });
     }
 
     const passwordHash = await bcrypt.hash(password, 12);

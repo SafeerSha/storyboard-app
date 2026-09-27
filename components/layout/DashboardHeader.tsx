@@ -44,7 +44,7 @@ export function DashboardHeader({
           <button
             type="button"
             onClick={toggleMobile}
-            className="mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-lg text-[#706C7D] hover:bg-[#E9E3F4]/30 hover:text-[#252331] transition-colors lg:hidden"
+            className="mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-lg text-[#706C7D] hover:bg-[#E9E3F4]/30 hover:text-[#252331] transition-colors md:hidden"
             aria-label="Toggle navigation menu"
           >
             <Menu size={20} />

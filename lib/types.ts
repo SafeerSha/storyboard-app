@@ -169,6 +169,26 @@ export type ProjectTeamMember = {
   };
 };
 
+export type UserType = "super_admin" | "freelancer" | "team_user" | "client";
+
+export type UnifiedUser = {
+  id: string;
+  userType: UserType;
+  name: string;
+  email?: string | null;
+  username?: string | null;
+  loginId?: string | null;
+  role: string;
+  roleDisplay: string;
+  status: "active" | "disabled";
+  created_at: string;
+  updated_at?: string;
+  projects: Array<{ id: string; name: string }>;
+  project_ids?: string[];
+  owner_id?: string | null;
+  rawRecord?: any;
+};
+
 export type TeamUser = {
   id: string;
   name: string;

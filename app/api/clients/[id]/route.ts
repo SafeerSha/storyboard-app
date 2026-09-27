@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { verifyAnyFreelancer } from "@/lib/super-admin";
 import { z } from "zod";
 
 const patchSchema = z.object({
@@ -11,32 +13,37 @@ const patchSchema = z.object({
 
 export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const actor = await verifyAnyFreelancer();
+  if (!actor) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const admin = createAdminClient();
 
   try {
     const body = patchSchema.parse(await req.json());
     
-    // Check if client belongs to a project owned by the freelancer
-    const { data: existingClient, error: clientError } = await supabase
+    // Check if client exists and belongs to the freelancer (or actor is super admin)
+    let clientQuery = admin
       .from("clients")
       .select("id, project_id, projects!inner(owner_id)")
-      .eq("id", id)
-      .eq("projects.owner_id", user.id)
-      .maybeSingle();
+      .eq("id", id);
+
+    if (!actor.isSuperAdmin) {
+      clientQuery = clientQuery.eq("projects.owner_id", actor.id);
+    }
+
+    const { data: existingClient, error: clientError } = await clientQuery.maybeSingle();
 
     if (clientError || !existingClient) {
       return NextResponse.json({ error: "Client not found or unauthorized." }, { status: 404 });
     }
 
-    // If changing project_id, verify the new project also belongs to the freelancer
-    if (body.project_id && body.project_id !== existingClient.project_id) {
-      const { data: newProject, error: projectError } = await supabase
+    // If changing project_id, verify the new project also belongs to the freelancer (if not super admin)
+    if (body.project_id && body.project_id !== existingClient.project_id && !actor.isSuperAdmin) {
+      const { data: newProject, error: projectError } = await admin
         .from("projects")
         .select("id")
         .eq("id", body.project_id)
-        .eq("owner_id", user.id)
+        .eq("owner_id", actor.id)
         .maybeSingle();
       
       if (projectError || !newProject) {
@@ -44,9 +51,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
       }
     }
 
-    // If changing login_id, it is handled uniquely by the database, but let's just let it bubble up as 409 if duplicate.
-
-    const { data: updatedClient, error: updateError } = await supabase
+    const { data: updatedClient, error: updateError } = await admin
       .from("clients")
       .update(body)
       .eq("id", id)
@@ -54,41 +59,45 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
       .single();
 
     if (updateError) {
-      // Check for unique constraint violation on login_id
       if (updateError.code === "23505" && updateError.message.includes("login_id")) {
         return NextResponse.json({ error: "That Login ID is already in use." }, { status: 409 });
       }
-      throw updateError;
+      return NextResponse.json({ error: updateError.message }, { status: 500 });
     }
 
     return NextResponse.json({ client: updatedClient });
-  } catch (e: any) {
-    return NextResponse.json({ error: e.message || "Failed to update client." }, { status: 400 });
+  } catch (err: any) {
+    if (err instanceof z.ZodError) {
+      return NextResponse.json({ error: err.issues[0]?.message || "Validation failed" }, { status: 400 });
+    }
+    return NextResponse.json({ error: err.message || "Failed to update client" }, { status: 500 });
   }
 }
 
-export async function DELETE(_req: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const actor = await verifyAnyFreelancer();
+  if (!actor) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const admin = createAdminClient();
 
   try {
-    // Verify client belongs to a project owned by this user
-    const { data: existingClient, error: clientError } = await supabase
+    let clientQuery = admin
       .from("clients")
       .select("id, project_id, projects!inner(owner_id)")
-      .eq("id", id)
-      .eq("projects.owner_id", user.id)
-      .maybeSingle();
+      .eq("id", id);
+
+    if (!actor.isSuperAdmin) {
+      clientQuery = clientQuery.eq("projects.owner_id", actor.id);
+    }
+
+    const { data: existingClient, error: clientError } = await clientQuery.maybeSingle();
 
     if (clientError || !existingClient) {
       return NextResponse.json({ error: "Client not found or unauthorized." }, { status: 404 });
     }
 
     // Revoke all active portal sessions first
-    const { createAdminClient } = await import("@/lib/supabase/admin");
-    const admin = createAdminClient();
     await admin.from("client_sessions").delete().eq("client_id", id);
 
     // Delete the client record
@@ -106,4 +115,3 @@ export async function DELETE(_req: Request, { params }: { params: Promise<{ id: 
     return NextResponse.json({ error: e.message || "Failed to remove client." }, { status: 500 });
   }
 }
-

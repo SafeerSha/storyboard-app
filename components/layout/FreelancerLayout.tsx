@@ -92,8 +92,8 @@ export function FreelancerLayout({
           <div
             className={`min-h-screen transition-all duration-200 ${
               desktopNavMode === "dock"
-                ? "lg:pl-0 pb-28"
-                : "lg:pl-56 pb-20 lg:pb-0"
+                ? "md:pl-0 pb-28"
+                : "md:pl-56 pb-20 md:pb-0"
             }`}
           >
             {children}
