@@ -41,6 +41,7 @@ import { EpicFeedbackThread } from "@/components/epics/EpicFeedbackThread";
 import { VoiceTextarea } from "@/components/ui/VoiceTextarea";
 import { sortEpics, sortStories } from "@/lib/epic-story-utils";
 import { ProjectNotesWorkspace } from "@/components/notes/ProjectNotesWorkspace";
+import { EpicNotesModal } from "@/components/notes/EpicNotesModal";
 
 type ProjectWorkspaceProps = {
   projectId: string;
@@ -77,6 +78,7 @@ export function ProjectWorkspace({
 
   const [generatingEpicId, setGeneratingEpicId] = useState<string | null>(null);
   const [editing, setEditing] = useState<Story | null>(null);
+  const [activeEpicForNotes, setActiveEpicForNotes] = useState<Epic | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [copiedLink, setCopiedLink] = useState(false);
@@ -129,7 +131,7 @@ export function ProjectWorkspace({
   const [aiError, setAiError] = useState("");
 
   const [epicFilter, setEpicFilter] = useState<string>("all");
-  const [statusFilter, setStatusFilter] = useState<"all" | StoryLifecycleStatus>("all");
+  const [statusFilter, setStatusFilter] = useState<"all" | "changes" | StoryLifecycleStatus>("all");
   const [collapsedEpicIds, setCollapsedEpicIds] = useState<Record<string, boolean>>({});
 
   const toggleEpic = useCallback((epicId: string) => {
@@ -473,6 +475,8 @@ export function ProjectWorkspace({
     ? Math.round((doneStoriesCount / totalStoriesCount) * 100)
     : 0;
 
+  const statusFilterLabel = statusFilter === "all" ? "All" : statusFilter === "changes" ? "Changes Requested" : getStoryStatusLabel(statusFilter);
+
   const sortedEpics = useMemo(() => sortEpics(epics), [epics]);
   const filteredEpics = useMemo(
     () => (epicFilter === "all" ? sortedEpics : sortedEpics.filter((e) => e.id === epicFilter)),
@@ -480,6 +484,7 @@ export function ProjectWorkspace({
   );
   const filteredStories = useMemo(() => {
     if (statusFilter === "all") return stories;
+    if (statusFilter === "changes") return stories.filter((s) => s.status === "changes_requested");
     return stories.filter((s) => normalizeStoryStatus(s.status) === statusFilter);
   }, [stories, statusFilter]);
 
@@ -499,7 +504,7 @@ export function ProjectWorkspace({
   }, [filteredEpics, filteredStories, statusFilter, epicFilter]);
 
   return (
-    <div>
+    <div className="w-full min-w-0">
       <DashboardHeader
         eyebrow="PROJECT"
         title={projectName}
@@ -513,20 +518,20 @@ export function ProjectWorkspace({
         backHref="/projects"
         backLabel="Projects"
         actions={
-          <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+          <div className="flex items-center gap-1.5 sm:gap-2 w-full sm:w-auto">
             <Button
               variant="secondary"
-              className="h-8 sm:h-10 px-2.5 sm:px-4 text-xs sm:text-sm"
+              className="flex-1 sm:flex-initial h-9 sm:h-10 px-2 sm:px-4 text-xs sm:text-sm justify-center whitespace-nowrap shadow-2xs"
               leftIcon={copiedLink ? <Check size={13} className="text-emerald-600" /> : <Copy size={13} />}
               onClick={handleCopyClientLink}
               title="Share client portal link"
             >
               <span className="hidden sm:inline">{copiedLink ? "Link copied" : "Share client portal"}</span>
-              <span className="sm:hidden">{copiedLink ? "Copied" : "Share portal"}</span>
+              <span className="sm:hidden">{copiedLink ? "Copied" : "Share"}</span>
             </Button>
             <Button
               variant={activeTab === "notes" ? "primary" : "secondary"}
-              className="h-8 sm:h-10 px-2.5 sm:px-4 text-xs sm:text-sm"
+              className="flex-1 sm:flex-initial h-9 sm:h-10 px-2 sm:px-4 text-xs sm:text-sm justify-center whitespace-nowrap shadow-2xs"
               leftIcon={<FileText size={13} />}
               onClick={() => setActiveTab("notes")}
               title="Discussion Notes"
@@ -540,7 +545,7 @@ export function ProjectWorkspace({
             </Button>
             <Button
               variant="primary"
-              className="h-8 sm:h-10 px-3 sm:px-4 text-xs sm:text-sm"
+              className="flex-1 sm:flex-initial h-9 sm:h-10 px-2.5 sm:px-4 text-xs sm:text-sm justify-center whitespace-nowrap font-semibold shadow-2xs"
               leftIcon={<Plus size={13} />}
               onClick={() => openCreateEpic()}
             >
@@ -550,37 +555,40 @@ export function ProjectWorkspace({
         }
       />
 
-      <main className="mx-auto max-w-6xl px-4 py-5 sm:px-6 sm:py-8 lg:px-8 space-y-5 sm:space-y-6">
+      <main className="w-full min-w-0 mx-auto max-w-6xl px-4 py-4 sm:px-6 sm:py-8 lg:px-8 space-y-4 sm:space-y-6 pb-32">
         {/* View Switcher Tabs between Requirements Hierarchy and Discussion Notes */}
-        <div className="flex items-center gap-2 border-b border-[rgba(74,61,100,0.08)] pb-2 overflow-x-auto">
+        <div className="flex items-center gap-1.5 sm:gap-2 border-b border-[rgba(74,61,100,0.08)] pb-2 overflow-x-auto no-scrollbar">
           <button
             type="button"
             onClick={() => setActiveTab("hierarchy")}
-            className={`inline-flex items-center gap-2 px-3.5 py-2 text-xs sm:text-sm font-semibold rounded-xl transition cursor-pointer whitespace-nowrap ${
+            className={`inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-3.5 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold rounded-xl transition cursor-pointer whitespace-nowrap ${
               activeTab === "hierarchy"
                 ? "bg-white text-[#252331] shadow-2xs border border-[rgba(74,61,100,0.12)]"
                 : "text-[#706C7D] hover:text-[#252331] hover:bg-white/60"
             }`}
           >
             <Layers size={14} className={activeTab === "hierarchy" ? "text-[#B8944E]" : "text-[#9994A5]"} />
-            <span>Requirements Hierarchy</span>
-            <span className="rounded-full bg-[rgba(184,148,78,0.10)] px-2 py-0.5 text-[10px] font-bold text-[#80642F]">
-              {epics.length} Epics • {totalStoriesCount} Stories
+            <span className="hidden sm:inline">Requirements Hierarchy</span>
+            <span className="sm:hidden">Hierarchy</span>
+            <span className="rounded-full bg-[rgba(184,148,78,0.10)] px-1.5 sm:px-2 py-0.5 text-[10px] font-bold text-[#80642F]">
+              <span className="hidden sm:inline">{epics.length} Epics • {totalStoriesCount} Stories</span>
+              <span className="sm:hidden">{epics.length}E • {totalStoriesCount}S</span>
             </span>
           </button>
 
           <button
             type="button"
             onClick={() => setActiveTab("notes")}
-            className={`inline-flex items-center gap-2 px-3.5 py-2 text-xs sm:text-sm font-semibold rounded-xl transition cursor-pointer whitespace-nowrap ${
+            className={`inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-3.5 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold rounded-xl transition cursor-pointer whitespace-nowrap ${
               activeTab === "notes"
                 ? "bg-white text-[#252331] shadow-2xs border border-[rgba(74,61,100,0.12)]"
                 : "text-[#706C7D] hover:text-[#252331] hover:bg-white/60"
             }`}
           >
             <FileText size={14} className={activeTab === "notes" ? "text-[#B8944E]" : "text-[#9994A5]"} />
-            <span>Discussion Notes</span>
-            <span className="rounded-full bg-[rgba(74,61,100,0.08)] px-2 py-0.5 text-[10px] font-bold text-[#252331]">
+            <span className="hidden sm:inline">Discussion Notes</span>
+            <span className="sm:hidden">Notes</span>
+            <span className="rounded-full bg-[rgba(74,61,100,0.08)] px-1.5 sm:px-2 py-0.5 text-[10px] font-bold text-[#252331]">
               {notes.length}
             </span>
           </button>
@@ -601,7 +609,7 @@ export function ProjectWorkspace({
         ) : (
           <>
         {/* Optimized Requirements Hierarchy Control Panel */}
-        <div className="rounded-[18px] border border-[rgba(74,61,100,0.08)] bg-white/88 p-4 sm:p-5 shadow-[0_8px_30px_rgba(70,55,95,0.055)] backdrop-blur-[16px] space-y-4">
+        <div className="w-full rounded-[18px] border border-[rgba(74,61,100,0.08)] bg-white/88 p-4 sm:p-5 shadow-[0_8px_30px_rgba(70,55,95,0.055)] backdrop-blur-[16px] space-y-4">
 
           {/* Header Row: Title, Epic/Story counts, and Status Breakdown Pills */}
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 sm:gap-4">
@@ -622,72 +630,80 @@ export function ProjectWorkspace({
               </p>
             </div>
 
-            {/* Status Breakdown Pills (Clickable filter controls) */}
-            <div className="flex items-center gap-2 sm:gap-2.5 text-xs flex-wrap shrink-0">
+            {/* Status Breakdown Pills (Clickable filter controls - 4-column balanced grid on mobile) */}
+            <div className="grid grid-cols-4 sm:flex items-center gap-1.5 sm:gap-2 text-xs w-full sm:w-auto">
               <button
                 type="button"
                 onClick={() => setStatusFilter("all")}
-                className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 font-semibold transition cursor-pointer shadow-2xs ${
+                className={`flex items-center justify-center gap-1 sm:gap-1.5 rounded-lg px-1.5 sm:px-2.5 py-1.5 sm:py-1 font-semibold transition cursor-pointer shadow-2xs text-center ${
                   statusFilter === "all"
                     ? "bg-[#252331] text-white shadow-xs"
                     : "bg-[#FAF9FC] text-[#706C7D] border border-[rgba(74,61,100,0.12)] hover:text-[#252331] hover:bg-white"
                 }`}
                 title="Show all stories"
               >
-                All ({totalStoriesCount})
+                <span>All ({totalStoriesCount})</span>
               </button>
               <button
                 type="button"
                 onClick={() => setStatusFilter(statusFilter === "new" ? "all" : "new")}
-                className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 font-semibold transition cursor-pointer shadow-2xs ${
+                className={`flex items-center justify-center gap-1 sm:gap-1.5 rounded-lg px-1 sm:px-2.5 py-1.5 sm:py-1 font-semibold transition cursor-pointer shadow-2xs text-center ${
                   statusFilter === "new"
                     ? "bg-sky-100 text-sky-800 border-2 border-sky-500/70 ring-2 ring-sky-500/20"
                     : "bg-sky-50 text-sky-700 border border-sky-200/80 hover:bg-sky-100/60"
                 }`}
                 title="Filter by New status"
               >
-                <span className="h-1.5 w-1.5 rounded-full bg-sky-500" />
-                {newStoriesCount} New
+                <span className="h-1.5 w-1.5 rounded-full bg-sky-500 shrink-0" />
+                <span className="truncate">{newStoriesCount} New</span>
               </button>
               <button
                 type="button"
                 onClick={() => setStatusFilter(statusFilter === "active" ? "all" : "active")}
-                className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 font-semibold transition cursor-pointer shadow-2xs ${
+                className={`flex items-center justify-center gap-1 sm:gap-1.5 rounded-lg px-1 sm:px-2.5 py-1.5 sm:py-1 font-semibold transition cursor-pointer shadow-2xs text-center ${
                   statusFilter === "active"
                     ? "bg-[rgba(184,148,78,0.22)] text-[#80642F] border-2 border-[#B8944E] ring-2 ring-[#B8944E]/20"
                     : "bg-[rgba(184,148,78,0.10)] text-[#80642F] border border-[rgba(184,148,78,0.20)] hover:bg-[rgba(184,148,78,0.16)]"
                 }`}
                 title="Filter by Active status"
               >
-                <span className="h-1.5 w-1.5 rounded-full bg-[#B8944E]" />
-                {activeStoriesCount} Active
+                <span className="h-1.5 w-1.5 rounded-full bg-[#B8944E] shrink-0" />
+                <span className="truncate">{activeStoriesCount} Act.</span>
               </button>
               <button
                 type="button"
                 onClick={() => setStatusFilter(statusFilter === "done" ? "all" : "done")}
-                className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 font-semibold transition cursor-pointer shadow-2xs ${
+                className={`flex items-center justify-center gap-1 sm:gap-1.5 rounded-lg px-1 sm:px-2.5 py-1.5 sm:py-1 font-semibold transition cursor-pointer shadow-2xs text-center ${
                   statusFilter === "done"
                     ? "bg-emerald-100 text-emerald-800 border-2 border-emerald-500/70 ring-2 ring-emerald-500/20"
                     : "bg-emerald-50/90 text-emerald-700 border border-emerald-200/70 hover:bg-emerald-100/60"
                 }`}
                 title="Filter by Done status"
               >
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                {doneStoriesCount} Done
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 shrink-0" />
+                <span className="truncate">{doneStoriesCount} Done</span>
               </button>
               {changesRequestedCount > 0 && (
-                <span className="inline-flex items-center gap-1.5 rounded-lg bg-rose-50/90 px-2.5 py-1 font-semibold text-rose-700 border border-rose-200/70 shadow-2xs">
+                <button
+                  type="button"
+                  onClick={() => setStatusFilter(statusFilter === "changes" ? "all" : "changes")}
+                  className={`col-span-4 sm:col-auto inline-flex items-center justify-center gap-1.5 rounded-lg px-2.5 py-1 font-semibold text-rose-700 border border-rose-200/70 shadow-2xs ${
+                    statusFilter === "changes"
+                      ? "bg-rose-100 border-2 border-rose-500/70 ring-2 ring-rose-500/20"
+                      : "bg-rose-50/90 hover:bg-rose-100/60"
+                  }`}
+                >
                   <span className="h-1.5 w-1.5 rounded-full bg-rose-500" />
                   {changesRequestedCount} Changes Requested
-                </span>
+                </button>
               )}
             </div>
           </div>
 
           {/* Integrated Action & Progress Row */}
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3.5 pt-3.5 border-t border-[rgba(74,61,100,0.06)]">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 pt-3 border-t border-[rgba(74,61,100,0.06)]">
             {/* Inline Sign-off Progress Bar */}
-            <div className="flex items-center gap-3 flex-1 max-w-md min-w-0">
+            <div className="flex items-center gap-3 w-full lg:max-w-md min-w-0">
               <span className="text-xs font-semibold text-[#252331] shrink-0">
                 Client Sign-off:
               </span>
@@ -702,61 +718,63 @@ export function ProjectWorkspace({
               </span>
             </div>
 
-            {/* Filter & Quick Folding Controls */}
-            <div className="flex items-center gap-2 sm:gap-3 shrink-0 flex-wrap sm:flex-nowrap">
-              <div className="flex items-center gap-1.5">
-                <span className="text-[11px] font-semibold uppercase tracking-wider text-[#9994A5] shrink-0">
-                  Epic:
-                </span>
-                <select
-                  value={epicFilter}
-                  onChange={(e) => setEpicFilter(e.target.value)}
-                  className="h-8 rounded-xl border border-[rgba(74,61,100,0.12)] bg-[#FAF9FC] px-2.5 text-xs font-medium text-[#252331] outline-none transition focus:border-[#B8944E] focus:bg-white cursor-pointer shadow-2xs"
-                >
-                  <option value="all">All Epics ({epics.length})</option>
-                  {epics.map((e) => (
-                    <option key={e.id} value={e.id}>
-                      {e.name}
-                    </option>
-                  ))}
-                </select>
+            {/* Filter & Quick Folding Controls - Full width 2-column grids on mobile */}
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 w-full lg:w-auto">
+              {/* Epic & Status Dropdowns in equal 2-column grid on mobile */}
+              <div className="grid grid-cols-2 gap-2 flex-1 sm:flex-initial">
+                <div className="flex items-center gap-1.5 bg-[#FAF9FC] border border-[rgba(74,61,100,0.12)] rounded-xl px-2.5 h-8.5 shadow-2xs min-w-0">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-[#9994A5] shrink-0">
+                    Epic:
+                  </span>
+                  <select
+                    value={epicFilter}
+                    onChange={(e) => setEpicFilter(e.target.value)}
+                    className="w-full bg-transparent text-xs font-medium text-[#252331] outline-none truncate cursor-pointer"
+                  >
+                    <option value="all">All Epics ({epics.length})</option>
+                    {epics.map((e) => (
+                      <option key={e.id} value={e.id}>
+                        {e.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="flex items-center gap-1.5 bg-[#FAF9FC] border border-[rgba(74,61,100,0.12)] rounded-xl px-2.5 h-8.5 shadow-2xs min-w-0">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-[#9994A5] shrink-0">
+                    Status:
+                  </span>
+                  <select
+                    value={statusFilter}
+                    onChange={(e) => setStatusFilter(e.target.value as any)}
+                    className="w-full bg-transparent text-xs font-medium text-[#252331] outline-none truncate cursor-pointer"
+                  >
+                    <option value="all">All Statuses ({totalStoriesCount})</option>
+                    <option value="new">New ({newStoriesCount})</option>
+                    <option value="active">Active ({activeStoriesCount})</option>
+                    <option value="done">Done ({doneStoriesCount})</option>
+                  </select>
+                </div>
               </div>
 
-              <div className="flex items-center gap-1.5">
-                <span className="text-[11px] font-semibold uppercase tracking-wider text-[#9994A5] shrink-0">
-                  Status:
-                </span>
-                <select
-                  value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value as any)}
-                  className="h-8 rounded-xl border border-[rgba(74,61,100,0.12)] bg-[#FAF9FC] px-2.5 text-xs font-medium text-[#252331] outline-none transition focus:border-[#B8944E] focus:bg-white cursor-pointer shadow-2xs"
-                >
-                  <option value="all">All Statuses ({totalStoriesCount})</option>
-                  <option value="new">New ({newStoriesCount})</option>
-                  <option value="active">Active ({activeStoriesCount})</option>
-                  <option value="done">Done ({doneStoriesCount})</option>
-                </select>
-              </div>
-
-              {/* Segmented Quick Fold / Expand Controls */}
-              <div className="inline-flex items-center rounded-xl border border-[rgba(74,61,100,0.12)] bg-[#FAF9FC] p-0.5 text-xs shrink-0 shadow-2xs">
+              {/* Segmented Quick Fold / Expand Controls - 50/50 balanced grid on mobile */}
+              <div className="grid grid-cols-2 sm:inline-flex items-center rounded-xl border border-[rgba(74,61,100,0.12)] bg-[#FAF9FC] p-0.5 text-xs shadow-2xs shrink-0 w-full sm:w-auto">
                 <button
                   type="button"
                   onClick={foldAllEpics}
-                  className="flex items-center gap-1 rounded-lg px-2.5 py-1 text-[11px] font-medium text-[#706C7D] hover:text-[#252331] hover:bg-white transition cursor-pointer whitespace-nowrap"
+                  className="flex items-center justify-center gap-1 rounded-lg py-1.5 sm:px-2.5 sm:py-1 text-xs sm:text-[11px] font-medium text-[#706C7D] hover:text-[#252331] hover:bg-white transition cursor-pointer whitespace-nowrap"
                   title="Collapse all epics"
                 >
-                  <ChevronUp size={12} className="shrink-0" />
+                  <ChevronUp size={13} className="shrink-0" />
                   <span>Fold all</span>
                 </button>
-                <span className="h-3 w-[1px] bg-[rgba(74,61,100,0.12)] shrink-0" />
                 <button
                   type="button"
                   onClick={expandAllEpics}
-                  className="flex items-center gap-1 rounded-lg px-2.5 py-1 text-[11px] font-medium text-[#706C7D] hover:text-[#252331] hover:bg-white transition cursor-pointer whitespace-nowrap"
+                  className="flex items-center justify-center gap-1 rounded-lg py-1.5 sm:px-2.5 sm:py-1 text-xs sm:text-[11px] font-medium text-[#706C7D] hover:text-[#252331] hover:bg-white transition cursor-pointer whitespace-nowrap"
                   title="Expand all epics"
                 >
-                  <ChevronDown size={12} className="shrink-0" />
+                  <ChevronDown size={13} className="shrink-0" />
                   <span>Expand all</span>
                 </button>
               </div>
@@ -771,9 +789,9 @@ export function ProjectWorkspace({
         )}
 
         {/* Split View: Epics/Stories on Left, Story Document Inspector on Right */}
-        <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr] items-start">
+        <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr] items-start w-full min-w-0">
           {/* Left Column: Epics and Stories List */}
-          <div className="space-y-6">
+          <div className="space-y-6 w-full min-w-0">
             {epics.length === 0 && stories.length === 0 ? (
               <EmptyState
                 icon={Layers}
@@ -796,10 +814,10 @@ export function ProjectWorkspace({
                   <Filter size={18} />
                 </div>
                 <h4 className="text-sm font-semibold text-[#252331]">
-                  No {getStoryStatusLabel(statusFilter)} stories found
+                  No {statusFilterLabel} stories found
                 </h4>
                 <p className="mt-1 text-xs text-[#706C7D] max-w-xs mx-auto leading-relaxed">
-                  There are currently no stories matching the &ldquo;{getStoryStatusLabel(statusFilter)}&rdquo; status in this project.
+                  There are currently no stories matching the &ldquo;{statusFilterLabel}&rdquo; status in this project.
                 </p>
                 <div className="mt-4">
                   <Button
@@ -817,6 +835,7 @@ export function ProjectWorkspace({
                   const epicStories = sortStories(filteredStories.filter((s) => s.epic_id === epic.id));
                   const approvedCount = epicStories.filter((s) => s.status === "approved").length;
                   const changesCount = epicStories.filter((s) => s.status === "changes_requested").length;
+                  const epicNotes = notes.filter((n) => n.epic_id === epic.id && n.status !== "archived");
 
                   return (
                     <EpicFolder
@@ -829,7 +848,7 @@ export function ProjectWorkspace({
                       isExpanded={!collapsedEpicIds[epic.id]}
                       onToggle={() => toggleEpic(epic.id)}
                       headerExtra={
-                        <span className="flex items-center gap-1.5 text-[11px] font-medium">
+                        <span className="flex items-center gap-1.5 text-[10px] sm:text-[11px] font-medium flex-wrap">
                           <span className="text-[rgba(74,61,100,0.2)]">•</span>
                           <span className="text-[#2E8B70]">{approvedCount} approved</span>
                           {changesCount > 0 && (
@@ -838,17 +857,41 @@ export function ProjectWorkspace({
                               <span className="text-[#C25D72]">{changesCount} changes</span>
                             </>
                           )}
+                          {epicNotes.length > 0 && (
+                            <>
+                              <span className="text-[rgba(74,61,100,0.2)]">•</span>
+                              <span className="text-[#80642F] font-semibold">
+                                {epicNotes.length} {epicNotes.length === 1 ? "note" : "notes"}
+                              </span>
+                            </>
+                          )}
                         </span>
                       }
                       actions={
-                        <div className="flex flex-col items-end gap-2">
-                          <div className="flex items-center gap-1.5">
+                        <div className="flex flex-col items-end gap-1.5 shrink-0">
+                          <div className="flex items-center gap-1 sm:gap-1.5">
                             <Button
                               variant="secondary"
                               size="sm"
-                              leftIcon={<Sparkles size={13} className="text-[#B8944E]" />}
+                              leftIcon={<FileText size={12} className="text-[#80642F]" />}
+                              onClick={() => setActiveEpicForNotes(epic)}
+                              className="text-xs px-2 sm:px-3 h-7 sm:h-8"
+                              title={`Discussion and meeting notes for ${epic.name}`}
+                            >
+                              <span>Notes</span>
+                              {epicNotes.length > 0 && (
+                                <span className="ml-1 rounded-full bg-[rgba(184,148,78,0.18)] px-1.5 py-0.2 text-[10px] font-bold text-[#80642F]">
+                                  {epicNotes.length}
+                                </span>
+                              )}
+                            </Button>
+
+                            <Button
+                              variant="secondary"
+                              size="sm"
+                              leftIcon={<Sparkles size={12} className="text-[#B8944E]" />}
                               onClick={() => setGeneratingEpicId(epic.id)}
-                              className="text-xs px-2 sm:px-3"
+                              className="text-xs px-2 sm:px-2.5 h-7 sm:h-8"
                               title="Generate stories with AI"
                             >
                               <span className="hidden sm:inline">Generate</span>
@@ -857,6 +900,11 @@ export function ProjectWorkspace({
                             <DropdownMenu
                               ariaLabel={`Actions for ${epic.name}`}
                               items={[
+                                {
+                                  label: "Epic Notes",
+                                  icon: <FileText size={14} />,
+                                  onClick: () => setActiveEpicForNotes(epic),
+                                },
                                 {
                                   label: "Generate AI Prompt",
                                   icon: <Code2 size={14} />,
@@ -887,7 +935,7 @@ export function ProjectWorkspace({
                           )}
                         </div>
                       }
-                      emptyMessage={statusFilter !== "all" ? `No ${getStoryStatusLabel(statusFilter).toLowerCase()} stories in this Epic.` : "No stories in this Epic yet."}
+                      emptyMessage={statusFilter !== "all" ? `No ${statusFilterLabel.toLowerCase()} stories in this Epic.` : "No stories in this Epic yet."}
                       emptyAction={
                         <Button
                           variant="ghost"
@@ -946,12 +994,12 @@ export function ProjectWorkspace({
             id="story-editor-section"
             className={
               editing
-                ? "max-lg:fixed max-lg:inset-0 max-lg:z-40 max-lg:overflow-y-auto max-lg:bg-[#FAF9FC] max-lg:p-3.5 sm:max-lg:p-6 max-lg:pb-20 lg:sticky lg:top-20 lg:self-start z-10 animate-in fade-in max-lg:slide-in-from-bottom-4 duration-200"
-                : "hidden lg:block lg:sticky lg:top-20 lg:self-start z-10"
+                ? "max-lg:fixed max-lg:inset-0 max-lg:z-40 max-lg:overflow-y-auto max-lg:bg-[#FAF9FC] max-lg:p-3.5 sm:max-lg:p-6 max-lg:pb-20 lg:sticky lg:top-[5.25rem] lg:self-start lg:max-h-[calc(100vh-6.75rem)] lg:overflow-y-auto lg:overscroll-contain pr-1 z-10 animate-in fade-in max-lg:slide-in-from-bottom-4 duration-200"
+                : "hidden lg:block lg:sticky lg:top-[5.25rem] lg:self-start z-10"
             }
           >
             {editing ? (
-              <div className="space-y-3">
+              <div className="space-y-3 pb-16 lg:pb-24">
                 {/* Mobile Back to Stories Bar */}
                 <div className="lg:hidden sticky top-0 z-20 -mx-3.5 -mt-3.5 sm:-mx-6 sm:-mt-6 px-4 py-3 bg-white/95 backdrop-blur-md border-b border-[rgba(74,61,100,0.08)] flex items-center justify-between shadow-2xs">
                   <button
@@ -1164,6 +1212,18 @@ export function ProjectWorkspace({
           onClose={() => setEpicPromptTarget(null)}
           epic={epicPromptTarget}
           stories={sortStories(stories.filter(s => s.epic_id === epicPromptTarget.id))}
+        />
+      )}
+
+      {/* Epic Notes Modal */}
+      {activeEpicForNotes && (
+        <EpicNotesModal
+          isOpen={Boolean(activeEpicForNotes)}
+          onClose={() => setActiveEpicForNotes(null)}
+          epic={activeEpicForNotes}
+          projectId={projectId}
+          notes={notes}
+          onNotesChange={(updatedNotes) => setNotes(updatedNotes)}
         />
       )}
     </div>

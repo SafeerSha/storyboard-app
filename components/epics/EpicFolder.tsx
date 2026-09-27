@@ -41,7 +41,7 @@ export function EpicFolder({
   return (
     <div
       id={`epic-folder-${id}`}
-      className={`relative rounded-[18px] border transition-all duration-200 focus-within:z-50 hover:z-40 ${
+      className={`relative rounded-[18px] border transition-all duration-200 focus-within:z-20 hover:z-10 w-full min-w-0 overflow-hidden ${
         isUncategorized
           ? "border-amber-200/90 bg-white/90 shadow-[0_8px_30px_rgba(180,120,40,0.06)] backdrop-blur-[16px]"
           : "border-[rgba(74,61,100,0.08)] bg-white/88 shadow-[0_8px_30px_rgba(70,55,95,0.055)] backdrop-blur-[16px]"
@@ -55,7 +55,7 @@ export function EpicFolder({
             : "border-[rgba(74,61,100,0.06)] bg-[#FAF9FC]/90"
         } p-3 sm:p-4`}
       >
-        <div className="flex items-center justify-between gap-2 sm:gap-3">
+        <div className="flex items-center justify-between gap-2 sm:gap-3 min-w-0">
           {/* Clickable Header Button */}
           <button
             type="button"
@@ -63,7 +63,7 @@ export function EpicFolder({
             aria-expanded={isExpanded}
             aria-controls={contentId}
             aria-label={`${isExpanded ? "Collapse" : "Expand"} ${name} folder`}
-            className="flex items-center gap-2.5 sm:gap-3 text-left min-w-0 flex-1 group focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B8944E] rounded-xl py-0.5 sm:py-1 px-1 -ml-1 transition cursor-pointer"
+            className="flex items-center gap-2 sm:gap-3 text-left min-w-0 flex-1 group focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B8944E] rounded-xl py-0.5 sm:py-1 px-1 -ml-1 transition cursor-pointer overflow-hidden"
           >
             {/* Expand / Collapse Chevron */}
             <span
@@ -81,8 +81,8 @@ export function EpicFolder({
             </span>
 
             {/* Folder Title + Count */}
-            <span className="block min-w-0 flex-1">
-              <span className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+            <span className="block min-w-0 flex-1 overflow-hidden">
+              <span className="flex items-center gap-1.5 sm:gap-2 flex-wrap min-w-0">
                 {isUncategorized ? (
                   <span className="flex items-center gap-1 text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-amber-800 bg-amber-100/80 px-1.5 py-0.5 rounded border border-amber-200 shrink-0">
                     <AlertCircle size={10} />
@@ -95,7 +95,10 @@ export function EpicFolder({
                   </span>
                 )}
 
-                <span className="text-xs sm:text-base font-semibold text-[#252331] tracking-tight truncate group-hover:text-[#80642F] transition-colors">
+                <span
+                  className="text-xs sm:text-base font-semibold text-[#252331] tracking-tight truncate max-w-[130px] xs:max-w-[180px] sm:max-w-none group-hover:text-[#80642F] transition-colors"
+                  title={name}
+                >
                   {name}
                 </span>
 
@@ -116,7 +119,7 @@ export function EpicFolder({
                 {creatorName && (
                   <>
                     <span className="text-[rgba(74,61,100,0.2)] text-xs hidden sm:inline">•</span>
-                    <span className="text-[10px] sm:text-[11px] font-medium text-[#706C7D]">
+                    <span className="text-[10px] sm:text-[11px] font-medium text-[#706C7D] hidden xs:inline">
                       Created by {creatorName}
                     </span>
                   </>
@@ -134,7 +137,7 @@ export function EpicFolder({
           {/* Action buttons (isolated from toggle click) */}
           {actions && (
             <div
-              className="flex items-center gap-1.5 sm:gap-2 shrink-0 self-center"
+              className="flex items-center gap-1 sm:gap-2 shrink-0 self-center"
               onClick={(e) => e.stopPropagation()}
             >
               {actions}

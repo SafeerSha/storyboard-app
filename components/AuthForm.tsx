@@ -9,6 +9,7 @@ import { createClient } from "@/lib/supabase/client";
 
 import { toast } from "@/lib/toast";
 import { StoryBoardLogo } from "@/components/brand/StoryBoardLogo";
+import { ForgotPasswordModal } from "@/components/ForgotPasswordModal";
 
 export function AuthForm() {
   const [identifier, setIdentifier] = useState("");
@@ -16,6 +17,7 @@ export function AuthForm() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [isRedirecting, setIsRedirecting] = useState(false);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
   const router = useRouter();
 
   async function submit(e: React.FormEvent) {
@@ -144,9 +146,18 @@ export function AuthForm() {
         </div>
 
         <div>
-          <label className="block text-xs font-semibold uppercase tracking-wider text-[#9994A5] mb-1.5">
-            Password
-          </label>
+          <div className="flex items-center justify-between mb-1.5">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-[#9994A5]">
+              Password
+            </label>
+            <button
+              type="button"
+              onClick={() => setShowForgotPassword(true)}
+              className="text-xs font-medium text-[#B8944E] hover:underline transition"
+            >
+              Forgot password?
+            </button>
+          </div>
           <div className="relative">
             <Lock
               size={15}
@@ -183,6 +194,16 @@ export function AuthForm() {
           {isRedirecting ? "Redirecting..." : loading ? "Signing in..." : "Sign in"}
         </Button>
       </form>
+
+      <ForgotPasswordModal
+        isOpen={showForgotPassword}
+        onClose={() => setShowForgotPassword(false)}
+        initialEmail={identifier.includes("@") ? identifier : ""}
+        onSuccess={(resetEmail) => {
+          setIdentifier(resetEmail);
+          setPassword("");
+        }}
+      />
     </div>
   );
 }

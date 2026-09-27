@@ -151,7 +151,8 @@ export default function UsersPage() {
   }
 
   function openCreateModal(type: UserType = "team_user") {
-    setCreateType(type);
+    const finalType = !isSuperAdmin && (type === "freelancer" || type === "super_admin") ? "team_user" : type;
+    setCreateType(finalType);
     setCreateName("");
     setCreateEmail("");
     setCreateUsername("");
@@ -160,7 +161,7 @@ export default function UsersPage() {
     setCreateStatus("active");
     setCreateError("");
     if (projects.length > 0) {
-      setCreateProjectIds(type === "freelancer" || type === "super_admin" ? [] : [projects[0].id]);
+      setCreateProjectIds(finalType === "freelancer" || finalType === "super_admin" ? [] : [projects[0].id]);
       setCreateClientId(projects[0].id);
     }
     setShowCreate(true);
@@ -169,6 +170,11 @@ export default function UsersPage() {
   async function handleCreateUser(e: React.FormEvent) {
     e.preventDefault();
     setCreateError("");
+
+    if (!isSuperAdmin && (createType === "freelancer" || createType === "super_admin")) {
+      setCreateError("Only Super Admins can create Freelancer or Super Admin accounts.");
+      return;
+    }
 
     if (!createName.trim()) {
       setCreateError("Name is required.");
@@ -718,27 +724,29 @@ export default function UsersPage() {
             </span>
           </button>
 
-          <button
-            type="button"
-            onClick={() => setActiveTab("freelancer")}
-            className={`inline-flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs sm:text-sm font-semibold transition ${
-              activeTab === "freelancer"
-                ? "bg-rose-600 text-white shadow-xs hover:bg-rose-700"
-                : "bg-white/80 text-[#706C7D] hover:bg-rose-50/60 hover:text-rose-700 border border-[#EBE7F2]"
-            }`}
-          >
-            <Briefcase size={14} />
-            <span>Freelancers</span>
-            <span
-              className={`rounded-full px-1.5 py-0.2 text-[11px] font-mono ${
+          {isSuperAdmin && (
+            <button
+              type="button"
+              onClick={() => setActiveTab("freelancer")}
+              className={`inline-flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs sm:text-sm font-semibold transition ${
                 activeTab === "freelancer"
-                  ? "bg-white/20 text-white"
-                  : "bg-rose-50 text-rose-700 border border-rose-200/50"
+                  ? "bg-rose-600 text-white shadow-xs hover:bg-rose-700"
+                  : "bg-white/80 text-[#706C7D] hover:bg-rose-50/60 hover:text-rose-700 border border-[#EBE7F2]"
               }`}
             >
-              {counts.freelancer}
-            </span>
-          </button>
+              <Briefcase size={14} />
+              <span>Freelancers</span>
+              <span
+                className={`rounded-full px-1.5 py-0.2 text-[11px] font-mono ${
+                  activeTab === "freelancer"
+                    ? "bg-white/20 text-white"
+                    : "bg-rose-50 text-rose-700 border border-rose-200/50"
+                }`}
+              >
+                {counts.freelancer}
+              </span>
+            </button>
+          )}
 
           <button
             type="button"
@@ -872,7 +880,11 @@ export default function UsersPage() {
             <EmptyState
               icon={User}
               title="No users found"
-              description="Create your first team member or freelancer account to get started collaborating."
+              description={
+                isSuperAdmin
+                  ? "Create your first team member or freelancer account to get started collaborating."
+                  : "Create your first team member or client account to get started collaborating."
+              }
               action={
                 <Button
                   variant="primary"
@@ -1057,7 +1069,7 @@ export default function UsersPage() {
       >
         <form onSubmit={handleCreateUser} className="space-y-4">
           {/* User Type Switcher Tabs */}
-          <div className="grid grid-cols-3 gap-2 rounded-xl bg-[#FAF9FC] p-1.5 border border-[#EBE7F2]">
+          <div className={`grid ${isSuperAdmin ? "grid-cols-3" : "grid-cols-2"} gap-2 rounded-xl bg-[#FAF9FC] p-1.5 border border-[#EBE7F2]`}>
             <button
               type="button"
               onClick={() => setCreateType("team_user")}
@@ -1070,18 +1082,20 @@ export default function UsersPage() {
               <Users size={14} />
               <span>Team Member</span>
             </button>
-            <button
-              type="button"
-              onClick={() => setCreateType("freelancer")}
-              className={`flex items-center justify-center gap-1.5 rounded-lg py-2 text-xs font-semibold transition ${
-                createType === "freelancer" || createType === "super_admin"
-                  ? "bg-white text-rose-700 shadow-xs border border-[#EBE7F2]"
-                  : "text-[#706C7D] hover:text-[#252331]"
-              }`}
-            >
-              <Briefcase size={14} />
-              <span>Freelancer / Admin</span>
-            </button>
+            {isSuperAdmin && (
+              <button
+                type="button"
+                onClick={() => setCreateType("freelancer")}
+                className={`flex items-center justify-center gap-1.5 rounded-lg py-2 text-xs font-semibold transition ${
+                  createType === "freelancer" || createType === "super_admin"
+                    ? "bg-white text-rose-700 shadow-xs border border-[#EBE7F2]"
+                    : "text-[#706C7D] hover:text-[#252331]"
+                }`}
+              >
+                <Briefcase size={14} />
+                <span>Freelancer / Admin</span>
+              </button>
+            )}
             <button
               type="button"
               onClick={() => setCreateType("client")}

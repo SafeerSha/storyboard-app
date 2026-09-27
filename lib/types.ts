@@ -61,11 +61,13 @@ export interface NoteImage {
 export type ProjectNote = {
   id: string;
   project_id: string;
+  epic_id?: string | null;
   title: string;
   content: string;
   tags?: string[];
   status: ProjectNoteStatus;
   images?: NoteImage[];
+  is_client_visible?: boolean;
   converted_epic_id?: string | null;
   converted_at?: string | null;
   created_by_id?: string | null;

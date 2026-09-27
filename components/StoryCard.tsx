@@ -29,13 +29,13 @@ export function StoryCard({
     <button
       type="button"
       onClick={onClick}
-      className={`group w-full text-left rounded-xl border p-3.5 sm:p-4 transition-all duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#B8944E] cursor-pointer ${
+      className={`group w-full min-w-0 text-left rounded-xl border p-3.5 sm:p-4 transition-all duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#B8944E] cursor-pointer ${
         isSelected
           ? "border-[#B8944E] bg-[rgba(184,148,78,0.06)] shadow-xs ring-1 ring-[#B8944E]/25"
           : "border-[rgba(74,61,100,0.08)] bg-white hover:border-[#B8944E]/30 hover:shadow-[0_4px_20px_rgba(70,55,95,0.05)]"
       }`}
     >
-      <span className="flex items-start justify-between gap-3">
+      <span className="flex items-start justify-between gap-3 min-w-0 w-full">
         <span className="block min-w-0 flex-1">
           {/* Metadata Row */}
           <span className="flex flex-wrap items-center gap-2 mb-1.5">

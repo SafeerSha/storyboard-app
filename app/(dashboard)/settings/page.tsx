@@ -21,11 +21,13 @@ import {
   VolumeX,
   Trash2,
   ArrowRight,
+  KeyRound,
 } from "lucide-react";
 import { DashboardHeader } from "@/components/layout/DashboardHeader";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
+import { ChangePasswordModal } from "@/components/ChangePasswordModal";
 import { createClient } from "@/lib/supabase/client";
 import { toast } from "@/lib/toast";
 import { RemunerationClient } from "@/app/(dashboard)/remuneration/RemunerationClient";
@@ -47,6 +49,7 @@ export default function SettingsPage() {
   const [role, setRole] = useState<string>("freelancer");
   const [name, setName] = useState<string>("");
   const [loading, setLoading] = useState(true);
+  const [showChangePassword, setShowChangePassword] = useState(false);
 
   // Super Admin — Create Freelancer state
   const [showCreateFreelancer, setShowCreateFreelancer] = useState(false);
@@ -365,6 +368,39 @@ export default function SettingsPage() {
                     onClick={handleSignOut}
                   >
                     Sign out of Reqly
+                  </Button>
+                </div>
+              </div>
+            </section>
+
+            {/* Security & Password Card */}
+            <section className="rounded-2xl border border-[#EBE7F2] bg-[#FAF9FC]/88 p-5 sm:p-6 shadow-card backdrop-blur-xl space-y-4">
+              <div className="flex items-center gap-3 border-b border-[#EBE7F2] pb-4">
+                <div className="grid h-9 w-9 place-items-center rounded-xl bg-[rgba(184,148,78,0.10)] border border-[rgba(184,148,78,0.15)] text-[#80642F] shrink-0 shadow-xs">
+                  <KeyRound size={17} />
+                </div>
+                <div>
+                  <h3 className="text-base font-semibold text-[#252331] tracking-tight">
+                    Security & Password
+                  </h3>
+                  <p className="text-xs text-[#706C7D]">Manage your account login credentials</p>
+                </div>
+              </div>
+
+              <div className="space-y-4 max-w-md">
+                <p className="text-xs text-[#585365] leading-relaxed">
+                  To protect your account, changing your password requires entering a 6-digit one-time verification code sent to your registered email address ({email || "your account email"}).
+                </p>
+
+                <div>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    leftIcon={<KeyRound size={14} className="text-[#B8944E]" />}
+                    onClick={() => setShowChangePassword(true)}
+                    disabled={loading || !email}
+                  >
+                    Change Password
                   </Button>
                 </div>
               </div>
@@ -829,6 +865,12 @@ export default function SettingsPage() {
           </div>
         )}
       </Modal>
+
+      <ChangePasswordModal
+        isOpen={showChangePassword}
+        onClose={() => setShowChangePassword(false)}
+        userEmail={email || ""}
+      />
     </div>
   );
 }

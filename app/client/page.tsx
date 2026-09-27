@@ -8,6 +8,7 @@ import {
   CheckCircle2,
   Clock,
   Coins,
+  FileText,
   FolderKanban,
   Layers,
   ListTodo,
@@ -38,6 +39,7 @@ export default async function ClientOverviewPage() {
     { data: epicsData },
     { data: storyEpicMap },
     { data: quotationData },
+    sharedNotesRes,
   ] = await Promise.all([
     // Project info
     db
@@ -105,8 +107,17 @@ export default async function ClientOverviewPage() {
       .select("id, currency, final_amount, final_total_hours, project_summary, updated_at, created_at")
       .eq("project_id", client.project_id)
       .order("created_at", { ascending: false }),
+
+    // Shared meeting notes count
+    db
+      .from("project_notes")
+      .select("id", { count: "exact", head: true })
+      .eq("project_id", client.project_id)
+      .eq("is_client_visible", true)
+      .neq("status", "archived"),
   ]);
 
+  const sharedNotesCount = sharedNotesRes?.count ?? 0;
   const total = totalStoriesCount ?? 0;
   const approved = approvedStoriesCount ?? 0;
   const changes = changesRequestedCount ?? 0;
@@ -253,6 +264,40 @@ export default async function ClientOverviewPage() {
               className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold text-white bg-[#B8944E] hover:bg-[#9f7d3a] transition shrink-0 shadow-sm"
             >
               <span>Review Quotation</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+        )}
+
+        {/* Shared Meeting & Discussion Notes Banner */}
+        {sharedNotesCount > 0 && (
+          <div className="rounded-2xl border border-[rgba(184,148,78,0.22)] bg-gradient-to-r from-amber-50/40 via-white to-amber-50/20 p-5 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-start gap-3.5">
+              <div className="w-10 h-10 rounded-xl bg-[rgba(184,148,78,0.12)] text-[#80642F] flex items-center justify-center shrink-0 mt-0.5 border border-[rgba(184,148,78,0.2)]">
+                <FileText className="w-5 h-5" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-[#80642F] bg-[#B8944E]/15 px-2 py-0.5 rounded-full">
+                    {sharedNotesCount} Shared {sharedNotesCount === 1 ? "Note" : "Notes"}
+                  </span>
+                  <span className="text-[11px] font-medium text-[#706C7D]">
+                    From discussions &amp; calls
+                  </span>
+                </div>
+                <h3 className="text-sm sm:text-base font-bold text-[#252331]">
+                  Meeting &amp; Discussion Notes
+                </h3>
+                <p className="text-xs text-[#706C7D] mt-0.5 max-w-xl">
+                  Your project team has published discussion notes, call summaries, and requirement decisions for your review.
+                </p>
+              </div>
+            </div>
+            <Link
+              href="/client/notes"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold text-[#80642F] bg-white border border-[rgba(184,148,78,0.3)] hover:bg-[#FAF9FC] transition shrink-0 shadow-2xs"
+            >
+              <span>View Meeting Notes</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>

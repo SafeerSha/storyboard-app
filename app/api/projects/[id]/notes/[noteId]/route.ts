@@ -53,6 +53,8 @@ export async function PATCH(
     if (body.content !== undefined) updates.content = String(body.content);
     if (body.tags !== undefined && Array.isArray(body.tags)) updates.tags = body.tags;
     if (body.images !== undefined && Array.isArray(body.images)) updates.images = body.images;
+    if (body.is_client_visible !== undefined) updates.is_client_visible = Boolean(body.is_client_visible);
+    if (body.epic_id !== undefined) updates.epic_id = body.epic_id || null;
     if (body.status !== undefined && ["active", "converted", "archived"].includes(body.status)) {
       updates.status = body.status;
     }
@@ -66,10 +68,12 @@ export async function PATCH(
       .select()
       .single();
 
-    // If images column does not exist yet in Supabase schema, retry without it
-    if (error && error.message?.includes("images")) {
+    // If images, is_client_visible, or epic_id columns do not exist yet in Supabase schema, retry gracefully
+    if (error && (error.message?.includes("images") || error.message?.includes("is_client_visible") || error.message?.includes("epic_id"))) {
       const fallbackUpdates = { ...updates };
-      delete fallbackUpdates.images;
+      if (error.message?.includes("images")) delete fallbackUpdates.images;
+      if (error.message?.includes("is_client_visible")) delete fallbackUpdates.is_client_visible;
+      if (error.message?.includes("epic_id")) delete fallbackUpdates.epic_id;
       const retryResult = await admin
         .from("project_notes")
         .update(fallbackUpdates)
@@ -80,7 +84,9 @@ export async function PATCH(
       note = retryResult.data;
       error = retryResult.error;
       if (note) {
-        note.images = body.images;
+        if (body.images !== undefined) note.images = body.images;
+        if (body.is_client_visible !== undefined) note.is_client_visible = Boolean(body.is_client_visible);
+        if (body.epic_id !== undefined) note.epic_id = body.epic_id || null;
       }
     }
 

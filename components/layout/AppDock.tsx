@@ -81,7 +81,7 @@ export function AppDock({
 
   return (
     <div
-      className={`fixed bottom-5 left-0 right-0 z-40 flex justify-center pointer-events-none px-4 select-none animate-in slide-in-from-bottom-5 duration-300 ${className}`}
+      className={`fixed bottom-5 left-0 right-0 z-[45] flex justify-center pointer-events-none px-4 select-none animate-in slide-in-from-bottom-5 duration-300 ${className}`}
     >
       <nav
         aria-label="macOS Desktop Dock Navigation"

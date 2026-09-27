@@ -19,6 +19,8 @@ import {
   Layers,
   Mic,
   Image as ImageIcon,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { VoiceTextarea } from "@/components/ui/VoiceTextarea";
@@ -58,13 +60,16 @@ export function ProjectNotesWorkspace({
   const [content, setContent] = useState("");
   const [tags, setTags] = useState<string[]>([]);
   const [images, setImages] = useState<NoteImage[]>([]);
+  const [isClientVisible, setIsClientVisible] = useState(false);
+  const [epicId, setEpicId] = useState<string | null>(null);
   const [tagInput, setTagInput] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [saveStatus, setSaveStatus] = useState<"saved" | "unsaved" | "saving">("saved");
 
   // Filter & Search
   const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState<"all" | "active" | "converted">("all");
+  const [statusFilter, setStatusFilter] = useState<"all" | "active" | "converted" | "client">("all");
+  const [epicFilter, setEpicFilter] = useState<string>("all");
 
   // Delete modal state
   const [deletingNoteId, setDeletingNoteId] = useState<string | null>(null);
@@ -88,12 +93,16 @@ export function ProjectNotesWorkspace({
       setContent(activeNote.content);
       setTags(activeNote.tags || []);
       setImages(activeNote.images || []);
+      setIsClientVisible(Boolean(activeNote.is_client_visible));
+      setEpicId(activeNote.epic_id || null);
       setSaveStatus("saved");
     } else {
       setTitle("");
       setContent("");
       setTags([]);
       setImages([]);
+      setIsClientVisible(false);
+      setEpicId(null);
       setSaveStatus("saved");
     }
   }, [activeNoteId]);
@@ -108,11 +117,21 @@ export function ProjectNotesWorkspace({
 
   // Save changes to backend
   const saveActiveNote = useCallback(
-    async (noteTitle: string, noteContent: string, noteTags: string[], noteImages?: NoteImage[]) => {
+    async (
+      noteTitle: string,
+      noteContent: string,
+      noteTags: string[],
+      noteImages?: NoteImage[],
+      clientVisible?: boolean,
+      assignedEpicId?: string | null
+    ) => {
       if (!activeNoteId) return;
 
       setIsSaving(true);
       setSaveStatus("saving");
+
+      const finalClientVisible = clientVisible !== undefined ? clientVisible : isClientVisible;
+      const finalEpicId = assignedEpicId !== undefined ? assignedEpicId : epicId;
 
       try {
         const res = await fetch(`/api/projects/${projectId}/notes/${activeNoteId}`, {
@@ -123,6 +142,8 @@ export function ProjectNotesWorkspace({
             content: noteContent,
             tags: noteTags,
             images: noteImages !== undefined ? noteImages : images,
+            is_client_visible: finalClientVisible,
+            epic_id: finalEpicId,
           }),
         });
 
@@ -132,7 +153,7 @@ export function ProjectNotesWorkspace({
 
         const data = await res.json();
         setNotes((prev) =>
-          prev.map((n) => (n.id === activeNoteId ? data.note : n))
+          prev.map((n) => (n.id === activeNoteId ? { ...n, ...data.note, epic_id: finalEpicId } : n))
         );
         setSaveStatus("saved");
       } catch {
@@ -141,8 +162,21 @@ export function ProjectNotesWorkspace({
         setIsSaving(false);
       }
     },
-    [activeNoteId, projectId, images]
+    [activeNoteId, projectId, images, isClientVisible, epicId]
   );
+
+  // Toggle client visibility
+  const handleToggleClientVisible = () => {
+    const nextVal = !isClientVisible;
+    setIsClientVisible(nextVal);
+    saveActiveNote(title, content, tags, images, nextVal);
+    toast.success(
+      nextVal ? "Visible to client" : "Made internal only",
+      nextVal
+        ? "Clients mapped to this project can now view this note in their portal."
+        : "This note is now private and hidden from mapped clients."
+    );
+  };
 
   // Trigger auto-save on field edits
   const handleContentChange = (newContent: string) => {
@@ -233,6 +267,7 @@ export function ProjectNotesWorkspace({
           title: defaultTitle,
           content: "",
           tags: ["discussion"],
+          epic_id: epicFilter && epicFilter !== "all" && epicFilter !== "none" ? epicFilter : null,
         }),
       });
 
@@ -292,7 +327,16 @@ export function ProjectNotesWorkspace({
   // Filter notes
   const filteredNotes = useMemo(() => {
     return notes.filter((n) => {
-      if (statusFilter !== "all" && n.status !== statusFilter) return false;
+      if (statusFilter === "client") {
+        if (!n.is_client_visible) return false;
+      } else if (statusFilter !== "all" && n.status !== statusFilter) {
+        return false;
+      }
+      if (epicFilter === "none") {
+        if (n.epic_id) return false;
+      } else if (epicFilter !== "all") {
+        if (n.epic_id !== epicFilter) return false;
+      }
       if (!searchQuery.trim()) return true;
       const q = searchQuery.toLowerCase();
       const inTitle = n.title.toLowerCase().includes(q);
@@ -300,7 +344,7 @@ export function ProjectNotesWorkspace({
       const inTags = (n.tags || []).some((t) => t.toLowerCase().includes(q));
       return inTitle || inContent || inTags;
     });
-  }, [notes, statusFilter, searchQuery]);
+  }, [notes, statusFilter, epicFilter, searchQuery]);
 
   // Converted Epic name lookup if active note is converted
   const convertedEpic = useMemo(() => {
@@ -360,7 +404,7 @@ export function ProjectNotesWorkspace({
             </div>
 
             {/* Segmented Filter */}
-            <div className="grid grid-cols-3 gap-1 bg-[#FAF9FC] p-0.5 rounded-xl border border-[rgba(74,61,100,0.08)] text-[11px]">
+            <div className="grid grid-cols-4 gap-1 bg-[#FAF9FC] p-0.5 rounded-xl border border-[rgba(74,61,100,0.08)] text-[10px]">
               <button
                 type="button"
                 onClick={() => setStatusFilter("all")}
@@ -392,9 +436,45 @@ export function ProjectNotesWorkspace({
                     : "text-[#706C7D] hover:text-[#252331]"
                 }`}
               >
-                Converted ({notes.filter((n) => n.status === "converted").length})
+                Done ({notes.filter((n) => n.status === "converted").length})
+              </button>
+              <button
+                type="button"
+                onClick={() => setStatusFilter("client")}
+                className={`py-1 rounded-lg font-medium transition cursor-pointer text-center ${
+                  statusFilter === "client"
+                    ? "bg-white text-emerald-800 shadow-2xs font-semibold"
+                    : "text-[#706C7D] hover:text-emerald-700"
+                }`}
+              >
+                Client ({notes.filter((n) => n.is_client_visible).length})
               </button>
             </div>
+
+            {/* Epic Filter Dropdown */}
+            {epics.length > 0 && (
+              <div className="flex items-center gap-1.5 pt-0.5">
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-[#9994A5] shrink-0">
+                  Epic:
+                </span>
+                <select
+                  value={epicFilter}
+                  onChange={(e) => setEpicFilter(e.target.value)}
+                  className="w-full h-7 rounded-lg border border-[rgba(74,61,100,0.10)] bg-white px-2 text-[11px] font-medium text-[#252331] outline-none transition focus:border-[#B8944E]"
+                >
+                  <option value="all">All Epics &amp; General ({notes.length})</option>
+                  <option value="none">Project-wide Only ({notes.filter((n) => !n.epic_id).length})</option>
+                  {epics.map((ep) => {
+                    const count = notes.filter((n) => n.epic_id === ep.id).length;
+                    return (
+                      <option key={ep.id} value={ep.id}>
+                        {ep.name} ({count})
+                      </option>
+                    );
+                  })}
+                </select>
+              </div>
+            )}
           </div>
 
           {/* Notes Scroll List */}
@@ -411,6 +491,7 @@ export function ProjectNotesWorkspace({
               filteredNotes.map((noteItem) => {
                 const isSelected = noteItem.id === activeNoteId;
                 const isConverted = noteItem.status === "converted";
+                const linkedEpic = noteItem.epic_id ? epics.find((e) => e.id === noteItem.epic_id) : null;
 
                 return (
                   <button
@@ -427,12 +508,32 @@ export function ProjectNotesWorkspace({
                       <h4 className="text-xs font-bold text-[#252331] line-clamp-1">
                         {noteItem.title || "Untitled Note"}
                       </h4>
-                      {isConverted && (
-                        <span className="inline-flex items-center gap-1 rounded-md bg-emerald-50 px-1.5 py-0.5 text-[9px] font-semibold text-emerald-700 border border-emerald-200/80 shrink-0">
-                          <CheckCircle2 size={10} />
-                          Converted
-                        </span>
-                      )}
+                      <div className="flex items-center gap-1 shrink-0 flex-wrap justify-end">
+                        {linkedEpic && (
+                          <span
+                            className="inline-flex items-center gap-0.5 rounded-md bg-[rgba(184,148,78,0.12)] px-1.5 py-0.5 text-[9px] font-semibold text-[#80642F] border border-[rgba(184,148,78,0.20)] truncate max-w-[90px]"
+                            title={`Linked Epic: ${linkedEpic.name}`}
+                          >
+                            <Layers size={8} />
+                            <span className="truncate">{linkedEpic.name}</span>
+                          </span>
+                        )}
+                        {noteItem.is_client_visible && (
+                          <span
+                            className="inline-flex items-center gap-0.5 rounded-md bg-emerald-50 px-1.5 py-0.5 text-[9px] font-semibold text-emerald-700 border border-emerald-200/80"
+                            title="Visible to clients mapped to this project"
+                          >
+                            <Eye size={9} />
+                            Client
+                          </span>
+                        )}
+                        {isConverted && (
+                          <span className="inline-flex items-center gap-1 rounded-md bg-emerald-50 px-1.5 py-0.5 text-[9px] font-semibold text-emerald-700 border border-emerald-200/80">
+                            <CheckCircle2 size={10} />
+                            Converted
+                          </span>
+                        )}
+                      </div>
                     </div>
 
                     <p className="text-[11px] text-[#706C7D] line-clamp-2">
@@ -499,6 +600,34 @@ export function ProjectNotesWorkspace({
 
               {/* Conversion and Note Actions */}
               <div className="flex items-center gap-2 flex-wrap">
+                {/* Client Visibility Toggle */}
+                <button
+                  type="button"
+                  onClick={handleToggleClientVisible}
+                  className={`inline-flex items-center gap-1.5 rounded-xl px-2.5 py-1.5 text-xs font-semibold transition border cursor-pointer ${
+                    isClientVisible
+                      ? "bg-emerald-50 text-emerald-800 border-emerald-300 hover:bg-emerald-100/80 shadow-2xs"
+                      : "bg-white text-[#706C7D] border-[rgba(74,61,100,0.12)] hover:bg-[#FAF9FC] hover:text-[#252331]"
+                  }`}
+                  title={
+                    isClientVisible
+                      ? "Currently visible to clients mapped to this project. Click to make internal only."
+                      : "Currently private/internal. Click to make visible to mapped clients."
+                  }
+                >
+                  {isClientVisible ? (
+                    <>
+                      <Eye size={13} className="text-emerald-600" />
+                      <span>Visible to Client</span>
+                    </>
+                  ) : (
+                    <>
+                      <EyeOff size={13} className="text-[#9994A5]" />
+                      <span>Internal Only</span>
+                    </>
+                  )}
+                </button>
+
                 <Button
                   variant="secondary"
                   size="sm"
@@ -561,6 +690,71 @@ export function ProjectNotesWorkspace({
 
             {/* Note Editor Fields */}
             <div className="p-4 sm:p-6 flex-1 flex flex-col space-y-4">
+              {/* Client Visibility Pill */}
+              <div
+                className={`flex items-center justify-between gap-2 px-3 py-1.5 rounded-xl text-xs border transition-colors ${
+                  isClientVisible
+                    ? "bg-emerald-50/80 border-emerald-200/80 text-emerald-900"
+                    : "bg-[#FAF9FC] border-[rgba(74,61,100,0.06)] text-[#706C7D]"
+                }`}
+              >
+                <div className="flex items-center gap-1.5 min-w-0">
+                  {isClientVisible ? (
+                    <>
+                      <Eye size={13} className="text-emerald-600 shrink-0" />
+                      <span className="truncate">
+                        <strong>Shared with Client:</strong> Mapped clients can view this note in their portal.
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      <EyeOff size={13} className="text-[#9994A5] shrink-0" />
+                      <span className="truncate">
+                        <strong>Internal Note:</strong> Only visible to you and assigned team members.
+                      </span>
+                    </>
+                  )}
+                </div>
+                <button
+                  type="button"
+                  onClick={handleToggleClientVisible}
+                  className="text-[11px] font-semibold underline hover:opacity-80 shrink-0 cursor-pointer text-[#80642F]"
+                >
+                  {isClientVisible ? "Make Internal" : "Share with Client"}
+                </button>
+              </div>
+
+              {/* Linked Epic Selector */}
+              {epics.length > 0 && (
+                <div className="flex items-center gap-2">
+                  <span className="text-[11px] font-semibold uppercase tracking-wider text-[#9994A5] flex items-center gap-1 shrink-0">
+                    <Layers size={12} className="text-[#B8944E]" />
+                    <span>Linked Epic:</span>
+                  </span>
+                  <select
+                    value={epicId || ""}
+                    onChange={(e) => {
+                      const nextEpicId = e.target.value || null;
+                      setEpicId(nextEpicId);
+                      saveActiveNote(title, content, tags, images, isClientVisible, nextEpicId);
+                      toast.success(
+                        nextEpicId
+                          ? `Note linked to Epic: ${epics.find((ep) => ep.id === nextEpicId)?.name}`
+                          : "Note detached to project-wide"
+                      );
+                    }}
+                    className="h-7 rounded-lg border border-[rgba(74,61,100,0.12)] bg-[#FAF9FC] px-2.5 text-xs font-semibold text-[#80642F] outline-none transition focus:border-[#B8944E] cursor-pointer shadow-2xs"
+                  >
+                    <option value="">Project-wide (General Note)</option>
+                    {epics.map((ep) => (
+                      <option key={ep.id} value={ep.id}>
+                        Epic: {ep.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
               {/* Note Title Input */}
               <input
                 type="text"

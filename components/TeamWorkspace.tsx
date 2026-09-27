@@ -40,6 +40,7 @@ import { EpicFeedbackThread } from "@/components/epics/EpicFeedbackThread";
 import { AiEpicAgentPromptModal } from "@/components/epics/AiEpicAgentPromptModal";
 import { sortEpics, sortStories } from "@/lib/epic-story-utils";
 import { ProjectNotesWorkspace } from "@/components/notes/ProjectNotesWorkspace";
+import { EpicNotesModal } from "@/components/notes/EpicNotesModal";
 
 interface TeamWorkspaceProps {
   teamUser: {
@@ -94,6 +95,7 @@ export function TeamWorkspace({
 
   // AI Story Generation modal
   const [generatingEpicId, setGeneratingEpicId] = useState<string | null>(null);
+  const [activeEpicForNotes, setActiveEpicForNotes] = useState<Epic | null>(null);
 
   // Manual Story Creation modal
   const [manualStoryModalOpen, setManualStoryModalOpen] = useState(false);
@@ -657,10 +659,10 @@ export function TeamWorkspace({
   }, [filteredEpics, filteredStories, statusFilter, epicFilter]);
 
   return (
-    <div className="pb-24">
+    <div className="w-full min-w-0 pb-32">
       {/* Top Workspace Header */}
-      <header className="border-b border-[rgba(74,61,100,0.08)] bg-white/68 backdrop-blur-[20px]">
-        <div className="mx-auto max-w-6xl px-4 py-4 sm:py-6 lg:px-8">
+      <header className="w-full border-b border-[rgba(74,61,100,0.08)] bg-white/68 backdrop-blur-[20px]">
+        <div className="w-full mx-auto max-w-6xl px-4 py-4 sm:py-6 lg:px-8">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2 text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-[#B8944E] mb-1">
@@ -708,26 +710,6 @@ export function TeamWorkspace({
                     />
                   )}
                 </div>
-
-                {/* Mobile-only compact action buttons */}
-                <Button
-                  variant={activeTab === "notes" ? "primary" : "secondary"}
-                  size="sm"
-                  leftIcon={<FileText size={12} />}
-                  onClick={() => setActiveTab("notes")}
-                  className="sm:hidden shrink-0 text-xs px-2.5 py-1"
-                >
-                  Notes ({notes.length})
-                </Button>
-                <Button
-                  variant="primary"
-                  size="sm"
-                  leftIcon={<Plus size={12} />}
-                  onClick={() => openCreateEpic()}
-                  className="sm:hidden shrink-0 text-xs px-2.5 py-1"
-                >
-                  Add Epic
-                </Button>
               </div>
               <p className="mt-1 text-xs sm:text-sm text-[#706C7D] max-w-2xl font-normal leading-relaxed truncate">
                 {project.description ||
@@ -776,12 +758,12 @@ export function TeamWorkspace({
               )}
             </div>
 
-            {/* Desktop Actions */}
-            <div className="hidden sm:flex items-center gap-2 shrink-0">
+            {/* Workspace Actions (Unified for mobile & desktop) */}
+            <div className="flex items-center gap-2 w-full sm:w-auto shrink-0 mt-1 sm:mt-0">
               <Button
                 variant={activeTab === "notes" ? "primary" : "secondary"}
-                size="md"
-                leftIcon={<FileText size={14} />}
+                className="flex-1 sm:flex-initial h-9 sm:h-10 px-3 sm:px-4 text-xs sm:text-sm justify-center whitespace-nowrap shadow-2xs"
+                leftIcon={<FileText size={13} />}
                 onClick={() => setActiveTab("notes")}
                 title="Discussion Notes"
               >
@@ -794,8 +776,8 @@ export function TeamWorkspace({
               </Button>
               <Button
                 variant="primary"
-                size="md"
-                leftIcon={<Plus size={14} />}
+                className="flex-1 sm:flex-initial h-9 sm:h-10 px-3 sm:px-4 text-xs sm:text-sm justify-center whitespace-nowrap font-semibold shadow-2xs"
+                leftIcon={<Plus size={13} />}
                 onClick={() => openCreateEpic()}
               >
                 Add Epic
@@ -805,37 +787,40 @@ export function TeamWorkspace({
         </div>
       </header>
 
-      <main className="mx-auto max-w-6xl px-4 py-5 sm:px-6 sm:py-8 lg:px-8 space-y-5 sm:space-y-6">
+      <main className="w-full min-w-0 mx-auto max-w-6xl px-4 py-4 sm:px-6 sm:py-8 lg:px-8 space-y-4 sm:space-y-6">
         {/* View Switcher Tabs between Requirements Hierarchy and Discussion Notes */}
-        <div className="flex items-center gap-2 border-b border-[rgba(74,61,100,0.08)] pb-2 overflow-x-auto">
+        <div className="flex items-center gap-1.5 sm:gap-2 border-b border-[rgba(74,61,100,0.08)] pb-2 overflow-x-auto no-scrollbar">
           <button
             type="button"
             onClick={() => setActiveTab("hierarchy")}
-            className={`inline-flex items-center gap-2 px-3.5 py-2 text-xs sm:text-sm font-semibold rounded-xl transition cursor-pointer whitespace-nowrap ${
+            className={`inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-3.5 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold rounded-xl transition cursor-pointer whitespace-nowrap ${
               activeTab === "hierarchy"
                 ? "bg-white text-[#252331] shadow-2xs border border-[rgba(74,61,100,0.12)]"
                 : "text-[#706C7D] hover:text-[#252331] hover:bg-white/60"
             }`}
           >
             <Layers size={14} className={activeTab === "hierarchy" ? "text-[#B8944E]" : "text-[#9994A5]"} />
-            <span>Requirements Hierarchy</span>
-            <span className="rounded-full bg-[rgba(184,148,78,0.10)] px-2 py-0.5 text-[10px] font-bold text-[#80642F]">
-              {epics.length} Epics • {stories.length} Stories
+            <span className="hidden sm:inline">Requirements Hierarchy</span>
+            <span className="sm:hidden">Hierarchy</span>
+            <span className="rounded-full bg-[rgba(184,148,78,0.10)] px-1.5 sm:px-2 py-0.5 text-[10px] font-bold text-[#80642F]">
+              <span className="hidden sm:inline">{epics.length} Epics • {stories.length} Stories</span>
+              <span className="sm:hidden">{epics.length}E • {stories.length}S</span>
             </span>
           </button>
 
           <button
             type="button"
             onClick={() => setActiveTab("notes")}
-            className={`inline-flex items-center gap-2 px-3.5 py-2 text-xs sm:text-sm font-semibold rounded-xl transition cursor-pointer whitespace-nowrap ${
+            className={`inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-3.5 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold rounded-xl transition cursor-pointer whitespace-nowrap ${
               activeTab === "notes"
                 ? "bg-white text-[#252331] shadow-2xs border border-[rgba(74,61,100,0.12)]"
                 : "text-[#706C7D] hover:text-[#252331] hover:bg-white/60"
             }`}
           >
             <FileText size={14} className={activeTab === "notes" ? "text-[#B8944E]" : "text-[#9994A5]"} />
-            <span>Discussion Notes</span>
-            <span className="rounded-full bg-[rgba(74,61,100,0.08)] px-2 py-0.5 text-[10px] font-bold text-[#252331]">
+            <span className="hidden sm:inline">Discussion Notes</span>
+            <span className="sm:hidden">Notes</span>
+            <span className="rounded-full bg-[rgba(74,61,100,0.08)] px-1.5 sm:px-2 py-0.5 text-[10px] font-bold text-[#252331]">
               {notes.length}
             </span>
           </button>
@@ -868,40 +853,43 @@ export function TeamWorkspace({
 
 
         {/* Filter & Quick Folding Toolbar */}
-        <div className="flex flex-wrap items-center justify-between gap-2.5 sm:gap-3">
-          <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
-            <div className="flex items-center gap-1.5 sm:gap-2 flex-1 sm:flex-none min-w-0">
-              <span className="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-[#9994A5] shrink-0">
-                Filter:
-              </span>
-              <select
-                value={epicFilter}
-                onChange={(e) => setEpicFilter(e.target.value)}
-                className="h-8 sm:h-9 w-full sm:w-auto rounded-xl border border-[rgba(74,61,100,0.11)] bg-white/85 px-2.5 sm:px-3 text-xs font-medium text-[#252331] outline-none transition focus:border-[#B8944E] cursor-pointer truncate"
-              >
-                <option value="all">All Epics ({epics.length})</option>
-                {epics.map((e) => (
-                  <option key={e.id} value={e.id}>
-                    {e.name}
-                  </option>
-                ))}
-              </select>
-            </div>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 flex-1 min-w-0">
+            {/* 2-column equal dropdowns on mobile */}
+            <div className="grid grid-cols-2 gap-2 flex-1 sm:flex-none">
+              <div className="flex items-center gap-1.5 sm:gap-2 min-w-0 bg-white/85 border border-[rgba(74,61,100,0.11)] rounded-xl px-2.5 h-8.5 shadow-2xs">
+                <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-[#9994A5] shrink-0">
+                  Epic:
+                </span>
+                <select
+                  value={epicFilter}
+                  onChange={(e) => setEpicFilter(e.target.value)}
+                  className="w-full bg-transparent text-xs font-medium text-[#252331] outline-none transition focus:border-[#B8944E] cursor-pointer truncate"
+                >
+                  <option value="all">All Epics ({epics.length})</option>
+                  {epics.map((e) => (
+                    <option key={e.id} value={e.id}>
+                      {e.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-            <div className="flex items-center gap-1.5 sm:gap-2 flex-1 sm:flex-none min-w-0">
-              <span className="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-[#9994A5] shrink-0">
-                Status:
-              </span>
-              <select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value as any)}
-                className="h-8 sm:h-9 w-full sm:w-auto rounded-xl border border-[rgba(74,61,100,0.11)] bg-white/85 px-2.5 sm:px-3 text-xs font-medium text-[#252331] outline-none transition focus:border-[#B8944E] cursor-pointer truncate"
-              >
-                <option value="all">All Statuses ({totalStoriesCount})</option>
-                <option value="new">New ({newStoriesCount})</option>
-                <option value="active">Active ({activeStoriesCount})</option>
-                <option value="done">Done ({doneStoriesCount})</option>
-              </select>
+              <div className="flex items-center gap-1.5 sm:gap-2 min-w-0 bg-white/85 border border-[rgba(74,61,100,0.11)] rounded-xl px-2.5 h-8.5 shadow-2xs">
+                <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-[#9994A5] shrink-0">
+                  Status:
+                </span>
+                <select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value as any)}
+                  className="w-full bg-transparent text-xs font-medium text-[#252331] outline-none transition focus:border-[#B8944E] cursor-pointer truncate"
+                >
+                  <option value="all">All Statuses ({totalStoriesCount})</option>
+                  <option value="new">New ({newStoriesCount})</option>
+                  <option value="active">Active ({activeStoriesCount})</option>
+                  <option value="done">Done ({doneStoriesCount})</option>
+                </select>
+              </div>
             </div>
 
             {/* Quick Status Pills */}
@@ -952,25 +940,24 @@ export function TeamWorkspace({
               </button>
             </div>
 
-            {/* Segmented Quick Fold / Expand Controls */}
-            <div className="inline-flex items-center rounded-xl border border-[rgba(74,61,100,0.11)] bg-white/80 p-0.5 text-xs shrink-0 shadow-2xs">
+            {/* Segmented Quick Fold / Expand Controls - 50/50 balanced grid on mobile */}
+            <div className="grid grid-cols-2 sm:inline-flex items-center rounded-xl border border-[rgba(74,61,100,0.11)] bg-white/80 p-0.5 text-xs shrink-0 shadow-2xs w-full sm:w-auto">
               <button
                 type="button"
                 onClick={foldAllEpics}
-                className="flex items-center gap-1 rounded-lg px-2 sm:px-2.5 py-1 text-[11px] font-medium text-[#706C7D] hover:text-[#252331] hover:bg-[#FAF9FC] transition cursor-pointer whitespace-nowrap"
+                className="flex items-center justify-center gap-1 rounded-lg py-1.5 sm:px-2.5 sm:py-1 text-xs sm:text-[11px] font-medium text-[#706C7D] hover:text-[#252331] hover:bg-[#FAF9FC] transition cursor-pointer whitespace-nowrap"
                 title="Collapse all epics"
               >
-                <ChevronUp size={12} className="shrink-0" />
+                <ChevronUp size={13} className="shrink-0" />
                 <span>Fold all</span>
               </button>
-              <span className="h-3 w-[1px] bg-[rgba(74,61,100,0.12)] shrink-0" />
               <button
                 type="button"
                 onClick={expandAllEpics}
-                className="flex items-center gap-1 rounded-lg px-2 sm:px-2.5 py-1 text-[11px] font-medium text-[#706C7D] hover:text-[#252331] hover:bg-[#FAF9FC] transition cursor-pointer whitespace-nowrap"
+                className="flex items-center justify-center gap-1 rounded-lg py-1.5 sm:px-2.5 sm:py-1 text-xs sm:text-[11px] font-medium text-[#706C7D] hover:text-[#252331] hover:bg-[#FAF9FC] transition cursor-pointer whitespace-nowrap"
                 title="Expand all epics"
               >
-                <ChevronDown size={12} className="shrink-0" />
+                <ChevronDown size={13} className="shrink-0" />
                 <span>Expand all</span>
               </button>
             </div>
@@ -982,9 +969,9 @@ export function TeamWorkspace({
         </div>
 
         {/* Super Admin Split View: Epics/Stories on Left, Story Document Inspector on Right */}
-        <div className="grid gap-6 lg:grid-cols-[1.1fr_1.9fr] items-start">
+        <div className="grid gap-6 lg:grid-cols-[1.1fr_1.9fr] items-start w-full min-w-0">
           {/* Left Column: Epics and Stories List */}
-          <div className="space-y-6">
+          <div className="space-y-6 w-full min-w-0">
             {epics.length === 0 && stories.length === 0 ? (
               <EmptyState
                 icon={Layers}
@@ -1030,6 +1017,7 @@ export function TeamWorkspace({
                   const activeCount = epicStories.filter((s) => normalizeStoryStatus(s.status) === "active").length;
                   const approvedCount = epicStories.filter((s) => s.status === "approved" || s.team_review_status === "approved").length;
                   const changesCount = epicStories.filter((s) => s.status === "changes_requested").length;
+                  const epicNotes = notes.filter((n) => n.epic_id === epic.id && n.status !== "archived");
 
                   return (
                     <EpicFolder
@@ -1042,7 +1030,7 @@ export function TeamWorkspace({
                       isExpanded={expandedEpicIds.has(epic.id)}
                       onToggle={() => toggleEpic(epic.id)}
                       headerExtra={
-                        <span className="flex items-center gap-1.5 text-[11px] font-medium">
+                        <span className="flex items-center gap-1.5 text-[10px] sm:text-[11px] font-medium flex-wrap">
                           <span className="text-[rgba(74,61,100,0.2)]">•</span>
                           <span className="text-[#2E8B70]">{approvedCount} approved</span>
                           {changesCount > 0 && (
@@ -1051,17 +1039,41 @@ export function TeamWorkspace({
                               <span className="text-[#C25D72]">{changesCount} changes</span>
                             </>
                           )}
+                          {epicNotes.length > 0 && (
+                            <>
+                              <span className="text-[rgba(74,61,100,0.2)]">•</span>
+                              <span className="text-[#80642F] font-semibold">
+                                {epicNotes.length} {epicNotes.length === 1 ? "note" : "notes"}
+                              </span>
+                            </>
+                          )}
                         </span>
                       }
                       actions={
-                        <div className="flex flex-col items-end gap-2">
-                          <div className="flex items-center gap-1.5">
+                        <div className="flex flex-col items-end gap-1.5 shrink-0">
+                          <div className="flex items-center gap-1 sm:gap-1.5">
                             <Button
                               variant="secondary"
                               size="sm"
-                              leftIcon={<Sparkles size={13} className="text-[#B8944E]" />}
+                              leftIcon={<FileText size={12} className="text-[#80642F]" />}
+                              onClick={() => setActiveEpicForNotes(epic)}
+                              className="text-xs px-2 sm:px-3 h-7 sm:h-8"
+                              title={`Discussion and meeting notes for ${epic.name}`}
+                            >
+                              <span>Notes</span>
+                              {epicNotes.length > 0 && (
+                                <span className="ml-1 rounded-full bg-[rgba(184,148,78,0.18)] px-1.5 py-0.2 text-[10px] font-bold text-[#80642F]">
+                                  {epicNotes.length}
+                                </span>
+                              )}
+                            </Button>
+
+                            <Button
+                              variant="secondary"
+                              size="sm"
+                              leftIcon={<Sparkles size={12} className="text-[#B8944E]" />}
                               onClick={() => setGeneratingEpicId(epic.id)}
-                              className="text-xs px-2 sm:px-3"
+                              className="text-xs px-2 sm:px-2.5 h-7 sm:h-8"
                               title="Generate stories with AI"
                             >
                               <span className="hidden sm:inline">Generate</span>
@@ -1070,6 +1082,11 @@ export function TeamWorkspace({
                             <DropdownMenu
                               ariaLabel={`Actions for ${epic.name}`}
                               items={[
+                                {
+                                  label: "Epic Notes",
+                                  icon: <FileText size={14} />,
+                                  onClick: () => setActiveEpicForNotes(epic),
+                                },
                                 {
                                   label: "Generate AI Prompt",
                                   icon: <Code2 size={14} />,
@@ -1162,12 +1179,12 @@ export function TeamWorkspace({
             id="story-editor-section"
             className={
               editingStory
-                ? "max-lg:fixed max-lg:inset-0 max-lg:z-40 max-lg:overflow-y-auto max-lg:bg-[#FAF9FC] max-lg:p-3.5 sm:max-lg:p-6 max-lg:pb-20 lg:sticky lg:top-20 lg:self-start z-10 animate-in fade-in max-lg:slide-in-from-bottom-4 duration-200"
-                : "hidden lg:block lg:sticky lg:top-20 lg:self-start z-10"
+                ? "max-lg:fixed max-lg:inset-0 max-lg:z-40 max-lg:overflow-y-auto max-lg:bg-[#FAF9FC] max-lg:p-3.5 sm:max-lg:p-6 max-lg:pb-20 lg:sticky lg:top-[5.25rem] lg:self-start lg:max-h-[calc(100vh-6.75rem)] lg:overflow-y-auto lg:overscroll-contain pr-1 z-10 animate-in fade-in max-lg:slide-in-from-bottom-4 duration-200"
+                : "hidden lg:block lg:sticky lg:top-[5.25rem] lg:self-start z-10"
             }
           >
             {editingStory ? (
-              <div className="space-y-3">
+              <div className="space-y-3 pb-16 lg:pb-24">
                 {/* Mobile Back to Stories Bar */}
                 <div className="lg:hidden sticky top-0 z-20 -mx-3.5 -mt-3.5 sm:-mx-6 sm:-mt-6 px-4 py-3 bg-white/95 backdrop-blur-md border-b border-[rgba(74,61,100,0.08)] flex items-center justify-between shadow-2xs">
                   <button
@@ -1641,6 +1658,18 @@ export function TeamWorkspace({
           onClose={() => setEpicPromptTarget(null)}
           epic={epicPromptTarget}
           stories={sortStories(stories.filter(s => s.epic_id === epicPromptTarget.id))}
+        />
+      )}
+
+      {/* Epic Notes Modal */}
+      {activeEpicForNotes && (
+        <EpicNotesModal
+          isOpen={Boolean(activeEpicForNotes)}
+          onClose={() => setActiveEpicForNotes(null)}
+          epic={activeEpicForNotes}
+          projectId={project.id}
+          notes={notes}
+          onNotesChange={(updatedNotes) => setNotes(updatedNotes)}
         />
       )}
     </div>

@@ -16,6 +16,7 @@ import {
   MessageSquare,
   PanelBottom,
   Sparkles,
+  FileText,
 } from "lucide-react";
 import { toast } from "@/lib/toast";
 import { StoryBoardLogo } from "@/components/brand/StoryBoardLogo";
@@ -197,6 +198,13 @@ export function ClientSidebar({
           </span>
         ) : undefined,
     },
+    {
+      id: "sheet-client-notes",
+      label: "Meeting Notes",
+      href: "/client/notes",
+      icon: FileText,
+      isActive: pathname === "/client/notes",
+    },
   ];
 
   const sheetSections: NavSheetSection[] = [
@@ -286,6 +294,13 @@ export function ClientSidebar({
           href: "/client/estimate",
           icon: Coins,
           isActive: pathname === "/client/estimate",
+        },
+        {
+          id: "dock-client-notes",
+          label: "Meeting Notes",
+          href: "/client/notes",
+          icon: FileText,
+          isActive: pathname === "/client/notes",
         },
         {
           id: "dock-client-action",
@@ -380,6 +395,21 @@ export function ClientSidebar({
                 className={pathname === "/client/estimate" ? "text-[#B8944E]" : "text-[#9994A5]"}
               />
               <span>Quotation & Scope</span>
+            </Link>
+
+            <Link
+              href="/client/notes"
+              className={`flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-medium transition ${
+                pathname === "/client/notes"
+                  ? "bg-[rgba(184,148,78,0.12)] text-[#80642F] font-semibold shadow-xs"
+                  : "text-[#706C7D] hover:bg-white/60 hover:text-[#252331]"
+              }`}
+            >
+              <FileText
+                size={16}
+                className={pathname === "/client/notes" ? "text-[#B8944E]" : "text-[#9994A5]"}
+              />
+              <span>Meeting Notes</span>
             </Link>
           </div>
         </div>

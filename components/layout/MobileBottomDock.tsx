@@ -53,7 +53,7 @@ export function MobileBottomDock({
   const menuIsActive = isMenuOpen || isMoreActive || isAnyHiddenActive;
 
   return (
-    <div className={`fixed bottom-4 inset-x-0 z-40 flex justify-center pointer-events-none px-3 sm:px-4 ${className} pb-[env(safe-area-inset-bottom)] animate-in slide-in-from-bottom-3 duration-250`}>
+    <div className={`fixed bottom-4 inset-x-0 z-[45] flex justify-center pointer-events-none px-3 sm:px-4 ${className} pb-[env(safe-area-inset-bottom)] animate-in slide-in-from-bottom-3 duration-250`}>
       <nav
         aria-label="Quick mobile navigation"
         className="pointer-events-auto flex items-center justify-center h-[52px] sm:h-[54px] w-fit max-w-full sm:max-w-md mx-auto rounded-full border border-white/45 bg-white/35 backdrop-blur-2xl px-2.5 sm:px-4 py-1.5 shadow-[0_16px_40px_rgba(0,0,0,0.12),0_2px_6px_rgba(0,0,0,0.03),inset_0_1.5px_2px_0_rgba(255,255,255,0.90),inset_0_0_0_1px_rgba(255,255,255,0.25),inset_0_-2px_4px_0_rgba(0,0,0,0.03)] gap-1 sm:gap-1.5 transition-all duration-200"

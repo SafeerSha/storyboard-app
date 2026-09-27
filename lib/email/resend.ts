@@ -130,7 +130,8 @@ export async function sendEmail({
   const smtpUser = process.env.SMTP_USER;
   const smtpPass = process.env.SMTP_PASS;
   const sanitizedCustomFrom = customFrom ? customFrom.replace(/[\r\n]/g, "").trim() : undefined;
-  const from = sanitizedCustomFrom || (await getDefaultFromEmail());
+  const resolvedFrom = sanitizedCustomFrom || (await getDefaultFromEmail());
+  const from = resolvedFrom.includes("<") ? resolvedFrom : `"REQly" <${resolvedFrom}>`;
   const sanitizedSubject = subject.replace(/[\r\n]/g, " ").trim();
   const sanitizedReplyTo = replyTo ? replyTo.replace(/[\r\n]/g, "").trim() : undefined;
   const recipientList = Array.isArray(to) ? to.filter(Boolean) : [to].filter(Boolean);

@@ -16,6 +16,7 @@ export async function GET(
     const url = new URL(req.url);
     const status = url.searchParams.get("status");
     const search = url.searchParams.get("search");
+    const epicId = url.searchParams.get("epic_id");
 
     const admin = createAdminClient();
     let query = admin
@@ -26,6 +27,14 @@ export async function GET(
 
     if (status && status !== "all") {
       query = query.eq("status", status);
+    }
+
+    if (epicId) {
+      if (epicId === "null" || epicId === "none") {
+        query = query.is("epic_id", null);
+      } else {
+        query = query.eq("epic_id", epicId);
+      }
     }
 
     if (search && search.trim()) {
@@ -66,11 +75,13 @@ export async function POST(
     const admin = createAdminClient();
     const insertPayload: Record<string, any> = {
       project_id: projectId,
+      epic_id: body.epic_id || null,
       title: title || "Untitled Discussion Note",
       content,
       tags,
       images: Array.isArray(body.images) ? body.images : [],
       status: "active",
+      is_client_visible: Boolean(body.is_client_visible),
       created_by_id: actor.id,
       created_by_name: actor.name,
     };
@@ -81,8 +92,10 @@ export async function POST(
       .select()
       .single();
 
-    if (error && error.message?.includes("images")) {
-      delete insertPayload.images;
+    if (error && (error.message?.includes("images") || error.message?.includes("is_client_visible") || error.message?.includes("epic_id"))) {
+      if (error.message?.includes("images")) delete insertPayload.images;
+      if (error.message?.includes("is_client_visible")) delete insertPayload.is_client_visible;
+      if (error.message?.includes("epic_id")) delete insertPayload.epic_id;
       const retry = await admin
         .from("project_notes")
         .insert(insertPayload)
@@ -91,7 +104,9 @@ export async function POST(
       note = retry.data;
       error = retry.error;
       if (note) {
-        note.images = [];
+        if (!note.images) note.images = [];
+        if (note.is_client_visible === undefined) note.is_client_visible = Boolean(body.is_client_visible);
+        if (note.epic_id === undefined) note.epic_id = body.epic_id || null;
       }
     }
 
