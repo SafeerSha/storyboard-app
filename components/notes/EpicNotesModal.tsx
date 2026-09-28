@@ -20,7 +20,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
-import { VoiceTextarea } from "@/components/ui/VoiceTextarea";
+import { Textarea } from "@/components/ui/Textarea";
 import { NoteImageGallery } from "@/components/notes/NoteImageGallery";
 import { toast } from "@/lib/toast";
 import type { Epic, ProjectNote, NoteImage } from "@/lib/types";
@@ -548,7 +548,7 @@ function formatEpicDisplayName(name: string): string {
 
               {/* Note Content Textarea */}
               <div className="flex-1 min-h-[160px]">
-                <VoiceTextarea
+                <Textarea
                   value={content}
                   onChange={(e) => {
                     setContent(e.target.value);

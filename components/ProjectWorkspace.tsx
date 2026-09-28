@@ -38,7 +38,7 @@ import type { Story, Epic, StoryStatus, ProjectNote, StoryLifecycleStatus } from
 import { normalizeStoryStatus, getStoryStatusLabel } from "@/lib/types";
 import { EpicFolder } from "@/components/epics/EpicFolder";
 import { EpicFeedbackThread } from "@/components/epics/EpicFeedbackThread";
-import { VoiceTextarea } from "@/components/ui/VoiceTextarea";
+import { Textarea } from "@/components/ui/Textarea";
 import { sortEpics, sortStories } from "@/lib/epic-story-utils";
 import { ProjectNotesWorkspace } from "@/components/notes/ProjectNotesWorkspace";
 import { EpicNotesModal } from "@/components/notes/EpicNotesModal";
@@ -1148,7 +1148,7 @@ export function ProjectWorkspace({
             <label className="block text-xs font-semibold uppercase tracking-wider text-[#9994A5] mb-1.5">
               Description
             </label>
-            <VoiceTextarea
+            <Textarea
               rows={3}
               value={epicForm.description}
               onChange={(e) =>

@@ -6,7 +6,7 @@ import { ArrowRight, FolderKanban } from "lucide-react";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
 import { toast } from "@/lib/toast";
-import { VoiceTextarea } from "@/components/ui/VoiceTextarea";
+import { Textarea } from "@/components/ui/Textarea";
 import type { ProjectInboxItem } from "@/lib/types";
 
 interface ConvertToProjectModalProps {
@@ -117,7 +117,7 @@ export function ConvertToProjectModal({
           <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1.5">
             Project Description
           </label>
-          <VoiceTextarea
+          <Textarea
             rows={3}
             value={description}
             onChange={(e) => setDescription(e.target.value)}

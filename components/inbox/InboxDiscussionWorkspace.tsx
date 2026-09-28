@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { toast } from "@/lib/toast";
-import { VoiceInput } from "@/components/ui/VoiceInput";
+import { Input } from "@/components/ui/Input";
 import type {
   ProjectInboxConversation,
   ProjectInboxItem,
@@ -598,7 +598,7 @@ export function InboxDiscussionWorkspace({
           }}
           className="flex items-center gap-2"
         >
-          <VoiceInput
+          <Input
             value={inputMessage}
             onChange={(e) => setInputMessage(e.target.value)}
             placeholder={

@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { toast } from "@/lib/toast";
-import { VoiceTextarea } from "@/components/ui/VoiceTextarea";
+import { Textarea } from "@/components/ui/Textarea";
 import type { Story } from "@/lib/types";
 
 export function GenerateStoriesModal({
@@ -241,7 +241,7 @@ export function GenerateStoriesModal({
               <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-1.5">
                 Requirement
               </label>
-              <VoiceTextarea
+              <Textarea
                 rows={4}
                 required
                 autoFocus

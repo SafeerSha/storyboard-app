@@ -31,7 +31,7 @@ import { InboxInsightsWorkspace } from "@/components/inbox/InboxInsightsWorkspac
 import { InboxPeopleWorkspace } from "@/components/inbox/InboxPeopleWorkspace";
 import { AddCollaboratorModal } from "@/components/inbox/AddCollaboratorModal";
 import { toast } from "@/lib/toast";
-import { VoiceTextarea } from "@/components/ui/VoiceTextarea";
+import { Textarea } from "@/components/ui/Textarea";
 import type {
   InboxItemPriority,
   InboxItemStatus,
@@ -502,7 +502,7 @@ export default function InboxItemDetailPage({
                   <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">
                     Description & Context
                   </label>
-                  <VoiceTextarea
+                  <Textarea
                     rows={3}
                     value={description}
                     disabled={!isOwner}
@@ -584,7 +584,7 @@ export default function InboxItemDetailPage({
                 </div>
               </div>
 
-              <VoiceTextarea
+              <Textarea
                 rows={4}
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
@@ -606,7 +606,7 @@ export default function InboxItemDetailPage({
                 </div>
               </div>
 
-              <VoiceTextarea
+              <Textarea
                 rows={4}
                 value={researchNotes}
                 onChange={(e) => setResearchNotes(e.target.value)}

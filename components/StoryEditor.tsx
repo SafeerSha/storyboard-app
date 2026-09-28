@@ -22,8 +22,7 @@ import { toast } from "@/lib/toast";
 import { Badge } from "@/components/ui/Badge";
 import { ContextualFeedbackThread } from "@/components/ContextualFeedbackThread";
 import { Button } from "@/components/ui/Button";
-import { VoiceTextarea } from "@/components/ui/VoiceTextarea";
-import { VoiceInput } from "@/components/ui/VoiceInput";
+import { Textarea } from "@/components/ui/Textarea";
 import { AiAgentPromptModal } from "@/components/stories/AiAgentPromptModal";
 import {
   normalizeStoryStatus,
@@ -520,7 +519,7 @@ export function StoryEditor({
               <label className="block text-xs font-semibold uppercase tracking-wider text-[#9994A5] mb-1.5">
                 Description
               </label>
-              <VoiceTextarea
+              <Textarea
                 rows={3}
                 value={value.description}
                 onChange={(e) => setValue({ ...value, description: e.target.value })}
@@ -562,7 +561,7 @@ export function StoryEditor({
                         <span className="font-mono text-[11px] font-bold text-[#80642F] bg-[rgba(184,148,78,0.10)] border border-[rgba(184,148,78,0.15)] rounded px-1.5 py-0.5 shrink-0 mt-0.5">
                           {String(i + 1).padStart(2, "0")}
                         </span>
-                        <VoiceTextarea
+                        <Textarea
                           rows={1}
                           value={item}
                           onChange={(e) => updateList("acceptance_criteria", i, e.target.value)}
@@ -774,7 +773,7 @@ export function StoryEditor({
                     >
                       <div className="flex items-start gap-2">
                         <span className="text-[#9994A5] font-bold text-sm shrink-0 mt-0.5">•</span>
-                        <VoiceTextarea
+                        <Textarea
                           rows={1}
                           value={item}
                           onChange={(e) => updateList("assumptions", i, e.target.value)}
@@ -857,7 +856,7 @@ export function StoryEditor({
                     >
                       <div className="flex items-start gap-2">
                         <HelpCircle size={14} className="text-[#A87936] shrink-0 mt-1" />
-                        <VoiceTextarea
+                        <Textarea
                           rows={1}
                           value={item}
                           onChange={(e) => updateList("clarifications", i, e.target.value)}
@@ -1015,7 +1014,7 @@ export function StoryEditor({
             <label className="block text-xs font-semibold uppercase tracking-wider text-[#9994A5] mb-1.5">
               Description
             </label>
-            <VoiceTextarea
+            <Textarea
               rows={3}
               value={value.description}
               onChange={(e) => setValue({ ...value, description: e.target.value })}
@@ -1160,7 +1159,7 @@ export function StoryEditor({
                       <span className="font-mono text-[11px] font-bold text-[#80642F] bg-[rgba(184,148,78,0.10)] border border-[rgba(184,148,78,0.15)] rounded px-1.5 py-0.5 shrink-0 mt-0.5">
                         {String(i + 1).padStart(2, "0")}
                       </span>
-                      <VoiceTextarea
+                      <Textarea
                         rows={1}
                         value={item}
                         onChange={(e) => updateList("acceptance_criteria", i, e.target.value)}
@@ -1243,7 +1242,7 @@ export function StoryEditor({
                   >
                     <div className="flex items-start gap-2">
                       <span className="text-[#9994A5] font-bold text-sm shrink-0 mt-0.5">•</span>
-                      <VoiceTextarea
+                      <Textarea
                         rows={1}
                         value={item}
                         onChange={(e) => updateList("assumptions", i, e.target.value)}
@@ -1326,7 +1325,7 @@ export function StoryEditor({
                   >
                     <div className="flex items-start gap-2">
                       <HelpCircle size={14} className="text-[#A87936] shrink-0 mt-1" />
-                      <VoiceTextarea
+                      <Textarea
                         rows={1}
                         value={item}
                         onChange={(e) => updateList("clarifications", i, e.target.value)}

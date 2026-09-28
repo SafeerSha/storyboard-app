@@ -2,10 +2,6 @@
 
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { FreelancerSidebar } from "./FreelancerSidebar";
-import { AssistantProvider } from "@/hooks/useAssistant";
-import { CentralizedAssistantPanel } from "@/components/assistant/CentralizedAssistantPanel";
-import { AssistantFloatingTrigger } from "@/components/assistant/AssistantFloatingTrigger";
-import { AssistantFloatingBar } from "@/components/assistant/AssistantFloatingBar";
 
 export interface DashboardUser {
   id: string;
@@ -66,49 +62,36 @@ export function FreelancerLayout({
     });
   };
 
-  const isSuperAdmin = initialUser?.role === "super_admin";
-
   return (
-    <AssistantProvider isSuperAdmin={isSuperAdmin}>
-      <DashboardContext.Provider
-        value={{
-          mobileOpen,
-          setMobileOpen,
-          toggleMobile,
-          user: initialUser,
-          desktopNavMode,
-          toggleDesktopNavMode,
-        }}
-      >
-        <div className="w-full min-h-screen bg-transparent">
-          {/* Navigation (macOS Dock or Persistent Sidebar based on desktopNavMode) */}
-          <FreelancerSidebar
-            mobileOpen={mobileOpen}
-            setMobileOpen={setMobileOpen}
-            initialUser={initialUser}
-          />
+    <DashboardContext.Provider
+      value={{
+        mobileOpen,
+        setMobileOpen,
+        toggleMobile,
+        user: initialUser,
+        desktopNavMode,
+        toggleDesktopNavMode,
+      }}
+    >
+      <div className="w-full min-h-screen bg-transparent">
+        {/* Navigation (macOS Dock or Persistent Sidebar based on desktopNavMode) */}
+        <FreelancerSidebar
+          mobileOpen={mobileOpen}
+          setMobileOpen={setMobileOpen}
+          initialUser={initialUser}
+        />
 
-          {/* Global Main Content: Full-width in dock mode (lg:pl-0 pb-28), or offset for left sidebar (lg:pl-56) */}
-          <div
-            className={`w-full min-w-0 min-h-screen transition-all duration-200 ${
-              desktopNavMode === "dock"
-                ? "md:pl-0 pb-28"
-                : "md:pl-56 pb-20 md:pb-0"
-            }`}
-          >
-            {children}
-          </div>
-
-          {/* Super Admin Centralized Assistant */}
-          {isSuperAdmin && (
-            <>
-              <AssistantFloatingTrigger />
-              <AssistantFloatingBar />
-              <CentralizedAssistantPanel />
-            </>
-          )}
+        {/* Global Main Content: Full-width in dock mode (lg:pl-0 pb-28), or offset for left sidebar (lg:pl-56) */}
+        <div
+          className={`w-full min-w-0 min-h-screen transition-all duration-200 ${
+            desktopNavMode === "dock"
+              ? "md:pl-0 pb-28"
+              : "md:pl-56 pb-20 md:pb-0"
+          }`}
+        >
+          {children}
         </div>
-      </DashboardContext.Provider>
-    </AssistantProvider>
+      </div>
+    </DashboardContext.Provider>
   );
 }

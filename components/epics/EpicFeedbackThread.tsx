@@ -20,8 +20,8 @@ import type {
   FeedbackAuthorType,
 } from "@/lib/types";
 import { toast } from "@/lib/toast";
-import { VoiceTextarea } from "@/components/ui/VoiceTextarea";
-import { VoiceInput } from "@/components/ui/VoiceInput";
+import { Textarea } from "@/components/ui/Textarea";
+import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 
 interface EpicFeedbackThreadProps {
@@ -386,7 +386,7 @@ export function EpicFeedbackThread({
                         </div>
                         {editingMessageId === msg.id ? (
                           <div className="mt-1 pl-6">
-                            <VoiceTextarea
+                            <Textarea
                               value={editContent}
                               onChange={(e) => setEditContent(e.target.value)}
                               className="w-full text-xs min-h-[60px] rounded-lg border border-zinc-200 bg-white p-2 outline-none focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)]"
@@ -434,7 +434,7 @@ export function EpicFeedbackThread({
                     </div>
                   ) : (
                     <div className="flex gap-2">
-                      <VoiceInput
+                      <Input
                         value={replyTextMap[thread.id] || ""}
                         onChange={(e) =>
                           setReplyTextMap((prev) => ({
@@ -487,7 +487,7 @@ export function EpicFeedbackThread({
             </span>
           </div>
 
-          <VoiceTextarea
+          <Textarea
             rows={2}
             autoFocus
             value={newComment}

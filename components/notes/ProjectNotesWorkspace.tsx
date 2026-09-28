@@ -17,13 +17,12 @@ import {
   Check,
   ExternalLink,
   Layers,
-  Mic,
   Image as ImageIcon,
   Eye,
   EyeOff,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
-import { VoiceTextarea } from "@/components/ui/VoiceTextarea";
+import { Textarea } from "@/components/ui/Textarea";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { ConvertNoteModal } from "@/components/notes/ConvertNoteModal";
 import { NoteImageGallery } from "@/components/notes/NoteImageGallery";
@@ -797,9 +796,9 @@ export function ProjectNotesWorkspace({
                 />
               </div>
 
-              {/* Content Textarea with Voice Dictation & Screenshot Paste */}
+              {/* Content Textarea with Screenshot Paste */}
               <div className="flex-1 flex flex-col pt-2" onPaste={handlePasteInEditor}>
-                <VoiceTextarea
+                <Textarea
                   value={content}
                   onChange={(e) => handleContentChange(e.target.value)}
                   rows={10}

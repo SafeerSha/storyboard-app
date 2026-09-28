@@ -31,7 +31,7 @@ import { Modal } from "@/components/ui/Modal";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { DropdownMenu } from "@/components/ui/DropdownMenu";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { VoiceTextarea } from "@/components/ui/VoiceTextarea";
+import { Textarea } from "@/components/ui/Textarea";
 import { toast } from "@/lib/toast";
 import type { Story, Epic, StoryStatus, ProjectNote, StoryLifecycleStatus } from "@/lib/types";
 import { normalizeStoryStatus, getStoryStatusLabel } from "@/lib/types";
@@ -1330,7 +1330,7 @@ export function TeamWorkspace({
             <label className="block text-xs font-semibold uppercase tracking-wider text-[#9994A5] mb-1.5">
               Description
             </label>
-            <VoiceTextarea
+            <Textarea
               rows={3}
               value={epicForm.description}
               onChange={(e) =>
@@ -1461,7 +1461,7 @@ export function TeamWorkspace({
             <label className="block text-xs font-semibold uppercase tracking-wider text-[#9994A5] mb-1.5">
               Description <span className="text-[#9994A5] font-normal normal-case">(optional)</span>
             </label>
-            <VoiceTextarea
+            <Textarea
               rows={3}
               value={manualStoryDesc}
               onChange={(e) => setManualStoryDesc(e.target.value)}
@@ -1493,7 +1493,7 @@ export function TeamWorkspace({
                     <span className="text-[11px] font-mono text-[#9994A5] shrink-0 w-4 text-right mt-1.5">
                       {idx + 1}.
                     </span>
-                    <VoiceTextarea
+                    <Textarea
                       rows={1}
                       value={crit}
                       onChange={(e) => {
