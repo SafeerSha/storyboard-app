@@ -12,7 +12,9 @@ interface ConfirmDialogProps {
   title: string;
   description: string;
   confirmLabel?: string;
+  confirmText?: string;
   cancelLabel?: string;
+  cancelText?: string;
   variant?: "danger" | "warning" | "primary";
   isLoading?: boolean;
 }
@@ -23,11 +25,15 @@ export function ConfirmDialog({
   onConfirm,
   title,
   description,
-  confirmLabel = "Confirm",
-  cancelLabel = "Cancel",
+  confirmLabel,
+  confirmText,
+  cancelLabel,
+  cancelText,
   variant = "danger",
   isLoading = false,
 }: ConfirmDialogProps) {
+  const actualConfirmLabel = confirmLabel || confirmText || "Confirm";
+  const actualCancelLabel = cancelLabel || cancelText || "Cancel";
   const [internalLoading, setInternalLoading] = useState(false);
   const loading = isLoading || internalLoading;
 
@@ -65,7 +71,7 @@ export function ConfirmDialog({
             disabled={loading}
             size="sm"
           >
-            {cancelLabel}
+            {actualCancelLabel}
           </Button>
           <Button
             variant={variant === "danger" ? "danger" : "primary"}
@@ -73,7 +79,7 @@ export function ConfirmDialog({
             isLoading={loading}
             size="sm"
           >
-            {confirmLabel}
+            {actualConfirmLabel}
           </Button>
         </>
       }

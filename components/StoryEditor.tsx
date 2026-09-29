@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import {
   AlertCircle,
   ArrowLeft,
   CheckCircle2,
+  CheckSquare,
   ExternalLink,
   HelpCircle,
   MessageSquare,
@@ -23,6 +24,9 @@ import { Badge } from "@/components/ui/Badge";
 import { ContextualFeedbackThread } from "@/components/ContextualFeedbackThread";
 import { Button } from "@/components/ui/Button";
 import { Textarea } from "@/components/ui/Textarea";
+import { TaskModal } from "@/components/tasks/TaskModal";
+import { TaskDetailDrawer } from "@/components/tasks/TaskDetailDrawer";
+import type { Task } from "@/lib/types/task";
 import { AiAgentPromptModal } from "@/components/stories/AiAgentPromptModal";
 import {
   normalizeStoryStatus,
@@ -128,6 +132,30 @@ export function StoryEditor({
   }, [story]);
 
   const projectId = (story as any).project_id;
+  const [storyTasks, setStoryTasks] = useState<Task[]>([]);
+  const [loadingTasks, setLoadingTasks] = useState(false);
+  const [taskModalOpen, setTaskModalOpen] = useState(false);
+  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
+
+  const loadStoryTasks = useCallback(async () => {
+    if (!storyId) return;
+    setLoadingTasks(true);
+    try {
+      const res = await fetch(`/api/tasks?storyId=${storyId}`);
+      const data = await res.json();
+      if (data.tasks) {
+        setStoryTasks(data.tasks);
+      }
+    } catch (err) {
+      console.error("Failed to load story tasks:", err);
+    } finally {
+      setLoadingTasks(false);
+    }
+  }, [storyId]);
+
+  useEffect(() => {
+    loadStoryTasks();
+  }, [loadStoryTasks]);
   useEffect(() => {
     if (!projectId) return;
     let active = true;
@@ -465,6 +493,17 @@ export function StoryEditor({
           </div>
         ) : (
           <div className="flex items-center gap-1.5 shrink-0">
+            {storyId && projectId && (
+              <button
+                type="button"
+                onClick={() => setTaskModalOpen(true)}
+                className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-[#80642F] bg-[rgba(184,148,78,0.08)] hover:bg-[rgba(184,148,78,0.16)] border border-[rgba(184,148,78,0.20)] transition cursor-pointer shadow-2xs"
+                title="Create a to-do task against this story"
+              >
+                <CheckSquare size={13} />
+                <span className="hidden sm:inline">+ Task</span>
+              </button>
+            )}
             <button
               type="button"
               onClick={() => setAgentPromptOpen(true)}
@@ -737,6 +776,74 @@ export function StoryEditor({
                     ) : (
                       <span className="text-xs text-[#9994A5] italic">No reviewers assigned</span>
                     )}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Linked Tasks Against This Story */}
+            {storyId && projectId && (
+              <div className="space-y-2.5 rounded-xl border border-[rgba(74,61,100,0.11)] bg-[#FAF9FC] p-3.5">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <CheckSquare size={14} className="text-[#80642F]" />
+                    <label className="text-xs font-bold uppercase tracking-wider text-[#252331]">
+                      Story Tasks
+                    </label>
+                    <span className="rounded-full bg-[rgba(184,148,78,0.12)] px-2 py-0.2 text-[10px] font-bold text-[#80642F]">
+                      {storyTasks.length}
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setTaskModalOpen(true)}
+                    className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#80642F] hover:underline"
+                  >
+                    <Plus size={12} /> Add Task
+                  </button>
+                </div>
+
+                {loadingTasks ? (
+                  <p className="text-xs text-[#9994A5]">Loading tasks...</p>
+                ) : storyTasks.length === 0 ? (
+                  <div className="rounded-lg border border-dashed border-[rgba(74,61,100,0.1)] p-3 text-center">
+                    <p className="text-xs text-[#706C7D]">No tasks created against this story yet.</p>
+                    <button
+                      type="button"
+                      onClick={() => setTaskModalOpen(true)}
+                      className="mt-1 text-xs font-semibold text-[#80642F] hover:underline inline-flex items-center gap-1"
+                    >
+                      <Plus size={11} /> Create first task
+                    </button>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {storyTasks.map((t) => (
+                      <div
+                        key={t.id}
+                        onClick={() => setSelectedTaskId(t.id)}
+                        className="rounded-lg border border-[rgba(74,61,100,0.08)] bg-white p-2.5 hover:border-[#B8944E]/40 transition cursor-pointer flex items-center justify-between gap-2"
+                      >
+                        <div className="flex flex-col min-w-0">
+                          <span className={`text-xs font-semibold text-[#252331] truncate ${t.status === "done" ? "line-through text-zinc-400" : ""}`}>
+                            {t.title}
+                          </span>
+                          <span className="text-[10px] text-[#706C7D] flex items-center gap-1.5 mt-0.5">
+                            {t.assignee_name ? (
+                              <span className="font-medium text-[#252331]">
+                                {t.assignee_name}
+                              </span>
+                            ) : (
+                              <span className="text-[#9994A5] italic">Unassigned</span>
+                            )}
+                            {t.due_date && <span>• Due {new Date(t.due_date).toLocaleDateString([], { month: "short", day: "numeric" })}</span>}
+                          </span>
+                        </div>
+                        <span className="rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider bg-zinc-100 text-zinc-700 shrink-0">
+                          {t.status.replace("_", " ")}
+                        </span>
+                      </div>
+                    ))}
                   </div>
                 )}
               </div>
@@ -1474,6 +1581,45 @@ export function StoryEditor({
           story={value}
           epicName={assignedEpic?.name}
           epicDescription={assignedEpic?.description || undefined}
+        />
+      )}
+
+      {/* Task Creation Modal */}
+      {taskModalOpen && projectId && (
+        <TaskModal
+          isOpen={taskModalOpen}
+          onClose={() => setTaskModalOpen(false)}
+          onSaved={(newTask) => {
+            setStoryTasks((prev) => [newTask, ...prev]);
+            toast.success("Task created and linked to this story!");
+          }}
+          onBatchSaved={(newTasks) => {
+            setStoryTasks((prev) => [...newTasks, ...prev]);
+            toast.success(`${newTasks.length} tasks created and linked to this story!`);
+          }}
+          defaultProjectId={projectId}
+          defaultStoryId={storyId}
+          projects={[{ id: projectId, name: "Current Project" }]}
+        />
+      )}
+
+      {/* Task Detail Drawer */}
+      {selectedTaskId && (
+        <TaskDetailDrawer
+          taskId={selectedTaskId}
+          isOpen={Boolean(selectedTaskId)}
+          onClose={() => setSelectedTaskId(null)}
+          onTaskUpdated={(updatedTask) => {
+            setStoryTasks((prev) =>
+              prev.map((t) => (t.id === updatedTask.id ? updatedTask : t))
+            );
+          }}
+          onTaskDeleted={(deletedId) => {
+            setStoryTasks((prev) => prev.filter((t) => t.id !== deletedId));
+          }}
+          onEditRequest={() => {
+            setTaskModalOpen(true);
+          }}
         />
       )}
     </div>

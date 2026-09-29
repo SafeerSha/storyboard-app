@@ -20,6 +20,7 @@ import {
   MessageSquare,
   FileText,
   Filter,
+  CheckSquare,
   X,
 } from "lucide-react";
 import { DashboardHeader } from "@/components/layout/DashboardHeader";
@@ -42,6 +43,9 @@ import { Textarea } from "@/components/ui/Textarea";
 import { sortEpics, sortStories } from "@/lib/epic-story-utils";
 import { ProjectNotesWorkspace } from "@/components/notes/ProjectNotesWorkspace";
 import { EpicNotesModal } from "@/components/notes/EpicNotesModal";
+import { TasksWorkspace } from "@/components/tasks/TasksWorkspace";
+import { TaskModal } from "@/components/tasks/TaskModal";
+import type { Task } from "@/lib/types/task";
 
 type ProjectWorkspaceProps = {
   projectId: string;
@@ -70,11 +74,14 @@ export function ProjectWorkspace({
   const [stories, setStories] = useState<Story[]>(initialStories);
   const [epics, setEpics] = useState<Epic[]>(initialEpics);
   const [notes, setNotes] = useState<ProjectNote[]>(initialNotes || []);
-  const [activeTab, setActiveTab] = useState<"hierarchy" | "notes">("hierarchy");
+  const [activeTab, setActiveTab] = useState<"hierarchy" | "tasks" | "notes">("hierarchy");
   const [feedbackCounts, setFeedbackCounts] = useState<Record<string, number>>({});
   const [projectTeamMembers, setProjectTeamMembers] = useState<
     Array<{ id: string; name: string; username: string; role?: string }>
   >([]);
+  const [projectTasks, setProjectTasks] = useState<Task[]>([]);
+  const [storyTaskModalOpen, setStoryTaskModalOpen] = useState(false);
+  const [storyForTask, setStoryForTask] = useState<Story | null>(null);
 
   const [generatingEpicId, setGeneratingEpicId] = useState<string | null>(null);
   const [editing, setEditing] = useState<Story | null>(null);
@@ -160,6 +167,42 @@ export function ProjectWorkspace({
   const [deletingStoryId, setDeletingStoryId] = useState<string | null>(null);
   const [deletingEpicItem, setDeletingEpicItem] = useState<Epic | null>(null);
   const [epicPromptTarget, setEpicPromptTarget] = useState<Epic | null>(null);
+
+  const loadProjectTasks = useCallback(async () => {
+    try {
+      const res = await fetch(`/api/tasks?projectId=${projectId}`);
+      const data = await res.json();
+      if (data.tasks) {
+        setProjectTasks(data.tasks);
+      }
+    } catch (err) {
+      console.error("Failed to load project tasks:", err);
+    }
+  }, [projectId]);
+
+  useEffect(() => {
+    loadProjectTasks();
+  }, [loadProjectTasks]);
+
+  const taskCountsByStory = useMemo(() => {
+    const map: Record<string, number> = {};
+    for (const t of projectTasks) {
+      if (t.story_id) {
+        map[t.story_id] = (map[t.story_id] || 0) + 1;
+      }
+    }
+    return map;
+  }, [projectTasks]);
+
+  const completedTaskCountsByStory = useMemo(() => {
+    const map: Record<string, number> = {};
+    for (const t of projectTasks) {
+      if (t.story_id && t.status === "done") {
+        map[t.story_id] = (map[t.story_id] || 0) + 1;
+      }
+    }
+    return map;
+  }, [projectTasks]);
 
   const loadFeedbackCounts = useCallback(async () => {
     try {
@@ -530,6 +573,20 @@ export function ProjectWorkspace({
               <span className="sm:hidden">{copiedLink ? "Copied" : "Share"}</span>
             </Button>
             <Button
+              variant={activeTab === "tasks" ? "primary" : "secondary"}
+              className="flex-1 sm:flex-initial h-9 sm:h-10 px-2 sm:px-4 text-xs sm:text-sm justify-center whitespace-nowrap shadow-2xs"
+              leftIcon={<CheckSquare size={13} />}
+              onClick={() => setActiveTab("tasks")}
+              title="Project Tasks"
+            >
+              <span>Tasks</span>
+              {projectTasks.length > 0 && (
+                <span className="ml-1 rounded-full bg-[rgba(74,61,100,0.12)] px-1.5 py-0.2 text-[10px] font-bold">
+                  {projectTasks.length}
+                </span>
+              )}
+            </Button>
+            <Button
               variant={activeTab === "notes" ? "primary" : "secondary"}
               className="flex-1 sm:flex-initial h-9 sm:h-10 px-2 sm:px-4 text-xs sm:text-sm justify-center whitespace-nowrap shadow-2xs"
               leftIcon={<FileText size={13} />}
@@ -578,6 +635,25 @@ export function ProjectWorkspace({
 
           <button
             type="button"
+            onClick={() => setActiveTab("tasks")}
+            className={`inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-3.5 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold rounded-xl transition cursor-pointer whitespace-nowrap ${
+              activeTab === "tasks"
+                ? "bg-white text-[#252331] shadow-2xs border border-[rgba(74,61,100,0.12)]"
+                : "text-[#706C7D] hover:text-[#252331] hover:bg-white/60"
+            }`}
+          >
+            <CheckSquare size={14} className={activeTab === "tasks" ? "text-[#B8944E]" : "text-[#9994A5]"} />
+            <span className="hidden sm:inline">To-Do Tasks</span>
+            <span className="sm:hidden">Tasks</span>
+            {projectTasks.length > 0 && (
+              <span className="rounded-full bg-[rgba(184,148,78,0.10)] px-1.5 sm:px-2 py-0.5 text-[10px] font-bold text-[#80642F]">
+                {projectTasks.length}
+              </span>
+            )}
+          </button>
+
+          <button
+            type="button"
             onClick={() => setActiveTab("notes")}
             className={`inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-3.5 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold rounded-xl transition cursor-pointer whitespace-nowrap ${
               activeTab === "notes"
@@ -594,7 +670,13 @@ export function ProjectWorkspace({
           </button>
         </div>
 
-        {activeTab === "notes" ? (
+        {activeTab === "tasks" ? (
+          <TasksWorkspace
+            fixedProjectId={projectId}
+            fixedProjectName={projectName}
+            initialTasks={projectTasks}
+          />
+        ) : activeTab === "notes" ? (
           <ProjectNotesWorkspace
             projectId={projectId}
             epics={epics}
@@ -955,6 +1037,12 @@ export function ProjectWorkspace({
                           isSelected={editing?.id === story.id}
                           openFeedbackCount={feedbackCounts[story.id] || 0}
                           creatorName={projectTeamMembers.find(tm => tm.id === story.created_by_id)?.name}
+                          tasksCount={taskCountsByStory[story.id]}
+                          completedTasksCount={completedTaskCountsByStory[story.id]}
+                          onCreateTask={(s) => {
+                            setStoryForTask(s);
+                            setStoryTaskModalOpen(true);
+                          }}
                           onClick={() => setEditing(story)}
                         />
                       ))}
@@ -980,6 +1068,12 @@ export function ProjectWorkspace({
                         isSelected={editing?.id === story.id}
                         openFeedbackCount={feedbackCounts[story.id] || 0}
                         creatorName={projectTeamMembers.find(tm => tm.id === story.created_by_id)?.name}
+                        tasksCount={taskCountsByStory[story.id]}
+                        completedTasksCount={completedTaskCountsByStory[story.id]}
+                        onCreateTask={(s) => {
+                          setStoryForTask(s);
+                          setStoryTaskModalOpen(true);
+                        }}
                         onClick={() => setEditing(story)}
                       />
                     ))}
@@ -1224,6 +1318,28 @@ export function ProjectWorkspace({
           projectId={projectId}
           notes={notes}
           onNotesChange={(updatedNotes) => setNotes(updatedNotes)}
+        />
+      )}
+
+      {/* Story Task Creation Modal */}
+      {storyTaskModalOpen && (
+        <TaskModal
+          isOpen={storyTaskModalOpen}
+          onClose={() => {
+            setStoryTaskModalOpen(false);
+            setStoryForTask(null);
+          }}
+          onSaved={(newTask) => {
+            setProjectTasks((prev) => [newTask, ...prev]);
+            toast.success("Task created and linked to story!");
+          }}
+          onBatchSaved={(newTasks) => {
+            setProjectTasks((prev) => [...newTasks, ...prev]);
+            toast.success(`${newTasks.length} tasks created and linked to story!`);
+          }}
+          defaultProjectId={projectId}
+          defaultStoryId={storyForTask?.id}
+          projects={[{ id: projectId, name: projectName }]}
         />
       )}
     </div>

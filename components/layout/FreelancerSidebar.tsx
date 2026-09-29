@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import {
   ChevronDown,
   FolderKanban,
+  CheckSquare,
   LayoutDashboard,
   Lightbulb,
   LogOut,
@@ -96,6 +97,7 @@ export function FreelancerSidebar({
 
   const isOverviewActive = pathname === "/";
   const isProjectsActive = pathname.startsWith("/project") || pathname.startsWith("/projects");
+  const isTasksActive = pathname.startsWith("/tasks");
   const isInboxActive = pathname.startsWith("/inbox");
   const isClientsActive = pathname.startsWith("/clients");
   const isSettingsActive = pathname.startsWith("/settings") || pathname === "/remuneration" || pathname.startsWith("/remuneration/");
@@ -254,6 +256,13 @@ export function FreelancerSidebar({
           isActive: isProjectsActive,
         },
         {
+          id: "dock-tasks",
+          label: "Tasks",
+          href: "/tasks",
+          icon: CheckSquare,
+          isActive: isTasksActive,
+        },
+        {
           id: "dock-inbox",
           label: "Ideas",
           href: "/inbox",
@@ -348,6 +357,21 @@ export function FreelancerSidebar({
                 className={isProjectsActive ? "text-[#B8944E]" : "text-[#9994A5]"}
               />
               <span>Projects</span>
+            </Link>
+
+            <Link
+              href="/tasks"
+              className={`flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-xs sm:text-sm transition-colors ${
+                isTasksActive
+                  ? "bg-[rgba(184,148,78,0.09)] border border-[rgba(184,148,78,0.12)] text-[#80642F] font-medium"
+                  : "text-[#706C7D] hover:bg-[rgba(184,148,78,0.04)] hover:text-[#80642F] border border-transparent font-medium"
+              }`}
+            >
+              <CheckSquare
+                size={16}
+                className={isTasksActive ? "text-[#B8944E]" : "text-[#9994A5]"}
+              />
+              <span>Tasks</span>
             </Link>
 
             <Link

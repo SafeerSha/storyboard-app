@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { CheckCircle2, MessageSquare } from "lucide-react";
+import { CheckCircle2, MessageSquare, CheckSquare, Plus } from "lucide-react";
 import { Badge, type BadgeVariant } from "@/components/ui/Badge";
 import { normalizeStoryStatus, type Story } from "@/lib/types";
 
@@ -10,6 +10,9 @@ interface StoryCardProps {
   isSelected?: boolean;
   openFeedbackCount?: number;
   creatorName?: string;
+  tasksCount?: number;
+  completedTasksCount?: number;
+  onCreateTask?: (story: Story) => void;
   onClick?: () => void;
 }
 
@@ -18,6 +21,9 @@ export function StoryCard({
   isSelected = false,
   openFeedbackCount,
   creatorName,
+  tasksCount,
+  completedTasksCount,
+  onCreateTask,
   onClick,
 }: StoryCardProps) {
   const statusVariant = normalizeStoryStatus(story.status);
@@ -79,6 +85,16 @@ export function StoryCard({
               </>
             )}
 
+            {tasksCount !== undefined && tasksCount > 0 && (
+              <>
+                <span className="text-[rgba(74,61,100,0.2)] text-xs">•</span>
+                <span className="inline-flex items-center gap-1 text-[11px] font-medium text-[#80642F] bg-[rgba(184,148,78,0.08)] px-1.5 py-0.2 rounded border border-[rgba(184,148,78,0.18)]">
+                  <CheckSquare size={11} />
+                  {completedTasksCount !== undefined ? `${completedTasksCount}/${tasksCount}` : tasksCount} {tasksCount === 1 ? "task" : "tasks"}
+                </span>
+              </>
+            )}
+
             {creatorName && (
               <>
                 <span className="text-[rgba(74,61,100,0.2)] text-xs">•</span>
@@ -102,8 +118,24 @@ export function StoryCard({
           )}
         </span>
 
-        {/* Status Badge */}
-        <Badge variant={statusVariant} size="sm" className="shrink-0" />
+        {/* Actions & Status Badge */}
+        <span className="flex items-center gap-1.5 shrink-0">
+          {onCreateTask && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onCreateTask(story);
+              }}
+              title="Create new task against this story"
+              className="opacity-0 group-hover:opacity-100 transition-opacity inline-flex items-center gap-1 text-[11px] font-semibold text-[#80642F] hover:bg-[rgba(184,148,78,0.15)] bg-[rgba(184,148,78,0.08)] px-2 py-0.5 rounded-lg border border-[rgba(184,148,78,0.2)]"
+            >
+              <Plus size={11} className="stroke-[2.5]" />
+              <span>Task</span>
+            </button>
+          )}
+          <Badge variant={statusVariant} size="sm" className="shrink-0" />
+        </span>
       </span>
 
       {/* Subtle counts summary if assumptions or clarifications exist */}

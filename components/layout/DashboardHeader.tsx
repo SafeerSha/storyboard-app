@@ -11,6 +11,7 @@ interface DashboardHeaderProps {
   eyebrow?: string;
   title: string;
   description?: string;
+  subtitle?: string;
   backHref?: string;
   backLabel?: string;
   badge?: React.ReactNode;
@@ -24,6 +25,7 @@ export function DashboardHeader({
   eyebrow,
   title,
   description,
+  subtitle,
   backHref,
   backLabel,
   badge,
@@ -33,6 +35,7 @@ export function DashboardHeader({
 }: DashboardHeaderProps) {
   const { toggleMobile } = useDashboard();
   const label = eyebrow || category;
+  const desc = description || subtitle;
 
   return (
     <header className="w-full sticky top-0 z-20 border-b border-[rgba(74,61,100,0.08)] bg-white/68 backdrop-blur-[20px] transition-colors">
@@ -75,9 +78,9 @@ export function DashboardHeader({
                 {badge && <div className="shrink-0">{badge}</div>}
               </div>
 
-              {description && (
+              {desc && (
                 <p className="mt-0.5 text-xs sm:text-sm text-[#706C7D] font-normal leading-relaxed max-w-2xl line-clamp-1 sm:line-clamp-none">
-                  {description}
+                  {desc}
                 </p>
               )}
             </div>
