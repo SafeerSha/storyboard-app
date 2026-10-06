@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { FreelancerSidebar } from "./FreelancerSidebar";
+import { WorkspaceCopilot } from "@/components/bot/WorkspaceCopilot";
 
 export interface DashboardUser {
   id: string;
@@ -91,6 +92,9 @@ export function FreelancerLayout({
         >
           {children}
         </div>
+
+        {/* Global Workspace AI Copilot Drawer */}
+        <WorkspaceCopilot initialUser={initialUser} />
       </div>
     </DashboardContext.Provider>
   );

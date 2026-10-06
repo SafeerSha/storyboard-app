@@ -15,6 +15,7 @@ import {
   Settings,
   ShieldCheck,
   Users,
+  BotMessageSquare,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { toast } from "@/lib/toast";
@@ -188,6 +189,17 @@ export function FreelancerSidebar({
       isActive: isInboxActive,
     },
     {
+      id: "sheet-copilot",
+      label: "AI Copilot",
+      href: "#",
+      icon: BotMessageSquare,
+      isActive: false,
+      onClick: () => {
+        setMobileOpen(false);
+        window.dispatchEvent(new CustomEvent("storyboard:open-copilot"));
+      },
+    },
+    {
       id: "sheet-settings",
       label: "Settings",
       href: "/settings",
@@ -268,6 +280,16 @@ export function FreelancerSidebar({
           href: "/inbox",
           icon: Lightbulb,
           isActive: isInboxActive,
+        },
+        {
+          id: "dock-copilot",
+          label: "Copilot",
+          href: "#copilot",
+          icon: BotMessageSquare,
+          isActive: false,
+          onClick: () => {
+            window.dispatchEvent(new CustomEvent("storyboard:open-copilot"));
+          },
         },
       ],
     },
@@ -397,6 +419,20 @@ export function FreelancerSidebar({
                 Ideas
               </span>
             </Link>
+
+            <button
+              type="button"
+              onClick={() => window.dispatchEvent(new CustomEvent("storyboard:open-copilot"))}
+              className="flex w-full items-center justify-between rounded-lg px-2.5 py-1.5 text-xs sm:text-sm transition-colors text-[#80642F] bg-[rgba(184,148,78,0.09)] hover:bg-[rgba(184,148,78,0.16)] border border-[rgba(184,148,78,0.20)] font-medium group cursor-pointer"
+            >
+              <div className="flex items-center gap-2.5 min-w-0">
+                <BotMessageSquare size={16} className="text-[#B8944E] group-hover:scale-110 transition-transform" />
+                <span className="truncate">AI Copilot</span>
+              </div>
+              <span className="rounded bg-[rgba(184,148,78,0.12)] px-1.5 py-0.5 text-[10px] font-mono text-[#80642F] font-semibold border border-[rgba(184,148,78,0.24)]">
+                Ctrl+J
+              </span>
+            </button>
           </nav>
         </div>
 

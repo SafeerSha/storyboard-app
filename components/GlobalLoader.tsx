@@ -42,12 +42,37 @@ export function GlobalLoader() {
 
   const isLoading = activeRequests > 0 || manualLoading > 0 || isNavigating;
 
-  // Intercept window.fetch to automatically catch all client requests
+  // Intercept window.fetch to automatically catch all client requests (ignoring bot/copilot chats)
   useEffect(() => {
     if (typeof window === "undefined") return;
 
     const originalFetch = window.fetch;
     window.fetch = async (...args) => {
+      let url = "";
+      if (typeof args[0] === "string") {
+        url = args[0];
+      } else if (args[0] instanceof URL) {
+        url = args[0].href;
+      } else if (args[0] && typeof (args[0] as Request).url === "string") {
+        url = (args[0] as Request).url;
+      }
+
+      const headers = args[1]?.headers;
+      const skipHeader =
+        (headers && typeof (headers as any)["x-skip-loader"] !== "undefined") ||
+        (headers instanceof Headers && headers.get("x-skip-loader")) ||
+        (args[0] instanceof Request && args[0].headers.get("x-skip-loader"));
+
+      const isBotRequest =
+        url.includes("/api/bot") ||
+        url.includes("/api/copilot") ||
+        Boolean(skipHeader);
+
+      // Do NOT trigger global loader for Copilot / Bot conversations
+      if (isBotRequest) {
+        return originalFetch(...args);
+      }
+
       setActiveRequests(prev => prev + 1);
       try {
         return await originalFetch(...args);

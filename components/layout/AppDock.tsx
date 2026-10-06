@@ -148,7 +148,12 @@ export function AppDock({
                   >
                     <Link
                       href={item.href}
-                      onClick={item.onClick}
+                      onClick={(e) => {
+                        if (item.href === "#" || item.href.startsWith("#")) {
+                          e.preventDefault();
+                        }
+                        item.onClick?.();
+                      }}
                       aria-label={item.label}
                       aria-current={item.isActive ? "page" : undefined}
                       className={`relative grid h-10 w-10 sm:h-11 sm:w-11 shrink-0 aspect-square place-items-center rounded-xl sm:rounded-2xl transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] hover:scale-115 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B8944E] cursor-pointer ${

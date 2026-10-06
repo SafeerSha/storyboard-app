@@ -1,12 +1,25 @@
+import fs from "node:fs";
+import path from "node:path";
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
 
-  webpack: (config) => {
+  webpack: (config, { isServer }) => {
     config.ignoreWarnings = [
       ...(config.ignoreWarnings || []),
       { message: /\[webpack\.cache\.PackFileCacheStrategy\]/ },
     ];
+
+    if (isServer) {
+      try {
+        const pagesDir = path.join(process.cwd(), ".next", "server", "pages");
+        if (!fs.existsSync(pagesDir)) {
+          fs.mkdirSync(pagesDir, { recursive: true });
+        }
+      } catch {}
+    }
+
     return config;
   },
 
