@@ -125,9 +125,36 @@ export async function GET(
     const totalAmount = Number(remuneration.total_amount) || 0;
     const remainingAmount = Math.max(0, totalAmount - totalReceived);
 
+    // Fetch splits if available
+    let splits: any[] = Array.isArray(remuneration.splits) ? remuneration.splits : [];
+    if (splits.length === 0) {
+      try {
+        const { data: splitRecords } = await admin
+          .from("remuneration_splits")
+          .select("*")
+          .eq("remuneration_id", id)
+          .order("created_at", { ascending: true });
+        if (splitRecords && splitRecords.length > 0) {
+          splits = splitRecords.map((s) => ({
+            id: s.id,
+            teamMemberId: s.team_user_id,
+            name: s.member_name,
+            role: s.role,
+            percentage: Number(s.percentage) || null,
+            amount: Number(s.amount) || 0,
+            notes: s.notes,
+          }));
+        }
+      } catch (sErr) {
+        // Table may not exist yet if migration not run
+      }
+    }
+
     return NextResponse.json({
       remuneration: {
         ...remuneration,
+        splits,
+        send_receipt_email: remuneration.send_receipt_email ?? true,
         total_amount: totalAmount,
         received_amount: totalReceived,
         remaining_amount: remainingAmount,

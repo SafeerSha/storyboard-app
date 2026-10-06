@@ -307,7 +307,7 @@ export default function InboxItemDetailPage({
         }
       />
 
-      <main className="mx-auto max-w-6xl px-4 py-4 sm:px-6 sm:py-6 lg:px-8 space-y-6">
+      <main className="mx-auto max-w-[1720px] px-4 py-4 sm:px-6 sm:py-6 lg:px-8 space-y-6">
         {/* Item Header Banner: Title, Description & People Stack */}
         <div className="rounded-2xl border border-[#E2E6EF] bg-white p-5 sm:p-6 shadow-card space-y-4">
           <div className="space-y-1">

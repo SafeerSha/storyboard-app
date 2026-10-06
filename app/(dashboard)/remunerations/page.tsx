@@ -133,7 +133,7 @@ export default function RemunerationsPage() {
         }
       />
 
-      <div className="mx-auto max-w-7xl px-4 sm:px-8 py-8 space-y-8">
+      <div className="mx-auto max-w-[1720px] px-4 sm:px-8 py-8 space-y-8">
         {needsMigration && (
           <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 flex gap-3 text-amber-800">
             <AlertCircle size={18} className="shrink-0 mt-0.5 text-amber-500" />

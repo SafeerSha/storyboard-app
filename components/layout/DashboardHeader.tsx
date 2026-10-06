@@ -30,7 +30,7 @@ export function DashboardHeader({
   backLabel,
   badge,
   actions,
-  maxWidth = "max-w-6xl",
+  maxWidth = "max-w-[1720px]",
   hideNotifications = false,
 }: DashboardHeaderProps) {
   const { toggleMobile } = useDashboard();
@@ -96,8 +96,8 @@ export function DashboardHeader({
 
         {/* Actions toolbar */}
         {actions && (
-          <div className="flex items-center gap-2 w-full sm:w-auto shrink-0 justify-between sm:justify-start">
-            <div className="flex items-center gap-2 w-full sm:w-auto">
+          <div className="flex items-center gap-2 w-full sm:w-auto min-w-0 sm:shrink-0 justify-between sm:justify-start">
+            <div className="flex items-center gap-2 w-full sm:w-auto min-w-0">
               {actions}
             </div>
             {/* Desktop notification center */}

@@ -21,6 +21,7 @@ import {
   FileText,
   Filter,
   CheckSquare,
+  LayoutGrid,
   X,
 } from "lucide-react";
 import { DashboardHeader } from "@/components/layout/DashboardHeader";
@@ -39,6 +40,10 @@ import type { Story, Epic, StoryStatus, ProjectNote, StoryLifecycleStatus } from
 import { normalizeStoryStatus, getStoryStatusLabel } from "@/lib/types";
 import { EpicFolder } from "@/components/epics/EpicFolder";
 import { EpicFeedbackThread } from "@/components/epics/EpicFeedbackThread";
+import { EpicKanbanBoard } from "@/components/epics/EpicKanbanBoard";
+import { useRequirementsViewPreference } from "@/hooks/useRequirementsViewPreference";
+import type { EpicKanbanStatus, EpicStatus, EpicPriority } from "@/lib/types/epic";
+import { getEpicStatusLabel, extractEpicPriority, cleanEpicDescription } from "@/lib/types/epic";
 import { Textarea } from "@/components/ui/Textarea";
 import { sortEpics, sortStories } from "@/lib/epic-story-utils";
 import { ProjectNotesWorkspace } from "@/components/notes/ProjectNotesWorkspace";
@@ -129,10 +134,18 @@ export function ProjectWorkspace({
   );
 
 
+  // Requirements Hierarchy view toggle state (persisted per session)
+  const [requirementsView, setRequirementsView] = useRequirementsViewPreference("hierarchy");
+
   // Epic creation/editing state
   const [epicModalOpen, setEpicModalOpen] = useState(false);
   const [editingEpic, setEditingEpic] = useState<Epic | null>(null);
-  const [epicForm, setEpicForm] = useState({ name: "", description: "", status: "active" });
+  const [epicForm, setEpicForm] = useState<{
+    name: string;
+    description: string;
+    status: EpicStatus;
+    priority: EpicPriority;
+  }>({ name: "", description: "", status: "backlog", priority: "medium" });
   const [aiCorrecting, setAiCorrecting] = useState(false);
   const [aiSuggestions, setAiSuggestions] = useState<string[] | null>(null);
   const [aiError, setAiError] = useState("");
@@ -442,8 +455,8 @@ export function ProjectWorkspace({
     }
   }
 
-  function openCreateEpic(name = "") {
-    setEpicForm({ name, description: "", status: "active" });
+  function openCreateEpic(name = "", defaultStatus: EpicStatus = "backlog") {
+    setEpicForm({ name, description: "", status: defaultStatus, priority: "medium" });
     setEditingEpic(null);
     setAiSuggestions(null);
     setAiError("");
@@ -454,12 +467,65 @@ export function ProjectWorkspace({
     setEditingEpic(epic);
     setEpicForm({
       name: epic.name,
-      description: epic.description || "",
-      status: epic.status,
+      description: cleanEpicDescription(epic.description),
+      status: epic.status || "backlog",
+      priority: extractEpicPriority(epic),
     });
     setAiSuggestions(null);
     setAiError("");
     setEpicModalOpen(true);
+  }
+
+  async function handleEpicStatusChange(epicId: string, newStatus: EpicKanbanStatus) {
+    const previousEpics = epics;
+    // Optimistic UI update
+    setEpics((prev) =>
+      prev.map((e) => (e.id === epicId ? { ...e, status: newStatus } : e))
+    );
+    try {
+      const res = await fetch(`/api/epics/${epicId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: newStatus }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to update Epic status");
+      setEpics((prev) =>
+        prev.map((e) => (e.id === epicId ? { ...e, ...data } : e))
+      );
+      toast.success(`Epic moved to ${getEpicStatusLabel(newStatus)}`);
+    } catch (err) {
+      setEpics(previousEpics);
+      const msg = err instanceof Error ? err.message : "Failed to update status";
+      setError(msg);
+      toast.error("Unable to update epic status");
+    }
+  }
+
+  async function handleEpicPriorityChange(epicId: string, newPriority: EpicPriority) {
+    const previousEpics = epics;
+    // Optimistic UI update
+    setEpics((prev) =>
+      prev.map((e) => (e.id === epicId ? { ...e, priority: newPriority } : e))
+    );
+    try {
+      const res = await fetch(`/api/epics/${epicId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ priority: newPriority }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to update Epic priority");
+      setEpics((prev) =>
+        prev.map((e) => (e.id === epicId ? { ...e, ...data, priority: newPriority } : e))
+      );
+      toast.success(`Priority updated to ${newPriority.toUpperCase()}`);
+    } catch (err) {
+      setEpics(previousEpics);
+      const msg = err instanceof Error ? err.message : "Failed to update priority";
+      setError(msg);
+      toast.error("Unable to update epic priority");
+    }
   }
 
   async function handleAiCorrectEpicName() {
@@ -547,7 +613,7 @@ export function ProjectWorkspace({
   }, [filteredEpics, filteredStories, statusFilter, epicFilter]);
 
   return (
-    <div className="w-full min-w-0">
+    <div className="w-full min-w-0 max-w-full overflow-x-hidden">
       <DashboardHeader
         eyebrow="PROJECT"
         title={projectName}
@@ -561,11 +627,11 @@ export function ProjectWorkspace({
         backHref="/projects"
         backLabel="Projects"
         actions={
-          <div className="flex items-center gap-1.5 sm:gap-2 w-full sm:w-auto">
+          <div className="flex items-center gap-2 w-full sm:w-auto min-w-0">
             <Button
               variant="secondary"
-              className="flex-1 sm:flex-initial h-9 sm:h-10 px-2 sm:px-4 text-xs sm:text-sm justify-center whitespace-nowrap shadow-2xs"
-              leftIcon={copiedLink ? <Check size={13} className="text-emerald-600" /> : <Copy size={13} />}
+              className="flex-1 sm:flex-initial h-9 sm:h-10 px-3 sm:px-4 text-xs sm:text-sm justify-center whitespace-nowrap shadow-2xs"
+              leftIcon={copiedLink ? <Check size={13} className="text-emerald-600 shrink-0" /> : <Copy size={13} className="shrink-0" />}
               onClick={handleCopyClientLink}
               title="Share client portal link"
             >
@@ -573,37 +639,9 @@ export function ProjectWorkspace({
               <span className="sm:hidden">{copiedLink ? "Copied" : "Share"}</span>
             </Button>
             <Button
-              variant={activeTab === "tasks" ? "primary" : "secondary"}
-              className="flex-1 sm:flex-initial h-9 sm:h-10 px-2 sm:px-4 text-xs sm:text-sm justify-center whitespace-nowrap shadow-2xs"
-              leftIcon={<CheckSquare size={13} />}
-              onClick={() => setActiveTab("tasks")}
-              title="Project Tasks"
-            >
-              <span>Tasks</span>
-              {projectTasks.length > 0 && (
-                <span className="ml-1 rounded-full bg-[rgba(74,61,100,0.12)] px-1.5 py-0.2 text-[10px] font-bold">
-                  {projectTasks.length}
-                </span>
-              )}
-            </Button>
-            <Button
-              variant={activeTab === "notes" ? "primary" : "secondary"}
-              className="flex-1 sm:flex-initial h-9 sm:h-10 px-2 sm:px-4 text-xs sm:text-sm justify-center whitespace-nowrap shadow-2xs"
-              leftIcon={<FileText size={13} />}
-              onClick={() => setActiveTab("notes")}
-              title="Discussion Notes"
-            >
-              <span>Notes</span>
-              {notes.length > 0 && (
-                <span className="ml-1 rounded-full bg-[rgba(74,61,100,0.12)] px-1.5 py-0.2 text-[10px] font-bold">
-                  {notes.length}
-                </span>
-              )}
-            </Button>
-            <Button
               variant="primary"
-              className="flex-1 sm:flex-initial h-9 sm:h-10 px-2.5 sm:px-4 text-xs sm:text-sm justify-center whitespace-nowrap font-semibold shadow-2xs"
-              leftIcon={<Plus size={13} />}
+              className="flex-1 sm:flex-initial h-9 sm:h-10 px-3.5 sm:px-4 text-xs sm:text-sm justify-center whitespace-nowrap font-semibold shadow-2xs"
+              leftIcon={<Plus size={13} className="shrink-0" />}
               onClick={() => openCreateEpic()}
             >
               Add Epic
@@ -612,7 +650,7 @@ export function ProjectWorkspace({
         }
       />
 
-      <main className="w-full min-w-0 mx-auto max-w-6xl px-4 py-4 sm:px-6 sm:py-8 lg:px-8 space-y-4 sm:space-y-6 pb-32">
+      <main className="w-full min-w-0 mx-auto max-w-[1720px] px-4 py-4 sm:px-6 sm:py-8 lg:px-8 space-y-4 sm:space-y-6 pb-32">
         {/* View Switcher Tabs between Requirements Hierarchy and Discussion Notes */}
         <div className="flex items-center gap-1.5 sm:gap-2 border-b border-[rgba(74,61,100,0.08)] pb-2 overflow-x-auto no-scrollbar">
           <button
@@ -712,73 +750,109 @@ export function ProjectWorkspace({
               </p>
             </div>
 
-            {/* Status Breakdown Pills (Clickable filter controls - 4-column balanced grid on mobile) */}
-            <div className="grid grid-cols-4 sm:flex items-center gap-1.5 sm:gap-2 text-xs w-full sm:w-auto">
-              <button
-                type="button"
-                onClick={() => setStatusFilter("all")}
-                className={`flex items-center justify-center gap-1 sm:gap-1.5 rounded-lg px-1.5 sm:px-2.5 py-1.5 sm:py-1 font-semibold transition cursor-pointer shadow-2xs text-center ${
-                  statusFilter === "all"
-                    ? "bg-[#252331] text-white shadow-xs"
-                    : "bg-[#FAF9FC] text-[#706C7D] border border-[rgba(74,61,100,0.12)] hover:text-[#252331] hover:bg-white"
-                }`}
-                title="Show all stories"
+            {/* View Toggle & Status Breakdown Pills */}
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full lg:w-auto">
+              {/* Requirements View Toggle (Hierarchy vs Kanban Board) */}
+              <div
+                id="requirements-view-toggle"
+                className="relative z-10 inline-flex items-center rounded-xl border border-[rgba(74,61,100,0.12)] bg-[#FAF9FC] p-1 shadow-2xs shrink-0 self-start sm:self-auto"
               >
-                <span>All ({totalStoriesCount})</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setStatusFilter(statusFilter === "new" ? "all" : "new")}
-                className={`flex items-center justify-center gap-1 sm:gap-1.5 rounded-lg px-1 sm:px-2.5 py-1.5 sm:py-1 font-semibold transition cursor-pointer shadow-2xs text-center ${
-                  statusFilter === "new"
-                    ? "bg-sky-100 text-sky-800 border-2 border-sky-500/70 ring-2 ring-sky-500/20"
-                    : "bg-sky-50 text-sky-700 border border-sky-200/80 hover:bg-sky-100/60"
-                }`}
-                title="Filter by New status"
-              >
-                <span className="h-1.5 w-1.5 rounded-full bg-sky-500 shrink-0" />
-                <span className="truncate">{newStoriesCount} New</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setStatusFilter(statusFilter === "active" ? "all" : "active")}
-                className={`flex items-center justify-center gap-1 sm:gap-1.5 rounded-lg px-1 sm:px-2.5 py-1.5 sm:py-1 font-semibold transition cursor-pointer shadow-2xs text-center ${
-                  statusFilter === "active"
-                    ? "bg-[rgba(184,148,78,0.22)] text-[#80642F] border-2 border-[#B8944E] ring-2 ring-[#B8944E]/20"
-                    : "bg-[rgba(184,148,78,0.10)] text-[#80642F] border border-[rgba(184,148,78,0.20)] hover:bg-[rgba(184,148,78,0.16)]"
-                }`}
-                title="Filter by Active status"
-              >
-                <span className="h-1.5 w-1.5 rounded-full bg-[#B8944E] shrink-0" />
-                <span className="truncate">{activeStoriesCount} Act.</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setStatusFilter(statusFilter === "done" ? "all" : "done")}
-                className={`flex items-center justify-center gap-1 sm:gap-1.5 rounded-lg px-1 sm:px-2.5 py-1.5 sm:py-1 font-semibold transition cursor-pointer shadow-2xs text-center ${
-                  statusFilter === "done"
-                    ? "bg-emerald-100 text-emerald-800 border-2 border-emerald-500/70 ring-2 ring-emerald-500/20"
-                    : "bg-emerald-50/90 text-emerald-700 border border-emerald-200/70 hover:bg-emerald-100/60"
-                }`}
-                title="Filter by Done status"
-              >
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 shrink-0" />
-                <span className="truncate">{doneStoriesCount} Done</span>
-              </button>
-              {changesRequestedCount > 0 && (
                 <button
                   type="button"
-                  onClick={() => setStatusFilter(statusFilter === "changes" ? "all" : "changes")}
-                  className={`col-span-4 sm:col-auto inline-flex items-center justify-center gap-1.5 rounded-lg px-2.5 py-1 font-semibold text-rose-700 border border-rose-200/70 shadow-2xs ${
-                    statusFilter === "changes"
-                      ? "bg-rose-100 border-2 border-rose-500/70 ring-2 ring-rose-500/20"
-                      : "bg-rose-50/90 hover:bg-rose-100/60"
+                  onClick={() => setRequirementsView("hierarchy")}
+                  className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-bold transition-all cursor-pointer ${
+                    requirementsView === "hierarchy"
+                      ? "bg-white text-[#252331] shadow-xs border border-[rgba(74,61,100,0.12)]"
+                      : "text-[#706C7D] hover:text-[#252331]"
                   }`}
+                  title="Standard Hierarchy View"
                 >
-                  <span className="h-1.5 w-1.5 rounded-full bg-rose-500" />
-                  {changesRequestedCount} Changes Requested
+                  <Layers size={13} className={requirementsView === "hierarchy" ? "text-[#B8944E]" : "text-[#9994A5]"} />
+                  <span>Hierarchy</span>
                 </button>
-              )}
+                <button
+                  type="button"
+                  onClick={() => setRequirementsView("kanban")}
+                  className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-bold transition-all cursor-pointer ${
+                    requirementsView === "kanban"
+                      ? "bg-white text-[#252331] shadow-xs border border-[rgba(74,61,100,0.12)]"
+                      : "text-[#706C7D] hover:text-[#252331]"
+                  }`}
+                  title="Kanban Board View"
+                >
+                  <LayoutGrid size={13} className={requirementsView === "kanban" ? "text-[#B8944E]" : "text-[#9994A5]"} />
+                  <span>Kanban</span>
+                </button>
+              </div>
+
+              {/* Status Breakdown Pills (Clickable filter controls - 4-column balanced grid on mobile) */}
+              <div className="grid grid-cols-4 sm:flex items-center gap-1.5 sm:gap-2 text-xs w-full sm:w-auto">
+                <button
+                  type="button"
+                  onClick={() => setStatusFilter("all")}
+                  className={`flex items-center justify-center gap-1 sm:gap-1.5 rounded-lg px-1.5 sm:px-2.5 py-1.5 sm:py-1 font-semibold transition cursor-pointer shadow-2xs text-center ${
+                    statusFilter === "all"
+                      ? "bg-[#252331] text-white shadow-xs"
+                      : "bg-[#FAF9FC] text-[#706C7D] border border-[rgba(74,61,100,0.12)] hover:text-[#252331] hover:bg-white"
+                  }`}
+                  title="Show all stories"
+                >
+                  <span>All ({totalStoriesCount})</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setStatusFilter(statusFilter === "new" ? "all" : "new")}
+                  className={`flex items-center justify-center gap-1 sm:gap-1.5 rounded-lg px-1 sm:px-2.5 py-1.5 sm:py-1 font-semibold transition cursor-pointer shadow-2xs text-center ${
+                    statusFilter === "new"
+                      ? "bg-sky-100 text-sky-800 border-2 border-sky-500/70 ring-2 ring-sky-500/20"
+                      : "bg-sky-50 text-sky-700 border border-sky-200/80 hover:bg-sky-100/60"
+                  }`}
+                  title="Filter by New status"
+                >
+                  <span className="h-1.5 w-1.5 rounded-full bg-sky-500 shrink-0" />
+                  <span className="truncate">{newStoriesCount} New</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setStatusFilter(statusFilter === "active" ? "all" : "active")}
+                  className={`flex items-center justify-center gap-1 sm:gap-1.5 rounded-lg px-1 sm:px-2.5 py-1.5 sm:py-1 font-semibold transition cursor-pointer shadow-2xs text-center ${
+                    statusFilter === "active"
+                      ? "bg-[rgba(184,148,78,0.22)] text-[#80642F] border-2 border-[#B8944E] ring-2 ring-[#B8944E]/20"
+                      : "bg-[rgba(184,148,78,0.10)] text-[#80642F] border border-[rgba(184,148,78,0.20)] hover:bg-[rgba(184,148,78,0.16)]"
+                  }`}
+                  title="Filter by Active status"
+                >
+                  <span className="h-1.5 w-1.5 rounded-full bg-[#B8944E] shrink-0" />
+                  <span className="truncate">{activeStoriesCount} Act.</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setStatusFilter(statusFilter === "done" ? "all" : "done")}
+                  className={`flex items-center justify-center gap-1 sm:gap-1.5 rounded-lg px-1 sm:px-2.5 py-1.5 sm:py-1 font-semibold transition cursor-pointer shadow-2xs text-center ${
+                    statusFilter === "done"
+                      ? "bg-emerald-100 text-emerald-800 border-2 border-emerald-500/70 ring-2 ring-emerald-500/20"
+                      : "bg-emerald-50/90 text-emerald-700 border border-emerald-200/70 hover:bg-emerald-100/60"
+                  }`}
+                  title="Filter by Done status"
+                >
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 shrink-0" />
+                  <span className="truncate">{doneStoriesCount} Done</span>
+                </button>
+                {changesRequestedCount > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => setStatusFilter(statusFilter === "changes" ? "all" : "changes")}
+                    className={`col-span-4 sm:col-auto inline-flex items-center justify-center gap-1.5 rounded-lg px-2.5 py-1 font-semibold text-rose-700 border border-rose-200/70 shadow-2xs ${
+                      statusFilter === "changes"
+                        ? "bg-rose-100 border-2 border-rose-500/70 ring-2 ring-rose-500/20"
+                        : "bg-rose-50/90 hover:bg-rose-100/60"
+                    }`}
+                  >
+                    <span className="h-1.5 w-1.5 rounded-full bg-rose-500" />
+                    {changesRequestedCount} Changes Requested
+                  </button>
+                )}
+              </div>
             </div>
           </div>
 
@@ -870,8 +944,30 @@ export function ProjectWorkspace({
           </div>
         )}
 
-        {/* Split View: Epics/Stories on Left, Story Document Inspector on Right */}
-        <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr] items-start w-full min-w-0">
+        {/* Requirements Hierarchy Layout: Kanban Board View vs Standard Split Hierarchy View */}
+        {requirementsView === "kanban" ? (
+          <div className="w-full min-w-0 transition-opacity duration-200 animate-in fade-in">
+            <EpicKanbanBoard
+              epics={epics}
+              stories={stories}
+              onEditEpic={openEditEpic}
+              onDeleteEpic={deleteEpic}
+              onAddStory={(epicId) => {
+                setGeneratingEpicId(epicId);
+              }}
+              onStatusChange={handleEpicStatusChange}
+              onPriorityChange={handleEpicPriorityChange}
+              onCreateEpicInStatus={(status) => openCreateEpic("", status)}
+              onNavigateToEpic={(epicId) => {
+                setRequirementsView("hierarchy");
+                setCollapsedEpicIds((prev) => ({ ...prev, [epicId]: false }));
+                setEpicFilter(epicId);
+              }}
+            />
+          </div>
+        ) : (
+        /* Split View: Epics/Stories on Left, Story Document Inspector on Right */
+        <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr] items-start w-full min-w-0 transition-opacity duration-200 animate-in fade-in">
           {/* Left Column: Epics and Stories List */}
           <div className="space-y-6 w-full min-w-0">
             {epics.length === 0 && stories.length === 0 ? (
@@ -925,10 +1021,14 @@ export function ProjectWorkspace({
                       id={epic.id}
                       name={epic.name}
                       description={epic.description}
+                      status={epic.status}
+                      priority={epic.priority}
                       creatorName={projectTeamMembers.find(tm => tm.id === epic.created_by_id)?.name || undefined}
                       storyCount={epicStories.length}
                       isExpanded={!collapsedEpicIds[epic.id]}
                       onToggle={() => toggleEpic(epic.id)}
+                      onStatusCycle={(newStatus) => handleEpicStatusChange(epic.id, newStatus)}
+                      onPriorityChange={(newPriority) => handleEpicPriorityChange(epic.id, newPriority)}
                       headerExtra={
                         <span className="flex items-center gap-1.5 text-[10px] sm:text-[11px] font-medium flex-wrap">
                           <span className="text-[rgba(74,61,100,0.2)]">•</span>
@@ -1149,6 +1249,7 @@ export function ProjectWorkspace({
             )}
           </div>
         </div>
+        )}
           </>
         )}
       </main>
@@ -1251,6 +1352,44 @@ export function ProjectWorkspace({
               placeholder="Describe the scope and purpose of this Epic..."
               className="w-full rounded-xl border border-[#EBE7F2] p-3 text-sm text-[#252331] outline-none transition focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)] resize-none"
             />
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-[#9994A5] mb-1.5">
+                Status
+              </label>
+              <select
+                value={epicForm.status}
+                onChange={(e) =>
+                  setEpicForm((prev) => ({ ...prev, status: e.target.value as EpicStatus }))
+                }
+                className="h-10 w-full rounded-xl border border-[#EBE7F2] bg-white px-3.5 text-sm text-[#252331] outline-none transition focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)] cursor-pointer"
+              >
+                <option value="backlog">Backlog / Pending</option>
+                <option value="todo">To Do</option>
+                <option value="in_progress">In Progress</option>
+                <option value="qa_review">QA / Review</option>
+                <option value="done">Done</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-[#9994A5] mb-1.5">
+                Priority
+              </label>
+              <select
+                value={epicForm.priority}
+                onChange={(e) =>
+                  setEpicForm((prev) => ({ ...prev, priority: e.target.value as EpicPriority }))
+                }
+                className="h-10 w-full rounded-xl border border-[#EBE7F2] bg-white px-3.5 text-sm text-[#252331] outline-none transition focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)] cursor-pointer"
+              >
+                <option value="low">Low Priority</option>
+                <option value="medium">Medium Priority</option>
+                <option value="high">High Priority</option>
+              </select>
+            </div>
           </div>
         </form>
       </Modal>

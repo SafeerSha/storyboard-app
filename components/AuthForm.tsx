@@ -3,13 +3,14 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowRight, Lock, UserCircle } from "lucide-react";
+import { ArrowRight, UserCircle } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { createClient } from "@/lib/supabase/client";
 
 import { toast } from "@/lib/toast";
 import { StoryBoardLogo } from "@/components/brand/StoryBoardLogo";
 import { ForgotPasswordModal } from "@/components/ForgotPasswordModal";
+import { PasswordInput } from "@/components/ui/PasswordInput";
 
 export function AuthForm() {
   const [identifier, setIdentifier] = useState("");
@@ -158,22 +159,15 @@ export function AuthForm() {
               Forgot password?
             </button>
           </div>
-          <div className="relative">
-            <Lock
-              size={15}
-              className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#9994A5]"
-            />
-            <input
-              type="password"
-              required
-              minLength={6}
-              disabled={loading || isRedirecting}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              className="h-10 w-full rounded-xl border border-[rgba(74,61,100,0.11)] bg-white/85 pl-10 pr-3.5 text-sm text-[#252331] placeholder-[#9994A5] outline-none transition focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)] disabled:opacity-60 disabled:cursor-not-allowed"
-            />
-          </div>
+          <PasswordInput
+            required
+            minLength={6}
+            disabled={loading || isRedirecting}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="••••••••"
+            autoComplete="current-password"
+          />
         </div>
 
         {error && (

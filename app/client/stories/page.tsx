@@ -218,7 +218,7 @@ export default function ClientAllStoriesPage() {
     <div className="min-h-screen pb-16">
       {/* Header */}
       <div className="border-b border-[rgba(74,61,100,0.08)] bg-white/60 backdrop-blur-[20px] px-4 py-6 sm:px-8 sm:py-8">
-        <div className="mx-auto max-w-6xl">
+        <div className="mx-auto max-w-[1720px]">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
               <div className="inline-flex items-center gap-1.5 rounded-full bg-[rgba(184,148,78,0.10)] px-2.5 py-0.5 text-[11px] font-semibold text-[#80642F] border border-[rgba(184,148,78,0.18)] mb-2 uppercase tracking-wider">
@@ -254,7 +254,7 @@ export default function ClientAllStoriesPage() {
       </div>
 
       {/* Main Container */}
-      <div className="mx-auto max-w-6xl px-4 py-6 sm:px-8">
+      <div className="mx-auto max-w-[1720px] px-4 py-6 sm:px-8">
         {/* Filters and Controls */}
         <div className="mb-6 flex flex-col lg:flex-row lg:items-center justify-between gap-3">
           <div className="flex flex-1 flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3">

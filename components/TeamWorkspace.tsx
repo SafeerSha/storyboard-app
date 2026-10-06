@@ -18,6 +18,7 @@ import {
   Sparkles,
   Trash2,
   Users,
+  LayoutGrid,
   X,
   MessageSquare,
   FileText,
@@ -37,6 +38,10 @@ import type { Story, Epic, StoryStatus, ProjectNote, StoryLifecycleStatus } from
 import { normalizeStoryStatus, getStoryStatusLabel } from "@/lib/types";
 import { EpicFolder } from "@/components/epics/EpicFolder";
 import { EpicFeedbackThread } from "@/components/epics/EpicFeedbackThread";
+import { EpicKanbanBoard } from "@/components/epics/EpicKanbanBoard";
+import { useRequirementsViewPreference } from "@/hooks/useRequirementsViewPreference";
+import type { EpicKanbanStatus, EpicStatus, EpicPriority } from "@/lib/types/epic";
+import { getEpicStatusLabel, extractEpicPriority, cleanEpicDescription } from "@/lib/types/epic";
 import { AiEpicAgentPromptModal } from "@/components/epics/AiEpicAgentPromptModal";
 import { sortEpics, sortStories } from "@/lib/epic-story-utils";
 import { ProjectNotesWorkspace } from "@/components/notes/ProjectNotesWorkspace";
@@ -115,10 +120,18 @@ export function TeamWorkspace({
     Array<{ id: string; name: string; username: string; role?: string }>
   >([]);
 
+  // Requirements Hierarchy view toggle state (persisted per session)
+  const [requirementsView, setRequirementsView] = useRequirementsViewPreference("hierarchy");
+
   // Epic modal state (Create / Edit with AI Auto-format)
   const [epicModalOpen, setEpicModalOpen] = useState(false);
   const [editingEpic, setEditingEpic] = useState<Epic | null>(null);
-  const [epicForm, setEpicForm] = useState({ name: "", description: "", status: "active" });
+  const [epicForm, setEpicForm] = useState<{
+    name: string;
+    description: string;
+    status: EpicStatus;
+    priority: EpicPriority;
+  }>({ name: "", description: "", status: "backlog", priority: "medium" });
   const [aiCorrecting, setAiCorrecting] = useState(false);
   const [aiSuggestions, setAiSuggestions] = useState<string[] | null>(null);
   const [aiError, setAiError] = useState("");
@@ -155,7 +168,7 @@ export function TeamWorkspace({
   // Load Team Members
   const loadTeamMembers = useCallback(async () => {
     try {
-      const res = await fetch(`/api/projects/${project.id}/team-members?forReviewers=true`);
+      const res = await fetch(`/api/projects/${project.id}/team-members`);
       if (res.ok) {
         const data = await res.json();
         if (data.teamMembers) setProjectTeamMembers(data.teamMembers);
@@ -302,8 +315,8 @@ export function TeamWorkspace({
   }, [epics]);
 
   // Epic Actions
-  function openCreateEpic(name = "") {
-    setEpicForm({ name, description: "", status: "active" });
+  function openCreateEpic(name = "", defaultStatus: EpicStatus = "backlog") {
+    setEpicForm({ name, description: "", status: defaultStatus, priority: "medium" });
     setEditingEpic(null);
     setAiSuggestions(null);
     setAiError("");
@@ -314,12 +327,65 @@ export function TeamWorkspace({
     setEditingEpic(epic);
     setEpicForm({
       name: epic.name,
-      description: epic.description || "",
-      status: epic.status,
+      description: cleanEpicDescription(epic.description),
+      status: epic.status || "backlog",
+      priority: extractEpicPriority(epic),
     });
     setAiSuggestions(null);
     setAiError("");
     setEpicModalOpen(true);
+  }
+
+  async function handleEpicStatusChange(epicId: string, newStatus: EpicKanbanStatus) {
+    const previousEpics = epics;
+    // Optimistic UI update
+    setEpics((prev) =>
+      prev.map((e) => (e.id === epicId ? { ...e, status: newStatus } : e))
+    );
+    try {
+      const res = await fetch(`/api/epics/${epicId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: newStatus }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to update Epic status");
+      setEpics((prev) =>
+        prev.map((e) => (e.id === epicId ? { ...e, ...data } : e))
+      );
+      toast.success(`Epic moved to ${getEpicStatusLabel(newStatus)}`);
+    } catch (err) {
+      setEpics(previousEpics);
+      const msg = err instanceof Error ? err.message : "Failed to update status";
+      setError(msg);
+      toast.error("Unable to update epic status");
+    }
+  }
+
+  async function handleEpicPriorityChange(epicId: string, newPriority: EpicPriority) {
+    const previousEpics = epics;
+    // Optimistic UI update
+    setEpics((prev) =>
+      prev.map((e) => (e.id === epicId ? { ...e, priority: newPriority } : e))
+    );
+    try {
+      const res = await fetch(`/api/epics/${epicId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ priority: newPriority }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to update Epic priority");
+      setEpics((prev) =>
+        prev.map((e) => (e.id === epicId ? { ...e, ...data, priority: newPriority } : e))
+      );
+      toast.success(`Priority updated to ${newPriority.toUpperCase()}`);
+    } catch (err) {
+      setEpics(previousEpics);
+      const msg = err instanceof Error ? err.message : "Failed to update priority";
+      setError(msg);
+      toast.error("Unable to update epic priority");
+    }
   }
 
   async function handleAiCorrectEpicName() {
@@ -662,7 +728,7 @@ export function TeamWorkspace({
     <div className="w-full min-w-0 pb-32">
       {/* Top Workspace Header */}
       <header className="w-full border-b border-[rgba(74,61,100,0.08)] bg-white/68 backdrop-blur-[20px]">
-        <div className="w-full mx-auto max-w-6xl px-4 py-4 sm:py-6 lg:px-8">
+        <div className="w-full mx-auto max-w-[1720px] px-4 py-4 sm:py-6 lg:px-8">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2 text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-[#B8944E] mb-1">
@@ -761,22 +827,8 @@ export function TeamWorkspace({
             {/* Workspace Actions (Unified for mobile & desktop) */}
             <div className="flex items-center gap-2 w-full sm:w-auto shrink-0 mt-1 sm:mt-0">
               <Button
-                variant={activeTab === "notes" ? "primary" : "secondary"}
-                className="flex-1 sm:flex-initial h-9 sm:h-10 px-3 sm:px-4 text-xs sm:text-sm justify-center whitespace-nowrap shadow-2xs"
-                leftIcon={<FileText size={13} />}
-                onClick={() => setActiveTab("notes")}
-                title="Discussion Notes"
-              >
-                <span>Notes</span>
-                {notes.length > 0 && (
-                  <span className="ml-1 rounded-full bg-[rgba(74,61,100,0.12)] px-1.5 py-0.2 text-[10px] font-bold">
-                    {notes.length}
-                  </span>
-                )}
-              </Button>
-              <Button
                 variant="primary"
-                className="flex-1 sm:flex-initial h-9 sm:h-10 px-3 sm:px-4 text-xs sm:text-sm justify-center whitespace-nowrap font-semibold shadow-2xs"
+                className="flex-1 sm:flex-initial h-9 sm:h-10 px-3.5 sm:px-4 text-xs sm:text-sm justify-center whitespace-nowrap font-semibold shadow-2xs"
                 leftIcon={<Plus size={13} />}
                 onClick={() => openCreateEpic()}
               >
@@ -787,7 +839,7 @@ export function TeamWorkspace({
         </div>
       </header>
 
-      <main className="w-full min-w-0 mx-auto max-w-6xl px-4 py-4 sm:px-6 sm:py-8 lg:px-8 space-y-4 sm:space-y-6">
+      <main className="w-full min-w-0 mx-auto max-w-[1720px] px-4 py-4 sm:px-6 sm:py-8 lg:px-8 space-y-4 sm:space-y-6">
         {/* View Switcher Tabs between Requirements Hierarchy and Discussion Notes */}
         <div className="flex items-center gap-1.5 sm:gap-2 border-b border-[rgba(74,61,100,0.08)] pb-2 overflow-x-auto no-scrollbar">
           <button
@@ -961,6 +1013,38 @@ export function TeamWorkspace({
                 <span>Expand all</span>
               </button>
             </div>
+            {/* Requirements View Toggle (Hierarchy vs Kanban Board) */}
+            <div
+              id="team-requirements-view-toggle"
+              className="relative z-10 inline-flex items-center rounded-xl border border-[rgba(74,61,100,0.11)] bg-white/80 p-0.5 text-xs shadow-2xs shrink-0"
+            >
+              <button
+                type="button"
+                onClick={() => setRequirementsView("hierarchy")}
+                className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-bold transition-all cursor-pointer ${
+                  requirementsView === "hierarchy"
+                    ? "bg-[#252331] text-white shadow-xs"
+                    : "text-[#706C7D] hover:text-[#252331] hover:bg-[#FAF9FC]"
+                }`}
+                title="Standard Hierarchy View"
+              >
+                <Layers size={13} className={requirementsView === "hierarchy" ? "text-[#B8944E]" : "text-[#9994A5]"} />
+                <span>Hierarchy</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setRequirementsView("kanban")}
+                className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-bold transition-all cursor-pointer ${
+                  requirementsView === "kanban"
+                    ? "bg-[#252331] text-white shadow-xs"
+                    : "text-[#706C7D] hover:text-[#252331] hover:bg-[#FAF9FC]"
+                }`}
+                title="Kanban Board View"
+              >
+                <LayoutGrid size={13} className={requirementsView === "kanban" ? "text-[#B8944E]" : "text-[#9994A5]"} />
+                <span>Kanban</span>
+              </button>
+            </div>
           </div>
 
           <span className="text-[11px] sm:text-xs text-[#706C7D] shrink-0">
@@ -968,8 +1052,34 @@ export function TeamWorkspace({
           </span>
         </div>
 
-        {/* Super Admin Split View: Epics/Stories on Left, Story Document Inspector on Right */}
-        <div className="grid gap-6 lg:grid-cols-[1.1fr_1.9fr] items-start w-full min-w-0">
+        {/* Requirements Hierarchy Layout: Kanban Board View vs Standard Split Hierarchy View */}
+        {requirementsView === "kanban" ? (
+          <div className="w-full min-w-0 transition-opacity duration-200 animate-in fade-in">
+            <EpicKanbanBoard
+              epics={epics}
+              stories={stories}
+              onEditEpic={openEditEpic}
+              onDeleteEpic={deleteEpic}
+              onAddStory={(epicId) => {
+                setGeneratingEpicId(epicId);
+              }}
+              onStatusChange={handleEpicStatusChange}
+              onPriorityChange={handleEpicPriorityChange}
+              onCreateEpicInStatus={(status) => openCreateEpic("", status)}
+              onNavigateToEpic={(epicId) => {
+                setRequirementsView("hierarchy");
+                setExpandedEpicIds((prev) => {
+                  const next = new Set(prev);
+                  next.add(epicId);
+                  return next;
+                });
+                setEpicFilter(epicId);
+              }}
+            />
+          </div>
+        ) : (
+        /* Super Admin Split View: Epics/Stories on Left, Story Document Inspector on Right */
+        <div className="grid gap-6 lg:grid-cols-[1.1fr_1.9fr] items-start w-full min-w-0 transition-opacity duration-200 animate-in fade-in">
           {/* Left Column: Epics and Stories List */}
           <div className="space-y-6 w-full min-w-0">
             {epics.length === 0 && stories.length === 0 ? (
@@ -1025,10 +1135,14 @@ export function TeamWorkspace({
                       id={epic.id}
                       name={epic.name}
                       description={epic.description}
+                      status={epic.status}
+                      priority={epic.priority}
                       creatorName={projectTeamMembers.find(tm => tm.id === epic.created_by_id)?.name || undefined}
                       storyCount={epicStories.length}
                       isExpanded={expandedEpicIds.has(epic.id)}
                       onToggle={() => toggleEpic(epic.id)}
+                      onStatusCycle={(newStatus) => handleEpicStatusChange(epic.id, newStatus)}
+                      onPriorityChange={(newPriority) => handleEpicPriorityChange(epic.id, newPriority)}
                       headerExtra={
                         <span className="flex items-center gap-1.5 text-[10px] sm:text-[11px] font-medium flex-wrap">
                           <span className="text-[rgba(74,61,100,0.2)]">•</span>
@@ -1237,6 +1351,7 @@ export function TeamWorkspace({
             )}
           </div>
         </div>
+        )}
           </>
         )}
       </main>
@@ -1339,6 +1454,44 @@ export function TeamWorkspace({
               placeholder="Describe the scope and purpose of this Epic..."
               className="w-full rounded-xl border border-[#EBE7F2] p-3 text-sm text-[#252331] outline-none transition focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)] resize-none"
             />
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-[#9994A5] mb-1.5">
+                Status
+              </label>
+              <select
+                value={epicForm.status}
+                onChange={(e) =>
+                  setEpicForm((prev) => ({ ...prev, status: e.target.value as EpicStatus }))
+                }
+                className="h-10 w-full rounded-xl border border-[#EBE7F2] bg-white px-3.5 text-sm text-[#252331] outline-none transition focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)] cursor-pointer"
+              >
+                <option value="backlog">Backlog / Pending</option>
+                <option value="todo">To Do</option>
+                <option value="in_progress">In Progress</option>
+                <option value="qa_review">QA / Review</option>
+                <option value="done">Done</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-[#9994A5] mb-1.5">
+                Priority
+              </label>
+              <select
+                value={epicForm.priority}
+                onChange={(e) =>
+                  setEpicForm((prev) => ({ ...prev, priority: e.target.value as EpicPriority }))
+                }
+                className="h-10 w-full rounded-xl border border-[#EBE7F2] bg-white px-3.5 text-sm text-[#252331] outline-none transition focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)] cursor-pointer"
+              >
+                <option value="low">Low Priority</option>
+                <option value="medium">Medium Priority</option>
+                <option value="high">High Priority</option>
+              </select>
+            </div>
           </div>
         </form>
       </Modal>
@@ -1542,7 +1695,7 @@ export function TeamWorkspace({
               </p>
               <div className="flex flex-wrap gap-2 pt-1">
                 {projectTeamMembers
-                  .filter((tm) => tm.id !== teamUser.id && tm.role !== "Super Admin" && tm.role !== "Project Creator")
+                  .filter((tm) => tm.id !== teamUser.id)
                   .map((tm) => {
                     const isSelected = manualStoryReviewerIds.includes(tm.id);
                   return (

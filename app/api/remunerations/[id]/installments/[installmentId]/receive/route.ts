@@ -140,6 +140,10 @@ export async function POST(
     const paymentMethod = (formData.get("paymentMethod") as string) || "Bank Transfer";
     const paymentReference = (formData.get("paymentReference") as string) || null;
     const notes = (formData.get("notes") as string) || null;
+    const rawSendEmail = formData.get("sendEmail");
+    const shouldSendEmail = rawSendEmail !== null
+      ? rawSendEmail === "true" || rawSendEmail === "1"
+      : (remuneration.send_receipt_email ?? true);
 
     // 4. Record Payment in public.remuneration_payments
     const { data: paymentRecord, error: payError } = await admin
@@ -292,6 +296,7 @@ export async function POST(
       ownerId: user.id,
       ownerEmail: profile?.email || user.email,
       actorName,
+      sendEmailNotification: shouldSendEmail,
     });
 
     if (allCompleted) {

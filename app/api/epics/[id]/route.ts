@@ -13,7 +13,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     // Check existing epic
     const { data: epic } = await admin
       .from("epics")
-      .select("id, project_id, projects(owner_id)")
+      .select("id, project_id, description, projects(owner_id)")
       .eq("id", epicId)
       .maybeSingle();
 
@@ -68,15 +68,60 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     if (body.description !== undefined) updateData.description = String(body.description).trim();
     if (body.status !== undefined) updateData.status = String(body.status).trim();
     if (body.sortOrder !== undefined) updateData.sort_order = Number(body.sortOrder);
+    
+    let requestedPriority: "low" | "medium" | "high" | null = null;
+    if (body.priority !== undefined) {
+      const p = String(body.priority).toLowerCase().trim();
+      if (p === "low" || p === "medium" || p === "high") {
+        requestedPriority = p;
+        updateData.priority = p;
+      }
+    }
 
-    const { data: updatedEpic, error } = await admin
+    let { data: updatedEpic, error } = await admin
       .from("epics")
       .update(updateData)
       .eq("id", epicId)
       .select()
-      .single();
+      .maybeSingle();
+
+    // Fallback if priority column has not been migrated yet in Supabase
+    if (error && (error.code === "42703" || error.message?.includes("priority"))) {
+      delete updateData.priority;
+      if (requestedPriority) {
+        const baseDesc = updateData.description !== undefined ? updateData.description : (epic.description || "");
+        const cleanDesc = baseDesc.replace(/<!--priority:(low|medium|high)-->/gi, "").trim();
+        updateData.description = cleanDesc ? `${cleanDesc} <!--priority:${requestedPriority}-->` : `<!--priority:${requestedPriority}-->`;
+      }
+      const retry = await admin
+        .from("epics")
+        .update(updateData)
+        .eq("id", epicId)
+        .select()
+        .maybeSingle();
+      updatedEpic = retry.data;
+      error = retry.error;
+    }
 
     if (error) throw error;
+
+    if (updatedEpic) {
+      // Ensure priority property is set on the return object
+      if (requestedPriority && !updatedEpic.priority) {
+        updatedEpic.priority = requestedPriority;
+      } else if (!updatedEpic.priority && updatedEpic.description) {
+        const match = updatedEpic.description.match(/<!--priority:(low|medium|high)-->/i);
+        if (match && match[1]) {
+          updatedEpic.priority = match[1].toLowerCase();
+        }
+      }
+      if (!updatedEpic.priority) {
+        updatedEpic.priority = "medium";
+      }
+      if (updatedEpic.description) {
+        updatedEpic.description = updatedEpic.description.replace(/<!--priority:(low|medium|high)-->/gi, "").trim();
+      }
+    }
 
     return NextResponse.json(updatedEpic);
   } catch (error) {

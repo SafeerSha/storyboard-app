@@ -22,6 +22,7 @@ import {
   RefreshCcw,
   SendHorizontal,
   User,
+  Users,
 } from "lucide-react";
 import { DashboardHeader } from "@/components/layout/DashboardHeader";
 import { Button } from "@/components/ui/Button";
@@ -132,16 +133,18 @@ interface ReceiveModalProps {
   installment: RemunerationInstallment;
   remId: string;
   currency: string;
+  defaultSendEmail?: boolean;
   onClose: () => void;
   onSuccess: () => void;
 }
-function ReceivePaymentModal({ installment, remId, currency, onClose, onSuccess }: ReceiveModalProps) {
+function ReceivePaymentModal({ installment, remId, currency, defaultSendEmail = true, onClose, onSuccess }: ReceiveModalProps) {
   const [amount, setAmount] = useState(String(installment.amount));
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
   const [method, setMethod] = useState("Bank Transfer");
   const [reference, setReference] = useState("");
   const [notes, setNotes] = useState("");
   const [proof, setProof] = useState<File | null>(null);
+  const [sendEmail, setSendEmail] = useState(defaultSendEmail);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
@@ -159,6 +162,7 @@ function ReceivePaymentModal({ installment, remId, currency, onClose, onSuccess 
       formData.append("receivedAmount", amount);
       formData.append("receivedDate", date);
       formData.append("paymentMethod", method);
+      formData.append("sendEmail", String(sendEmail));
       if (reference) formData.append("paymentReference", reference);
       if (notes) formData.append("notes", notes);
       if (proof) formData.append("proof", proof);
@@ -232,6 +236,23 @@ function ReceivePaymentModal({ installment, remId, currency, onClose, onSuccess 
               </span>
             </div>
             <input ref={fileRef} type="file" accept="image/*,.pdf" className="hidden" onChange={(e) => setProof(e.target.files?.[0] || null)} />
+          </div>
+
+          {/* Confirmation email toggle */}
+          <div className="flex items-center justify-between rounded-lg border border-[rgba(74,61,100,0.12)] bg-[#faf9fc] p-3.5">
+            <div className="space-y-0.5">
+              <span className="text-xs font-semibold text-[#252331]">Send Confirmation Email</span>
+              <p className="text-[11px] text-[#9994A5]">Dispatch a payment receipt email upon recording</p>
+            </div>
+            <label className="relative inline-flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                checked={sendEmail}
+                onChange={(e) => setSendEmail(e.target.checked)}
+                className="sr-only peer"
+              />
+              <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#B8944E]" />
+            </label>
           </div>
         </div>
 
@@ -320,6 +341,7 @@ export default function RemunerationDetailPage() {
           installment={receiveModal}
           remId={remId}
           currency={rem.currency}
+          defaultSendEmail={rem.send_receipt_email ?? true}
           onClose={() => setReceiveModal(null)}
           onSuccess={load}
         />
@@ -338,7 +360,7 @@ export default function RemunerationDetailPage() {
         }
       />
 
-      <div className="mx-auto max-w-7xl px-4 sm:px-8 py-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="mx-auto max-w-[1720px] px-4 sm:px-8 py-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* ── Left column: installments ── */}
         <div className="lg:col-span-2 space-y-6">
           {/* Summary card */}
@@ -506,21 +528,71 @@ export default function RemunerationDetailPage() {
                   <User size={14} className="text-[#706C7D]" />
                 </div>
                 <div>
-                  <p className="font-medium text-[#252331] text-sm">{rem.client?.name || "No client"}</p>
-                  {rem.client?.email && (
+                  <p className="font-medium text-[#252331] text-sm">{rem.client?.name || "No client assigned"}</p>
+                  {rem.client?.email ? (
                     <p className="text-xs text-[#9994A5]">{rem.client.email}</p>
+                  ) : (
+                    <p className="text-[11px] text-[#9994A5] italic">Direct / In-house project</p>
                   )}
                 </div>
               </div>
             </div>
 
-            <div className="border-t border-[rgba(74,61,100,0.06)] pt-4 text-xs text-[#9994A5] space-y-1">
+            <div className="border-t border-[rgba(74,61,100,0.06)] pt-4 text-xs text-[#9994A5] space-y-2">
+              <div className="flex justify-between items-center">
+                <span>Receipt Emails</span>
+                <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold ${
+                  rem.send_receipt_email !== false
+                    ? "bg-emerald-50 text-emerald-700 border border-emerald-100"
+                    : "bg-gray-100 text-gray-600 border border-gray-200"
+                }`}>
+                  <span className={`h-1.5 w-1.5 rounded-full ${rem.send_receipt_email !== false ? "bg-emerald-500" : "bg-gray-400"}`} />
+                  {rem.send_receipt_email !== false ? "Enabled" : "Disabled"}
+                </span>
+              </div>
               <div className="flex justify-between"><span>Created</span><span className="text-[#706C7D] font-medium">{fmt(rem.created_at)}</span></div>
               {rem.next_due_date && rem.status !== "completed" && (
                 <div className="flex justify-between"><span>Next Due</span><span className="text-amber-600 font-medium">{fmt(rem.next_due_date)}</span></div>
               )}
             </div>
           </div>
+
+          {/* Team Member Splits */}
+          {rem.splits && rem.splits.length > 0 && (
+            <div className="rounded-xl border border-[rgba(74,61,100,0.10)] bg-white p-5 shadow-sm space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="h-7 w-7 rounded-lg bg-[rgba(184,148,78,0.10)] flex items-center justify-center">
+                    <Users size={14} className="text-[#B8944E]" />
+                  </div>
+                  <div>
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-[#9994A5]">Team Splits</h3>
+                    <p className="text-[11px] text-[#706C7D]">{rem.splits.length} {rem.splits.length === 1 ? "member" : "members"}</p>
+                  </div>
+                </div>
+                <span className="text-xs font-bold text-[#80642F] bg-amber-50 px-2 py-0.5 rounded-full border border-amber-100">
+                  {rem.splits.reduce((acc, s) => acc + (s.percentage || 0), 0)}%
+                </span>
+              </div>
+
+              <div className="space-y-2.5 divide-y divide-[rgba(74,61,100,0.06)]">
+                {rem.splits.map((split, i) => (
+                  <div key={split.id || split.teamMemberId || i} className={`flex items-center justify-between ${i > 0 ? "pt-2.5" : ""}`}>
+                    <div className="space-y-0.5">
+                      <p className="text-sm font-semibold text-[#252331]">{split.name}</p>
+                      {split.role && <p className="text-[11px] text-[#9994A5] capitalize">{split.role}</p>}
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm font-bold text-[#252331]">{formatCurrency(split.amount, rem.currency)}</p>
+                      {split.percentage !== null && split.percentage !== undefined && (
+                        <p className="text-[11px] text-[#9994A5]">{split.percentage}% share</p>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Timeline */}
           {timeline.length > 0 && (

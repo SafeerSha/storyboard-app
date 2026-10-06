@@ -46,7 +46,7 @@ export function ProjectsClient({ projects, userName }: ProjectsClientProps) {
     <div className="pb-24">
       {/* Top Header */}
       <header className="border-b border-[rgba(74,61,100,0.08)] bg-white/68 backdrop-blur-[20px]">
-        <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-[1720px] px-4 py-6 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-[#B8944E] mb-1">
@@ -97,7 +97,7 @@ export function ProjectsClient({ projects, userName }: ProjectsClientProps) {
       </header>
 
       {/* Main Content Area */}
-      <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
+      <main className="mx-auto max-w-[1720px] px-4 py-6 sm:px-6 lg:px-8">
         {filteredProjects.length === 0 ? (
           <div className="rounded-2xl border border-[rgba(74,61,100,0.08)] bg-white/70 backdrop-blur-md p-12 text-center shadow-card">
             <div className="grid h-14 w-14 place-items-center rounded-2xl bg-[rgba(184,148,78,0.12)] text-[#80642F] mx-auto mb-4 border border-[rgba(184,148,78,0.20)]">

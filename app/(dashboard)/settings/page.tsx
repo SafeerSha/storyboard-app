@@ -17,6 +17,7 @@ import {
   User,
   Users,
   KeyRound,
+  UploadCloud,
 } from "lucide-react";
 import { DashboardHeader } from "@/components/layout/DashboardHeader";
 import { Badge } from "@/components/ui/Badge";
@@ -26,6 +27,7 @@ import { ChangePasswordModal } from "@/components/ChangePasswordModal";
 import { createClient } from "@/lib/supabase/client";
 import { toast } from "@/lib/toast";
 import { RemunerationClient } from "@/app/(dashboard)/remuneration/RemunerationClient";
+import { MediaUploadZone } from "@/components/media/MediaUploadZone";
 
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState<"general" | "remuneration" | "quotations">("general");
@@ -517,6 +519,32 @@ export default function SettingsPage() {
                 </p>
               </section>
             )}
+
+            {/* Media & Asset Uploads Card (Story 2) */}
+            <section className="rounded-2xl border border-[#EBE7F2] bg-[#FAF9FC]/88 p-5 sm:p-6 shadow-card backdrop-blur-xl space-y-4">
+              <div className="flex items-center gap-3 border-b border-[#EBE7F2] pb-4">
+                <div className="grid h-9 w-9 place-items-center rounded-xl bg-[rgba(184,148,78,0.10)] border border-[rgba(184,148,78,0.15)] text-[#80642F] shrink-0 shadow-xs">
+                  <UploadCloud size={17} />
+                </div>
+                <div>
+                  <h3 className="text-base font-semibold text-[#252331] tracking-tight">
+                    Media & Asset Uploads
+                  </h3>
+                  <p className="text-xs text-[#706C7D]">Upload project visual assets, screenshots, and walkthrough videos</p>
+                </div>
+              </div>
+
+              <div className="max-w-2xl">
+                <p className="text-xs text-[#585365] mb-4 leading-relaxed">
+                  Upload project assets, epic mockups, or video demonstrations. Supports PNG, JPG, WebP, GIF, SVG (up to 15MB) and MP4, WebM, MOV (up to 100MB) with automatic format validation and instant playback preview.
+                </p>
+                <MediaUploadZone
+                  onUploadComplete={(result) => {
+                    toast.success("Media asset uploaded successfully", result.fileName);
+                  }}
+                />
+              </div>
+            </section>
 
             {/* Super Admin Only — User Management Card */}
             {role === "super_admin" && (

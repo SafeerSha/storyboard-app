@@ -131,7 +131,7 @@ export function ReviewClient({ initialStory, epics, teamUser, isReviewer }: Revi
 
   return (
     <div className="min-h-screen bg-[#FAF9FB] p-4 sm:p-6 md:p-8 flex justify-center items-start overflow-y-auto">
-      <div className="w-full max-w-6xl mb-12">
+      <div className="w-full max-w-[1720px] mb-12">
         <StoryEditor
           layout="standalone"
           key={`story-editor-${feedbackKey}`}

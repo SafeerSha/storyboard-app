@@ -83,7 +83,7 @@ export function FreelancerLayout({
 
         {/* Global Main Content: Full-width in dock mode (lg:pl-0 pb-28), or offset for left sidebar (lg:pl-56) */}
         <div
-          className={`w-full min-w-0 min-h-screen transition-all duration-200 ${
+          className={`w-full min-w-0 max-w-full overflow-x-hidden min-h-screen transition-all duration-200 ${
             desktopNavMode === "dock"
               ? "md:pl-0 pb-28"
               : "md:pl-56 pb-20 md:pb-0"

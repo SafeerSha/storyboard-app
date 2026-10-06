@@ -65,61 +65,59 @@ export async function GET(
 
   const memberMap = new Map<string, { id: string; name: string; username: string; role: string; is_admin_or_owner?: boolean }>();
 
-  // 3. Include Project Creator / Owner and Super Admins from freelancer_profiles (only if not filtering for reviewers)
-  if (!forReviewers) {
-    try {
-      const profileIds = new Set<string>();
-      const { data: project } = await admin
-        .from("projects")
-        .select("id, owner_id")
-        .eq("id", projectId)
-        .maybeSingle();
+  // 3. Include Project Creator / Owner and Super Admins from freelancer_profiles
+  try {
+    const profileIds = new Set<string>();
+    const { data: project } = await admin
+      .from("projects")
+      .select("id, owner_id")
+      .eq("id", projectId)
+      .maybeSingle();
 
-      if (project?.owner_id) {
-        profileIds.add(project.owner_id);
-      }
+    if (project?.owner_id) {
+      profileIds.add(project.owner_id);
+    }
 
-      const { data: superAdmins } = await admin
+    const { data: superAdmins } = await admin
+      .from("freelancer_profiles")
+      .select("id, name, email, role, status")
+      .eq("role", "super_admin")
+      .eq("status", "active");
+
+    (superAdmins || []).forEach((sa) => profileIds.add(sa.id));
+
+    if (profileIds.size > 0) {
+      const { data: profiles } = await admin
         .from("freelancer_profiles")
         .select("id, name, email, role, status")
-        .eq("role", "super_admin")
+        .in("id", Array.from(profileIds))
         .eq("status", "active");
 
-      (superAdmins || []).forEach((sa) => profileIds.add(sa.id));
-
-      if (profileIds.size > 0) {
-        const { data: profiles } = await admin
-          .from("freelancer_profiles")
-          .select("id, name, email, role, status")
-          .in("id", Array.from(profileIds))
-          .eq("status", "active");
-
-        for (const p of profiles || []) {
-          const roleTitle = p.role === "super_admin" ? "Super Admin" : "Project Creator";
-          try {
-            const synced = await syncFreelancerToTeam(admin, p, projectId);
-            memberMap.set(p.id, {
-              id: p.id,
-              name: synced.name,
-              username: synced.username,
-              role: roleTitle,
-              is_admin_or_owner: true,
-            });
-          } catch (syncErr) {
-            console.error("Failed to sync freelancer to team_users:", syncErr);
-            memberMap.set(p.id, {
-              id: p.id,
-              name: p.name || roleTitle,
-              username: p.email ? p.email.split("@")[0] : "admin",
-              role: roleTitle,
-              is_admin_or_owner: true,
-            });
-          }
+      for (const p of profiles || []) {
+        const roleTitle = p.role === "super_admin" ? "Super Admin" : "Project Creator";
+        try {
+          const synced = await syncFreelancerToTeam(admin, p, projectId);
+          memberMap.set(p.id, {
+            id: p.id,
+            name: synced.name,
+            username: synced.username,
+            role: roleTitle,
+            is_admin_or_owner: true,
+          });
+        } catch (syncErr) {
+          console.error("Failed to sync freelancer to team_users:", syncErr);
+          memberMap.set(p.id, {
+            id: p.id,
+            name: p.name || roleTitle,
+            username: p.email ? p.email.split("@")[0] : "admin",
+            role: roleTitle,
+            is_admin_or_owner: true,
+          });
         }
       }
-    } catch (err) {
-      console.error("Failed to fetch project creator or super admin profiles:", err);
     }
+  } catch (err) {
+    console.error("Failed to fetch project creator or super admin profiles:", err);
   }
 
   // 4. Query project_team_members joined with team_users
@@ -174,16 +172,11 @@ export async function GET(
     }
   }
 
-  // If forReviewers is requested, filter out any admin or creator roles
-  const filtered = Array.from(memberMap.values()).filter((m) => {
-    if (forReviewers && (m.role === "Super Admin" || m.role === "Project Creator" || m.is_admin_or_owner)) {
-      return false;
-    }
-    return true;
-  });
+  // Ensure all team members, project creators, and super admins are included
+  const allMembers = Array.from(memberMap.values());
 
   // Sort: Super Admin & Project Creator first (if present), then alphabetically
-  const teamMembers = filtered.sort((a, b) => {
+  const teamMembers = allMembers.sort((a, b) => {
     const aIsAdminOrOwner = a.role === "Super Admin" || a.role === "Project Creator";
     const bIsAdminOrOwner = b.role === "Super Admin" || b.role === "Project Creator";
     if (aIsAdminOrOwner && !bIsAdminOrOwner) return -1;

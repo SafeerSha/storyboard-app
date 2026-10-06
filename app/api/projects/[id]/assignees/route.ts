@@ -33,7 +33,7 @@ export async function GET(
       assignees.push(opt);
     };
 
-    // 2. Fetch Project Owner (Freelancer/Super Admin)
+    // 2. Fetch Project Owner and Super Admins (Freelancer / Super Admin)
     if (project.owner_id) {
       const { data: ownerProfile } = await admin
         .from("freelancer_profiles")
@@ -48,6 +48,24 @@ export async function GET(
           type: "freelancer",
           email: ownerProfile.email,
           role: ownerProfile.role === "super_admin" ? "Super Admin" : "Owner / Freelancer",
+        });
+      }
+    }
+
+    const { data: superAdmins } = await admin
+      .from("freelancer_profiles")
+      .select("id, name, email, role, status")
+      .eq("role", "super_admin")
+      .eq("status", "active");
+
+    if (superAdmins) {
+      for (const sa of superAdmins) {
+        addAssignee({
+          id: sa.id,
+          name: sa.name || sa.email.split("@")[0] || "Super Admin",
+          type: "freelancer",
+          email: sa.email,
+          role: "Super Admin",
         });
       }
     }

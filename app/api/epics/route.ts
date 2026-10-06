@@ -77,20 +77,50 @@ export async function POST(req: Request) {
       if (user) creatorId = user.id;
     }
 
-    const { data: epic, error } = await admin
+    const priority = body.priority ? String(body.priority).toLowerCase().trim() : "medium";
+
+    const insertPayload: any = {
+      project_id: projectId,
+      name,
+      description,
+      status,
+      sort_order: sortOrder,
+      created_by_id: creatorId,
+      priority,
+    };
+
+    let { data: epic, error } = await admin
       .from("epics")
-      .insert({
-        project_id: projectId,
-        name,
-        description,
-        status,
-        sort_order: sortOrder,
-        created_by_id: creatorId,
-      })
+      .insert(insertPayload)
       .select()
-      .single();
+      .maybeSingle();
+
+    if (error && (error.code === "42703" || error.message?.includes("priority"))) {
+      delete insertPayload.priority;
+      if (priority) {
+        insertPayload.description = description
+          ? `${description} <!--priority:${priority}-->`
+          : `<!--priority:${priority}-->`;
+      }
+      const retry = await admin
+        .from("epics")
+        .insert(insertPayload)
+        .select()
+        .maybeSingle();
+      epic = retry.data;
+      error = retry.error;
+    }
 
     if (error) throw error;
+
+    if (epic) {
+      if (!epic.priority) {
+        epic.priority = priority;
+      }
+      if (epic.description) {
+        epic.description = epic.description.replace(/<!--priority:(low|medium|high)-->/gi, "").trim();
+      }
+    }
 
     return NextResponse.json(epic, { status: 201 });
   } catch (error) {

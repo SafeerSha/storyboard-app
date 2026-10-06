@@ -702,7 +702,7 @@ export default function UsersPage() {
         }
       />
 
-      <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8 space-y-6">
+      <main className="mx-auto max-w-[1720px] px-4 py-6 sm:px-6 sm:py-8 lg:px-8 space-y-6">
         {/* User Type Quick Filter Tabs with Counts */}
         <div className="flex flex-wrap items-center gap-2 border-b border-[#EBE7F2] pb-3">
           <button

@@ -177,7 +177,7 @@ export default function ProjectInboxPage() {
         }
       />
 
-      <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8 space-y-6">
+      <main className="mx-auto max-w-[1720px] px-4 py-6 sm:px-6 sm:py-8 lg:px-8 space-y-6">
         {/* Needs Attention / Metrics Summary Banner */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
           <div className="rounded-xl border border-[#E2E6EF] bg-white p-4 shadow-card">

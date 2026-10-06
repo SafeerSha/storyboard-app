@@ -31,13 +31,17 @@ export function getStoryStatusLabel(status?: string | null): "New" | "Active" | 
   }
 }
 
+export * from "./types/epic";
+import type { EpicStatus, EpicPriority } from "./types/epic";
+
 export type Epic = {
   id: string;
   project_id: string;
   name: string;
   description: string | null;
-  status: "active" | "completed" | "archived";
+  status: EpicStatus;
   sort_order: number;
+  priority?: EpicPriority | null;
   created_by_id?: string | null;
   created_at: string;
   updated_at: string;

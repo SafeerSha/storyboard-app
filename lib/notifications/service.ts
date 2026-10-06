@@ -180,6 +180,7 @@ export async function notifyPaymentReceived({
   ownerId,
   ownerEmail,
   actorName,
+  sendEmailNotification = true,
 }: {
   remunerationId: string;
   installmentId: string;
@@ -196,6 +197,7 @@ export async function notifyPaymentReceived({
   ownerId: string;
   ownerEmail?: string | null;
   actorName: string;
+  sendEmailNotification?: boolean;
 }) {
   const baseUrl = getAppBaseUrl();
   const remUrl = `${baseUrl}/remunerations/${remunerationId}`;
@@ -208,8 +210,8 @@ export async function notifyPaymentReceived({
     actorName,
     action: "payment_received",
     title: `Payment Received: Installment #${installmentNumber}`,
-    description: `Confirmed payment of ${currency} ${amount.toLocaleString()} received via ${paymentMethod}${paymentReference ? ` (Ref: ${paymentReference})` : ""}.`,
-    metadata: { installmentNumber, amount, currency, paymentMethod, paymentReference },
+    description: `Confirmed payment of ${currency} ${amount.toLocaleString()} received via ${paymentMethod}${paymentReference ? ` (Ref: ${paymentReference})` : ""}.${sendEmailNotification ? "" : " (Confirmation email suppressed by toggle)"}`,
+    metadata: { installmentNumber, amount, currency, paymentMethod, paymentReference, sendEmailNotification },
   });
 
   // 2. In-App Notification
@@ -221,9 +223,10 @@ export async function notifyPaymentReceived({
     type: "payment_received",
   });
 
-  // 3. Receipt email to Client and/or internal owner
-  const recipients = [clientEmail, ownerEmail].filter((e): e is string => Boolean(e && e.includes("@")));
-  if (recipients.length > 0) {
+  // 3. Receipt email to Client and/or internal owner (if enabled)
+  if (sendEmailNotification) {
+    const recipients = [clientEmail, ownerEmail].filter((e): e is string => Boolean(e && e.includes("@")));
+    if (recipients.length > 0) {
     try {
       const emailHtml = generatePaymentReceivedEmail({
         recipientName: clientName || "Valued Client",
@@ -247,6 +250,7 @@ export async function notifyPaymentReceived({
       console.warn("[Email Service] Failed to send payment receipt email:", err);
     }
   }
+}
 }
 
 /**

@@ -14,6 +14,8 @@ export interface RemunerationRecord {
   payment_method: RemunerationPaymentMethod;
   status: RemunerationStatus;
   notes: string | null;
+  send_receipt_email?: boolean;
+  splits?: RemunerationSplit[];
   created_at: string;
   updated_at: string;
   // Joined fields
@@ -34,6 +36,16 @@ export interface RemunerationRecord {
   remaining_amount?: number;
   next_due_date?: string | null;
   is_overdue?: boolean;
+}
+
+export interface RemunerationSplit {
+  id?: string;
+  teamMemberId: string;
+  name: string;
+  role?: string | null;
+  percentage?: number | null;
+  amount: number;
+  notes?: string | null;
 }
 
 export interface RemunerationInstallment {
@@ -158,12 +170,24 @@ export const installmentInputSchema = z.object({
   notes: z.string().max(1000).optional().nullable(),
 });
 
+export const remunerationSplitSchema = z.object({
+  id: z.string().optional(),
+  teamMemberId: z.string().min(1, "Team member is required"),
+  name: z.string().min(1, "Name is required"),
+  role: z.string().optional().nullable(),
+  percentage: z.number().min(0).max(100).optional().nullable(),
+  amount: z.number().min(0, "Split amount must be positive"),
+  notes: z.string().max(500).optional().nullable(),
+});
+
 export const createRemunerationSchema = z.object({
   projectId: z.string().uuid("Invalid project ID"),
   totalAmount: z.number().positive("Total remuneration must be greater than 0"),
   currency: z.string().default("INR"),
   paymentMethod: z.enum(["single", "installments"]),
   notes: z.string().max(2000).optional().nullable(),
+  sendReceiptEmail: z.boolean().optional().default(true),
+  splits: z.array(remunerationSplitSchema).optional().default([]),
   installments: z.array(installmentInputSchema).min(1, "At least one payment installment is required"),
 }).refine((data) => {
   // Enforce sum of installments == totalAmount with 2 decimal precision
@@ -180,6 +204,7 @@ export const recordPaymentSchema = z.object({
   paymentMethod: z.enum(["UPI", "Bank Transfer", "Cash", "Card", "Other"]),
   paymentReference: z.string().max(200).optional().nullable(),
   notes: z.string().max(2000).optional().nullable(),
+  sendEmail: z.boolean().optional().default(true),
 });
 
 // ==============================================================================

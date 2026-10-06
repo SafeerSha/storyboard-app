@@ -278,40 +278,62 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Forbidden. You do not own this project." }, { status: 403 });
     }
 
-    // 2. Verify project has at least one active client
+    // 2. Fetch client if assigned (optional)
     const { data: clients } = await admin
       .from("clients")
       .select("id, name, email, status")
       .eq("project_id", data.projectId);
 
-    if (!clients || clients.length === 0) {
-      return NextResponse.json(
-        {
-          error: "This project has no client assigned. Please create or assign a client to this project first.",
-        },
-        { status: 400 }
-      );
-    }
-
-    const client = clients.find((c) => c.status === "active") || clients[0];
+    const client = (clients && clients.length > 0)
+      ? (clients.find((c) => c.status === "active") || clients[0])
+      : null;
 
     // 3. Create Remuneration Record
-    const { data: remuneration, error: remError } = await admin
+    const insertPayload: Record<string, any> = {
+      project_id: data.projectId,
+      created_by: user.id,
+      total_amount: data.totalAmount,
+      currency: data.currency || "INR",
+      payment_method: data.paymentMethod,
+      status: "new",
+      notes: data.notes || null,
+      send_receipt_email: data.sendReceiptEmail ?? true,
+      splits: data.splits || [],
+    };
+
+    let remuneration: any = null;
+    const { data: remData, error: remError } = await admin
       .from("remunerations")
-      .insert({
-        project_id: data.projectId,
-        created_by: user.id,
-        total_amount: data.totalAmount,
-        currency: data.currency || "INR",
-        payment_method: data.paymentMethod,
-        status: "new",
-        notes: data.notes || null,
-      })
+      .insert(insertPayload)
       .select()
       .single();
 
     if (remError) {
-      return NextResponse.json({ error: remError.message }, { status: 500 });
+      // If error is due to missing columns (e.g. migration not run in Supabase yet), fallback gracefully
+      if (remError.message.includes("send_receipt_email") || remError.message.includes("splits")) {
+        const fallbackPayload: Record<string, any> = {
+          project_id: data.projectId,
+          created_by: user.id,
+          total_amount: data.totalAmount,
+          currency: data.currency || "INR",
+          payment_method: data.paymentMethod,
+          status: "new",
+          notes: data.notes || null,
+        };
+        const { data: fallbackRem, error: fbErr } = await admin
+          .from("remunerations")
+          .insert(fallbackPayload)
+          .select()
+          .single();
+        if (fbErr) {
+          return NextResponse.json({ error: fbErr.message }, { status: 500 });
+        }
+        remuneration = { ...fallbackRem, send_receipt_email: data.sendReceiptEmail ?? true, splits: data.splits || [] };
+      } else {
+        return NextResponse.json({ error: remError.message }, { status: 500 });
+      }
+    } else {
+      remuneration = remData;
     }
 
     // 4. Create Installment Records
@@ -337,6 +359,24 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: instError.message }, { status: 500 });
     }
 
+    // Optional: insert into remuneration_splits table if populated
+    if (data.splits && data.splits.length > 0) {
+      try {
+        const splitRows = data.splits.map((s) => ({
+          remuneration_id: remuneration.id,
+          team_user_id: s.teamMemberId,
+          member_name: s.name,
+          role: s.role || null,
+          percentage: s.percentage ?? null,
+          amount: s.amount,
+          notes: s.notes || null,
+        }));
+        await admin.from("remuneration_splits").insert(splitRows);
+      } catch (splitErr) {
+        console.warn("Could not insert into remuneration_splits table:", splitErr);
+      }
+    }
+
     const actorName = profile?.name || user.email?.split("@")[0] || "Owner";
 
     // 5. Record Creation Audit Trail
@@ -346,23 +386,25 @@ export async function POST(req: Request) {
       actorName,
       action: "remuneration_created",
       title: "Remuneration Configured",
-      description: `Created ${data.paymentMethod === "single" ? "single payment" : `${data.installments.length}-installment`} schedule totaling ${data.currency} ${data.totalAmount.toLocaleString()} for ${project.name} (${client.name}).`,
+      description: `Created ${data.paymentMethod === "single" ? "single payment" : `${data.installments.length}-installment`} schedule totaling ${data.currency} ${data.totalAmount.toLocaleString()} for ${project.name}${client ? ` (${client.name})` : " (No client assigned)"}.`,
       metadata: {
         totalAmount: data.totalAmount,
         currency: data.currency,
         paymentMethod: data.paymentMethod,
         installmentsCount: data.installments.length,
+        splitsCount: (data.splits || []).length,
+        sendReceiptEmail: data.sendReceiptEmail ?? true,
       },
     });
-
-    // Step 6: (no self-notification on creation — audit trail above is sufficient)
 
     return NextResponse.json(
       {
         remuneration: {
           ...remuneration,
+          send_receipt_email: data.sendReceiptEmail ?? true,
+          splits: data.splits || [],
           project,
-          client,
+          client: client || null,
           installments: createdInstallments,
         },
       },

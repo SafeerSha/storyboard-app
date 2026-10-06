@@ -176,7 +176,7 @@ export default async function ClientOverviewPage() {
     <div className="min-h-screen pb-16">
       {/* Top Banner / Project Summary Card */}
       <div className="border-b border-[rgba(74,61,100,0.08)] bg-white/60 backdrop-blur-[20px] px-4 py-6 sm:px-8 sm:py-8">
-        <div className="mx-auto max-w-6xl space-y-6">
+        <div className="mx-auto max-w-[1720px] space-y-6">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
               <div className="inline-flex items-center gap-1.5 rounded-full bg-[rgba(184,148,78,0.10)] px-2.5 py-0.5 text-[11px] font-semibold text-[#80642F] border border-[rgba(184,148,78,0.18)] mb-2 uppercase tracking-wider">
@@ -219,7 +219,7 @@ export default async function ClientOverviewPage() {
       </div>
 
       {/* Main Container */}
-      <div className="mx-auto max-w-6xl px-4 py-6 sm:px-8 space-y-8">
+      <div className="mx-auto max-w-[1720px] px-4 py-6 sm:px-8 space-y-8">
         {/* Project Quotation Hero Card (if published) */}
         {clientQuotation && (
           <div className="rounded-2xl border border-[rgba(184,148,78,0.3)] bg-gradient-to-r from-amber-50/70 via-white to-amber-50/40 p-5 sm:p-6 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">

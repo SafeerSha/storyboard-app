@@ -184,7 +184,6 @@ export function StoryEditor({
   const candidateReviewers = teamMembers.filter((tm) => {
     if (story.created_by_id && tm.id === story.created_by_id) return false;
     if (currentUserId && tm.id === currentUserId) return false;
-    if (tm.role === "Super Admin" || tm.role === "Project Creator") return false;
     return true;
   });
 

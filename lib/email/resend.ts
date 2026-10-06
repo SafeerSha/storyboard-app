@@ -20,6 +20,10 @@ import {
   generateQuotationRecalledEmail,
   QuotationRecalledEmailProps,
 } from "./templates/quotation-recalled";
+import {
+  generatePasswordResetLinkEmail,
+  PasswordResetLinkEmailProps,
+} from "./templates/password-reset-link";
 
 export interface EmailAttachment {
   filename: string;
@@ -309,3 +313,22 @@ export async function sendQuotationRecalledNotification(
     text,
   });
 }
+
+/**
+ * High-level helper: Send secure password reset link to user
+ */
+export async function sendPasswordResetLinkNotification(
+  recipientEmail: string,
+  props: PasswordResetLinkEmailProps & { fromEmail?: string }
+) {
+  const { subject, html, text } = generatePasswordResetLinkEmail(props);
+
+  return sendEmail({
+    from: props.fromEmail,
+    to: recipientEmail,
+    subject,
+    html,
+    text,
+  });
+}
+
