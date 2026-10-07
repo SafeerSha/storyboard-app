@@ -274,8 +274,8 @@ export default function UsersPage() {
         createType === "freelancer" || createType === "super_admin"
           ? "Freelancer account created successfully"
           : createType === "team_user"
-          ? "Team member created successfully"
-          : "Client account created successfully"
+            ? "Team member created successfully"
+            : "Client account created successfully"
       );
 
       setCreatedSuccess({
@@ -284,16 +284,16 @@ export default function UsersPage() {
           createType === "freelancer" || createType === "super_admin"
             ? createEmail
             : createType === "team_user"
-            ? `@${createUsername}`
-            : data.client?.login_id || "Client ID",
+              ? `@${createUsername}`
+              : data.client?.login_id || "Client ID",
         userType:
           createType === "super_admin"
             ? "Super Admin"
             : createType === "freelancer"
-            ? "Freelancer"
-            : createType === "team_user"
-            ? "Team Member"
-            : "Client",
+              ? "Freelancer"
+              : createType === "team_user"
+                ? "Team Member"
+                : "Client",
         projectNames: selectedProjNames.length > 0 ? selectedProjNames : ["Workspace"],
         passwordEntered: createPassword,
       });
@@ -708,17 +708,15 @@ export default function UsersPage() {
           <button
             type="button"
             onClick={() => setActiveTab("all")}
-            className={`inline-flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs sm:text-sm font-semibold transition ${
-              activeTab === "all"
+            className={`inline-flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs sm:text-sm font-semibold transition ${activeTab === "all"
                 ? "bg-[#252331] text-white shadow-xs"
                 : "bg-white/80 text-[#706C7D] hover:bg-[#FAF9FC] hover:text-[#252331] border border-[#EBE7F2]"
-            }`}
+              }`}
           >
             <span>All Users</span>
             <span
-              className={`rounded-full px-1.5 py-0.2 text-[11px] font-mono ${
-                activeTab === "all" ? "bg-white/20 text-white" : "bg-neutral-100 text-[#706C7D]"
-              }`}
+              className={`rounded-full px-1.5 py-0.2 text-[11px] font-mono ${activeTab === "all" ? "bg-white/20 text-white" : "bg-neutral-100 text-[#706C7D]"
+                }`}
             >
               {counts.all}
             </span>
@@ -728,20 +726,18 @@ export default function UsersPage() {
             <button
               type="button"
               onClick={() => setActiveTab("freelancer")}
-              className={`inline-flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs sm:text-sm font-semibold transition ${
-                activeTab === "freelancer"
+              className={`inline-flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs sm:text-sm font-semibold transition ${activeTab === "freelancer"
                   ? "bg-rose-600 text-white shadow-xs hover:bg-rose-700"
                   : "bg-white/80 text-[#706C7D] hover:bg-rose-50/60 hover:text-rose-700 border border-[#EBE7F2]"
-              }`}
+                }`}
             >
               <Briefcase size={14} />
               <span>Freelancers</span>
               <span
-                className={`rounded-full px-1.5 py-0.2 text-[11px] font-mono ${
-                  activeTab === "freelancer"
+                className={`rounded-full px-1.5 py-0.2 text-[11px] font-mono ${activeTab === "freelancer"
                     ? "bg-white/20 text-white"
                     : "bg-rose-50 text-rose-700 border border-rose-200/50"
-                }`}
+                  }`}
               >
                 {counts.freelancer}
               </span>
@@ -751,20 +747,18 @@ export default function UsersPage() {
           <button
             type="button"
             onClick={() => setActiveTab("team_user")}
-            className={`inline-flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs sm:text-sm font-semibold transition ${
-              activeTab === "team_user"
+            className={`inline-flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs sm:text-sm font-semibold transition ${activeTab === "team_user"
                 ? "bg-[#80642F] text-white shadow-xs"
                 : "bg-white/80 text-[#706C7D] hover:bg-[rgba(184,148,78,0.06)] hover:text-[#80642F] border border-[#EBE7F2]"
-            }`}
+              }`}
           >
             <Users size={14} />
             <span>Team Members</span>
             <span
-              className={`rounded-full px-1.5 py-0.2 text-[11px] font-mono ${
-                activeTab === "team_user"
+              className={`rounded-full px-1.5 py-0.2 text-[11px] font-mono ${activeTab === "team_user"
                   ? "bg-white/20 text-white"
                   : "bg-[rgba(184,148,78,0.12)] text-[#80642F]"
-              }`}
+                }`}
             >
               {counts.team_user}
             </span>
@@ -773,20 +767,18 @@ export default function UsersPage() {
           <button
             type="button"
             onClick={() => setActiveTab("client")}
-            className={`inline-flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs sm:text-sm font-semibold transition ${
-              activeTab === "client"
+            className={`inline-flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs sm:text-sm font-semibold transition ${activeTab === "client"
                 ? "bg-emerald-600 text-white shadow-xs"
                 : "bg-white/80 text-[#706C7D] hover:bg-emerald-50/50 hover:text-emerald-700 border border-[#EBE7F2]"
-            }`}
+              }`}
           >
             <Building2 size={14} />
             <span>Clients</span>
             <span
-              className={`rounded-full px-1.5 py-0.2 text-[11px] font-mono ${
-                activeTab === "client"
+              className={`rounded-full px-1.5 py-0.2 text-[11px] font-mono ${activeTab === "client"
                   ? "bg-white/20 text-white"
                   : "bg-emerald-50 text-emerald-700"
-              }`}
+                }`}
             >
               {counts.client}
             </span>
@@ -796,20 +788,18 @@ export default function UsersPage() {
             <button
               type="button"
               onClick={() => setActiveTab("super_admin")}
-              className={`inline-flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs sm:text-sm font-semibold transition ${
-                activeTab === "super_admin"
+              className={`inline-flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs sm:text-sm font-semibold transition ${activeTab === "super_admin"
                   ? "bg-amber-600 text-white shadow-xs"
                   : "bg-white/80 text-[#706C7D] hover:bg-amber-50/50 hover:text-amber-800 border border-[#EBE7F2]"
-              }`}
+                }`}
             >
               <Crown size={14} />
               <span>Super Admins</span>
               <span
-                className={`rounded-full px-1.5 py-0.2 text-[11px] font-mono ${
-                  activeTab === "super_admin"
+                className={`rounded-full px-1.5 py-0.2 text-[11px] font-mono ${activeTab === "super_admin"
                     ? "bg-white/20 text-white"
                     : "bg-amber-100 text-amber-800"
-                }`}
+                  }`}
               >
                 {counts.super_admin}
               </span>
@@ -1073,11 +1063,10 @@ export default function UsersPage() {
             <button
               type="button"
               onClick={() => setCreateType("team_user")}
-              className={`flex items-center justify-center gap-1.5 rounded-lg py-2 text-xs font-semibold transition ${
-                createType === "team_user"
+              className={`flex items-center justify-center gap-1.5 rounded-lg py-2 text-xs font-semibold transition ${createType === "team_user"
                   ? "bg-white text-[#80642F] shadow-xs border border-[#EBE7F2]"
                   : "text-[#706C7D] hover:text-[#252331]"
-              }`}
+                }`}
             >
               <Users size={14} />
               <span>Team Member</span>
@@ -1086,11 +1075,10 @@ export default function UsersPage() {
               <button
                 type="button"
                 onClick={() => setCreateType("freelancer")}
-                className={`flex items-center justify-center gap-1.5 rounded-lg py-2 text-xs font-semibold transition ${
-                  createType === "freelancer" || createType === "super_admin"
+                className={`flex items-center justify-center gap-1.5 rounded-lg py-2 text-xs font-semibold transition ${createType === "freelancer" || createType === "super_admin"
                     ? "bg-white text-rose-700 shadow-xs border border-[#EBE7F2]"
                     : "text-[#706C7D] hover:text-[#252331]"
-                }`}
+                  }`}
               >
                 <Briefcase size={14} />
                 <span>Freelancer / Admin</span>
@@ -1099,11 +1087,10 @@ export default function UsersPage() {
             <button
               type="button"
               onClick={() => setCreateType("client")}
-              className={`flex items-center justify-center gap-1.5 rounded-lg py-2 text-xs font-semibold transition ${
-                createType === "client"
+              className={`flex items-center justify-center gap-1.5 rounded-lg py-2 text-xs font-semibold transition ${createType === "client"
                   ? "bg-white text-emerald-700 shadow-xs border border-[#EBE7F2]"
                   : "text-[#706C7D] hover:text-[#252331]"
-              }`}
+                }`}
             >
               <Building2 size={14} />
               <span>Client</span>
@@ -1177,11 +1164,10 @@ export default function UsersPage() {
                       return (
                         <label
                           key={p.id}
-                          className={`flex items-center justify-between rounded-lg px-2.5 py-2 text-xs font-medium cursor-pointer transition ${
-                            checked
+                          className={`flex items-center justify-between rounded-lg px-2.5 py-2 text-xs font-medium cursor-pointer transition ${checked
                               ? "bg-[rgba(184,148,78,0.10)] text-[#80642F] border border-[rgba(184,148,78,0.22)]"
                               : "hover:bg-[#FAF9FC] text-[#353140] border border-transparent"
-                          }`}
+                            }`}
                         >
                           <div className="flex items-center gap-2.5">
                             <input
@@ -1247,11 +1233,10 @@ export default function UsersPage() {
                     return (
                       <label
                         key={p.id}
-                        className={`flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-xs font-medium cursor-pointer transition ${
-                          checked
+                        className={`flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-xs font-medium cursor-pointer transition ${checked
                             ? "bg-[rgba(184,148,78,0.10)] text-[#80642F]"
                             : "hover:bg-[#FAF9FC] text-[#353140]"
-                        }`}
+                          }`}
                       >
                         <input
                           type="checkbox"
@@ -1376,7 +1361,7 @@ export default function UsersPage() {
                 variant="outline"
                 leftIcon={copiedCreds ? <Check size={14} /> : <Copy size={14} />}
                 onClick={() => {
-                  const text = `StoryBoard Account Details\nName: ${createdSuccess.name}\nType: ${createdSuccess.userType}\nLogin: ${createdSuccess.identifier}\nPassword: ${createdSuccess.passwordEntered}\nProjects: ${createdSuccess.projectNames.join(", ")}`;
+                  const text = `REQly Account Details\nName: ${createdSuccess.name}\nType: ${createdSuccess.userType}\nLogin: ${createdSuccess.identifier}\nPassword: ${createdSuccess.passwordEntered}\nProjects: ${createdSuccess.projectNames.join(", ")}`;
                   navigator.clipboard.writeText(text);
                   setCopiedCreds(true);
                   setTimeout(() => setCopiedCreds(false), 2000);
@@ -1472,11 +1457,10 @@ export default function UsersPage() {
                           return (
                             <label
                               key={p.id}
-                              className={`flex items-center gap-2 rounded px-2 py-1 text-xs cursor-pointer transition ${
-                                checked
+                              className={`flex items-center gap-2 rounded px-2 py-1 text-xs cursor-pointer transition ${checked
                                   ? "bg-[rgba(184,148,78,0.10)] text-[#80642F] font-semibold"
                                   : "hover:bg-[#FAF9FC] text-[#353140]"
-                              }`}
+                                }`}
                             >
                               <input
                                 type="checkbox"
@@ -1543,11 +1527,10 @@ export default function UsersPage() {
                           return (
                             <label
                               key={p.id}
-                              className={`flex items-center justify-between rounded-lg px-2.5 py-2 text-xs font-medium cursor-pointer transition ${
-                                checked
+                              className={`flex items-center justify-between rounded-lg px-2.5 py-2 text-xs font-medium cursor-pointer transition ${checked
                                   ? "bg-[rgba(184,148,78,0.10)] text-[#80642F] border border-[rgba(184,148,78,0.22)]"
                                   : "hover:bg-[#FAF9FC] text-[#353140] border border-transparent"
-                              }`}
+                                }`}
                             >
                               <div className="flex items-center gap-2.5">
                                 <input
@@ -1656,11 +1639,10 @@ export default function UsersPage() {
                           return (
                             <label
                               key={p.id}
-                              className={`flex items-center justify-between rounded px-2 py-1 text-xs cursor-pointer transition ${
-                                checked
+                              className={`flex items-center justify-between rounded px-2 py-1 text-xs cursor-pointer transition ${checked
                                   ? "bg-[rgba(184,148,78,0.10)] text-[#80642F] font-semibold"
                                   : "hover:bg-[#FAF9FC] text-[#353140]"
-                              }`}
+                                }`}
                             >
                               <div className="flex items-center gap-2">
                                 <input
@@ -1699,11 +1681,10 @@ export default function UsersPage() {
                         return (
                           <label
                             key={p.id}
-                            className={`flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-xs font-medium cursor-pointer transition ${
-                              checked
+                            className={`flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-xs font-medium cursor-pointer transition ${checked
                                 ? "bg-[rgba(184,148,78,0.10)] text-[#80642F]"
                                 : "hover:bg-[#FAF9FC] text-[#353140]"
-                            }`}
+                              }`}
                           >
                             <input
                               type="checkbox"
@@ -1867,9 +1848,8 @@ export default function UsersPage() {
           onClose={() => setDeletingUser(null)}
           onConfirm={confirmDeleteUser}
           title={`Remove ${deletingUser.roleDisplay}?`}
-          description={`Are you sure you want to remove ${deletingUser.name} (${
-            deletingUser.email || deletingUser.username || deletingUser.loginId || "account"
-          })? They will immediately lose platform access.`}
+          description={`Are you sure you want to remove ${deletingUser.name} (${deletingUser.email || deletingUser.username || deletingUser.loginId || "account"
+            })? They will immediately lose platform access.`}
           confirmLabel="Delete User"
           variant="danger"
           isLoading={deletingLoading}

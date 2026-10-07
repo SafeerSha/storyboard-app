@@ -1,4 +1,4 @@
--- ==============================================================================
+``-- ==============================================================================
 -- Remuneration Tracking & Payment Management Schema Migration
 -- ==============================================================================
 
@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS public.remuneration_installments (
     remuneration_id UUID NOT NULL REFERENCES public.remunerations(id) ON DELETE CASCADE,
     installment_number INTEGER NOT NULL CHECK (installment_number > 0),
     amount NUMERIC(12, 2) NOT NULL CHECK (amount > 0),
-    due_date DATE NOT NULL,
+    due_date DATE,
     status VARCHAR(20) NOT NULL DEFAULT 'new' CHECK (status IN ('new', 'requested', 'completed')),
     requested_date TIMESTAMPTZ,
     received_date TIMESTAMPTZ,
@@ -136,6 +136,7 @@ AS $$
 $$;
 
 -- 1. Remunerations RLS: Project owner or Super Admin
+DROP POLICY IF EXISTS "owners and super admins can manage remunerations" ON public.remunerations;
 CREATE POLICY "owners and super admins can manage remunerations"
     ON public.remunerations
     FOR ALL
@@ -157,6 +158,7 @@ CREATE POLICY "owners and super admins can manage remunerations"
     );
 
 -- 2. Installments RLS: Inherit project ownership
+DROP POLICY IF EXISTS "owners and super admins can manage installments" ON public.remuneration_installments;
 CREATE POLICY "owners and super admins can manage installments"
     ON public.remuneration_installments
     FOR ALL
@@ -178,6 +180,7 @@ CREATE POLICY "owners and super admins can manage installments"
     );
 
 -- 3. Payments RLS: Inherit project ownership
+DROP POLICY IF EXISTS "owners and super admins can manage payments" ON public.remuneration_payments;
 CREATE POLICY "owners and super admins can manage payments"
     ON public.remuneration_payments
     FOR ALL
@@ -199,6 +202,7 @@ CREATE POLICY "owners and super admins can manage payments"
     );
 
 -- 4. Proofs RLS: Inherit project ownership
+DROP POLICY IF EXISTS "owners and super admins can manage proofs" ON public.remuneration_proofs;
 CREATE POLICY "owners and super admins can manage proofs"
     ON public.remuneration_proofs
     FOR ALL
@@ -220,6 +224,7 @@ CREATE POLICY "owners and super admins can manage proofs"
     );
 
 -- 5. Audit Events RLS: Inherit project ownership
+DROP POLICY IF EXISTS "owners and super admins can manage events" ON public.remuneration_events;
 CREATE POLICY "owners and super admins can manage events"
     ON public.remuneration_events
     FOR ALL
@@ -241,8 +246,10 @@ CREATE POLICY "owners and super admins can manage events"
     );
 
 -- 6. Notifications RLS: Own notifications only
+DROP POLICY IF EXISTS "users can view and manage their own notifications" ON public.notifications;
 CREATE POLICY "users can view and manage their own notifications"
     ON public.notifications
     FOR ALL
     USING (auth.uid() = user_id)
     WITH CHECK (auth.uid() = user_id);
+``

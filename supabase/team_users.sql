@@ -1,5 +1,5 @@
 -- ==========================================================
--- StoryBoard: Team Users, Team Sessions, Dual Reviews & Feedback
+-- REQly: Team Users, Team Sessions, Dual Reviews & Feedback
 -- ==========================================================
 
 -- 1. Create team_users table

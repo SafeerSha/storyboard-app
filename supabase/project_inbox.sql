@@ -1,5 +1,5 @@
 -- ==============================================================================
--- StoryBoard - Project Inbox & Personal AI Workspace Schema
+-- REQly - Project Inbox & Personal AI Workspace Schema
 -- ==============================================================================
 
 -- 1. Project Inbox Items table

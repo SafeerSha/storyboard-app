@@ -1,5 +1,5 @@
 -- ==========================================================
--- StoryBoard: Epic Priority Management Migration
+-- REQly: Epic Priority Management Migration
 -- ==========================================================
 
 -- 1. Add priority column to epics table

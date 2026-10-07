@@ -1,5 +1,5 @@
 -- ==============================================================================
--- StoryBoard: Epic Discussions Schema
+-- REQly: Epic Discussions Schema
 -- ==============================================================================
 
 -- Create epic_feedback_threads table

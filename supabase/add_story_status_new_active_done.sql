@@ -1,5 +1,5 @@
 -- ==============================================================================
--- StoryBoard: Story Lifecycle Status (New, Active, Done)
+-- REQly: Story Lifecycle Status (New, Active, Done)
 -- ==============================================================================
 
 -- 1. Drop existing check constraint on stories.status if present

@@ -223,11 +223,10 @@ function SmartVisualTable({
             <button
               type="button"
               onClick={() => setViewMode("cards")}
-              className={`flex items-center gap-1 px-2 py-0.5 rounded-md transition cursor-pointer ${
-                viewMode === "cards"
+              className={`flex items-center gap-1 px-2 py-0.5 rounded-md transition cursor-pointer ${viewMode === "cards"
                   ? "bg-[#B8944E] text-white font-semibold shadow-xs"
                   : "text-slate-400 hover:text-white"
-              }`}
+                }`}
               title="Cards View"
             >
               <LayoutGrid size={11} />
@@ -236,11 +235,10 @@ function SmartVisualTable({
             <button
               type="button"
               onClick={() => setViewMode("table")}
-              className={`flex items-center gap-1 px-2 py-0.5 rounded-md transition cursor-pointer ${
-                viewMode === "table"
+              className={`flex items-center gap-1 px-2 py-0.5 rounded-md transition cursor-pointer ${viewMode === "table"
                   ? "bg-[#B8944E] text-white font-semibold shadow-xs"
                   : "text-slate-400 hover:text-white"
-              }`}
+                }`}
               title="Table View"
             >
               <List size={11} />
@@ -625,9 +623,8 @@ function FormattedMessageContent({
             <Square size={14} className="text-slate-500 mt-0.5 shrink-0" />
           )}
           <div
-            className={`text-xs sm:text-sm leading-relaxed ${
-              isChecked ? "text-slate-400 line-through" : "text-slate-200"
-            }`}
+            className={`text-xs sm:text-sm leading-relaxed ${isChecked ? "text-slate-400 line-through" : "text-slate-200"
+              }`}
           >
             {renderInlineMarkdown(text, onLinkClick)}
           </div>
@@ -710,7 +707,7 @@ function AssistantMessageBubble({
       {/* Top Header inside Bubble */}
       <div className="flex items-center justify-between pb-2 border-b border-slate-800/80 text-[11px]">
         <div className="flex items-center gap-1.5">
-          <span className="font-semibold text-white tracking-tight">StoryBoard Copilot</span>
+          <span className="font-semibold text-white tracking-tight">REQly Copilot</span>
         </div>
 
         <button
@@ -1009,17 +1006,17 @@ export function WorkspaceCopilot({ initialUser }: WorkspaceCopilotProps) {
 
   const starterSuggestions = activeProjectId
     ? [
-        "📊 Summarize this project's epics and pending stories",
-        "💡 Break down: User can authenticate with Google & Email",
-        "📋 Create an urgent task: Set up Stripe webhook handler",
-        "🔍 Check open tasks and priority bottlenecks",
-      ]
+      "📊 Summarize this project's epics and pending stories",
+      "💡 Break down: User can authenticate with Google & Email",
+      "📋 Create an urgent task: Set up Stripe webhook handler",
+      "🔍 Check open tasks and priority bottlenecks",
+    ]
     : [
-        "📊 Show high-level overview of all workspace projects",
-        "📁 List all active projects in the workspace",
-        "💡 How do I structure acceptance criteria for a new MVP?",
-        "📋 How many unfinished tasks are currently open?",
-      ];
+      "📊 Show high-level overview of all workspace projects",
+      "📁 List all active projects in the workspace",
+      "💡 How do I structure acceptance criteria for a new MVP?",
+      "📋 How many unfinished tasks are currently open?",
+    ];
 
   return (
     <>
@@ -1032,7 +1029,7 @@ export function WorkspaceCopilot({ initialUser }: WorkspaceCopilotProps) {
             setIsOpen((prev) => !prev);
           }}
           className="group relative flex items-center gap-2.5 rounded-full bg-[#121118] border border-[#B8944E]/40 hover:border-[#B8944E]/85 p-3 sm:px-4 sm:py-2.5 text-white shadow-[0_12px_32px_rgba(0,0,0,0.40),0_0_20px_rgba(184,148,78,0.16)] transition-all duration-300 hover:scale-105 hover:shadow-[0_16px_40px_rgba(0,0,0,0.50),0_0_25px_rgba(184,148,78,0.28)] focus:outline-none focus:ring-2 focus:ring-[#B8944E]/60 focus:ring-offset-2 focus:ring-offset-[#121118] active:scale-95 cursor-pointer"
-          aria-label="Open StoryBoard AI Copilot"
+          aria-label="Open REQly AI Copilot"
         >
           <div className="relative flex items-center justify-center">
             <BotMessageSquare size={19} className="text-[#D6BD88] transition-transform group-hover:scale-110" />
@@ -1056,13 +1053,11 @@ export function WorkspaceCopilot({ initialUser }: WorkspaceCopilotProps) {
 
       {/* 3. Copilot Slide-Over Drawer Container (Full viewport height 100dvh on mobile) */}
       <aside
-        className={`fixed inset-y-0 right-0 z-[95] flex flex-col h-[100dvh] max-h-[100dvh] bg-[#100E17] border-l border-[#B8944E]/20 text-slate-100 shadow-2xl transition-all duration-300 ease-out ${
-          isOpen
+        className={`fixed inset-y-0 right-0 z-[95] flex flex-col h-[100dvh] max-h-[100dvh] bg-[#100E17] border-l border-[#B8944E]/20 text-slate-100 shadow-2xl transition-all duration-300 ease-out ${isOpen
             ? "translate-x-0 opacity-100 visible pointer-events-auto"
             : "translate-x-full opacity-0 invisible pointer-events-none"
-        } ${
-          isExpanded ? "w-full md:w-[760px]" : "w-full sm:w-[480px] md:w-[520px]"
-        }`}
+          } ${isExpanded ? "w-full md:w-[760px]" : "w-full sm:w-[480px] md:w-[520px]"
+          }`}
         aria-hidden={!isOpen}
       >
         {/* Mobile Pull Indicator */}
@@ -1078,7 +1073,7 @@ export function WorkspaceCopilot({ initialUser }: WorkspaceCopilotProps) {
             </div>
             <div className="min-w-0">
               <div className="flex items-center">
-                <h3 className="text-xs sm:text-sm font-semibold text-white tracking-tight truncate">StoryBoard Copilot</h3>
+                <h3 className="text-xs sm:text-sm font-semibold text-white tracking-tight truncate">REQly Copilot</h3>
               </div>
               <p className="text-[10px] sm:text-[11px] text-slate-400 truncate">
                 {activeProjectId ? (
@@ -1089,7 +1084,7 @@ export function WorkspaceCopilot({ initialUser }: WorkspaceCopilotProps) {
               </p>
             </div>
           </div>
- 
+
           <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
             {/* + New Chat Button */}
             <button
@@ -1109,11 +1104,10 @@ export function WorkspaceCopilot({ initialUser }: WorkspaceCopilotProps) {
                 setShowHistory((prev) => !prev);
                 if (!showHistory) fetchConversations();
               }}
-              className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-medium border transition cursor-pointer ${
-                showHistory
+              className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-medium border transition cursor-pointer ${showHistory
                   ? "bg-[#B8944E] text-white border-[#B8944E]"
                   : "bg-slate-900 text-slate-300 hover:bg-slate-850 hover:text-white border-slate-800"
-              }`}
+                }`}
               title="View recorded chat history"
             >
               <History size={13} />
@@ -1207,18 +1201,16 @@ export function WorkspaceCopilot({ initialUser }: WorkspaceCopilotProps) {
                     <div
                       key={conv.id}
                       onClick={() => handleSelectConversation(conv)}
-                      className={`group flex items-center justify-between rounded-xl p-3 border text-left transition cursor-pointer ${
-                        isActive
+                      className={`group flex items-center justify-between rounded-xl p-3 border text-left transition cursor-pointer ${isActive
                           ? "bg-[#1C1828] border-[#B8944E]/60 text-white shadow-sm"
                           : "bg-[#14121D] border-slate-800/80 text-slate-300 hover:border-[#B8944E]/40 hover:bg-[#181524] hover:text-white"
-                      }`}
+                        }`}
                     >
                       <div className="flex items-start gap-2.5 min-w-0">
                         <MessageSquare
                           size={15}
-                          className={`mt-0.5 shrink-0 ${
-                            isActive ? "text-[#D6BD88]" : "text-slate-500 group-hover:text-[#D6BD88]"
-                          }`}
+                          className={`mt-0.5 shrink-0 ${isActive ? "text-[#D6BD88]" : "text-slate-500 group-hover:text-[#D6BD88]"
+                            }`}
                         />
                         <div className="min-w-0">
                           <p className="text-xs font-semibold truncate text-white">{conv.title}</p>

@@ -570,7 +570,7 @@ export function FreelancerSidebar({
       {/* Desktop macOS Bottom Center Dock (Default & Preferred Layout) */}
       {desktopNavMode === "dock" && (
         <AppDock
-          className="hidden lg:flex"
+          className="hidden md:flex"
           brand={{
             label: "Reqly",
             href: "/",

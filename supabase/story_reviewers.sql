@@ -1,5 +1,5 @@
 -- ==============================================================================
--- StoryBoard: Project Team Members (Many-to-Many) & Story Reviewer Access Control
+-- REQly: Project Team Members (Many-to-Many) & Story Reviewer Access Control
 -- ==============================================================================
 
 -- 1. Ensure role column on team_users & allow multi-project membership (drop NOT NULL on project_id)

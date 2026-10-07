@@ -23,7 +23,7 @@ export interface InboxAccessVerification {
 
 /**
  * Resolve the authenticated user from either Supabase Auth (freelancer/super_admin)
- * or StoryBoard team session cookie (team_user).
+ * or REQly team session cookie (team_user).
  * NEVER trust client-supplied user identity.
  */
 export async function getAuthenticatedInboxActor(): Promise<InboxActor | null> {

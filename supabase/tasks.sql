@@ -1,5 +1,5 @@
 -- ==============================================================================
--- StoryBoard: To-Do Tasks, Assignees, Story Linking, Notes & Attachments
+-- REQly: To-Do Tasks, Assignees, Story Linking, Notes & Attachments
 -- ==============================================================================
 
 -- 1. Create tasks table

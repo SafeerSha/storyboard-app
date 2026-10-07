@@ -142,7 +142,7 @@ export async function GET() {
         const rec = Number(inst.received_amount) || 0;
         remReceived += rec;
 
-        const isOverdue = inst.status !== "completed" && inst.due_date < todayStr;
+        const isOverdue = inst.status !== "completed" && Boolean(inst.due_date && inst.due_date < todayStr);
         if (isOverdue) {
           hasOverdue = true;
           totalOverdue += amt - rec;
@@ -154,16 +154,16 @@ export async function GET() {
             installmentNumber: inst.installment_number,
             amount: amt - rec,
             currency: rem.currency,
-            dueDate: inst.due_date,
+            dueDate: inst.due_date || null,
             status: inst.status,
           });
         }
 
-        if (inst.status !== "completed" && !nextDue) {
+        if (inst.status !== "completed" && !nextDue && inst.due_date) {
           nextDue = inst.due_date;
         }
 
-        if (inst.status !== "completed" && inst.due_date >= todayStr) {
+        if (inst.status !== "completed" && inst.due_date && inst.due_date >= todayStr) {
           upcomingPayments.push({
             id: inst.id,
             remunerationId: rem.id,
@@ -213,9 +213,9 @@ export async function GET() {
     });
 
     // Sort upcoming by due date ASC, recent by received date DESC
-    upcomingPayments.sort((a, b) => a.dueDate.localeCompare(b.dueDate));
-    recentPayments.sort((a, b) => b.receivedDate.localeCompare(a.receivedDate));
-    overduePayments.sort((a, b) => a.dueDate.localeCompare(b.dueDate));
+    upcomingPayments.sort((a, b) => (a.dueDate || "").localeCompare(b.dueDate || ""));
+    recentPayments.sort((a, b) => (b.receivedDate || "").localeCompare(a.receivedDate || ""));
+    overduePayments.sort((a, b) => (a.dueDate || "").localeCompare(b.dueDate || ""));
 
     return NextResponse.json({
       remunerations: enrichedRemunerations,
@@ -296,6 +296,8 @@ export async function POST(req: Request) {
       currency: data.currency || "INR",
       payment_method: data.paymentMethod,
       status: "new",
+      agreement_date: data.agreementDate || null,
+      agreement_status: data.agreementStatus || "active",
       notes: data.notes || null,
       send_receipt_email: data.sendReceiptEmail ?? true,
       splits: data.splits || [],
@@ -310,7 +312,7 @@ export async function POST(req: Request) {
 
     if (remError) {
       // If error is due to missing columns (e.g. migration not run in Supabase yet), fallback gracefully
-      if (remError.message.includes("send_receipt_email") || remError.message.includes("splits")) {
+      if (remError.message.includes("send_receipt_email") || remError.message.includes("splits") || remError.message.includes("agreement_")) {
         const fallbackPayload: Record<string, any> = {
           project_id: data.projectId,
           created_by: user.id,
@@ -340,18 +342,35 @@ export async function POST(req: Request) {
     const installmentRows = data.installments.map((inst) => ({
       remuneration_id: remuneration.id,
       installment_number: inst.installmentNumber,
+      name: inst.name || null,
+      description: inst.description || null,
       amount: inst.amount,
-      due_date: inst.dueDate,
+      due_date: inst.dueDate || null,
       status: "new",
       notes: inst.notes || null,
       received_amount: 0,
     }));
 
-    const { data: createdInstallments, error: instError } = await admin
+    let { data: createdInstallments, error: instError } = await admin
       .from("remuneration_installments")
       .insert(installmentRows)
       .select()
       .order("installment_number", { ascending: true });
+
+    // Fallback: If DB table still has NOT NULL constraint on due_date prior to migration execution
+    if (instError && instError.message.includes("due_date") && instError.message.includes("not-null")) {
+      const fallbackRows = installmentRows.map((r) => ({
+        ...r,
+        due_date: r.due_date || new Date().toISOString().split("T")[0],
+      }));
+      const fallbackRes = await admin
+        .from("remuneration_installments")
+        .insert(fallbackRows)
+        .select()
+        .order("installment_number", { ascending: true });
+      createdInstallments = fallbackRes.data;
+      instError = fallbackRes.error;
+    }
 
     if (instError) {
       // Rollback remuneration
@@ -375,6 +394,16 @@ export async function POST(req: Request) {
       } catch (splitErr) {
         console.warn("Could not insert into remuneration_splits table:", splitErr);
       }
+    }
+
+    // Initialize notification preferences
+    try {
+      await admin.from("remuneration_notification_preferences").insert({
+        remuneration_id: remuneration.id,
+        // The rest of the fields will use defaults from the SQL schema
+      });
+    } catch (notifErr) {
+      console.warn("Could not insert into remuneration_notification_preferences table:", notifErr);
     }
 
     const actorName = profile?.name || user.email?.split("@")[0] || "Owner";

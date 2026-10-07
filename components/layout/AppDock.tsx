@@ -85,7 +85,7 @@ export function AppDock({
     >
       <nav
         aria-label="macOS Desktop Dock Navigation"
-        className="pointer-events-auto flex items-center h-[62px] sm:h-[68px] rounded-2xl sm:rounded-full border border-white/20 bg-white/10 backdrop-blur-3xl px-4 sm:px-6 py-2 shadow-[0_30px_60px_rgba(0,0,0,0.12),0_10px_25px_rgba(0,0,0,0.05),inset_0_2px_4px_rgba(255,255,255,0.4),inset_0_0_10px_rgba(255,255,255,0.1),inset_0_-2px_6px_rgba(0,0,0,0.05)] gap-1.5 sm:gap-2 transition-all duration-200"
+        className="pointer-events-auto flex items-center h-[62px] sm:h-[68px] rounded-2xl sm:rounded-full border border-white/20 bg-white/10 backdrop-blur-3xl px-3.5 sm:px-6 py-2 shadow-[0_30px_60px_rgba(0,0,0,0.12),0_10px_25px_rgba(0,0,0,0.05),inset_0_2px_4px_rgba(255,255,255,0.4),inset_0_0_10px_rgba(255,255,255,0.1),inset_0_-2px_6px_rgba(0,0,0,0.05)] gap-1 sm:gap-2 transition-all duration-200 max-w-[calc(100vw-2rem)] overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         style={{
           WebkitBackdropFilter: "blur(32px) saturate(190%)",
           backdropFilter: "blur(32px) saturate(190%)",
@@ -283,7 +283,7 @@ export function AppDock({
                 <div
                   role="menu"
                   aria-label="Account options"
-                  className="absolute bottom-full mb-4 right-0 sm:left-1/2 sm:-translate-x-1/2 w-64 rounded-2xl border border-white/80 bg-white/90 backdrop-blur-2xl p-2.5 shadow-[0_24px_50px_rgba(0,0,0,0.18),inset_0_1px_1.5px_rgba(255,255,255,0.9)] animate-in fade-in zoom-in-95 duration-150 z-50"
+                  className="absolute bottom-full mb-4 right-0 w-64 rounded-2xl border border-white/80 bg-white/90 backdrop-blur-2xl p-2.5 shadow-[0_24px_50px_rgba(0,0,0,0.18),inset_0_1px_1.5px_rgba(255,255,255,0.9)] animate-in fade-in zoom-in-95 duration-150 z-50"
                 >
                   <div className="px-3.5 py-2.5 border-b border-zinc-100">
                     <div className="flex items-center justify-between gap-2">

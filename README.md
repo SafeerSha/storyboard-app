@@ -1,8 +1,9 @@
-# StoryBoard
+# REQly
 
 A lightweight requirements board for freelancers: turn one-line client requirements into clear feature stories, review them, and prepare them for client approval.
 
 ## Stack
+
 - Next.js + TypeScript
 - Tailwind CSS
 - Supabase
@@ -18,6 +19,7 @@ npm run dev
 ```
 
 Set:
+
 - `SUPABASE_URL`
 - `SUPABASE_PUBLISHABLE_KEY`
 - `GEMINI_API_KEY`
@@ -48,12 +50,15 @@ Run `supabase/schema.sql` in the Supabase SQL editor.
 Keep all secrets in environment variables. Never commit Gemini or Supabase secret keys.
 
 ## UI direction
+
 The app is dashboard-first: fixed left navigation, compact top bar, workspace overview, project cards, and a focused story workspace. The visual language is a premium minimal SaaS style with neutral surfaces, subtle borders, generous whitespace, and restrained indigo accents.
 
 ## Client portal
+
 Freelancer side now includes a Clients screen where a client can be assigned to an existing project and receive a 6-digit login ID plus a generated or manually supplied password. Clients sign in at `/client/login` and can review stories, request changes with a comment, or approve a story.
 
 Required additional server-only environment variables:
+
 - `SUPABASE_SECRET_KEY` — never expose this to the browser.
 - `SUPABASE_JWKS_URL` — JWKS endpoint for auth verification.
 - `CLIENT_SESSION_SECRET` — use a long random value (32+ bytes) for signing client portal sessions.

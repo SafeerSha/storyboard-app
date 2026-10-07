@@ -1,5 +1,5 @@
 -- ==============================================================================
--- StoryBoard: Supabase Free Tier Performance Indexes & RLS Optimizations
+-- REQly: Supabase Free Tier Performance Indexes & RLS Optimizations
 -- ==============================================================================
 -- This migration provides:
 -- 1. Targeted B-tree & composite indexes for foreign keys, filters, and sorts

@@ -50,7 +50,7 @@ export function generatePaymentReceivedEmail({
       Hi ${safeRecipientName},
     </div>
     <p style="margin: 0 0 24px 0; font-size: 14.5px; line-height: 1.6; color: #3f3f46;">
-      A payment for <strong>${safeProjectName}</strong> has been successfully received and recorded in StoryBoard.
+      A payment for <strong>${safeProjectName}</strong> has been successfully received and recorded in REQly.
     </p>
 
     <!-- Received Summary Card -->

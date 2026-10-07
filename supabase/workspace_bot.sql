@@ -1,5 +1,5 @@
 -- ==============================================================================
--- StoryBoard: Workspace AI Copilot Conversations, Messages & Action History
+-- REQly: Workspace AI Copilot Conversations, Messages & Action History
 -- ==============================================================================
 
 -- 1. Create workspace_bot_conversations table

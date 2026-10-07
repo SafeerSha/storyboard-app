@@ -1,5 +1,5 @@
 -- ============================================================================
--- StoryBoard: Shared Epic -> Story Navigation Performance Indexes
+-- REQly: Shared Epic -> Story Navigation Performance Indexes
 -- Supabase Free Tier Optimization: Zero table scans on Epic & Story ordering
 -- ============================================================================
 

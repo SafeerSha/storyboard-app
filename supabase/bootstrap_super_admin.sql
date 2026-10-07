@@ -3,7 +3,7 @@
 -- ==============================================================================
 -- 
 -- PURPOSE:
--- Securely bootstrap the initial Super Admin account for StoryBoard.
+-- Securely bootstrap the initial Super Admin account for REQly.
 -- This operation runs strictly via direct database admin access (SQL Editor)
 -- or backend service role operations.
 --

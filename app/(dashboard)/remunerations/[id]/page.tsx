@@ -1,40 +1,51 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
 import {
   AlertCircle,
+  AlertTriangle,
   ArrowLeft,
   BadgeDollarSign,
+  Bell,
   Calendar,
+  Check,
   CheckCircle2,
-  ChevronDown,
-  ChevronUp,
   Clock,
   Download,
+  Edit3,
   ExternalLink,
-  FileText,
+  History,
   Loader2,
   Mail,
   MoreHorizontal,
   Paperclip,
+  Percent,
+  Plus,
+  Receipt,
   ReceiptText,
   RefreshCcw,
   SendHorizontal,
+  SlidersHorizontal,
+  Trash2,
+  TrendingDown,
+  TrendingUp,
   User,
   Users,
 } from "lucide-react";
 import { DashboardHeader } from "@/components/layout/DashboardHeader";
 import { Button } from "@/components/ui/Button";
+import { Modal } from "@/components/ui/Modal";
+import { toast } from "@/lib/toast";
 import {
   RemunerationRecord,
   RemunerationInstallment,
   RemunerationTimelineEvent,
+  RemunerationNotificationPreferences,
+  PaymentTeamSplit,
   formatCurrency,
   getStatusBadgeConfig,
 } from "@/lib/types/remuneration";
-
-// ── helpers ────────────────────────────────────────────────────────────────────
 
 function fmt(d?: string | null) {
   if (!d) return "—";
@@ -52,24 +63,26 @@ function fmtDatetime(d: string) {
 }
 
 function isOverdue(inst: RemunerationInstallment) {
-  if (inst.status === "completed") return false;
+  if (inst.status === "completed" || inst.status === "paid") return false;
+  if (!inst.due_date) return false;
   return inst.due_date < new Date().toISOString().split("T")[0];
 }
 
-// ── Sub-components ─────────────────────────────────────────────────────────────
-
 function ProgressBar({ received, total }: { received: number; total: number }) {
-  const pct = total > 0 ? Math.min(100, (received / total) * 100) : 0;
+  const pct = total > 0 ? Math.min(100, Math.round((received / total) * 100)) : 0;
   return (
     <div className="relative h-2.5 rounded-full bg-[rgba(74,61,100,0.08)] overflow-hidden">
       <div
-        className="h-full bg-gradient-to-r from-emerald-400 to-emerald-600 rounded-full transition-all duration-500"
+        className="h-full bg-gradient-to-r from-[#B8944E] to-emerald-500 rounded-full transition-all duration-500"
         style={{ width: `${pct}%` }}
       />
     </div>
   );
 }
 
+// ==============================================================================
+// MODAL: Request Payment from Client
+// ==============================================================================
 interface RequestModalProps {
   installment: RemunerationInstallment;
   remId: string;
@@ -89,6 +102,7 @@ function RequestPaymentModal({ installment, remId, currency, onClose, onSuccess 
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to send request");
+      toast.success("Payment request email sent to client!");
       onSuccess();
       onClose();
     } catch (e: any) {
@@ -118,8 +132,8 @@ function RequestPaymentModal({ installment, remId, currency, onClose, onSuccess 
           <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-xs text-red-600">{error}</div>
         )}
         <div className="flex justify-end gap-2.5">
-          <Button variant="secondary" onClick={onClose} disabled={submitting} id="modal-cancel-request">Cancel</Button>
-          <Button onClick={handleSend} disabled={submitting} id="modal-send-request-btn">
+          <Button variant="secondary" onClick={onClose} disabled={submitting}>Cancel</Button>
+          <Button onClick={handleSend} disabled={submitting}>
             {submitting ? <Loader2 size={14} className="animate-spin mr-1.5" /> : <SendHorizontal size={14} className="mr-1.5" />}
             Send Request
           </Button>
@@ -129,32 +143,88 @@ function RequestPaymentModal({ installment, remId, currency, onClose, onSuccess 
   );
 }
 
+// ==============================================================================
+// MODAL: Receive Payment with Inline Team Split
+// ==============================================================================
 interface ReceiveModalProps {
   installment: RemunerationInstallment;
   remId: string;
   currency: string;
+  teamMembers: any[];
   defaultSendEmail?: boolean;
+  initialSplits?: any[];
   onClose: () => void;
   onSuccess: () => void;
 }
-function ReceivePaymentModal({ installment, remId, currency, defaultSendEmail = true, onClose, onSuccess }: ReceiveModalProps) {
-  const [amount, setAmount] = useState(String(installment.amount));
+function ReceivePaymentModal({
+  installment,
+  remId,
+  currency,
+  teamMembers,
+  defaultSendEmail = true,
+  initialSplits = [],
+  onClose,
+  onSuccess,
+}: ReceiveModalProps) {
+  const remainingBal = Math.max(0, Number(installment.amount) - (Number(installment.received_amount) || 0));
+  const [amount, setAmount] = useState(String(remainingBal > 0 ? remainingBal : installment.amount));
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
   const [method, setMethod] = useState("Bank Transfer");
   const [reference, setReference] = useState("");
   const [notes, setNotes] = useState("");
   const [proof, setProof] = useState<File | null>(null);
   const [sendEmail, setSendEmail] = useState(defaultSendEmail);
+  const [notifyTeam, setNotifyTeam] = useState(true);
+
+  const [enableSplit, setEnableSplit] = useState(false);
+  const [splits, setSplits] = useState<Array<{ teamMemberId: string; name: string; role?: string; amount: number; percentage?: number }>>([]);
+
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
 
-  const inputClass = "w-full rounded-lg border border-[rgba(74,61,100,0.15)] px-3.5 py-2.5 text-sm text-[#252331] placeholder:text-[#9994A5] focus:outline-none focus:ring-2 focus:ring-[rgba(184,148,78,0.25)] focus:border-[rgba(184,148,78,0.4)] transition-colors bg-white";
-  const labelClass = "block text-xs font-semibold uppercase tracking-wider text-[#706C7D] mb-1.5";
+  const numAmount = parseFloat(amount) || 0;
+  const totalAllocated = splits.reduce((acc, s) => acc + (Number(s.amount) || 0), 0);
+  const remainingMargin = Math.max(0, numAmount - totalAllocated);
+  const isOverAllocated = totalAllocated > numAmount + 0.01;
+
+  const handleToggleSplit = (checked: boolean) => {
+    setEnableSplit(checked);
+    if (checked && splits.length === 0 && teamMembers.length > 0) {
+      const hasInitialSplits = initialSplits.length > 0;
+
+      setSplits(
+        teamMembers.map((m) => {
+          const init = hasInitialSplits ? initialSplits.find((s: any) => s.teamMemberId === m.id) : null;
+          const percentage = init?.percentage || 0;
+          const amt = percentage > 0 ? Math.round(((numAmount * percentage) / 100) * 100) / 100 : 0;
+          return {
+            teamMemberId: m.id,
+            name: m.name,
+            role: m.role || "Developer",
+            amount: amt,
+            percentage: percentage,
+          };
+        })
+      );
+    }
+  };
+
+  const handleUpdateSplitAmount = (index: number, val: number) => {
+    const updated = [...splits];
+    updated[index].amount = val;
+    updated[index].percentage = numAmount > 0 ? Number(((val / numAmount) * 100).toFixed(1)) : 0;
+    setSplits(updated);
+  };
 
   const handleSubmit = async () => {
-    if (!amount || parseFloat(amount) <= 0) { setError("Enter a valid amount."); return; }
+    if (!amount || numAmount <= 0) { setError("Enter a valid amount."); return; }
     if (!date) { setError("Select a received date."); return; }
+    if (enableSplit && isOverAllocated) {
+      setError(`Total team split (${formatCurrency(totalAllocated, currency)}) cannot exceed payment amount (${formatCurrency(numAmount, currency)}).`);
+      return;
+    }
+
     setSubmitting(true);
     setError("");
     try {
@@ -163,9 +233,15 @@ function ReceivePaymentModal({ installment, remId, currency, defaultSendEmail = 
       formData.append("receivedDate", date);
       formData.append("paymentMethod", method);
       formData.append("sendEmail", String(sendEmail));
+      formData.append("notifyTeam", String(notifyTeam));
       if (reference) formData.append("paymentReference", reference);
       if (notes) formData.append("notes", notes);
       if (proof) formData.append("proof", proof);
+
+      if (enableSplit) {
+        const validSplits = splits.filter((s) => s.amount > 0);
+        formData.append("teamSplits", JSON.stringify(validSplits));
+      }
 
       const res = await fetch(`/api/remunerations/${remId}/installments/${installment.id}/receive`, {
         method: "POST",
@@ -173,6 +249,7 @@ function ReceivePaymentModal({ installment, remId, currency, defaultSendEmail = 
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to record payment");
+      toast.success("Payment and team allocations recorded successfully!");
       onSuccess();
       onClose();
     } catch (e: any) {
@@ -182,25 +259,28 @@ function ReceivePaymentModal({ installment, remId, currency, defaultSendEmail = 
     }
   };
 
+  const inputClass = "w-full rounded-lg border border-[rgba(74,61,100,0.15)] px-3 py-2 text-xs sm:text-sm text-[#252331] focus:outline-none focus:ring-1 focus:ring-[#B8944E] bg-white";
+  const labelClass = "block text-[11px] font-bold uppercase tracking-wider text-[#706C7D] mb-1";
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-      <div className="rounded-2xl bg-white shadow-2xl w-full max-w-lg p-6 space-y-5 max-h-[92vh] overflow-y-auto">
+      <div className="rounded-2xl bg-white shadow-2xl w-full max-w-lg p-6 space-y-4 max-h-[92vh] overflow-y-auto">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50">
             <CheckCircle2 size={18} className="text-emerald-600" />
           </div>
           <div>
             <h2 className="font-semibold text-[#252331]">Record Payment Received</h2>
-            <p className="text-xs text-[#9994A5]">Installment #{installment.installment_number} — Expected: {formatCurrency(installment.amount, currency)}</p>
+            <p className="text-xs text-[#9994A5]">Installment #{installment.installment_number} — Remaining: {formatCurrency(remainingBal > 0 ? remainingBal : installment.amount, currency)}</p>
           </div>
         </div>
 
         {error && <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-xs text-red-600">{error}</div>}
 
-        <div className="space-y-4">
+        <div className="space-y-3">
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className={labelClass}>Amount Received</label>
+              <label className={labelClass}>Amount Received ({currency})</label>
               <input type="number" min="0.01" step="0.01" value={amount} onChange={(e) => setAmount(e.target.value)} className={inputClass} />
             </div>
             <div>
@@ -208,57 +288,114 @@ function ReceivePaymentModal({ installment, remId, currency, defaultSendEmail = 
               <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className={inputClass} />
             </div>
           </div>
-          <div>
-            <label className={labelClass}>Payment Method</label>
-            <select value={method} onChange={(e) => setMethod(e.target.value)} className={inputClass}>
-              {["UPI", "Bank Transfer", "Cash", "Card", "Other"].map((m) => (
-                <option key={m}>{m}</option>
-              ))}
-            </select>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className={labelClass}>Payment Method</label>
+              <select value={method} onChange={(e) => setMethod(e.target.value)} className={inputClass}>
+                {["Bank Transfer", "UPI", "Cash", "Card", "Cheque", "Other"].map((m) => (
+                  <option key={m}>{m}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className={labelClass}>Reference / UTR (optional)</label>
+              <input type="text" placeholder="e.g. UTR123456789" value={reference} onChange={(e) => setReference(e.target.value)} className={inputClass} />
+            </div>
           </div>
-          <div>
-            <label className={labelClass}>Reference / UTR (optional)</label>
-            <input type="text" placeholder="e.g. UTR123456789" value={reference} onChange={(e) => setReference(e.target.value)} className={inputClass} />
-          </div>
+
           <div>
             <label className={labelClass}>Notes (optional)</label>
-            <textarea rows={2} value={notes} onChange={(e) => setNotes(e.target.value)} className={`${inputClass} resize-none`} />
+            <textarea rows={2} value={notes} onChange={(e) => setNotes(e.target.value)} className={`${inputClass} resize-none`} placeholder="Transaction remarks..." />
           </div>
+
           <div>
-            <label className={labelClass}>Proof of Payment (optional)</label>
+            <label className={labelClass}>Proof Document / Receipt (optional)</label>
             <div
-              className="flex items-center gap-3 rounded-lg border border-dashed border-[rgba(74,61,100,0.20)] bg-[#faf9fc] px-4 py-3 cursor-pointer hover:border-[rgba(184,148,78,0.4)] transition-colors"
+              className="flex items-center gap-3 rounded-lg border border-dashed border-[rgba(74,61,100,0.20)] bg-[#faf9fc] px-4 py-2.5 cursor-pointer hover:border-[#B8944E] transition"
               onClick={() => fileRef.current?.click()}
             >
               <Paperclip size={15} className="text-[#9994A5]" />
-              <span className="text-sm text-[#9994A5]">
-                {proof ? proof.name : "Click to attach screenshot or PDF"}
+              <span className="text-xs text-[#706C7D]">
+                {proof ? proof.name : "Attach invoice screenshot or PDF"}
               </span>
             </div>
             <input ref={fileRef} type="file" accept="image/*,.pdf" className="hidden" onChange={(e) => setProof(e.target.files?.[0] || null)} />
           </div>
 
-          {/* Confirmation email toggle */}
-          <div className="flex items-center justify-between rounded-lg border border-[rgba(74,61,100,0.12)] bg-[#faf9fc] p-3.5">
-            <div className="space-y-0.5">
-              <span className="text-xs font-semibold text-[#252331]">Send Confirmation Email</span>
-              <p className="text-[11px] text-[#9994A5]">Dispatch a payment receipt email upon recording</p>
-            </div>
-            <label className="relative inline-flex items-center cursor-pointer">
+          {/* Team Member Splits */}
+          <div className="rounded-xl border border-[rgba(74,61,100,0.12)] bg-[#faf9fc] p-3 space-y-2.5">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-1.5">
+                <Users size={14} className="text-[#80642F]" />
+                <span className="text-xs font-bold text-[#252331]">Team Member Payment Split</span>
+              </div>
               <input
                 type="checkbox"
-                checked={sendEmail}
-                onChange={(e) => setSendEmail(e.target.checked)}
-                className="sr-only peer"
+                checked={enableSplit}
+                onChange={(e) => handleToggleSplit(e.target.checked)}
+                className="h-4 w-4 rounded text-[#B8944E] focus:ring-[#B8944E]"
               />
-              <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#B8944E]" />
-            </label>
+            </div>
+
+            {enableSplit && (
+              <div className="space-y-2 pt-2 border-t border-[rgba(74,61,100,0.08)]">
+                <div className="grid grid-cols-3 gap-2 bg-white rounded-lg p-2 border border-[rgba(74,61,100,0.08)] text-center text-[11px]">
+                  <div>
+                    <span className="text-[#9994A5] font-bold block">Payment</span>
+                    <span className="font-bold text-[#252331]">{formatCurrency(numAmount, currency)}</span>
+                  </div>
+                  <div>
+                    <span className="text-[#9994A5] font-bold block">Allocated</span>
+                    <span className={`font-bold ${isOverAllocated ? "text-rose-600" : "text-[#80642F]"}`}>
+                      {formatCurrency(totalAllocated, currency)}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-[#9994A5] font-bold block">Remaining</span>
+                    <span className="font-bold text-emerald-700">{formatCurrency(remainingMargin, currency)}</span>
+                  </div>
+                </div>
+
+                <div className="space-y-1.5 max-h-40 overflow-y-auto pr-1">
+                  {splits.map((s, idx) => (
+                    <div key={idx} className="flex items-center justify-between gap-2 bg-white p-2 rounded-lg border border-[rgba(74,61,100,0.06)] text-xs">
+                      <div className="min-w-0">
+                        <p className="font-bold text-[#252331] truncate">{s.name}</p>
+                        <p className="text-[10px] text-[#9994A5]">{s.role || "Member"}</p>
+                      </div>
+                      <div className="flex items-center gap-2 shrink-0">
+                        <input
+                          type="number"
+                          min="0"
+                          step="100"
+                          value={s.amount || ""}
+                          onChange={(e) => handleUpdateSplitAmount(idx, parseFloat(e.target.value) || 0)}
+                          placeholder="Amount"
+                          className="w-24 text-xs p-1 border rounded bg-white"
+                        />
+                        <span className="text-[11px] text-[#706C7D] w-10 text-right">{s.percentage}%</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className="flex items-center justify-between rounded-lg border border-[rgba(74,61,100,0.10)] bg-[#faf9fc] p-3 text-xs">
+            <span className="font-semibold text-[#252331]">Send Client Receipt Email</span>
+            <input
+              type="checkbox"
+              checked={sendEmail}
+              onChange={(e) => setSendEmail(e.target.checked)}
+              className="h-4 w-4 rounded text-[#B8944E] focus:ring-[#B8944E]"
+            />
           </div>
         </div>
 
-        <div className="flex justify-end gap-2.5">
-          <Button variant="secondary" onClick={onClose} disabled={submitting} id="modal-cancel-receive">Cancel</Button>
-          <Button onClick={handleSubmit} disabled={submitting} id="modal-record-payment-btn">
+        <div className="flex justify-end gap-2.5 pt-2">
+          <Button variant="secondary" onClick={onClose} disabled={submitting}>Cancel</Button>
+          <Button onClick={handleSubmit} disabled={submitting || (enableSplit && isOverAllocated)}>
             {submitting ? <Loader2 size={14} className="animate-spin mr-1.5" /> : <CheckCircle2 size={14} className="mr-1.5" />}
             Record Payment
           </Button>
@@ -268,20 +405,145 @@ function ReceivePaymentModal({ installment, remId, currency, defaultSendEmail = 
   );
 }
 
-// ── Main Page ──────────────────────────────────────────────────────────────────
+// ==============================================================================
+// MODAL: Installment Milestone Create / Edit
+// ==============================================================================
+interface MilestoneModalProps {
+  remId: string;
+  currency: string;
+  existingInstallment?: RemunerationInstallment | null;
+  onClose: () => void;
+  onSuccess: () => void;
+}
+function MilestoneModal({ remId, currency, existingInstallment, onClose, onSuccess }: MilestoneModalProps) {
+  const isEditing = Boolean(existingInstallment);
+  const [name, setName] = useState(existingInstallment?.name || "");
+  const [amount, setAmount] = useState(existingInstallment ? String(existingInstallment.amount) : "");
+  const [dueDate, setDueDate] = useState(existingInstallment?.due_date || "");
+  const [description, setDescription] = useState(existingInstallment?.description || "");
+  const [notes, setNotes] = useState(existingInstallment?.notes || "");
+  const [status, setStatus] = useState<string>(existingInstallment?.status || "planned");
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
 
+  const handleSubmit = async () => {
+    const amt = parseFloat(amount);
+    if (!amt || amt <= 0) { setError("Specify a positive amount."); return; }
+
+    setSubmitting(true);
+    setError("");
+    try {
+      const payload: any = {};
+      if (isEditing && existingInstallment) {
+        payload.updateInstallment = {
+          id: existingInstallment.id,
+          installmentNumber: existingInstallment.installment_number,
+          name: name.trim() || `Milestone #${existingInstallment.installment_number}`,
+          amount: amt,
+          dueDate: dueDate ? dueDate : null,
+          description: description.trim() || null,
+          notes: notes.trim() || null,
+          status,
+        };
+      } else {
+        payload.newInstallment = {
+          name: name.trim() || null,
+          amount: amt,
+          dueDate: dueDate ? dueDate : null,
+          description: description.trim() || null,
+          notes: notes.trim() || null,
+        };
+        payload.autoAdjustTotal = true;
+      }
+
+      const res = await fetch(`/api/remunerations/${remId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to save milestone");
+      toast.success(isEditing ? "Milestone updated!" : "New milestone added!");
+      onSuccess();
+      onClose();
+    } catch (e: any) {
+      setError(e.message);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const inputClass = "w-full rounded-lg border border-[rgba(74,61,100,0.15)] px-3 py-2 text-xs text-[#252331] focus:outline-none focus:ring-1 focus:ring-[#B8944E] bg-white";
+  const labelClass = "block text-[11px] font-bold uppercase tracking-wider text-[#706C7D] mb-1";
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+      <div className="rounded-2xl bg-white shadow-2xl w-full max-w-md p-6 space-y-4">
+        <h2 className="font-semibold text-[#252331]">{isEditing ? "Edit Milestone" : "Add Payment Milestone"}</h2>
+        {error && <div className="rounded-lg border border-red-200 bg-red-50 p-2.5 text-xs text-red-600">{error}</div>}
+
+        <div className="space-y-3">
+          <div>
+            <label className={labelClass}>Milestone Name</label>
+            <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Design Approval" className={inputClass} />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className={labelClass}>Amount ({currency})</label>
+              <input type="number" min="0.01" step="0.01" value={amount} onChange={(e) => setAmount(e.target.value)} className={inputClass} />
+            </div>
+            <div>
+              <label className={labelClass}>Due Date (Optional)</label>
+              <input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} className={inputClass} />
+            </div>
+          </div>
+          {isEditing && (
+            <div>
+              <label className={labelClass}>Status</label>
+              <select value={status} onChange={(e) => setStatus(e.target.value)} className={inputClass}>
+                <option value="planned">Planned</option>
+                <option value="due">Due</option>
+                <option value="partially_paid">Partially Paid</option>
+                <option value="paid">Paid</option>
+                <option value="cancelled">Cancelled</option>
+              </select>
+            </div>
+          )}
+          <div>
+            <label className={labelClass}>Description / Notes (optional)</label>
+            <textarea rows={2} value={notes} onChange={(e) => setNotes(e.target.value)} className={`${inputClass} resize-none`} />
+          </div>
+        </div>
+
+        <div className="flex justify-end gap-2.5 pt-2">
+          <Button variant="secondary" onClick={onClose} disabled={submitting}>Cancel</Button>
+          <Button onClick={handleSubmit} disabled={submitting}>
+            {submitting ? <Loader2 size={14} className="animate-spin mr-1.5" /> : <Check size={14} className="mr-1.5" />}
+            Save
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ==============================================================================
+// MAIN DETAIL PAGE
+// ==============================================================================
 export default function RemunerationDetailPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
   const remId = params.id;
 
   const [rem, setRem] = useState<RemunerationRecord | null>(null);
+  const [teamMembers, setTeamMembers] = useState<any[]>([]);
   const [timeline, setTimeline] = useState<RemunerationTimelineEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   const [requestModal, setRequestModal] = useState<RemunerationInstallment | null>(null);
   const [receiveModal, setReceiveModal] = useState<RemunerationInstallment | null>(null);
+  const [milestoneModal, setMilestoneModal] = useState<{ open: boolean; installment?: RemunerationInstallment | null }>({ open: false });
 
   const load = useCallback(async () => {
     try {
@@ -289,6 +551,7 @@ export default function RemunerationDetailPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to load remuneration");
       setRem(data.remuneration);
+      setTeamMembers(data.teamMembers || []);
       setTimeline(data.timeline || []);
     } catch (e: any) {
       setError(e.message);
@@ -314,16 +577,25 @@ export default function RemunerationDetailPage() {
         <div className="mx-auto max-w-3xl px-8 py-16 text-center">
           <AlertCircle size={32} className="text-red-400 mx-auto mb-3" />
           <p className="text-[#706C7D]">{error || "Remuneration not found."}</p>
-          <Button onClick={() => router.push("/remunerations")} className="mt-4" id="back-to-rem-list">Back to list</Button>
+          <Button onClick={() => router.push("/remunerations")} className="mt-4">Back to list</Button>
         </div>
       </div>
     );
   }
 
-  const cfg = getStatusBadgeConfig(rem.status);
-  const received = rem.received_amount || 0;
-  const total = rem.total_amount || 0;
-  const remaining = rem.remaining_amount || 0;
+  const cfg = getStatusBadgeConfig(rem.agreement_status || rem.status);
+  const totalAgreed = rem.total_amount || 0;
+  const plannedInstallments = rem.planned_installments_total ?? (rem.installments?.reduce((acc, i) => acc + (Number(i.amount) || 0), 0) || totalAgreed);
+  const totalReceived = rem.received_amount || 0;
+  const totalPending = rem.remaining_amount ?? Math.max(0, totalAgreed - totalReceived);
+  const totalDistributed = rem.total_distributed_to_team || 0;
+  const totalUndistributed = rem.total_undistributed ?? Math.max(0, totalReceived - totalDistributed);
+  const progressPct = totalAgreed > 0 ? Math.min(100, Math.round((totalReceived / totalAgreed) * 100)) : 0;
+
+  const isOverPlanned = plannedInstallments > totalAgreed + 0.01;
+  const isOverPaid = totalReceived > totalAgreed + 0.01;
+  const allPayments = rem.payments || [];
+  const notifLogs = rem.notification_logs || [];
 
   return (
     <div className="min-h-screen bg-[#f8f7fc]">
@@ -341,15 +613,26 @@ export default function RemunerationDetailPage() {
           installment={receiveModal}
           remId={remId}
           currency={rem.currency}
+          teamMembers={teamMembers}
           defaultSendEmail={rem.send_receipt_email ?? true}
+          initialSplits={rem.splits || []}
           onClose={() => setReceiveModal(null)}
+          onSuccess={load}
+        />
+      )}
+      {milestoneModal.open && (
+        <MilestoneModal
+          remId={remId}
+          currency={rem.currency}
+          existingInstallment={milestoneModal.installment}
+          onClose={() => setMilestoneModal({ open: false })}
           onSuccess={load}
         />
       )}
 
       <DashboardHeader
         category="Remunerations"
-        title={rem.project?.name || "Remuneration Details"}
+        title={rem.project?.name || "Remuneration Ledger"}
         backHref="/remunerations"
         backLabel="Remunerations"
         badge={
@@ -358,265 +641,293 @@ export default function RemunerationDetailPage() {
             {cfg.label}
           </span>
         }
+        actions={
+          <div className="flex items-center gap-2">
+            <Button
+              variant="secondary"
+              onClick={() => router.push(`/remunerations/${rem.id}/edit`)}
+              leftIcon={<Edit3 size={14} />}
+            >
+              Edit Agreement
+            </Button>
+            <Button
+              variant="secondary"
+              className="!text-red-600 hover:!bg-red-50 hover:!border-red-200"
+              onClick={() => {
+                if (confirm("Are you sure you want to delete this remuneration record? This action cannot be undone.")) {
+                  fetch(`/api/remunerations/${rem.id}`, { method: 'DELETE' })
+                    .then(res => {
+                      if (!res.ok) throw new Error("Failed to delete");
+                      toast.success("Remuneration record deleted");
+                      router.push('/remunerations');
+                    })
+                    .catch(e => toast.error("Failed to delete record"));
+                }
+              }}
+              leftIcon={<Trash2 size={14} />}
+            >
+              Delete
+            </Button>
+          </div>
+        }
       />
 
-      <div className="mx-auto max-w-[1720px] px-4 sm:px-8 py-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* ── Left column: installments ── */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Summary card */}
-          <div className="rounded-xl border border-[rgba(74,61,100,0.10)] bg-white p-6 shadow-sm space-y-4">
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-wider text-[#9994A5]">Total Remuneration</p>
-                <p className="text-3xl font-bold text-[#252331] tracking-tight mt-1">
-                  {formatCurrency(total, rem.currency)}
-                </p>
-              </div>
-              <div className="text-right">
-                <p className="text-xs font-semibold uppercase tracking-wider text-[#9994A5]">Payment Type</p>
-                <p className="text-sm font-medium text-[#252331] mt-1 capitalize">{rem.payment_method === "single" ? "Single Payment" : "Installments"}</p>
-              </div>
-            </div>
+      <div className="mx-auto max-w-[1720px] px-4 sm:px-8 py-8 space-y-6">
+        {/* Warnings */}
+        {isOverPlanned && (
+          <div className="rounded-xl border border-amber-200 bg-amber-50/80 p-3.5 flex items-center gap-2 text-amber-900 text-xs">
+            <AlertTriangle size={15} className="text-amber-600 shrink-0" />
+            <span>Planned milestones ({formatCurrency(plannedInstallments, rem.currency)}) exceed agreed contract ({formatCurrency(totalAgreed, rem.currency)}).</span>
+          </div>
+        )}
 
-            <ProgressBar received={received} total={total} />
+        {isOverPaid && (
+          <div className="rounded-xl border border-rose-200 bg-rose-50/80 p-3.5 flex items-center gap-2 text-rose-900 text-xs">
+            <AlertCircle size={15} className="text-rose-600 shrink-0" />
+            <span>Overpayment: Total payments received exceed agreed contract value.</span>
+          </div>
+        )}
 
-            <div className="grid grid-cols-3 gap-4">
-              <div className="rounded-lg bg-emerald-50 border border-emerald-100 px-3 py-2.5">
-                <p className="text-[10px] font-bold uppercase tracking-wider text-emerald-600">Received</p>
-                <p className="text-base font-bold text-emerald-700 mt-0.5">{formatCurrency(received, rem.currency)}</p>
-              </div>
-              <div className="rounded-lg bg-amber-50 border border-amber-100 px-3 py-2.5">
-                <p className="text-[10px] font-bold uppercase tracking-wider text-amber-600">Remaining</p>
-                <p className="text-base font-bold text-amber-700 mt-0.5">{formatCurrency(remaining, rem.currency)}</p>
-              </div>
-              <div className="rounded-lg bg-[rgba(74,61,100,0.05)] border border-[rgba(74,61,100,0.08)] px-3 py-2.5">
-                <p className="text-[10px] font-bold uppercase tracking-wider text-[#9994A5]">Installments</p>
-                <p className="text-base font-bold text-[#252331] mt-0.5">{rem.installments?.length || 0}</p>
-              </div>
-            </div>
-
-            {rem.notes && (
-              <div className="rounded-lg border border-[rgba(74,61,100,0.10)] bg-[#faf9fc] p-3 text-sm text-[#706C7D]">
-                <p className="text-[10px] font-bold uppercase tracking-wider text-[#9994A5] mb-1">Notes</p>
-                {rem.notes}
-              </div>
-            )}
+        {/* ── 6-Way Financial KPI Grid ── */}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
+          <div className="rounded-xl border border-[rgba(74,61,100,0.10)] bg-white p-3.5 shadow-2xs">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-[#9994A5] block mb-1">Agreed Total</span>
+            <p className="text-lg font-bold text-[#252331]">{formatCurrency(totalAgreed, rem.currency)}</p>
+            <p className="text-[10px] text-[#706C7D] mt-0.5 capitalize">{rem.agreement_status || "Active"}</p>
           </div>
 
-          {/* Installments */}
-          <div className="space-y-3">
-            <h2 className="text-sm font-bold uppercase tracking-wider text-[#9994A5]">Payment Schedule</h2>
-            {(rem.installments || []).map((inst) => {
-              const instCfg = getStatusBadgeConfig(inst.status);
-              const overdue = isOverdue(inst);
-              return (
-                <div
-                  key={inst.id}
-                  className={`rounded-xl border bg-white shadow-sm overflow-hidden ${
-                    overdue ? "border-red-200" : "border-[rgba(74,61,100,0.10)]"
-                  }`}
-                >
-                  <div className="flex items-center justify-between px-5 py-4">
-                    <div className="flex items-center gap-3">
-                      <div className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold ${
-                        inst.status === "completed"
-                          ? "bg-emerald-100 text-emerald-700"
-                          : overdue
-                          ? "bg-red-100 text-red-700"
-                          : "bg-[rgba(184,148,78,0.1)] text-[#80642F]"
-                      }`}>
-                        {inst.installment_number}
-                      </div>
-                      <div>
-                        <p className="font-semibold text-[#252331]">
-                          {formatCurrency(inst.amount, rem.currency)}
-                        </p>
-                        <div className="flex items-center gap-1.5 mt-0.5">
-                          <Calendar size={11} className="text-[#9994A5]" />
-                          <p className={`text-xs ${overdue ? "text-red-600 font-medium" : "text-[#9994A5]"}`}>
-                            {overdue ? `⚠ Overdue — was due ${fmt(inst.due_date)}` : `Due ${fmt(inst.due_date)}`}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2.5">
-                      <span className={`inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[11px] font-semibold ${instCfg.bg}`}>
-                        <span className={`h-1.5 w-1.5 rounded-full ${instCfg.indicator}`} />
-                        {instCfg.label}
-                      </span>
-                      {inst.status === "new" && (
-                        <Button
-                          variant="secondary"
-                          onClick={() => setRequestModal(inst)}
-                          id={`request-inst-${inst.id}`}
-                        >
-                          <Mail size={13} className="mr-1" /> Request
-                        </Button>
-                      )}
-                      {(inst.status === "requested" || inst.status === "new") && (
-                        <Button
-                          onClick={() => setReceiveModal(inst)}
-                          id={`receive-inst-${inst.id}`}
-                        >
-                          <CheckCircle2 size={13} className="mr-1" /> Receive
-                        </Button>
-                      )}
-                    </div>
-                  </div>
+          <div className="rounded-xl border border-blue-100 bg-blue-50/50 p-3.5 shadow-2xs">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-blue-700 block mb-1">Planned Milestones</span>
+            <p className="text-lg font-bold text-blue-800">{formatCurrency(plannedInstallments, rem.currency)}</p>
+            <p className="text-[10px] text-blue-700 mt-0.5">{rem.installments?.length || 0} milestones</p>
+          </div>
 
-                  {/* Received details */}
-                  {inst.status === "completed" && (
-                    <div className="border-t border-[rgba(74,61,100,0.06)] bg-emerald-50/60 px-5 py-3 flex items-center gap-4 flex-wrap text-xs text-emerald-700">
-                      <span className="font-semibold">Received: {formatCurrency(inst.received_amount || inst.amount, rem.currency)}</span>
-                      {inst.received_date && <span>on {fmt(inst.received_date)}</span>}
-                      {inst.payment_method && <span className="rounded-full bg-emerald-100 px-2 py-0.5">{inst.payment_method}</span>}
-                      {inst.payment_reference && <span className="font-mono text-[#706C7D]">Ref: {inst.payment_reference}</span>}
-                    </div>
-                  )}
+          <div className="rounded-xl border border-emerald-100 bg-emerald-50/50 p-3.5 shadow-2xs">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700 block mb-1">Total Received</span>
+            <p className="text-lg font-bold text-emerald-700">{formatCurrency(totalReceived, rem.currency)}</p>
+            <p className="text-[10px] text-emerald-800 mt-0.5">{progressPct}% collected</p>
+          </div>
 
-                  {/* Proofs */}
-                  {inst.proofs && inst.proofs.length > 0 && (
-                    <div className="border-t border-[rgba(74,61,100,0.06)] px-5 py-3">
-                      <p className="text-[10px] font-bold uppercase tracking-wider text-[#9994A5] mb-2">Payment Proof</p>
-                      <div className="flex flex-wrap gap-2">
-                        {inst.proofs.map((proof) => (
-                          <a
-                            key={proof.id}
-                            href={`/api/remunerations/${rem.id}/installments/${inst.id}/proof?proofId=${proof.id}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1.5 rounded-lg border border-[rgba(74,61,100,0.10)] bg-white px-2.5 py-1.5 text-xs text-[#706C7D] hover:text-[#252331] hover:border-[rgba(184,148,78,0.4)] transition-colors"
-                          >
-                            <Paperclip size={11} />
-                            {proof.file_name}
-                            <Download size={11} />
-                          </a>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
+          <div className="rounded-xl border border-amber-100 bg-amber-50/50 p-3.5 shadow-2xs">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-amber-700 block mb-1">Pending Balance</span>
+            <p className="text-lg font-bold text-amber-700">{formatCurrency(totalPending, rem.currency)}</p>
+            <p className="text-[10px] text-amber-800 mt-0.5">Awaiting payment</p>
+          </div>
+
+          <div className="rounded-xl border border-purple-100 bg-purple-50/50 p-3.5 shadow-2xs">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-purple-700 block mb-1">Team Distributed</span>
+            <p className="text-lg font-bold text-purple-800">{formatCurrency(totalDistributed, rem.currency)}</p>
+            <p className="text-[10px] text-purple-700 mt-0.5">Across payments</p>
+          </div>
+
+          <div className="rounded-xl border border-indigo-100 bg-indigo-50/50 p-3.5 shadow-2xs">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-700 block mb-1">Undistributed Margin</span>
+            <p className="text-lg font-bold text-indigo-800">{formatCurrency(totalUndistributed, rem.currency)}</p>
+            <p className="text-[10px] text-indigo-700 mt-0.5">Retained buffer</p>
           </div>
         </div>
 
-        {/* ── Right column: info + timeline ── */}
-        <div className="space-y-6">
-          {/* Project & Client info */}
-          <div className="rounded-xl border border-[rgba(74,61,100,0.10)] bg-white p-5 shadow-sm space-y-4">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-[#9994A5]">Project</h3>
-            <div className="flex items-center gap-2.5">
-              <div className="h-8 w-8 rounded-lg bg-[rgba(184,148,78,0.10)] flex items-center justify-center">
-                <ReceiptText size={15} className="text-[#B8944E]" />
-              </div>
-              <div>
-                <p className="font-semibold text-[#252331] text-sm">{rem.project?.name || "—"}</p>
-                <a
-                  href={`/projects/${rem.project_id}`}
-                  className="text-xs text-[#80642F] hover:underline inline-flex items-center gap-1"
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Left Column: Milestones & Payments */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Payment Schedule */}
+            <div className="rounded-xl border border-[rgba(74,61,100,0.10)] bg-white p-5 shadow-sm space-y-4">
+              <div className="flex items-center justify-between border-b border-[rgba(74,61,100,0.06)] pb-3">
+                <h2 className="text-sm font-bold uppercase tracking-wider text-[#252331]">Payment Milestones Schedule</h2>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  className="text-xs px-2.5 py-1"
+                  leftIcon={<Plus size={11} />}
+                  onClick={() => setMilestoneModal({ open: true, installment: null })}
                 >
-                  Open project <ExternalLink size={10} />
-                </a>
+                  Add Milestone
+                </Button>
+              </div>
+
+              <div className="space-y-3">
+                {(rem.installments || []).map((inst) => {
+                  const instCfg = getStatusBadgeConfig(inst.status);
+                  const overdue = isOverdue(inst);
+                  const instPaid = Number(inst.received_amount) || 0;
+                  return (
+                    <div
+                      key={inst.id}
+                      className={`rounded-xl border bg-white shadow-2xs overflow-hidden ${
+                        overdue ? "border-red-200" : "border-[rgba(74,61,100,0.10)]"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between p-4">
+                        <div className="flex items-center gap-3">
+                          <div className={`flex h-8 w-8 items-center justify-center rounded-xl text-xs font-bold ${
+                            inst.status === "completed" || inst.status === "paid"
+                              ? "bg-emerald-100 text-emerald-700"
+                              : overdue
+                              ? "bg-red-100 text-red-700"
+                              : "bg-[rgba(184,148,78,0.1)] text-[#80642F]"
+                          }`}>
+                            #{inst.installment_number}
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <span className="font-bold text-[#252331]">{inst.name || `Milestone #${inst.installment_number}`}</span>
+                              <span className="font-extrabold text-[#252331]">{formatCurrency(inst.amount, rem.currency)}</span>
+                              <span className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.2 text-[10px] font-semibold ${instCfg.bg}`}>
+                                <span className={`h-1.5 w-1.5 rounded-full ${instCfg.indicator}`} />
+                                {instCfg.label}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-2 text-xs text-[#706C7D] mt-0.5">
+                              <Calendar size={11} className="text-[#9994A5]" />
+                              <span className={overdue ? "text-red-600 font-bold" : ""}>
+                                {overdue
+                                  ? `⚠ Overdue — was due ${fmt(inst.due_date)}`
+                                  : inst.due_date
+                                  ? `Due ${fmt(inst.due_date)}`
+                                  : "No due date scheduled"}
+                              </span>
+                              {instPaid > 0 && <span className="text-emerald-700 font-semibold">• Rec: {formatCurrency(instPaid, rem.currency)}</span>}
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => setMilestoneModal({ open: true, installment: inst })}
+                            className="p-1 text-zinc-400 hover:text-[#80642F]"
+                            title="Edit"
+                          >
+                            <Edit3 size={13} />
+                          </button>
+                          {(inst.status === "new" || inst.status === "planned" || inst.status === "due") && (
+                            <Button variant="secondary" size="sm" className="text-xs" onClick={() => setRequestModal(inst)}>
+                              <Mail size={12} className="mr-1" /> Request
+                            </Button>
+                          )}
+                          {inst.status !== "completed" && inst.status !== "paid" && (
+                            <Button size="sm" className="text-xs" onClick={() => setReceiveModal(inst)}>
+                              <CheckCircle2 size={12} className="mr-1" /> Receive
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
 
-            <div className="border-t border-[rgba(74,61,100,0.06)] pt-4">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-[#9994A5] mb-3">Client</h3>
-              <div className="flex items-center gap-2.5">
-                <div className="h-8 w-8 rounded-full bg-[rgba(74,61,100,0.08)] flex items-center justify-center">
-                  <User size={14} className="text-[#706C7D]" />
-                </div>
-                <div>
-                  <p className="font-medium text-[#252331] text-sm">{rem.client?.name || "No client assigned"}</p>
-                  {rem.client?.email ? (
-                    <p className="text-xs text-[#9994A5]">{rem.client.email}</p>
-                  ) : (
-                    <p className="text-[11px] text-[#9994A5] italic">Direct / In-house project</p>
-                  )}
-                </div>
-              </div>
-            </div>
+            {/* Actual Payment Transactions Ledger */}
+            <div className="rounded-xl border border-[rgba(74,61,100,0.10)] bg-white p-5 shadow-sm space-y-4">
+              <h2 className="text-sm font-bold uppercase tracking-wider text-[#252331] border-b border-[rgba(74,61,100,0.06)] pb-3">
+                Actual Transaction Records
+              </h2>
 
-            <div className="border-t border-[rgba(74,61,100,0.06)] pt-4 text-xs text-[#9994A5] space-y-2">
-              <div className="flex justify-between items-center">
-                <span>Receipt Emails</span>
-                <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold ${
-                  rem.send_receipt_email !== false
-                    ? "bg-emerald-50 text-emerald-700 border border-emerald-100"
-                    : "bg-gray-100 text-gray-600 border border-gray-200"
-                }`}>
-                  <span className={`h-1.5 w-1.5 rounded-full ${rem.send_receipt_email !== false ? "bg-emerald-500" : "bg-gray-400"}`} />
-                  {rem.send_receipt_email !== false ? "Enabled" : "Disabled"}
-                </span>
-              </div>
-              <div className="flex justify-between"><span>Created</span><span className="text-[#706C7D] font-medium">{fmt(rem.created_at)}</span></div>
-              {rem.next_due_date && rem.status !== "completed" && (
-                <div className="flex justify-between"><span>Next Due</span><span className="text-amber-600 font-medium">{fmt(rem.next_due_date)}</span></div>
+              {allPayments.length === 0 ? (
+                <p className="text-xs text-[#9994A5] py-4 text-center">No payment transactions recorded yet.</p>
+              ) : (
+                <div className="space-y-3">
+                  {allPayments.map((pm: any) => {
+                    const sps = pm.team_splits || [];
+                    const spTotal = sps.reduce((acc: number, s: any) => acc + (Number(s.amount) || 0), 0);
+                    return (
+                      <div key={pm.id} className="rounded-xl border border-[rgba(74,61,100,0.08)] bg-[#faf9fc] p-3 space-y-2 text-xs">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <span className="font-bold text-emerald-800">{formatCurrency(pm.amount, rem.currency)}</span>
+                            <span className="text-[#706C7D]">on {fmt(pm.payment_date)}</span>
+                            <span className="rounded bg-white border px-1.5 py-0.2 text-[10px] font-semibold">{pm.payment_method}</span>
+                          </div>
+                          {pm.payment_reference && (
+                            <span className="font-mono text-[10px] text-[#252331] bg-white px-1.5 py-0.2 rounded border">
+                              UTR: {pm.payment_reference}
+                            </span>
+                          )}
+                        </div>
+
+                        {sps.length > 0 && (
+                          <div className="bg-white rounded p-2 border border-[rgba(74,61,100,0.06)] text-[11px] space-y-1">
+                            <span className="font-bold text-[#80642F]">Team Split Allocation:</span>
+                            <div className="flex flex-wrap gap-2">
+                              {sps.map((s: any, idx: number) => (
+                                <span key={idx} className="bg-zinc-50 border px-1.5 py-0.5 rounded text-[#252331]">
+                                  {s.member_name}: {formatCurrency(s.amount, rem.currency)}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
               )}
             </div>
           </div>
 
-          {/* Team Member Splits */}
-          {rem.splits && rem.splits.length > 0 && (
-            <div className="rounded-xl border border-[rgba(74,61,100,0.10)] bg-white p-5 shadow-sm space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="h-7 w-7 rounded-lg bg-[rgba(184,148,78,0.10)] flex items-center justify-center">
-                    <Users size={14} className="text-[#B8944E]" />
-                  </div>
-                  <div>
-                    <h3 className="text-xs font-bold uppercase tracking-wider text-[#9994A5]">Team Splits</h3>
-                    <p className="text-[11px] text-[#706C7D]">{rem.splits.length} {rem.splits.length === 1 ? "member" : "members"}</p>
-                  </div>
+          {/* Right Column: Project Client Info, Team Splits, Audit Log */}
+          <div className="space-y-6">
+            <div className="rounded-xl border border-[rgba(74,61,100,0.10)] bg-white p-5 shadow-sm space-y-3 text-xs">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-[#9994A5]">Client & Agreement Info</h3>
+              <p className="font-bold text-[#252331] text-sm">{rem.client?.name || "Direct / In-House Project"}</p>
+              <p className="text-[#706C7D]">{rem.client?.email || "No email assigned"}</p>
+              <div className="border-t border-[rgba(74,61,100,0.06)] pt-2.5 space-y-1.5 text-[#706C7D]">
+                <div className="flex justify-between">
+                  <span>Agreement Date:</span>
+                  <strong className="text-[#252331]">{fmt(rem.agreement_date)}</strong>
                 </div>
-                <span className="text-xs font-bold text-[#80642F] bg-amber-50 px-2 py-0.5 rounded-full border border-amber-100">
-                  {rem.splits.reduce((acc, s) => acc + (s.percentage || 0), 0)}%
-                </span>
-              </div>
-
-              <div className="space-y-2.5 divide-y divide-[rgba(74,61,100,0.06)]">
-                {rem.splits.map((split, i) => (
-                  <div key={split.id || split.teamMemberId || i} className={`flex items-center justify-between ${i > 0 ? "pt-2.5" : ""}`}>
-                    <div className="space-y-0.5">
-                      <p className="text-sm font-semibold text-[#252331]">{split.name}</p>
-                      {split.role && <p className="text-[11px] text-[#9994A5] capitalize">{split.role}</p>}
-                    </div>
-                    <div className="text-right">
-                      <p className="text-sm font-bold text-[#252331]">{formatCurrency(split.amount, rem.currency)}</p>
-                      {split.percentage !== null && split.percentage !== undefined && (
-                        <p className="text-[11px] text-[#9994A5]">{split.percentage}% share</p>
-                      )}
-                    </div>
-                  </div>
-                ))}
+                <div className="flex justify-between">
+                  <span>Receipt Emails:</span>
+                  <strong className="text-emerald-700">{rem.send_receipt_email !== false ? "Enabled" : "Disabled"}</strong>
+                </div>
               </div>
             </div>
-          )}
 
-          {/* Timeline */}
-          {timeline.length > 0 && (
-            <div className="rounded-xl border border-[rgba(74,61,100,0.10)] bg-white p-5 shadow-sm">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-[#9994A5] mb-4">Activity</h3>
-              <div className="space-y-4">
-                {timeline.map((event, i) => (
-                  <div key={event.id} className="flex gap-3">
-                    <div className="flex flex-col items-center">
-                      <div className="h-7 w-7 rounded-full bg-[rgba(184,148,78,0.10)] flex items-center justify-center shrink-0">
-                        <Clock size={12} className="text-[#B8944E]" />
+            {/* Notification Audit Log */}
+            <div className="rounded-xl border border-[rgba(74,61,100,0.10)] bg-white p-5 shadow-sm space-y-3">
+              <div className="flex items-center justify-between border-b border-[rgba(74,61,100,0.06)] pb-2">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-[#9994A5]">Notification Delivery Audit</h3>
+                <span className="text-[10px] text-[#9994A5]">{notifLogs.length} events</span>
+              </div>
+
+              {notifLogs.length === 0 ? (
+                <p className="text-xs text-[#9994A5] py-2 text-center">No notifications logged yet.</p>
+              ) : (
+                <div className="space-y-2 max-h-56 overflow-y-auto pr-1 text-xs">
+                  {notifLogs.map((log) => (
+                    <div key={log.id} className="border-b border-[rgba(74,61,100,0.04)] pb-1.5">
+                      <div className="flex items-center justify-between font-semibold">
+                        <span className="text-[#252331] truncate max-w-[140px]">{log.recipient}</span>
+                        <span className={`text-[10px] px-1.5 rounded ${log.status === "sent" ? "bg-emerald-50 text-emerald-700" : "bg-zinc-100 text-zinc-600"}`}>
+                          {log.status}
+                        </span>
                       </div>
-                      {i < timeline.length - 1 && <div className="flex-1 w-px bg-[rgba(74,61,100,0.08)] mt-1" />}
+                      <p className="text-[10px] text-[#9994A5]">{log.notification_type} • {fmtDatetime(log.created_at)}</p>
                     </div>
-                    <div className="pb-4">
-                      <p className="text-xs font-semibold text-[#252331]">{event.title}</p>
-                      {event.description && <p className="text-xs text-[#9994A5] mt-0.5">{event.description}</p>}
-                      <p className="text-[10px] text-[#9994A5] mt-1">{fmtDatetime(event.created_at)} · {event.actor_name}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </div>
-          )}
+
+            {/* Timeline */}
+            {timeline.length > 0 && (
+              <div className="rounded-xl border border-[rgba(74,61,100,0.10)] bg-white p-5 shadow-sm">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-[#9994A5] mb-3">Activity History</h3>
+                <div className="space-y-3 max-h-60 overflow-y-auto pr-1">
+                  {timeline.map((event, i) => (
+                    <div key={event.id || i} className="flex gap-2 text-xs">
+                      <Clock size={12} className="text-[#80642F] shrink-0 mt-0.5" />
+                      <div>
+                        <p className="font-semibold text-[#252331]">{event.title}</p>
+                        <p className="text-[10px] text-[#9994A5]">{fmtDatetime(event.created_at)} · {event.actor_name}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>

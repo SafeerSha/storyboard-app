@@ -6,7 +6,7 @@ import type { Task } from "@/lib/types/task";
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Tasks & To-Do | StoryBoard",
+  title: "Tasks & To-Do | REQly",
   description:
     "Track and manage to-do tasks across team members, clients, and user stories.",
 };

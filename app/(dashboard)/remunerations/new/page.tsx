@@ -28,6 +28,8 @@ interface ClientInfo { id: string; name: string; email: string | null; }
 interface InstallmentRow {
   key: string;
   installmentNumber: number;
+  name: string;
+  description: string;
   amount: string;
   dueDate: string;
   notes: string;
@@ -52,6 +54,7 @@ export default function NewRemunerationPage() {
   const [totalAmount, setTotalAmount] = useState("");
   const [currency, setCurrency] = useState("INR");
   const [paymentMethod, setPaymentMethod] = useState<"single" | "installments">("single");
+  const [agreementDate, setAgreementDate] = useState("");
   const [notes, setNotes] = useState("");
 
   // Controller / Toggle for confirmation email upon payment receipt
@@ -64,7 +67,7 @@ export default function NewRemunerationPage() {
   const [splits, setSplits] = useState<RemunerationSplit[]>([]);
 
   const [installments, setInstallments] = useState<InstallmentRow[]>([
-    { key: Date.now().toString(), installmentNumber: 1, amount: "", dueDate: "", notes: "" },
+    { key: Date.now().toString(), installmentNumber: 1, name: "", description: "", amount: "", dueDate: "", notes: "" },
   ]);
 
   const [submitting, setSubmitting] = useState(false);
@@ -155,7 +158,7 @@ export default function NewRemunerationPage() {
   const addInstallment = () => {
     setInstallments((prev) => [
       ...prev,
-      { key: Date.now().toString(), installmentNumber: prev.length + 1, amount: "", dueDate: "", notes: "" },
+      { key: Date.now().toString(), installmentNumber: prev.length + 1, name: "", description: "", amount: "", dueDate: "", notes: "" },
     ]);
   };
 
@@ -261,8 +264,8 @@ export default function NewRemunerationPage() {
     if (!totalAmount || totalNum <= 0) { setError("Total remuneration amount must be greater than 0."); return; }
     if (!isBalanced) { setError("The sum of installments must equal the total remuneration amount."); return; }
 
-    const invalidInst = installments.find((i) => !i.dueDate || !i.amount || parseFloat(i.amount) <= 0);
-    if (invalidInst) { setError("All installments must have a due date and a positive amount."); return; }
+    const invalidInst = installments.find((i) => !i.amount || parseFloat(i.amount) <= 0);
+    if (invalidInst) { setError("All installments must have a positive amount."); return; }
 
     // Validate splits if enabled
     if (enableSplits && splits.length > 0) {
@@ -284,13 +287,16 @@ export default function NewRemunerationPage() {
         totalAmount: totalNum,
         currency,
         paymentMethod,
+        agreementDate: agreementDate ? new Date(agreementDate).toISOString() : null,
         notes: notes || null,
         sendReceiptEmail,
         splits: enableSplits ? splits : [],
         installments: installments.map((inst) => ({
           installmentNumber: inst.installmentNumber,
+          name: inst.name || null,
+          description: inst.description || null,
           amount: parseFloat(inst.amount),
-          dueDate: inst.dueDate,
+          dueDate: inst.dueDate ? inst.dueDate : null,
           notes: inst.notes || null,
         })),
       };
@@ -458,6 +464,16 @@ export default function NewRemunerationPage() {
                       </button>
                     ))}
                   </div>
+                </div>
+
+                <div>
+                  <label className={labelClass}>Agreement Date (optional)</label>
+                  <input
+                    type="date"
+                    value={agreementDate}
+                    onChange={(e) => setAgreementDate(e.target.value)}
+                    className={inputClass}
+                  />
                 </div>
 
                 {/* Controller / Toggle: Confirmation Email upon Receipt */}
@@ -718,6 +734,30 @@ export default function NewRemunerationPage() {
                       </div>
 
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        {paymentMethod === "installments" && (
+                          <div className="sm:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                              <label className={labelClass}>Milestone Name (Optional)</label>
+                              <input
+                                type="text"
+                                placeholder="e.g. Initial Deposit"
+                                value={inst.name}
+                                onChange={(e) => updateInstallment(inst.key, "name", e.target.value)}
+                                className={inputClass}
+                              />
+                            </div>
+                            <div>
+                              <label className={labelClass}>Description (Optional)</label>
+                              <input
+                                type="text"
+                                placeholder="e.g. Due upon signing"
+                                value={inst.description}
+                                onChange={(e) => updateInstallment(inst.key, "description", e.target.value)}
+                                className={inputClass}
+                              />
+                            </div>
+                          </div>
+                        )}
                         <div>
                           <label className={labelClass}>
                             Amount ({CURRENCIES.find((c) => c.value === currency)?.label.split(" ")[0]})
@@ -733,7 +773,7 @@ export default function NewRemunerationPage() {
                           />
                         </div>
                         <div>
-                          <label className={labelClass}>Due Date</label>
+                          <label className={labelClass}>Due Date (Optional)</label>
                           <input
                             type="date"
                             value={inst.dueDate}
@@ -743,7 +783,7 @@ export default function NewRemunerationPage() {
                         </div>
                         {paymentMethod === "installments" && (
                           <div className="sm:col-span-2">
-                            <label className={labelClass}>Milestone / Notes (optional)</label>
+                            <label className={labelClass}>Internal Notes (optional)</label>
                             <input
                               type="text"
                               placeholder="e.g. 50% upon project kickoff or milestone approval"

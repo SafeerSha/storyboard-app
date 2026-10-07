@@ -1,5 +1,5 @@
 -- ==============================================================================
--- StoryBoard: Project Inbox Collaboration, AI Discussion & Saved Insights Schema
+-- REQly: Project Inbox Collaboration, AI Discussion & Saved Insights Schema
 -- ==============================================================================
 
 -- 1. Create project_inbox_members table

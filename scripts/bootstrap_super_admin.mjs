@@ -1,5 +1,5 @@
 /**
- * StoryBoard - Super Admin Database Bootstrap Script
+ * REQly - Super Admin Database Bootstrap Script
  *
  * Usage:
  *   node scripts/bootstrap_super_admin.mjs [email]

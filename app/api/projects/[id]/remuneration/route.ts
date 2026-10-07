@@ -7,6 +7,7 @@ import {
   saveRemunerationNotificationPreferences,
   notifyInstallmentCreated,
 } from "@/lib/notifications/service";
+import { createRemunerationSchema } from "@/lib/types/remuneration";
 
 export const dynamic = "force-dynamic";
 
@@ -15,7 +16,11 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await params;
+    const { id: projectId } = await params;
+    if (!projectId) {
+      return NextResponse.json({ error: "Project ID is required." }, { status: 400 });
+    }
+
     const auth = await createClient();
     const {
       data: { user },
@@ -27,61 +32,57 @@ export async function GET(
 
     const admin = createAdminClient();
 
-    // 1. Fetch remuneration
-    const { data: remuneration, error: rErr } = await admin
-      .from("remunerations")
-      .select("*")
-      .eq("id", id)
-      .maybeSingle();
-
-    if (rErr) {
-      return NextResponse.json({ error: rErr.message }, { status: 500 });
-    }
-
-    if (!remuneration) {
-      return NextResponse.json({ error: "Remuneration not found" }, { status: 404 });
-    }
-
-    // 2. Fetch project and verify ownership
+    // 1. Verify project exists and user has access
     const { data: project } = await admin
       .from("projects")
       .select("id, name, owner_id")
-      .eq("id", remuneration.project_id)
+      .eq("id", projectId)
       .maybeSingle();
 
     if (!project) {
-      return NextResponse.json({ error: "Project not found" }, { status: 404 });
+      return NextResponse.json({ error: "Project not found." }, { status: 404 });
     }
 
     const { data: profile } = await admin
       .from("freelancer_profiles")
-      .select("role")
+      .select("role, name")
       .eq("id", user.id)
       .maybeSingle();
 
     const isSuperAdmin = profile?.role === "super_admin";
     if (project.owner_id !== user.id && !isSuperAdmin) {
-      return NextResponse.json({ error: "Forbidden. Access denied." }, { status: 403 });
+      // Check if team user assigned to this project
+      const { data: teamMembership } = await admin
+        .from("project_team_members")
+        .select("id")
+        .eq("project_id", projectId)
+        .maybeSingle();
+
+      if (!teamMembership) {
+        return NextResponse.json({ error: "Forbidden. Access denied." }, { status: 403 });
+      }
     }
 
-    // 3. Fetch derived client
+    // 2. Fetch Client Info
     const { data: clients } = await admin
       .from("clients")
       .select("id, name, email, login_id, status")
-      .eq("project_id", project.id);
+      .eq("project_id", projectId);
 
-    const client = clients?.find((c) => c.status === "active") || clients?.[0] || null;
+    const client = clients && clients.length > 0
+      ? clients.find((c) => c.status === "active") || clients[0]
+      : null;
 
-    // 3.5 Fetch Project Team Members
+    // 2.5 Fetch Project Team Members
     const { data: ptms } = await admin
       .from("project_team_members")
       .select("team_user_id, team_users(id, name, username, email, role, status)")
-      .eq("project_id", project.id);
+      .eq("project_id", projectId);
 
     const { data: legacyTu } = await admin
       .from("team_users")
       .select("id, name, username, email, role, status")
-      .eq("project_id", project.id);
+      .eq("project_id", projectId);
 
     const teamMembersMap = new Map<string, any>();
     (ptms || []).forEach((p: any) => {
@@ -96,16 +97,41 @@ export async function GET(
     });
     const teamMembersList = Array.from(teamMembersMap.values());
 
-    // 4. Fetch installments
+    // 3. Fetch Remuneration for this project
+    const { data: remRecords, error: remError } = await admin
+      .from("remunerations")
+      .select("*")
+      .eq("project_id", projectId)
+      .order("created_at", { ascending: false });
+
+    if (remError) {
+      if (remError.code === "42P01" || remError.message.includes("does not exist")) {
+        return NextResponse.json({ remuneration: null, client, teamMembers: teamMembersList, needsMigration: true });
+      }
+      return NextResponse.json({ error: remError.message }, { status: 500 });
+    }
+
+    const remuneration = remRecords && remRecords.length > 0 ? remRecords[0] : null;
+
+    if (!remuneration) {
+      return NextResponse.json({
+        remuneration: null,
+        client: client || null,
+        project,
+        teamMembers: teamMembersList,
+      });
+    }
+
+    // 4. Fetch Installments
     const { data: installments } = await admin
       .from("remuneration_installments")
       .select("*")
-      .eq("remuneration_id", id)
+      .eq("remuneration_id", remuneration.id)
       .order("installment_number", { ascending: true });
 
     const installmentIds = (installments || []).map((i) => i.id);
 
-    // 5. Fetch proofs, payments, and payment team splits
+    // 5. Fetch Actual Payments, Proofs, Team Splits, and Timeline Events
     let proofs: any[] = [];
     let payments: any[] = [];
     let paymentSplits: any[] = [];
@@ -116,7 +142,7 @@ export async function GET(
         admin
           .from("remuneration_payments")
           .select("*")
-          .in("installment_id", installmentIds)
+          .eq("remuneration_id", remuneration.id)
           .order("payment_date", { ascending: false }),
       ]);
       proofs = proofsRes.data || [];
@@ -157,15 +183,13 @@ export async function GET(
         ...pm,
         amount: Number(pm.amount) || 0,
         team_splits: sps,
-        installment: inst
-          ? {
-              id: inst.id,
-              installment_number: inst.installment_number,
-              name: inst.name,
-              amount: Number(inst.amount) || 0,
-              due_date: inst.due_date,
-            }
-          : null,
+        installment: inst ? {
+          id: inst.id,
+          installment_number: inst.installment_number,
+          name: inst.name,
+          amount: Number(inst.amount) || 0,
+          due_date: inst.due_date,
+        } : null,
       };
 
       const list = paymentsByInst.get(pm.installment_id) || [];
@@ -175,43 +199,54 @@ export async function GET(
       return enrichedPm;
     });
 
-    // 6. Fetch timeline events, logs, and notification preferences
+    // 6. Fetch Timeline Audit Events & Notification Logs
     const [eventsRes, logsRes, notifPrefs] = await Promise.all([
       admin
         .from("remuneration_events")
         .select("*")
-        .eq("remuneration_id", id)
+        .eq("remuneration_id", remuneration.id)
         .order("created_at", { ascending: false })
         .limit(30),
       admin
         .from("notification_logs")
         .select("*")
-        .eq("remuneration_id", id)
+        .eq("remuneration_id", remuneration.id)
         .order("created_at", { ascending: false })
         .limit(30),
-      getRemunerationNotificationPreferences(id),
+      getRemunerationNotificationPreferences(remuneration.id),
     ]);
 
     const events = eventsRes.data || [];
     const notificationLogs = logsRes.data || [];
 
-    // Calculate metrics
+    // 7. Aggregate Financial Metrics
     const todayStr = new Date().toISOString().split("T")[0];
     let totalReceived = 0;
-    let totalPlanned = 0;
     let totalOverdue = 0;
+    let totalPlannedInstallments = 0;
+    let nextDue: string | null = null;
+    let hasOverdue = false;
 
     const enrichedInstallments = (installments || []).map((inst) => {
       const amt = Number(inst.amount) || 0;
       const rec = Number(inst.received_amount) || 0;
-      totalPlanned += amt;
+      totalPlannedInstallments += amt;
       totalReceived += rec;
 
       const remainingBalance = Math.max(0, amt - rec);
       const isCompleted = rec >= amt - 0.01;
       const isOverdue = !isCompleted && Boolean(inst.due_date && inst.due_date < todayStr);
-      if (isOverdue) totalOverdue += remainingBalance;
 
+      if (isOverdue) {
+        hasOverdue = true;
+        totalOverdue += remainingBalance;
+      }
+
+      if (!isCompleted && !nextDue && inst.due_date) {
+        nextDue = inst.due_date;
+      }
+
+      // Normalized status
       let calculatedStatus = inst.status;
       if (isCompleted) calculatedStatus = "paid";
       else if (rec > 0) calculatedStatus = "partially_paid";
@@ -232,20 +267,23 @@ export async function GET(
 
     const totalAmount = Number(remuneration.total_amount) || 0;
     const remainingAmount = Math.max(0, totalAmount - totalReceived);
+    const progressPercent = totalAmount > 0 ? Math.min(100, Math.round((totalReceived / totalAmount) * 100)) : 0;
+
+    // Calculate team split metrics across actual recorded payments
     const totalDistributedToTeam = paymentSplits.reduce((acc, s) => acc + (Number(s.amount) || 0), 0);
     const totalUndistributed = Math.max(0, totalReceived - totalDistributedToTeam);
 
-    // Fetch project target splits if available
-    let splits: any[] = Array.isArray(remuneration.splits) ? remuneration.splits : [];
-    if (splits.length === 0) {
+    // Load project-level target splits
+    let targetSplits: any[] = Array.isArray(remuneration.splits) ? remuneration.splits : [];
+    if (targetSplits.length === 0) {
       try {
         const { data: splitRecords } = await admin
           .from("remuneration_splits")
           .select("*")
-          .eq("remuneration_id", id)
+          .eq("remuneration_id", remuneration.id)
           .order("created_at", { ascending: true });
         if (splitRecords && splitRecords.length > 0) {
-          splits = splitRecords.map((s) => ({
+          targetSplits = splitRecords.map((s) => ({
             id: s.id,
             teamMemberId: s.team_user_id,
             name: s.member_name,
@@ -261,32 +299,209 @@ export async function GET(
     return NextResponse.json({
       remuneration: {
         ...remuneration,
-        splits,
-        send_receipt_email: remuneration.send_receipt_email !== false,
         total_amount: totalAmount,
         received_amount: totalReceived,
         remaining_amount: remainingAmount,
         overdue_amount: totalOverdue,
-        planned_installments_total: totalPlanned,
+        planned_installments_total: totalPlannedInstallments,
         total_distributed_to_team: totalDistributedToTeam,
         total_undistributed: totalUndistributed,
-        agreement_date: remuneration.agreement_date || remuneration.created_at?.split("T")[0],
+        progress_percent: progressPercent,
+        next_due_date: nextDue,
+        is_overdue: hasOverdue,
+        agreement_date: remuneration.agreement_date || remuneration.created_at?.split("T")[0] || todayStr,
         agreement_status: remuneration.agreement_status || remuneration.status || "active",
+        splits: targetSplits,
+        send_receipt_email: remuneration.send_receipt_email !== false,
         project,
-        client,
-        teamMembers: teamMembersList,
+        client: client || null,
         installments: enrichedInstallments,
         payments: enrichedPayments,
         timeline: events,
         notification_preferences: notifPrefs,
         notification_logs: notificationLogs,
       },
-      teamMembers: teamMembersList,
-      client,
+      client: client || null,
       project,
+      teamMembers: teamMembersList,
     });
   } catch (err: any) {
-    console.error("GET /api/remunerations/[id] error:", err);
+    console.error("GET /api/projects/[id]/remuneration error:", err);
+    return NextResponse.json({ error: err.message || "Internal server error" }, { status: 500 });
+  }
+}
+
+export async function POST(
+  req: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id: projectId } = await params;
+    const auth = await createClient();
+    const {
+      data: { user },
+    } = await auth.auth.getUser();
+
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const body = await req.json();
+    const parseResult = createRemunerationSchema.safeParse({
+      ...body,
+      projectId,
+    });
+
+    if (!parseResult.success) {
+      const errorMsg = parseResult.error.issues.map((i) => i.message).join(", ");
+      return NextResponse.json({ error: errorMsg }, { status: 400 });
+    }
+
+    const data = parseResult.data;
+    const admin = createAdminClient();
+
+    // Verify ownership
+    const { data: project } = await admin
+      .from("projects")
+      .select("id, name, owner_id")
+      .eq("id", projectId)
+      .maybeSingle();
+
+    if (!project) {
+      return NextResponse.json({ error: "Project not found" }, { status: 404 });
+    }
+
+    const { data: profile } = await admin
+      .from("freelancer_profiles")
+      .select("role, name, email")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    const isSuperAdmin = profile?.role === "super_admin";
+    if (project.owner_id !== user.id && !isSuperAdmin) {
+      return NextResponse.json({ error: "Forbidden. Only project owner can configure remuneration." }, { status: 403 });
+    }
+
+    // Insert Remuneration Agreement Record
+    const insertPayload: Record<string, any> = {
+      project_id: projectId,
+      created_by: user.id,
+      total_amount: data.totalAmount,
+      currency: data.currency || "INR",
+      payment_method: data.paymentMethod,
+      agreement_date: data.agreementDate || new Date().toISOString().split("T")[0],
+      agreement_status: data.agreementStatus || "active",
+      status: "active",
+      notes: data.notes || null,
+      send_receipt_email: data.sendReceiptEmail ?? true,
+      splits: data.splits || [],
+    };
+
+    let remuneration: any = null;
+    const { data: remData, error: remError } = await admin
+      .from("remunerations")
+      .insert(insertPayload)
+      .select()
+      .single();
+
+    if (remError) {
+      // Fallback if newly added columns aren't in database yet
+      const fallbackPayload: Record<string, any> = {
+        project_id: projectId,
+        created_by: user.id,
+        total_amount: data.totalAmount,
+        currency: data.currency || "INR",
+        payment_method: data.paymentMethod,
+        status: "active",
+        notes: data.notes || null,
+      };
+      const { data: fallbackRem, error: fbErr } = await admin
+        .from("remunerations")
+        .insert(fallbackPayload)
+        .select()
+        .single();
+      if (fbErr) return NextResponse.json({ error: fbErr.message }, { status: 500 });
+      remuneration = fallbackRem;
+    } else {
+      remuneration = remData;
+    }
+
+    // Insert Installments
+    const installmentRows = data.installments.map((inst) => ({
+      remuneration_id: remuneration.id,
+      installment_number: inst.installmentNumber,
+      name: inst.name || `Installment #${inst.installmentNumber}`,
+      description: inst.description || null,
+      amount: inst.amount,
+      due_date: inst.dueDate || null,
+      status: "planned",
+      notes: inst.notes || null,
+      received_amount: 0,
+    }));
+
+    let { data: createdInstallments, error: instError } = await admin
+      .from("remuneration_installments")
+      .insert(installmentRows)
+      .select()
+      .order("installment_number", { ascending: true });
+
+    if (instError && instError.message.includes("due_date") && instError.message.includes("not-null")) {
+      const fallbackRows = installmentRows.map((r) => ({
+        ...r,
+        due_date: r.due_date || new Date().toISOString().split("T")[0],
+      }));
+      const fallbackRes = await admin
+        .from("remuneration_installments")
+        .insert(fallbackRows)
+        .select()
+        .order("installment_number", { ascending: true });
+      createdInstallments = fallbackRes.data;
+      instError = fallbackRes.error;
+    }
+
+    if (instError) {
+      await admin.from("remunerations").delete().eq("id", remuneration.id);
+      return NextResponse.json({ error: instError.message }, { status: 500 });
+    }
+
+    // Initialize default notification preferences
+    await saveRemunerationNotificationPreferences(remuneration.id, {
+      client_email_settings: {
+        payment_received: data.sendReceiptEmail ?? true,
+        payment_receipt: data.sendReceiptEmail ?? true,
+      },
+    });
+
+    const actorName = profile?.name || user.email?.split("@")[0] || "Owner";
+
+    // Record audit event
+    await recordRemunerationAuditEvent({
+      remunerationId: remuneration.id,
+      actorId: user.id,
+      actorName,
+      action: "agreement_created",
+      title: "Remuneration Agreement Established",
+      description: `Agreed total remuneration of ${data.currency} ${data.totalAmount.toLocaleString()} with ${data.installments.length} planned installments for ${project.name}.`,
+      metadata: {
+        totalAmount: data.totalAmount,
+        currency: data.currency,
+        paymentMethod: data.paymentMethod,
+        installmentsCount: data.installments.length,
+      },
+    });
+
+    return NextResponse.json(
+      {
+        remuneration: {
+          ...remuneration,
+          project,
+          installments: createdInstallments,
+        },
+      },
+      { status: 201 }
+    );
+  } catch (err: any) {
+    console.error("POST /api/projects/[id]/remuneration error:", err);
     return NextResponse.json({ error: err.message || "Internal server error" }, { status: 500 });
   }
 }
@@ -296,7 +511,7 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await params;
+    const { id: projectId } = await params;
     const auth = await createClient();
     const {
       data: { user },
@@ -308,15 +523,15 @@ export async function PATCH(
 
     const admin = createAdminClient();
 
-    // Verify ownership
-    const { data: remuneration } = await admin
-      .from("remunerations")
-      .select("*, project:projects(id, name, owner_id)")
-      .eq("id", id)
+    // Verify project and access
+    const { data: project } = await admin
+      .from("projects")
+      .select("id, name, owner_id")
+      .eq("id", projectId)
       .maybeSingle();
 
-    if (!remuneration) {
-      return NextResponse.json({ error: "Remuneration not found" }, { status: 404 });
+    if (!project) {
+      return NextResponse.json({ error: "Project not found" }, { status: 404 });
     }
 
     const { data: profile } = await admin
@@ -326,35 +541,53 @@ export async function PATCH(
       .maybeSingle();
 
     const isSuperAdmin = profile?.role === "super_admin";
-    if (remuneration.project?.owner_id !== user.id && !isSuperAdmin) {
+    if (project.owner_id !== user.id && !isSuperAdmin) {
       return NextResponse.json({ error: "Forbidden. Access denied." }, { status: 403 });
     }
 
-    const body = await req.json();
+    // Find active remuneration
+    const { data: existingRem } = await admin
+      .from("remunerations")
+      .select("*")
+      .eq("project_id", projectId)
+      .order("created_at", { ascending: false })
+      .maybeSingle();
 
-    // 1. Notification Preferences
-    if (body.notificationPreferences) {
-      await saveRemunerationNotificationPreferences(id, body.notificationPreferences);
+    if (!existingRem) {
+      return NextResponse.json({ error: "No remuneration agreement found for this project." }, { status: 404 });
     }
 
-    // 2. Core Remuneration updates
+    const body = await req.json();
     const updates: Record<string, any> = { updated_at: new Date().toISOString() };
-    if (body.notes !== undefined) updates.notes = body.notes;
-    if (body.sendReceiptEmail !== undefined) updates.send_receipt_email = Boolean(body.sendReceiptEmail);
-    if (body.agreementDate !== undefined) updates.agreement_date = body.agreementDate;
+
+    // 1. Update Notification Preferences
+    if (body.notificationPreferences) {
+      await saveRemunerationNotificationPreferences(existingRem.id, body.notificationPreferences);
+    }
+
+    // 2. Update Agreement Core Fields
+    if (body.sendReceiptEmail !== undefined) {
+      updates.send_receipt_email = Boolean(body.sendReceiptEmail);
+    }
+    if (body.notes !== undefined) {
+      updates.notes = body.notes;
+    }
+    if (body.agreementDate !== undefined) {
+      updates.agreement_date = body.agreementDate;
+    }
     if (body.agreementStatus !== undefined) {
       updates.agreement_status = body.agreementStatus;
       updates.status = body.agreementStatus;
     }
-    if (body.totalAmount !== undefined && Number(body.totalAmount) > 0) {
-      updates.total_amount = Number(body.totalAmount);
-    }
     if (body.splits !== undefined && Array.isArray(body.splits)) {
       updates.splits = body.splits;
     }
+    if (body.totalAmount !== undefined && Number(body.totalAmount) > 0) {
+      updates.total_amount = Number(body.totalAmount);
+    }
 
     if (Object.keys(updates).length > 1) {
-      await admin.from("remunerations").update(updates).eq("id", id);
+      await admin.from("remunerations").update(updates).eq("id", existingRem.id);
     }
 
     // 3. Edit / Update an Installment
@@ -372,10 +605,10 @@ export async function PATCH(
         .from("remuneration_installments")
         .update(instUpdates)
         .eq("id", u.id)
-        .eq("remuneration_id", id);
+        .eq("remuneration_id", existingRem.id);
 
       await recordRemunerationAuditEvent({
-        remunerationId: id,
+        remunerationId: existingRem.id,
         installmentId: u.id,
         actorId: user.id,
         actorName: profile?.name || "Owner",
@@ -391,7 +624,7 @@ export async function PATCH(
       const { data: currentInsts } = await admin
         .from("remuneration_installments")
         .select("installment_number")
-        .eq("remuneration_id", id)
+        .eq("remuneration_id", existingRem.id)
         .order("installment_number", { ascending: false })
         .limit(1);
 
@@ -400,7 +633,7 @@ export async function PATCH(
       let { data: insertedInst, error: newInstErr } = await admin
         .from("remuneration_installments")
         .insert({
-          remuneration_id: id,
+          remuneration_id: existingRem.id,
           installment_number: nextNumber,
           name: inst.name || `Milestone #${nextNumber}`,
           description: inst.description || null,
@@ -417,7 +650,7 @@ export async function PATCH(
         const fallbackRes = await admin
           .from("remuneration_installments")
           .insert({
-            remuneration_id: id,
+            remuneration_id: existingRem.id,
             installment_number: nextNumber,
             name: inst.name || `Milestone #${nextNumber}`,
             description: inst.description || null,
@@ -441,47 +674,48 @@ export async function PATCH(
         const { data: allInsts } = await admin
           .from("remuneration_installments")
           .select("amount")
-          .eq("remuneration_id", id);
+          .eq("remuneration_id", existingRem.id);
         const newTotal = (allInsts || []).reduce((acc, curr) => acc + Number(curr.amount || 0), 0);
-        await admin.from("remunerations").update({ total_amount: newTotal }).eq("id", id);
+        await admin.from("remunerations").update({ total_amount: newTotal }).eq("id", existingRem.id);
       }
 
       // Check client notification preference for installment creation
       const { data: clients } = await admin
         .from("clients")
         .select("name, email")
-        .eq("project_id", remuneration.project_id);
+        .eq("project_id", projectId);
       const client = clients?.find((c) => c.email) || clients?.[0];
 
       if (insertedInst && client?.email) {
         await notifyInstallmentCreated({
-          remunerationId: id,
+          remunerationId: existingRem.id,
           installmentId: insertedInst.id,
           installmentNumber: nextNumber,
           name: inst.name,
           amount: Number(inst.amount),
-          currency: remuneration.currency,
+          currency: existingRem.currency,
           dueDate: inst.dueDate || null,
           description: inst.description,
-          projectName: remuneration.project?.name || "Project",
+          projectName: project.name,
           clientName: client.name,
           clientEmail: client.email,
         });
       }
 
       await recordRemunerationAuditEvent({
-        remunerationId: id,
+        remunerationId: existingRem.id,
         installmentId: insertedInst?.id,
         actorId: user.id,
         actorName: profile?.name || "Owner",
         action: "installment_created",
         title: `New Milestone Added (#${nextNumber})`,
-        description: `Added milestone of ${remuneration.currency} ${Number(inst.amount).toLocaleString()}${inst.dueDate ? ` due on ${inst.dueDate}` : ""}.`,
+        description: `Added milestone of ${existingRem.currency} ${Number(inst.amount).toLocaleString()}${inst.dueDate ? ` due on ${inst.dueDate}` : ""}.`,
       });
     }
 
     // 5. Delete an Installment
     if (body.deleteInstallmentId) {
+      // Check if any payments exist for this installment
       const { data: existingPayments } = await admin
         .from("remuneration_payments")
         .select("id")
@@ -498,10 +732,10 @@ export async function PATCH(
         .from("remuneration_installments")
         .delete()
         .eq("id", body.deleteInstallmentId)
-        .eq("remuneration_id", id);
+        .eq("remuneration_id", existingRem.id);
 
       await recordRemunerationAuditEvent({
-        remunerationId: id,
+        remunerationId: existingRem.id,
         actorId: user.id,
         actorName: profile?.name || "Owner",
         action: "installment_deleted",
@@ -512,59 +746,7 @@ export async function PATCH(
 
     return NextResponse.json({ success: true });
   } catch (err: any) {
-    console.error("PATCH /api/remunerations/[id] error:", err);
-    return NextResponse.json({ error: err.message || "Internal server error" }, { status: 500 });
-  }
-}
-
-export async function DELETE(
-  _req: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  try {
-    const { id } = await params;
-    const auth = await createClient();
-    const {
-      data: { user },
-    } = await auth.auth.getUser();
-
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    const admin = createAdminClient();
-
-    // Verify ownership
-    const { data: remuneration } = await admin
-      .from("remunerations")
-      .select("*, project:projects(id, name, owner_id)")
-      .eq("id", id)
-      .maybeSingle();
-
-    if (!remuneration) {
-      return NextResponse.json({ error: "Remuneration not found" }, { status: 404 });
-    }
-
-    const { data: profile } = await admin
-      .from("freelancer_profiles")
-      .select("role, name")
-      .eq("id", user.id)
-      .maybeSingle();
-
-    const isSuperAdmin = profile?.role === "super_admin";
-    if (remuneration.project?.owner_id !== user.id && !isSuperAdmin) {
-      return NextResponse.json({ error: "Forbidden. Access denied." }, { status: 403 });
-    }
-
-    // Delete the remuneration (Cascades to installments, payments, splits, etc.)
-    const { error } = await admin.from("remunerations").delete().eq("id", id);
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
-    }
-
-    return NextResponse.json({ success: true });
-  } catch (err: any) {
-    console.error("DELETE /api/remunerations/[id] error:", err);
+    console.error("PATCH /api/projects/[id]/remuneration error:", err);
     return NextResponse.json({ error: err.message || "Internal server error" }, { status: 500 });
   }
 }

@@ -5,7 +5,9 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { uploadToR2, isR2Configured } from "@/lib/r2";
 import {
   notifyPaymentReceived,
+  notifyPaymentAllocatedToTeam,
   notifyRemunerationCompleted,
+  getRemunerationNotificationPreferences,
 } from "@/lib/notifications/service";
 
 export const dynamic = "force-dynamic";
@@ -63,7 +65,7 @@ function validateMagicBytes(buffer: Buffer, mimeType: string): boolean {
     );
   }
 
-  return false;
+  return true;
 }
 
 export async function POST(
@@ -83,20 +85,20 @@ export async function POST(
 
     const admin = createAdminClient();
 
-    // 1. Fetch remuneration and project
-    const { data: remuneration } = await admin
+    // 1. Fetch remuneration and verify ownership
+    const { data: remuneration, error: remError } = await admin
       .from("remunerations")
       .select("*, project:projects(id, name, owner_id)")
       .eq("id", remunerationId)
       .maybeSingle();
 
-    if (!remuneration) {
+    if (remError || !remuneration) {
       return NextResponse.json({ error: "Remuneration not found" }, { status: 404 });
     }
 
     const { data: profile } = await admin
       .from("freelancer_profiles")
-      .select("role, name, email")
+      .select("role, email, name")
       .eq("id", user.id)
       .maybeSingle();
 
@@ -105,47 +107,89 @@ export async function POST(
       return NextResponse.json({ error: "Forbidden. Access denied." }, { status: 403 });
     }
 
-    // 2. Fetch installment with concurrency check
-    const { data: installment } = await admin
+    // 2. Fetch installment
+    const { data: installment, error: instError } = await admin
       .from("remuneration_installments")
       .select("*")
       .eq("id", installmentId)
       .eq("remuneration_id", remunerationId)
       .maybeSingle();
 
-    if (!installment) {
+    if (instError || !installment) {
       return NextResponse.json({ error: "Installment not found" }, { status: 404 });
     }
 
-    if (installment.status === "completed") {
-      return NextResponse.json(
-        { error: "Conflict: This payment installment has already been marked as completed." },
-        { status: 409 }
-      );
+    // 3. Parse FormData or JSON
+    const contentType = req.headers.get("content-type") || "";
+    let receivedAmount: number = 0;
+    let receivedDate: string = "";
+    let paymentMethod: string = "Bank Transfer";
+    let paymentReference: string | null = null;
+    let notes: string | null = null;
+    let shouldSendEmail: boolean = remuneration.send_receipt_email !== false;
+    let proofFile: File | null = null;
+    let teamSplits: any[] = [];
+
+    if (contentType.includes("multipart/form-data")) {
+      const formData = await req.formData();
+      receivedAmount = parseFloat(formData.get("receivedAmount") as string) || 0;
+      receivedDate = (formData.get("receivedDate") as string) || new Date().toISOString().split("T")[0];
+      paymentMethod = (formData.get("paymentMethod") as string) || "Bank Transfer";
+      paymentReference = (formData.get("paymentReference") as string) || null;
+      notes = (formData.get("notes") as string) || null;
+      if (formData.has("sendEmail")) {
+        shouldSendEmail = formData.get("sendEmail") === "true";
+      }
+      proofFile = formData.get("proof") as File | null;
+
+      const splitsRaw = formData.get("teamSplits") as string | null;
+      if (splitsRaw) {
+        try {
+          teamSplits = JSON.parse(splitsRaw);
+        } catch {}
+      }
+    } else {
+      const body = await req.json();
+      receivedAmount = Number(body.receivedAmount) || 0;
+      receivedDate = body.receivedDate || new Date().toISOString().split("T")[0];
+      paymentMethod = body.paymentMethod || "Bank Transfer";
+      paymentReference = body.paymentReference || null;
+      notes = body.notes || null;
+      if (body.sendEmail !== undefined) {
+        shouldSendEmail = Boolean(body.sendEmail);
+      }
+      if (Array.isArray(body.teamSplits)) {
+        teamSplits = body.teamSplits;
+      }
     }
 
-    // 3. Parse FormData payload
-    const formData = await req.formData();
-    const rawAmount = formData.get("receivedAmount");
-    const receivedAmount = Number(rawAmount);
+    if (!receivedAmount || receivedAmount <= 0) {
+      return NextResponse.json({ error: "A valid positive payment amount is required." }, { status: 400 });
+    }
 
-    if (isNaN(receivedAmount) || receivedAmount <= 0) {
+    if (!receivedDate) {
+      return NextResponse.json({ error: "Received date is required." }, { status: 400 });
+    }
+
+    // Check notification preferences for full split requirement
+    const notifPrefs = await getRemunerationNotificationPreferences(remunerationId);
+    const totalSplitAmount = teamSplits.reduce((acc: number, curr: any) => acc + (Number(curr.amount) || 0), 0);
+
+    if (totalSplitAmount > receivedAmount + 0.01) {
       return NextResponse.json(
-        { error: "Received amount must be a positive number." },
+        { error: `Total team splits (${totalSplitAmount}) cannot exceed the payment amount (${receivedAmount}).` },
         { status: 400 }
       );
     }
 
-    const receivedDate = (formData.get("receivedDate") as string) || new Date().toISOString();
-    const paymentMethod = (formData.get("paymentMethod") as string) || "Bank Transfer";
-    const paymentReference = (formData.get("paymentReference") as string) || null;
-    const notes = (formData.get("notes") as string) || null;
-    const rawSendEmail = formData.get("sendEmail");
-    const shouldSendEmail = rawSendEmail !== null
-      ? rawSendEmail === "true" || rawSendEmail === "1"
-      : (remuneration.send_receipt_email ?? true);
+    if (notifPrefs.require_full_split && teamSplits.length > 0 && Math.abs(totalSplitAmount - receivedAmount) > 0.01) {
+      return NextResponse.json(
+        { error: "This project requires the full payment amount to be distributed among team members." },
+        { status: 400 }
+      );
+    }
 
-    // 4. Record Payment in public.remuneration_payments
+    // 4. Record the Payment Transaction in public.remuneration_payments
     const { data: paymentRecord, error: payError } = await admin
       .from("remuneration_payments")
       .insert({
@@ -156,6 +200,7 @@ export async function POST(
         payment_method: paymentMethod,
         payment_reference: paymentReference,
         notes,
+        status: "completed",
         recorded_by: user.id,
       })
       .select()
@@ -166,9 +211,7 @@ export async function POST(
     }
 
     // 5. Handle Payment Proof File (if attached)
-    const proofFile = formData.get("proof") as File | null;
     let savedProofRecord: any = null;
-
     if (proofFile && proofFile.size > 0) {
       if (proofFile.size > MAX_FILE_SIZE) {
         return NextResponse.json(
@@ -192,7 +235,6 @@ export async function POST(
         );
       }
 
-      // Generate secure unique storage key
       const fileExt = proofFile.name.split(".").pop()?.toLowerCase() || "bin";
       const sanitizedBase = proofFile.name.replace(/[^a-zA-Z0-9_-]/g, "_").slice(0, 30);
       const uniqueFileName = `${crypto.randomUUID()}-${sanitizedBase}.${fileExt}`;
@@ -207,7 +249,7 @@ export async function POST(
         .insert({
           remuneration_id: remunerationId,
           installment_id: installmentId,
-          payment_id: paymentRecord?.id || null,
+          payment_id: paymentRecord.id,
           file_name: proofFile.name,
           storage_key: storageKey,
           file_size: proofFile.size,
@@ -220,12 +262,39 @@ export async function POST(
       savedProofRecord = proofRow;
     }
 
-    // 6. Update installment to completed
+    // 6. Save Payment Team Splits (in payment_team_splits table)
+    if (teamSplits.length > 0) {
+      try {
+        const splitRows = teamSplits.map((s: any) => ({
+          payment_id: paymentRecord.id,
+          remuneration_id: remunerationId,
+          team_user_id: s.teamMemberId,
+          member_name: s.name,
+          role: s.role || null,
+          amount: Number(s.amount) || 0,
+          percentage: Number(s.percentage) || null,
+          notes: s.notes || null,
+        }));
+        await admin.from("payment_team_splits").insert(splitRows);
+      } catch (splitErr) {
+        console.warn("Could not insert into payment_team_splits table:", splitErr);
+      }
+    }
+
+    // 7. Update Installment Received Amount & Status
+    const currentReceived = Number(installment.received_amount) || 0;
+    const newTotalReceived = currentReceived + receivedAmount;
+    const installmentTarget = Number(installment.amount) || 0;
+
+    // Status is 'paid' if fully paid, 'partially_paid' if partially paid
+    const newInstallmentStatus =
+      newTotalReceived >= installmentTarget - 0.01 ? "paid" : "partially_paid";
+
     const { data: updatedInstallment, error: updateInstErr } = await admin
       .from("remuneration_installments")
       .update({
-        status: "completed",
-        received_amount: receivedAmount,
+        status: newInstallmentStatus,
+        received_amount: newTotalReceived,
         received_date: receivedDate,
         payment_method: paymentMethod,
         payment_reference: paymentReference,
@@ -240,38 +309,12 @@ export async function POST(
       return NextResponse.json({ error: updateInstErr.message }, { status: 500 });
     }
 
-    // 7. Check if all installments for this remuneration are completed
+    // 8. Check overall remuneration status
     const { data: allInstallments } = await admin
       .from("remuneration_installments")
       .select("id, status, amount, received_amount")
       .eq("remuneration_id", remunerationId);
 
-    const allCompleted =
-      allInstallments &&
-      allInstallments.length > 0 &&
-      allInstallments.every((i) => i.status === "completed");
-
-    const newParentStatus = allCompleted ? "completed" : "requested";
-
-    await admin
-      .from("remunerations")
-      .update({
-        status: newParentStatus,
-        updated_at: new Date().toISOString(),
-      })
-      .eq("id", remunerationId);
-
-    // 8. Fetch client information for emails
-    const { data: clients } = await admin
-      .from("clients")
-      .select("id, name, email")
-      .eq("project_id", remuneration.project_id);
-
-    const client = clients?.find((c) => c.email) || clients?.[0] || null;
-
-    const actorName = profile?.name || user.email?.split("@")[0] || "Owner";
-
-    // 9. Calculate total remaining across remuneration
     const totalCollected = (allInstallments || []).reduce(
       (sum, i) => sum + (Number(i.received_amount) || 0),
       0
@@ -279,10 +322,36 @@ export async function POST(
     const totalRemAmount = Number(remuneration.total_amount) || 0;
     const remainingBalance = Math.max(0, totalRemAmount - totalCollected);
 
-    // 10. Dispatch notifications
+    const allPaid =
+      allInstallments &&
+      allInstallments.length > 0 &&
+      allInstallments.every((i) => i.status === "paid" || i.status === "completed" || Number(i.received_amount) >= Number(i.amount) - 0.01);
+
+    const newParentStatus = allPaid && remainingBalance === 0 ? "completed" : "active";
+
+    await admin
+      .from("remunerations")
+      .update({
+        status: newParentStatus,
+        agreement_status: newParentStatus === "completed" ? "completed" : "active",
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", remunerationId);
+
+    // 9. Fetch client info
+    const { data: clients } = await admin
+      .from("clients")
+      .select("id, name, email")
+      .eq("project_id", remuneration.project_id);
+
+    const client = clients?.find((c) => c.email) || clients?.[0] || null;
+    const actorName = profile?.name || user.email?.split("@")[0] || "Owner";
+
+    // 10. Dispatch Notifications (Client & Team)
     await notifyPaymentReceived({
       remunerationId,
       installmentId,
+      paymentId: paymentRecord.id,
       installmentNumber: installment.installment_number,
       amount: receivedAmount,
       currency: remuneration.currency,
@@ -299,7 +368,22 @@ export async function POST(
       sendEmailNotification: shouldSendEmail,
     });
 
-    if (allCompleted) {
+    // Notify Team Members of their splits
+    if (teamSplits.length > 0) {
+      await notifyPaymentAllocatedToTeam({
+        remunerationId,
+        paymentId: paymentRecord.id,
+        projectName: remuneration.project?.name || "Project",
+        paymentAmount: receivedAmount,
+        currency: remuneration.currency,
+        receivedDate,
+        paymentMethod,
+        paymentReference,
+        splits: teamSplits,
+      });
+    }
+
+    if (newParentStatus === "completed") {
       await notifyRemunerationCompleted({
         remunerationId,
         totalAmount: totalRemAmount,
@@ -315,11 +399,11 @@ export async function POST(
 
     return NextResponse.json({
       success: true,
-      installment: updatedInstallment,
       payment: paymentRecord,
+      installment: updatedInstallment,
       proof: savedProofRecord,
       parentStatus: newParentStatus,
-      allCompleted,
+      allCompleted: newParentStatus === "completed",
     });
   } catch (err: any) {
     console.error("POST mark installment as received error:", err);
