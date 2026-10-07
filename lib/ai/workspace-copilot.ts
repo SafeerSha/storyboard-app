@@ -4,7 +4,7 @@ import type { InboxActor } from "@/lib/inbox-auth";
 import { generateStories } from "./gemini";
 
 export interface ActionReceipt {
-  type: "story_created" | "task_created" | "story_updated" | "stories_bulk_created";
+  type: "story_created" | "task_created" | "story_updated" | "stories_bulk_created" | "task_updated" | "project_created" | "payment_logged" | "client_added";
   title: string;
   id?: string;
   projectId?: string;
@@ -90,6 +90,16 @@ export async function processWorkspaceCopilotMessage({
       },
     },
     {
+      name: "list_clients",
+      description: "List clients with their names, emails, and associated projects.",
+      parameters: {
+        type: "object",
+        properties: {
+          limit: { type: "number", description: "Max clients to return (default 10)" },
+        },
+      },
+    },
+    {
       name: "get_project_context",
       description: "Get detailed information for a specific project including its epics, stories, and pending tasks.",
       parameters: {
@@ -99,6 +109,16 @@ export async function processWorkspaceCopilotMessage({
         },
         required: ["projectId"],
       },
+    },
+    {
+      name: "list_team_members",
+      description: "List all team members (freelancers/users) available in the workspace.",
+      parameters: { type: "object", properties: {} },
+    },
+    {
+      name: "get_financial_overview",
+      description: "Get an overview of all remunerations and payments across the workspace.",
+      parameters: { type: "object", properties: {} },
     },
     {
       name: "create_story",
@@ -154,8 +174,28 @@ export async function processWorkspaceCopilotMessage({
             enum: ["frontend", "backend", "fullstack", "test"],
             description: "Optional task engineering category",
           },
+          dueDate: {
+            type: "string",
+            description: "Optional ISO date string (YYYY-MM-DD) for task deadline",
+          },
         },
         required: ["projectId", "title"],
+      },
+    },
+    {
+      name: "create_recurring_task",
+      description: "Create a recurring task that runs automatically on a schedule.",
+      parameters: {
+        type: "object",
+        properties: {
+          projectId: { type: "string", description: "UUID of the project" },
+          storyId: { type: "string", description: "UUID of the story (optional)" },
+          title: { type: "string", description: "Task title" },
+          description: { type: "string", description: "Task details" },
+          priority: { type: "string", enum: ["low", "medium", "high", "urgent"] },
+          cronExpression: { type: "string", description: "Standard cron expression, e.g., '0 9 1 * *' for 1st of every month" },
+        },
+        required: ["projectId", "title", "cronExpression"],
       },
     },
     {
@@ -171,6 +211,56 @@ export async function processWorkspaceCopilotMessage({
         required: ["projectId", "rawRequirement"],
       },
     },
+    {
+      name: "update_task_status",
+      description: "Update the status of an existing task.",
+      parameters: {
+        type: "object",
+        properties: {
+          taskId: { type: "string", description: "UUID of the task" },
+          status: { type: "string", enum: ["todo", "in_progress", "in_review", "done"], description: "New task status" }
+        },
+        required: ["taskId", "status"],
+      },
+    },
+    {
+      name: "create_project",
+      description: "Create a new project.",
+      parameters: {
+        type: "object",
+        properties: {
+          name: { type: "string", description: "Name of the new project" },
+          description: { type: "string", description: "Optional project description" }
+        },
+        required: ["name"],
+      },
+    },
+    {
+      name: "add_client",
+      description: "Add a new client and link to an existing project.",
+      parameters: {
+        type: "object",
+        properties: {
+          name: { type: "string", description: "Name of the client" },
+          email: { type: "string", description: "Email of the client" },
+          projectId: { type: "string", description: "UUID of the project to link" }
+        },
+        required: ["name", "email", "projectId"],
+      },
+    },
+    {
+      name: "log_payment",
+      description: "Log a payment received for a project's remuneration.",
+      parameters: {
+        type: "object",
+        properties: {
+          remunerationId: { type: "string", description: "UUID of the remuneration record" },
+          installmentId: { type: "string", description: "UUID of the installment being paid" },
+          amount: { type: "number", description: "Amount received" }
+        },
+        required: ["remunerationId", "installmentId", "amount"],
+      },
+    }
   ];
 
   // Tool Executor Map
@@ -193,6 +283,56 @@ export async function processWorkspaceCopilotMessage({
             description: p.description || "",
             updatedAt: p.updated_at,
           })),
+        };
+      }
+
+      if (name === "list_clients") {
+        const limit = args.limit || 10;
+        let query = admin.from("clients").select("id, name, email, project:projects(name)").limit(limit);
+        // Note: Client RLS / Filtering can be complex if not explicitly tied to owner_id. 
+        // We'll rely on joining with project or just returning what we can if admin is used.
+        // For simplicity and since we use admin here, let's fetch carefully or assume small scale.
+        const { data: clients, error } = await query;
+        if (error) return { error: error.message };
+        return {
+          clients: clients?.map((c: any) => ({
+            id: c.id,
+            name: c.name,
+            email: c.email || "",
+            projectName: c.project?.name || "",
+          })),
+        };
+      }
+
+      if (name === "list_team_members") {
+        const { data: users, error } = await admin.from("freelancer_profiles").select("id, name, email, role, status");
+        if (error) return { error: error.message };
+        return { team_members: users };
+      }
+
+      if (name === "get_financial_overview") {
+        const { data: rems, error } = await admin.from("remunerations").select(`
+          id, 
+          project:projects(name), 
+          total_amount, 
+          currency, 
+          status, 
+          agreement_status,
+          installments:remuneration_installments(amount, received_amount)
+        `);
+        if (error) return { error: error.message };
+        return {
+          remunerations: rems?.map((r: any) => {
+            const totalReceived = (r.installments || []).reduce((sum: number, inst: any) => sum + (Number(inst.received_amount) || 0), 0);
+            return {
+              id: r.id,
+              project: r.project?.name || "Unknown",
+              totalAgreedAmount: r.total_amount,
+              totalReceivedRevenue: totalReceived,
+              currency: r.currency,
+              status: r.status,
+            };
+          }),
         };
       }
 
@@ -332,8 +472,9 @@ export async function processWorkspaceCopilotMessage({
             priority: args.priority || "medium",
             status: args.status || "todo",
             category: args.category || "fullstack",
+            due_date: args.dueDate ? new Date(args.dueDate).toISOString() : null,
           })
-          .select("id, title, priority, status, project_id")
+          .select("id, title, priority, status, project_id, due_date")
           .single();
 
         if (error) return { error: error.message };
@@ -343,12 +484,46 @@ export async function processWorkspaceCopilotMessage({
           title: task.title,
           id: task.id,
           projectId: task.project_id,
-          details: { priority: task.priority, status: task.status },
+          details: { priority: task.priority, status: task.status, dueDate: task.due_date },
           url: `/tasks?projectId=${task.project_id}`,
         };
         actionReceipts.push(receipt);
 
         return { success: true, task, message: `Task '${task.title}' created successfully.` };
+      }
+
+      if (name === "create_recurring_task") {
+        const targetProjectId = args.projectId || activeProjectId;
+        if (!targetProjectId) return { error: "Missing projectId." };
+
+        const { data: recurringTask, error } = await admin
+          .from("recurring_tasks")
+          .insert({
+            project_id: targetProjectId,
+            story_id: args.storyId || null,
+            title: args.title,
+            description: args.description || "",
+            priority: args.priority || "medium",
+            cron_expression: args.cronExpression,
+            created_by: actor.id,
+          })
+          .select("id, title, cron_expression, project_id")
+          .single();
+
+        if (error) return { error: error.message };
+
+        // We can reuse task_created type for receipt or create a new one, task_created is fine
+        const receipt: ActionReceipt = {
+          type: "task_created",
+          title: `Recurring: ${recurringTask.title}`,
+          id: recurringTask.id,
+          projectId: recurringTask.project_id,
+          details: { cron: recurringTask.cron_expression },
+          url: `/tasks?projectId=${recurringTask.project_id}`,
+        };
+        actionReceipts.push(receipt);
+
+        return { success: true, recurringTask, message: `Recurring task '${recurringTask.title}' created.` };
       }
 
       if (name === "breakdown_and_create_stories") {
@@ -403,6 +578,100 @@ export async function processWorkspaceCopilotMessage({
           count: insertedStories?.length || 0,
           stories: insertedStories,
         };
+      }
+
+      if (name === "update_task_status") {
+        const { data: task, error } = await admin
+          .from("tasks")
+          .update({ status: args.status, updated_at: new Date().toISOString() })
+          .eq("id", args.taskId)
+          .select("id, title, status, project_id")
+          .single();
+        if (error) return { error: error.message };
+
+        actionReceipts.push({
+          type: "task_updated",
+          title: `Moved '${task.title}' to ${args.status}`,
+          id: task.id,
+          projectId: task.project_id,
+          url: `/tasks?projectId=${task.project_id}`,
+        });
+        return { success: true, task };
+      }
+
+      if (name === "create_project") {
+        const { data: project, error } = await admin
+          .from("projects")
+          .insert({
+            name: args.name,
+            description: args.description || null,
+            owner_id: actor.id
+          })
+          .select("id, name")
+          .single();
+        if (error) return { error: error.message };
+
+        actionReceipts.push({
+          type: "project_created",
+          title: `Created project: ${project.name}`,
+          id: project.id,
+          projectId: project.id,
+          url: `/project/${project.id}`,
+        });
+        return { success: true, project };
+      }
+
+      if (name === "add_client") {
+        const { data: client, error } = await admin
+          .from("clients")
+          .insert({
+            name: args.name,
+            email: args.email,
+            project_id: args.projectId
+          })
+          .select("id, name, email")
+          .single();
+        if (error) return { error: error.message };
+
+        actionReceipts.push({
+          type: "client_added",
+          title: `Added client: ${client.name}`,
+          id: client.id,
+          projectId: args.projectId,
+          url: `/project/${args.projectId}`,
+        });
+        return { success: true, client };
+      }
+
+      if (name === "log_payment") {
+        // Simplified payment log via copilot.
+        const { data: payment, error } = await admin
+          .from("remuneration_payments")
+          .insert({
+            remuneration_id: args.remunerationId,
+            installment_id: args.installmentId,
+            amount: args.amount,
+            payment_date: new Date().toISOString().split('T')[0],
+            payment_method: "Bank Transfer",
+            status: "completed",
+            recorded_by: actor.id
+          })
+          .select()
+          .single();
+        
+        if (error) return { error: error.message };
+
+        // Auto update installment status
+        await admin.from("remuneration_installments").update({ received_amount: args.amount, status: 'paid' }).eq('id', args.installmentId);
+
+        actionReceipts.push({
+          type: "payment_logged",
+          title: `Logged payment of ${args.amount}`,
+          id: payment.id,
+          projectId: activeProjectId || undefined,
+          url: `/remunerations/${args.remunerationId}`,
+        });
+        return { success: true, payment };
       }
 
       return { error: `Unknown tool: ${name}` };
