@@ -1089,7 +1089,7 @@ export function WorkspaceCopilot({ initialUser }: WorkspaceCopilotProps) {
               </p>
             </div>
           </div>
-
+ 
           <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
             {/* + New Chat Button */}
             <button
