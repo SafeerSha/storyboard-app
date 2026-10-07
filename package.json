@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "prebuild": "node -e \"try{const fs=require('fs');const p=require('path');const d=p.join(process.cwd(),'.next','server','pages');fs.mkdirSync(d,{recursive:true});}catch(e){}\"",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
