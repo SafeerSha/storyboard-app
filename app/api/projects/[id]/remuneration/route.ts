@@ -6,6 +6,7 @@ import {
   getRemunerationNotificationPreferences,
   saveRemunerationNotificationPreferences,
   notifyInstallmentCreated,
+  notifyRemunerationAgreementCreated,
 } from "@/lib/notifications/service";
 import { createRemunerationSchema } from "@/lib/types/remuneration";
 
@@ -393,7 +394,7 @@ export async function POST(
       agreement_status: data.agreementStatus || "active",
       status: "active",
       notes: data.notes || null,
-      send_receipt_email: data.sendReceiptEmail ?? true,
+      send_receipt_email: data.sendAgreementEmail ?? true,
       splits: data.splits || [],
     };
 
@@ -426,53 +427,42 @@ export async function POST(
       remuneration = remData;
     }
 
-    // Insert Installments
-    const installmentRows = data.installments.map((inst) => ({
-      remuneration_id: remuneration.id,
-      installment_number: inst.installmentNumber,
-      name: inst.name || `Installment #${inst.installmentNumber}`,
-      description: inst.description || null,
-      amount: inst.amount,
-      due_date: inst.dueDate || null,
-      status: "planned",
-      notes: inst.notes || null,
-      received_amount: 0,
-    }));
-
-    let { data: createdInstallments, error: instError } = await admin
-      .from("remuneration_installments")
-      .insert(installmentRows)
-      .select()
-      .order("installment_number", { ascending: true });
-
-    if (instError && instError.message.includes("due_date") && instError.message.includes("not-null")) {
-      const fallbackRows = installmentRows.map((r) => ({
-        ...r,
-        due_date: r.due_date || new Date().toISOString().split("T")[0],
-      }));
-      const fallbackRes = await admin
-        .from("remuneration_installments")
-        .insert(fallbackRows)
-        .select()
-        .order("installment_number", { ascending: true });
-      createdInstallments = fallbackRes.data;
-      instError = fallbackRes.error;
-    }
-
-    if (instError) {
-      await admin.from("remunerations").delete().eq("id", remuneration.id);
-      return NextResponse.json({ error: instError.message }, { status: 500 });
+    // Insert splits if present
+    if (data.splits && data.splits.length > 0) {
+      try {
+        const splitRows = data.splits.map((s) => ({
+          remuneration_id: remuneration.id,
+          team_user_id: s.teamMemberId,
+          member_name: s.name,
+          role: s.role || null,
+          percentage: s.percentage ?? null,
+          amount: s.amount,
+          notes: s.notes || null,
+        }));
+        await admin.from("remuneration_splits").insert(splitRows);
+      } catch (splitErr) {
+        console.warn("Could not insert splits:", splitErr);
+      }
     }
 
     // Initialize default notification preferences
     await saveRemunerationNotificationPreferences(remuneration.id, {
       client_email_settings: {
-        payment_received: data.sendReceiptEmail ?? true,
-        payment_receipt: data.sendReceiptEmail ?? true,
+        payment_received: data.sendAgreementEmail ?? true,
+        payment_receipt: data.sendAgreementEmail ?? true,
       },
     });
 
     const actorName = profile?.name || user.email?.split("@")[0] || "Owner";
+
+    // Fetch client to resolve email if not passed directly
+    const { data: clients } = await admin
+      .from("clients")
+      .select("id, name, email, status")
+      .eq("project_id", projectId);
+    const client = clients && clients.length > 0
+      ? clients.find((c) => c.status === "active") || clients[0]
+      : null;
 
     // Record audit event
     await recordRemunerationAuditEvent({
@@ -481,21 +471,38 @@ export async function POST(
       actorName,
       action: "agreement_created",
       title: "Remuneration Agreement Established",
-      description: `Agreed total remuneration of ${data.currency} ${data.totalAmount.toLocaleString()} with ${data.installments.length} planned installments for ${project.name}.`,
+      description: `Agreed total remuneration of ${data.currency} ${data.totalAmount.toLocaleString()} for ${project.name}.`,
       metadata: {
         totalAmount: data.totalAmount,
         currency: data.currency,
         paymentMethod: data.paymentMethod,
-        installmentsCount: data.installments.length,
+        splitsCount: (data.splits || []).length,
       },
     });
+
+    // Send Agreement Confirmation Email to Client
+    const targetEmail = data.clientEmail || client?.email;
+    if (data.sendAgreementEmail !== false && targetEmail) {
+      await notifyRemunerationAgreementCreated({
+        remunerationId: remuneration.id,
+        projectName: project.name,
+        clientName: client?.name || "Valued Client",
+        clientEmail: targetEmail,
+        totalAmount: data.totalAmount,
+        currency: data.currency || "INR",
+        paymentMethod: data.paymentMethod,
+        agreementDate: data.agreementDate,
+        notes: data.notes,
+      });
+    }
 
     return NextResponse.json(
       {
         remuneration: {
           ...remuneration,
           project,
-          installments: createdInstallments,
+          client: client || null,
+          installments: [],
         },
       },
       { status: 201 }

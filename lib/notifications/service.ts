@@ -5,6 +5,7 @@ import { generatePaymentReceivedEmail } from "@/lib/email/templates/payment-rece
 import { generateRemunerationCompletedEmail } from "@/lib/email/templates/remuneration-completed";
 import { generatePaymentAllocatedTeamEmail } from "@/lib/email/templates/payment-allocated-team";
 import { generateInstallmentCreatedClientEmail } from "@/lib/email/templates/installment-created-client";
+import { generateRemunerationAgreementClientEmail } from "@/lib/email/templates/remuneration-agreement-client";
 import {
   DEFAULT_CLIENT_EMAIL_SETTINGS,
   DEFAULT_TEAM_NOTIFICATION_SETTINGS,
@@ -815,5 +816,80 @@ export async function notifyRemunerationCompleted({
     } catch (err) {
       console.warn("[Email Service] Failed to send remuneration completion email:", err);
     }
+  }
+}
+
+/**
+ * Dispatches confirmation email to client when a project remuneration agreement is created.
+ */
+export async function notifyRemunerationAgreementCreated({
+  remunerationId,
+  projectName,
+  clientName,
+  clientEmail,
+  totalAmount,
+  currency,
+  paymentMethod,
+  agreementDate,
+  notes,
+}: {
+  remunerationId: string;
+  projectName: string;
+  clientName: string;
+  clientEmail: string;
+  totalAmount: number;
+  currency: string;
+  paymentMethod: string;
+  agreementDate?: string | null;
+  notes?: string | null;
+}) {
+  if (!clientEmail || !clientEmail.includes("@")) return;
+
+  const baseUrl = getAppBaseUrl();
+
+  try {
+    const { subject, html, text } = generateRemunerationAgreementClientEmail({
+      clientName,
+      projectName,
+      totalAmount,
+      currency,
+      paymentMethod,
+      agreementDate,
+      notes,
+      portalUrl: `${baseUrl}/client`,
+    });
+
+    const res = await sendEmail({
+      to: clientEmail,
+      subject,
+      html,
+      text,
+    });
+
+    await logNotification({
+      remunerationId,
+      recipient: clientEmail,
+      recipientName: clientName,
+      recipientType: "client",
+      notificationType: "agreement_created",
+      channel: "email",
+      status: res.success ? "sent" : "failed",
+      title: `Agreement Confirmation: ${projectName}`,
+      message: `Sent payment agreement confirmation for ${currency} ${totalAmount.toLocaleString()} to ${clientEmail}.`,
+      metadata: { totalAmount, currency, paymentMethod, agreementDate },
+    });
+  } catch (err: any) {
+    console.warn("[Email Service] Failed to send agreement creation email:", err);
+    await logNotification({
+      remunerationId,
+      recipient: clientEmail,
+      recipientName: clientName,
+      recipientType: "client",
+      notificationType: "agreement_created",
+      channel: "email",
+      status: "failed",
+      title: `Agreement Confirmation Failed: ${projectName}`,
+      failureReason: err?.message || "Internal sending error",
+    });
   }
 }

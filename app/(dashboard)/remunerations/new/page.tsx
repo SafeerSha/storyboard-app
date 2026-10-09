@@ -4,7 +4,6 @@ import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import {
   AlertCircle,
-  CalendarClock,
   ChevronDown,
   ChevronUp,
   FolderKanban,
@@ -25,15 +24,7 @@ import { formatCurrency, type RemunerationSplit } from "@/lib/types/remuneration
 interface ProjectOption { id: string; name: string; }
 interface ClientInfo { id: string; name: string; email: string | null; }
 
-interface InstallmentRow {
-  key: string;
-  installmentNumber: number;
-  name: string;
-  description: string;
-  amount: string;
-  dueDate: string;
-  notes: string;
-}
+
 
 const CURRENCIES = [
   { value: "INR", label: "₹ INR" },
@@ -57,8 +48,9 @@ export default function NewRemunerationPage() {
   const [agreementDate, setAgreementDate] = useState("");
   const [notes, setNotes] = useState("");
 
-  // Controller / Toggle for confirmation email upon payment receipt
-  const [sendReceiptEmail, setSendReceiptEmail] = useState(true);
+  // Controller / Toggle for confirmation email upon agreement
+  const [sendAgreementEmail, setSendAgreementEmail] = useState(true);
+  const [clientEmailInput, setClientEmailInput] = useState("");
 
   // Team Member Splits state
   const [projectTeamMembers, setProjectTeamMembers] = useState<{ id: string; name: string; username: string; role: string }[]>([]);
@@ -66,9 +58,7 @@ export default function NewRemunerationPage() {
   const [enableSplits, setEnableSplits] = useState(false);
   const [splits, setSplits] = useState<RemunerationSplit[]>([]);
 
-  const [installments, setInstallments] = useState<InstallmentRow[]>([
-    { key: Date.now().toString(), installmentNumber: 1, name: "", description: "", amount: "", dueDate: "", notes: "" },
-  ]);
+
 
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
@@ -93,8 +83,10 @@ export default function NewRemunerationPage() {
       if (data.clients && data.clients.length > 0) {
         const active = data.clients.find((c: any) => c.status === "active") || data.clients[0];
         setClient({ id: active.id, name: active.name, email: active.email || null });
+        if (active.email) setClientEmailInput(active.email);
       } else {
         setClient(null);
+        setClientEmailInput("");
       }
     } catch {
       setClient(null);
@@ -126,9 +118,6 @@ export default function NewRemunerationPage() {
 
   // Balance calculations
   const totalNum = parseFloat(totalAmount) || 0;
-  const scheduledTotal = installments.reduce((sum, inst) => sum + (parseFloat(inst.amount) || 0), 0);
-  const balance = totalNum - scheduledTotal;
-  const isBalanced = Math.abs(balance) < 0.01;
 
   // Splits calculations
   const allocatedSplitTotal = splits.reduce((sum, s) => sum + (Number(s.amount) || 0), 0);
@@ -139,11 +128,6 @@ export default function NewRemunerationPage() {
   const handleTotalAmountChange = (val: string) => {
     setTotalAmount(val);
     const num = parseFloat(val) || 0;
-    if (paymentMethod === "single") {
-      setInstallments((prev) =>
-        prev.map((i, idx) => (idx === 0 ? { ...i, amount: val } : i))
-      );
-    }
     // Update split amounts if percentages were defined
     if (splits.length > 0 && num > 0) {
       setSplits((prev) =>
@@ -155,35 +139,10 @@ export default function NewRemunerationPage() {
     }
   };
 
-  const addInstallment = () => {
-    setInstallments((prev) => [
-      ...prev,
-      { key: Date.now().toString(), installmentNumber: prev.length + 1, name: "", description: "", amount: "", dueDate: "", notes: "" },
-    ]);
-  };
 
-  const removeInstallment = (key: string) => {
-    setInstallments((prev) =>
-      prev
-        .filter((i) => i.key !== key)
-        .map((i, idx) => ({ ...i, installmentNumber: idx + 1 }))
-    );
-  };
 
-  const updateInstallment = (key: string, field: keyof InstallmentRow, value: string) => {
-    setInstallments((prev) =>
-      prev.map((i) => (i.key === key ? { ...i, [field]: value } : i))
-    );
-  };
-
-  // When switching to single payment, keep first installment only and sync amount
   const handleMethodChange = (method: "single" | "installments") => {
     setPaymentMethod(method);
-    if (method === "single") {
-      setInstallments((prev) => [
-        { ...prev[0], installmentNumber: 1, amount: totalAmount || prev[0].amount },
-      ]);
-    }
   };
 
   // Team splits helpers
@@ -262,10 +221,12 @@ export default function NewRemunerationPage() {
 
     if (!selectedProjectId) { setError("Please select a project."); return; }
     if (!totalAmount || totalNum <= 0) { setError("Total remuneration amount must be greater than 0."); return; }
-    if (!isBalanced) { setError("The sum of installments must equal the total remuneration amount."); return; }
 
-    const invalidInst = installments.find((i) => !i.amount || parseFloat(i.amount) <= 0);
-    if (invalidInst) { setError("All installments must have a positive amount."); return; }
+
+    if (sendAgreementEmail && (!clientEmailInput || !clientEmailInput.includes("@"))) {
+      setError("Please enter a valid client email address to send the agreement confirmation, or disable the confirmation email toggle.");
+      return;
+    }
 
     // Validate splits if enabled
     if (enableSplits && splits.length > 0) {
@@ -289,16 +250,9 @@ export default function NewRemunerationPage() {
         paymentMethod,
         agreementDate: agreementDate ? new Date(agreementDate).toISOString() : null,
         notes: notes || null,
-        sendReceiptEmail,
+        sendAgreementEmail,
+        clientEmail: sendAgreementEmail ? clientEmailInput : null,
         splits: enableSplits ? splits : [],
-        installments: installments.map((inst) => ({
-          installmentNumber: inst.installmentNumber,
-          name: inst.name || null,
-          description: inst.description || null,
-          amount: parseFloat(inst.amount),
-          dueDate: inst.dueDate ? inst.dueDate : null,
-          notes: inst.notes || null,
-        })),
       };
 
       const res = await fetch("/api/remunerations", {
@@ -476,30 +430,44 @@ export default function NewRemunerationPage() {
                   />
                 </div>
 
-                {/* Controller / Toggle: Confirmation Email upon Receipt */}
-                <div className="rounded-xl border border-[rgba(74,61,100,0.12)] bg-[#FAF9FC] p-4 flex items-start justify-between gap-4">
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <Mail size={15} className={sendReceiptEmail ? "text-[#B8944E]" : "text-[#9994A5]"} />
-                      <span className="text-xs font-bold text-[#252331] uppercase tracking-wider">
-                        Send Receipt Confirmation Email
-                      </span>
+                {/* Controller / Toggle: Confirmation Email upon Agreement */}
+                <div className="rounded-xl border border-[rgba(74,61,100,0.12)] bg-[#FAF9FC] p-4 space-y-4">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <Mail size={15} className={sendAgreementEmail ? "text-[#B8944E]" : "text-[#9994A5]"} />
+                        <span className="text-xs font-bold text-[#252331] uppercase tracking-wider">
+                          Send Agreement Confirmation Email
+                        </span>
+                      </div>
+                      <p className="text-xs text-[#706C7D] leading-relaxed">
+                        {sendAgreementEmail
+                          ? "Send an agreement confirmation email to the client containing remuneration details."
+                          : "Client will not receive an agreement email."}
+                      </p>
                     </div>
-                    <p className="text-xs text-[#706C7D] leading-relaxed">
-                      {sendReceiptEmail
-                        ? "Automatically send confirmation receipt email to client and project owner when a payment is marked as received."
-                        : "Confirmation emails will be disabled when payments are marked as received."}
-                    </p>
+                    <label className="relative inline-flex items-center cursor-pointer shrink-0 mt-0.5">
+                      <input
+                        type="checkbox"
+                        checked={sendAgreementEmail}
+                        onChange={(e) => setSendAgreementEmail(e.target.checked)}
+                        className="sr-only peer"
+                      />
+                      <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#B8944E]" />
+                    </label>
                   </div>
-                  <label className="relative inline-flex items-center cursor-pointer shrink-0 mt-0.5">
-                    <input
-                      type="checkbox"
-                      checked={sendReceiptEmail}
-                      onChange={(e) => setSendReceiptEmail(e.target.checked)}
-                      className="sr-only peer"
-                    />
-                    <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#B8944E]" />
-                  </label>
+                  {sendAgreementEmail && (
+                    <div className="pt-2 border-t border-[rgba(74,61,100,0.06)]">
+                      <label className={labelClass}>Client Email Address</label>
+                      <input
+                        type="email"
+                        placeholder="client@example.com"
+                        value={clientEmailInput}
+                        onChange={(e) => setClientEmailInput(e.target.value)}
+                        className={inputClass}
+                      />
+                    </div>
+                  )}
                 </div>
 
                 <div>
@@ -513,7 +481,9 @@ export default function NewRemunerationPage() {
                   />
                 </div>
               </div>
-
+            </div>
+            {/* Right Column: Team Member Splits & Action */}
+            <div className="space-y-6">
               {/* Card 3: Team Member Splits */}
               <div className="rounded-2xl border border-[rgba(74,61,100,0.10)] bg-white p-6 shadow-sm space-y-5">
                 <div className="flex items-center justify-between pb-2 border-b border-[rgba(74,61,100,0.06)]">
@@ -522,7 +492,7 @@ export default function NewRemunerationPage() {
                       <Users size={16} />
                     </div>
                     <div>
-                      <h2 className="text-base font-semibold text-[#252331]">Team Member Splits</h2>
+                      <h2 className="text-base font-semibold text-[#252331]">Team Remuneration</h2>
                       <p className="text-xs text-[#9994A5]">Allocate remuneration shares among project collaborators</p>
                     </div>
                   </div>
@@ -548,7 +518,7 @@ export default function NewRemunerationPage() {
                     {projectTeamMembers.length > 0 && (
                       <div className="flex items-center justify-between gap-2">
                         <span className="text-xs text-[#706C7D]">
-                          {splits.length} {splits.length === 1 ? "member split" : "member splits"} configured
+                          {splits.length} {splits.length === 1 ? "member allocation" : "member allocations"} configured
                         </span>
                         <button
                           type="button"
@@ -567,7 +537,7 @@ export default function NewRemunerationPage() {
                           <div className="flex items-center justify-between">
                             <span className="text-xs font-bold uppercase tracking-wider text-[#9994A5] flex items-center gap-1.5">
                               <span className="h-1.5 w-1.5 rounded-full bg-[#B8944E]" />
-                              Member Split #{idx + 1}
+                              Member Allocation #{idx + 1}
                             </span>
                             <button
                               type="button"
@@ -683,147 +653,9 @@ export default function NewRemunerationPage() {
                   </div>
                 )}
               </div>
-            </div>
-
-            {/* Right Column: Payment Schedule & Submit Action */}
-            <div className="space-y-6">
-              {/* Card 4: Payment & Installment Schedule */}
-              <div className="rounded-2xl border border-[rgba(74,61,100,0.10)] bg-white p-6 shadow-sm space-y-5">
-                <div className="flex items-center justify-between pb-2 border-b border-[rgba(74,61,100,0.06)]">
-                  <div className="flex items-center gap-2.5">
-                    <div className="grid h-8 w-8 place-items-center rounded-lg bg-[rgba(184,148,78,0.12)] text-[#80642F]">
-                      <CalendarClock size={16} />
-                    </div>
-                    <div>
-                      <h2 className="text-base font-semibold text-[#252331]">
-                        {paymentMethod === "single" ? "Payment Details" : "Installment Schedule"}
-                      </h2>
-                      <p className="text-xs text-[#9994A5]">
-                        {paymentMethod === "single"
-                          ? "Set the payment due date and amount"
-                          : "The total of all installments must exactly equal the remuneration amount."}
-                      </p>
-                    </div>
-                  </div>
-                  {paymentMethod === "installments" && (
-                    <Button type="button" variant="secondary" size="sm" onClick={addInstallment} id="add-installment-btn">
-                      <Plus size={13} className="mr-1" /> Add Installment
-                    </Button>
-                  )}
-                </div>
-
-                {/* Installments List */}
-                <div className="space-y-3.5 max-h-[500px] overflow-y-auto pr-1">
-                  {installments.map((inst, idx) => (
-                    <div key={inst.key} className="rounded-xl border border-[rgba(74,61,100,0.10)] bg-[#faf9fc] p-4 space-y-3">
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-bold uppercase tracking-wider text-[#9994A5] flex items-center gap-1.5">
-                          <span className="h-1.5 w-1.5 rounded-full bg-[#B8944E]" />
-                          {paymentMethod === "single" ? "Full Payment" : `Installment #${inst.installmentNumber}`}
-                        </span>
-                        {paymentMethod === "installments" && installments.length > 1 && (
-                          <button
-                            type="button"
-                            onClick={() => removeInstallment(inst.key)}
-                            className="p-1 rounded text-[#9994A5] hover:text-red-500 hover:bg-red-50 transition-colors cursor-pointer"
-                            title="Remove installment"
-                          >
-                            <Trash2 size={14} />
-                          </button>
-                        )}
-                      </div>
-
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        {paymentMethod === "installments" && (
-                          <div className="sm:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            <div>
-                              <label className={labelClass}>Milestone Name (Optional)</label>
-                              <input
-                                type="text"
-                                placeholder="e.g. Initial Deposit"
-                                value={inst.name}
-                                onChange={(e) => updateInstallment(inst.key, "name", e.target.value)}
-                                className={inputClass}
-                              />
-                            </div>
-                            <div>
-                              <label className={labelClass}>Description (Optional)</label>
-                              <input
-                                type="text"
-                                placeholder="e.g. Due upon signing"
-                                value={inst.description}
-                                onChange={(e) => updateInstallment(inst.key, "description", e.target.value)}
-                                className={inputClass}
-                              />
-                            </div>
-                          </div>
-                        )}
-                        <div>
-                          <label className={labelClass}>
-                            Amount ({CURRENCIES.find((c) => c.value === currency)?.label.split(" ")[0]})
-                          </label>
-                          <input
-                            type="number"
-                            min="0.01"
-                            step="0.01"
-                            placeholder="0.00"
-                            value={inst.amount}
-                            onChange={(e) => updateInstallment(inst.key, "amount", e.target.value)}
-                            className={inputClass}
-                          />
-                        </div>
-                        <div>
-                          <label className={labelClass}>Due Date (Optional)</label>
-                          <input
-                            type="date"
-                            value={inst.dueDate}
-                            onChange={(e) => updateInstallment(inst.key, "dueDate", e.target.value)}
-                            className={inputClass}
-                          />
-                        </div>
-                        {paymentMethod === "installments" && (
-                          <div className="sm:col-span-2">
-                            <label className={labelClass}>Internal Notes (optional)</label>
-                            <input
-                              type="text"
-                              placeholder="e.g. 50% upon project kickoff or milestone approval"
-                              value={inst.notes}
-                              onChange={(e) => updateInstallment(inst.key, "notes", e.target.value)}
-                              className={inputClass}
-                            />
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Live Balance Banner */}
-                {paymentMethod === "installments" && totalNum > 0 && (
-                  <div className={`rounded-xl border p-3.5 flex items-center justify-between text-xs sm:text-sm ${
-                    isBalanced
-                      ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-                      : "border-amber-200 bg-amber-50 text-amber-700"
-                  }`}>
-                    <div className="flex items-center gap-2">
-                      {isBalanced ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
-                      <span className="font-medium">
-                        {isBalanced
-                          ? "✓ Installments balance perfectly"
-                          : balance > 0
-                          ? `${formatCurrency(balance, currency)} still to schedule`
-                          : `${formatCurrency(Math.abs(balance), currency)} over-scheduled`}
-                      </span>
-                    </div>
-                    <span className="font-semibold font-mono text-xs">
-                      {formatCurrency(scheduledTotal, currency)} / {formatCurrency(totalNum, currency)}
-                    </span>
-                  </div>
-                )}
-              </div>
-
-              {/* Card 5: Agreement Summary & Action Buttons */}
-              <div className="rounded-2xl border border-[rgba(74,61,100,0.10)] bg-white p-5 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              
+              {/* Card 4: Agreement Summary & Action Buttons */}
+              <div className="rounded-2xl border border-[rgba(74,61,100,0.10)] bg-white p-5 shadow-sm flex flex-col justify-between gap-6">
                 <div className="text-xs text-[#706C7D]">
                   {totalNum > 0 ? (
                     <div className="space-y-1">
@@ -833,17 +665,13 @@ export default function NewRemunerationPage() {
                           {formatCurrency(totalNum, currency)}
                         </span>
                         <span className="text-[#9994A5]">•</span>
-                        <span>{paymentMethod === "single" ? "1 Single Payment" : `${installments.length} Installments`}</span>
+                        <span>{paymentMethod === "single" ? "1 Single Payment" : "Installments"}</span>
                       </div>
-                      <div className="text-[11px] text-[#9994A5] flex items-center gap-2">
+                      <div className="text-[11px] text-[#9994A5] flex flex-col gap-1 mt-2">
                         <span>Client: {client ? client.name : "None assigned (Optional)"}</span>
-                        <span>•</span>
-                        <span>Receipt Email: {sendReceiptEmail ? "Enabled" : "Disabled"}</span>
+                        <span>Agreement Email: {sendAgreementEmail ? "Enabled" : "Disabled"}</span>
                         {enableSplits && splits.length > 0 && (
-                          <>
-                            <span>•</span>
-                            <span>{splits.length} Team Splits</span>
-                          </>
+                          <span>{splits.length} Team Splits Configured</span>
                         )}
                       </div>
                     </div>
@@ -860,6 +688,7 @@ export default function NewRemunerationPage() {
                     type="submit"
                     disabled={submitting || !selectedProjectId || !totalAmount}
                     id="submit-create-rem-btn"
+                    className="w-full sm:w-auto"
                   >
                     {submitting ? (
                       <><Loader2 size={14} className="mr-1.5 animate-spin" /> Creating…</>

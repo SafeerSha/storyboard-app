@@ -9,6 +9,7 @@ import {
   EyeOff,
   Info,
   KeyRound,
+  Mail,
   RotateCw,
   Share2,
 } from "lucide-react";
@@ -28,6 +29,7 @@ interface ClientPortalShareModalProps {
   client: {
     id: string;
     name: string;
+    email?: string | null;
     login_id: string;
     status?: string;
   };
@@ -111,6 +113,13 @@ export function ClientPortalShareModal({
     window.open(url, "_blank", "noopener,noreferrer");
   }
 
+  function handleEmailShare() {
+    const subject = encodeURIComponent(`${projectName} - Client Portal Access Credentials`);
+    const body = encodeURIComponent(buildClientPortalShareMessage(shareData));
+    const to = client.email ? encodeURIComponent(client.email) : "";
+    window.location.href = `mailto:${to}?subject=${subject}&body=${body}`;
+  }
+
   async function handleWebShare() {
     const message = buildClientPortalShareMessage(shareData);
     if (typeof navigator !== "undefined" && navigator.share) {
@@ -143,7 +152,7 @@ export function ClientPortalShareModal({
             <button
               type="button"
               onClick={handleWebShare}
-              className="inline-flex items-center gap-1.5 text-xs font-medium text-zinc-500 hover:text-indigo-600 transition"
+              className="inline-flex items-center gap-1.5 text-xs font-medium text-zinc-500 hover:text-indigo-600 transition cursor-pointer"
               title="Share via device applications"
             >
               <Share2 size={13} />
@@ -167,7 +176,7 @@ export function ClientPortalShareModal({
                   {client.name}
                 </h3>
                 <p className="text-xs font-medium text-[#706C7D] truncate">
-                  {projectName}
+                  {projectName} {client.email ? `• ${client.email}` : ""}
                 </p>
               </div>
             </div>
@@ -337,16 +346,27 @@ export function ClientPortalShareModal({
             </div>
           </div>
 
-          {/* Action Hierarchy: 1. WhatsApp (Prominent Primary), 2. Copy All Details */}
+          {/* Action Hierarchy: 1. WhatsApp & Email, 2. Copy All Details */}
           <div className="space-y-2 pt-1">
-            <button
-              type="button"
-              onClick={handleWhatsAppShare}
-              className="w-full flex items-center justify-center gap-2 h-11 rounded-xl bg-[#25D366] hover:bg-[#20BD5A] text-white text-sm font-semibold shadow-xs transition-colors"
-            >
-              <WhatsAppIcon className="h-5 w-5 fill-current" />
-              <span>Share on WhatsApp</span>
-            </button>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={handleWhatsAppShare}
+                className="w-full flex items-center justify-center gap-2 h-11 rounded-xl bg-[#25D366] hover:bg-[#20BD5A] text-white text-sm font-semibold shadow-xs transition-colors cursor-pointer"
+              >
+                <WhatsAppIcon className="h-5 w-5 fill-current" />
+                <span>Share on WhatsApp</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={handleEmailShare}
+                className="w-full flex items-center justify-center gap-2 h-11 rounded-xl bg-[#4A3D64] hover:bg-[#3B3050] text-white text-sm font-semibold shadow-xs transition-colors cursor-pointer"
+              >
+                <Mail size={16} />
+                <span>Email Client</span>
+              </button>
+            </div>
 
             <Button
               variant="secondary"

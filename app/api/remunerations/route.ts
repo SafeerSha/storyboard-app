@@ -2,7 +2,10 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createRemunerationSchema } from "@/lib/types/remuneration";
-import { recordRemunerationAuditEvent } from "@/lib/notifications/service";
+import {
+  recordRemunerationAuditEvent,
+  notifyRemunerationAgreementCreated,
+} from "@/lib/notifications/service";
 
 export const dynamic = "force-dynamic";
 
@@ -284,9 +287,18 @@ export async function POST(req: Request) {
       .select("id, name, email, status")
       .eq("project_id", data.projectId);
 
-    const client = (clients && clients.length > 0)
+    let client = (clients && clients.length > 0)
       ? (clients.find((c) => c.status === "active") || clients[0])
       : null;
+
+    if (client && data.clientEmail && client.email !== data.clientEmail) {
+      try {
+        await admin.from("clients").update({ email: data.clientEmail }).eq("id", client.id);
+        client.email = data.clientEmail;
+      } catch (err) {
+        console.warn("Could not sync client email:", err);
+      }
+    }
 
     // 3. Create Remuneration Record
     const insertPayload: Record<string, any> = {
@@ -299,7 +311,7 @@ export async function POST(req: Request) {
       agreement_date: data.agreementDate || null,
       agreement_status: data.agreementStatus || "active",
       notes: data.notes || null,
-      send_receipt_email: data.sendReceiptEmail ?? true,
+      send_receipt_email: data.sendAgreementEmail ?? true,
       splits: data.splits || [],
     };
 
@@ -330,7 +342,7 @@ export async function POST(req: Request) {
         if (fbErr) {
           return NextResponse.json({ error: fbErr.message }, { status: 500 });
         }
-        remuneration = { ...fallbackRem, send_receipt_email: data.sendReceiptEmail ?? true, splits: data.splits || [] };
+        remuneration = { ...fallbackRem, send_receipt_email: data.sendAgreementEmail ?? true, splits: data.splits || [] };
       } else {
         return NextResponse.json({ error: remError.message }, { status: 500 });
       }
@@ -338,45 +350,7 @@ export async function POST(req: Request) {
       remuneration = remData;
     }
 
-    // 4. Create Installment Records
-    const installmentRows = data.installments.map((inst) => ({
-      remuneration_id: remuneration.id,
-      installment_number: inst.installmentNumber,
-      name: inst.name || null,
-      description: inst.description || null,
-      amount: inst.amount,
-      due_date: inst.dueDate || null,
-      status: "new",
-      notes: inst.notes || null,
-      received_amount: 0,
-    }));
 
-    let { data: createdInstallments, error: instError } = await admin
-      .from("remuneration_installments")
-      .insert(installmentRows)
-      .select()
-      .order("installment_number", { ascending: true });
-
-    // Fallback: If DB table still has NOT NULL constraint on due_date prior to migration execution
-    if (instError && instError.message.includes("due_date") && instError.message.includes("not-null")) {
-      const fallbackRows = installmentRows.map((r) => ({
-        ...r,
-        due_date: r.due_date || new Date().toISOString().split("T")[0],
-      }));
-      const fallbackRes = await admin
-        .from("remuneration_installments")
-        .insert(fallbackRows)
-        .select()
-        .order("installment_number", { ascending: true });
-      createdInstallments = fallbackRes.data;
-      instError = fallbackRes.error;
-    }
-
-    if (instError) {
-      // Rollback remuneration
-      await admin.from("remunerations").delete().eq("id", remuneration.id);
-      return NextResponse.json({ error: instError.message }, { status: 500 });
-    }
 
     // Optional: insert into remuneration_splits table if populated
     if (data.splits && data.splits.length > 0) {
@@ -415,26 +389,41 @@ export async function POST(req: Request) {
       actorName,
       action: "remuneration_created",
       title: "Remuneration Configured",
-      description: `Created ${data.paymentMethod === "single" ? "single payment" : `${data.installments.length}-installment`} schedule totaling ${data.currency} ${data.totalAmount.toLocaleString()} for ${project.name}${client ? ` (${client.name})` : " (No client assigned)"}.`,
+      description: `Created ${data.paymentMethod === "single" ? "single payment" : "installment-based"} agreement totaling ${data.currency} ${data.totalAmount.toLocaleString()} for ${project.name}${client ? ` (${client.name})` : " (No client assigned)"}.`,
       metadata: {
         totalAmount: data.totalAmount,
         currency: data.currency,
         paymentMethod: data.paymentMethod,
-        installmentsCount: data.installments.length,
         splitsCount: (data.splits || []).length,
-        sendReceiptEmail: data.sendReceiptEmail ?? true,
+        sendAgreementEmail: data.sendAgreementEmail ?? true,
       },
     });
+
+    // 6. Send Agreement Confirmation Email to Client
+    const targetEmail = data.clientEmail || client?.email;
+    if (data.sendAgreementEmail !== false && targetEmail) {
+      await notifyRemunerationAgreementCreated({
+        remunerationId: remuneration.id,
+        projectName: project.name,
+        clientName: client?.name || "Valued Client",
+        clientEmail: targetEmail,
+        totalAmount: data.totalAmount,
+        currency: data.currency || "INR",
+        paymentMethod: data.paymentMethod,
+        agreementDate: data.agreementDate,
+        notes: data.notes,
+      });
+    }
 
     return NextResponse.json(
       {
         remuneration: {
           ...remuneration,
-          send_receipt_email: data.sendReceiptEmail ?? true,
+          send_receipt_email: data.sendAgreementEmail ?? true,
           splits: data.splits || [],
           project,
           client: client || null,
-          installments: createdInstallments,
+          installments: [],
         },
       },
       { status: 201 }

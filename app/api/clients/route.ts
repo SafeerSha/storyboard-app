@@ -48,12 +48,12 @@ export async function GET() {
 
   let { data, error } = await admin
     .from("clients")
-    .select("id,name,login_id,status,project_id,is_password_changed,projects(name)")
+    .select("id,name,email,login_id,status,project_id,is_password_changed,projects(name)")
     .in("project_id", projectIds)
     .order("created_at", { ascending: false });
 
-  if (error && (error.code === "42703" || error.message.includes("is_password_changed"))) {
-    // Graceful fallback if is_password_changed column is not yet migrated in Supabase
+  if (error && (error.code === "42703" || error.message.includes("email") || error.message.includes("is_password_changed"))) {
+    // Graceful fallback if is_password_changed or email column is not yet migrated in Supabase
     const fallback = await admin
       .from("clients")
       .select("id,name,login_id,status,project_id,projects(name)")
@@ -62,6 +62,7 @@ export async function GET() {
 
     data = (fallback.data ?? []).map((c: any) => ({
       ...c,
+      email: null,
       is_password_changed: true,
     }));
     error = fallback.error;
@@ -81,6 +82,9 @@ export async function POST(req: Request) {
   const body = await req.json();
   const name = String(body.name || "").trim();
   const projectId = String(body.projectId || "").trim();
+  const emailRaw = body.email ? String(body.email).trim() : null;
+  const email = emailRaw && emailRaw.includes("@") ? emailRaw.toLowerCase() : null;
+
   if (!name || !projectId) {
     return NextResponse.json({ error: "Client name and project are required." }, { status: 400 });
   }
@@ -114,6 +118,7 @@ export async function POST(req: Request) {
   const insertPayload: Record<string, any> = {
     project_id: projectId,
     name,
+    email: email || null,
     login_id: loginId,
     password_hash: passwordHash,
     is_password_changed: false,
@@ -122,19 +127,22 @@ export async function POST(req: Request) {
   let { data: client, error } = await admin
     .from("clients")
     .insert(insertPayload)
-    .select("id,name,login_id,status,project_id,is_password_changed")
+    .select("id,name,email,login_id,status,project_id,is_password_changed")
     .single();
 
-  if (error && (error.code === "42703" || error.message.includes("is_password_changed"))) {
-    // Retry without is_password_changed if migration not yet applied
-    delete insertPayload.is_password_changed;
+  if (error && (error.code === "42703" || error.message.includes("email") || error.message.includes("is_password_changed"))) {
+    // Retry without newer columns if database column is missing
+    const retryPayload = { ...insertPayload };
+    if (error.message.includes("email")) delete retryPayload.email;
+    if (error.message.includes("is_password_changed")) delete retryPayload.is_password_changed;
+
     const retry = await admin
       .from("clients")
-      .insert(insertPayload)
+      .insert(retryPayload)
       .select("id,name,login_id,status,project_id")
       .single();
 
-    client = retry.data ? { ...retry.data, is_password_changed: false } : null;
+    client = retry.data ? { ...retry.data, email: email || null, is_password_changed: false } : null;
     error = retry.error;
   }
 

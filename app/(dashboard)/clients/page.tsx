@@ -9,6 +9,7 @@ import {
   FolderKanban,
   KeyRound,
   Lock,
+  Mail,
   Plus,
   Search,
   Trash2,
@@ -29,6 +30,7 @@ import { toast } from "@/lib/toast";
 type Client = {
   id: string;
   name: string;
+  email?: string | null;
   login_id: string;
   status: string;
   project_id: string;
@@ -54,6 +56,7 @@ export default function ClientsPage() {
   // Create Client Modal State
   const [showCreate, setShowCreate] = useState(false);
   const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
   const [projectId, setProjectId] = useState("");
   const [loginId, setLoginId] = useState("");
   const [password, setPassword] = useState("");
@@ -77,6 +80,7 @@ export default function ClientsPage() {
   // Edit Client Modal State
   const [editing, setEditing] = useState<Client | null>(null);
   const [editName, setEditName] = useState("");
+  const [editEmail, setEditEmail] = useState("");
   const [editProjectId, setEditProjectId] = useState("");
   const [editLoginId, setEditLoginId] = useState("");
   const [editStatus, setEditStatus] = useState("active");
@@ -147,6 +151,7 @@ export default function ClientsPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: name.trim(),
+          email: email.trim() || null,
           projectId,
           loginId: effectivePin,
           password: effectivePwd,
@@ -183,6 +188,7 @@ export default function ClientsPage() {
       });
 
       setName("");
+      setEmail("");
       setLoginId("");
       setPassword("");
     } catch (e) {
@@ -205,6 +211,7 @@ export default function ClientsPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: editName.trim(),
+          email: editEmail.trim() || null,
           project_id: editProjectId,
           login_id: editLoginId.trim(),
           status: editStatus,
@@ -214,7 +221,7 @@ export default function ClientsPage() {
       if (!res.ok) throw new Error(data.error || "Failed to update client");
 
       setClients((prev) =>
-        prev.map((c) => (c.id === editing.id ? data.client : c))
+        prev.map((c) => (c.id === editing.id ? { ...c, ...data.client } : c))
       );
       setEditing(null);
       toast.success("Client updated successfully");
@@ -334,6 +341,7 @@ export default function ClientsPage() {
             leftIcon={<Plus size={15} />}
             onClick={() => {
               setName("");
+              setEmail("");
               setLoginId(generateRandomPin());
               setPassword(generateRandomPassword());
               setCreateError("");
@@ -468,13 +476,24 @@ export default function ClientsPage() {
                           <FolderKanban size={12} className="text-[#9994A5]" />
                           {projectName}
                         </span>
+                        {client.email && (
+                          <>
+                            <span className="text-[#EBE7F2]">•</span>
+                            <span className="flex items-center gap-1 text-[#4D4959]">
+                              <Mail size={12} className="text-[#80642F]" />
+                              <a href={`mailto:${client.email}`} className="hover:text-[#80642F] hover:underline">
+                                {client.email}
+                              </a>
+                            </span>
+                          </>
+                        )}
                         <span className="text-[#EBE7F2]">•</span>
                         <span className="flex items-center gap-1">
                           <span className="text-[#9994A5]">PIN:</span>
                           <button
                             type="button"
                             onClick={() => handleCopyLoginId(client.login_id)}
-                            className="font-mono text-xs font-semibold text-[#80642F] hover:underline inline-flex items-center gap-1"
+                            className="font-mono text-xs font-semibold text-[#80642F] hover:underline inline-flex items-center gap-1 cursor-pointer"
                             title="Click to copy login PIN"
                           >
                             {client.login_id}
@@ -509,6 +528,7 @@ export default function ClientsPage() {
                           onClick: () => {
                             setEditing(client);
                             setEditName(client.name);
+                            setEditEmail(client.email || "");
                             setEditProjectId(client.project_id);
                             setEditLoginId(client.login_id);
                             setEditStatus(client.status || "active");
@@ -578,6 +598,19 @@ export default function ClientsPage() {
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g. Sarah Jenkins"
+              className="h-10 w-full rounded-xl border border-[#EBE7F2] bg-white px-3.5 text-sm text-[#252331] outline-none transition focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)]"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-[#706C7D] mb-1.5">
+              Client Email (Optional)
+            </label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="e.g. sarah@company.com"
               className="h-10 w-full rounded-xl border border-[#EBE7F2] bg-white px-3.5 text-sm text-[#252331] outline-none transition focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)]"
             />
           </div>
@@ -694,6 +727,19 @@ export default function ClientsPage() {
               required
               value={editName}
               onChange={(e) => setEditName(e.target.value)}
+              className="h-10 w-full rounded-xl border border-[#EBE7F2] bg-white px-3.5 text-sm text-[#252331] outline-none transition focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)]"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-[#706C7D] mb-1.5">
+              Client Email (Optional)
+            </label>
+            <input
+              type="email"
+              value={editEmail}
+              onChange={(e) => setEditEmail(e.target.value)}
+              placeholder="e.g. sarah@company.com"
               className="h-10 w-full rounded-xl border border-[#EBE7F2] bg-white px-3.5 text-sm text-[#252331] outline-none transition focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)]"
             />
           </div>

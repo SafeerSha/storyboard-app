@@ -6,6 +6,13 @@ import { z } from "zod";
 
 const patchSchema = z.object({
   name: z.string().min(1).max(200).optional(),
+  email: z
+    .string()
+    .email("Invalid email format")
+    .optional()
+    .nullable()
+    .or(z.literal(""))
+    .transform((v) => (v && typeof v === "string" && v.trim() !== "" ? v.trim().toLowerCase() : null)),
   project_id: z.string().uuid().optional(),
   login_id: z.string().regex(/^\d{6}$/, "Login ID must be exactly 6 digits").optional(),
   status: z.enum(["active", "disabled"]).optional(),
@@ -51,12 +58,25 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
       }
     }
 
-    const { data: updatedClient, error: updateError } = await admin
+    let { data: updatedClient, error: updateError } = await admin
       .from("clients")
       .update(body)
       .eq("id", id)
-      .select("id,name,login_id,status,project_id,projects(name)")
+      .select("id,name,email,login_id,status,project_id,projects(name)")
       .single();
+
+    if (updateError && (updateError.code === "42703" || updateError.message.includes("email"))) {
+      const { email: _omitEmail, ...retryBody } = body;
+      const retry = await admin
+        .from("clients")
+        .update(retryBody)
+        .eq("id", id)
+        .select("id,name,login_id,status,project_id,projects(name)")
+        .single();
+      
+      updatedClient = retry.data ? { ...retry.data, email: body.email } : null;
+      updateError = retry.error;
+    }
 
     if (updateError) {
       if (updateError.code === "23505" && updateError.message.includes("login_id")) {

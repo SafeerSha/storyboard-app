@@ -325,20 +325,16 @@ export const createRemunerationSchema = z
     agreementStatus: z.enum(["draft", "active", "completed", "cancelled"]).optional().default("active"),
     paymentMethod: z.enum(["single", "installments"]),
     notes: z.string().max(2000).optional().nullable(),
-    sendReceiptEmail: z.boolean().optional().default(true),
+    sendAgreementEmail: z.boolean().optional().default(true),
+    clientEmail: z
+      .string()
+      .email("Please provide a valid client email address")
+      .optional()
+      .nullable()
+      .or(z.literal(""))
+      .transform((val) => (val && typeof val === "string" && val.trim() !== "" ? val.trim() : null)),
     splits: z.array(remunerationSplitSchema).optional().default([]),
-    installments: z.array(installmentInputSchema).min(1, "At least one payment installment is required"),
-  })
-  .refine(
-    (data) => {
-      const sum = data.installments.reduce((acc, curr) => acc + curr.amount, 0);
-      return Math.abs(sum - data.totalAmount) < 0.01;
-    },
-    {
-      message: "Sum of installment amounts must equal the total remuneration amount.",
-      path: ["installments"],
-    }
-  );
+  });
 
 export const paymentTeamSplitInputSchema = z.object({
   teamMemberId: z.string().min(1, "Team member is required"),

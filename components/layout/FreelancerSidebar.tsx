@@ -281,16 +281,6 @@ export function FreelancerSidebar({
           icon: Lightbulb,
           isActive: isInboxActive,
         },
-        {
-          id: "dock-copilot",
-          label: "Copilot",
-          href: "#copilot",
-          icon: BotMessageSquare,
-          isActive: false,
-          onClick: () => {
-            window.dispatchEvent(new CustomEvent("storyboard:open-copilot"));
-          },
-        },
       ],
     },
     {

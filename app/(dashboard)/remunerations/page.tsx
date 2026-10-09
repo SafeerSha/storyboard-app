@@ -13,12 +13,14 @@ import {
   Plus,
   Receipt,
   Search,
+  Trash2,
   TrendingDown,
 } from "lucide-react";
 import { DashboardHeader } from "@/components/layout/DashboardHeader";
 import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { TableRowSkeleton } from "@/components/ui/Skeleton";
+import { toast } from "@/lib/toast";
 import {
   RemunerationRecord,
   RemunerationStats,
@@ -35,6 +37,25 @@ export default function RemunerationsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | "new" | "requested" | "completed">("all");
   const [needsMigration, setNeedsMigration] = useState(false);
+  const [deletingRem, setDeletingRem] = useState<RemunerationRecord | null>(null);
+  const [deleting, setDeleting] = useState(false);
+
+  async function handleDelete() {
+    if (!deletingRem) return;
+    setDeleting(true);
+    try {
+      const res = await fetch(`/api/remunerations/${deletingRem.id}`, { method: "DELETE" });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to delete remuneration");
+      setRemunerations((prev) => prev.filter((r) => r.id !== deletingRem.id));
+      setDeletingRem(null);
+      toast.success("Remuneration agreement deleted");
+    } catch (e: any) {
+      toast.error(e.message || "Failed to delete remuneration");
+    } finally {
+      setDeleting(false);
+    }
+  }
 
   useEffect(() => {
     async function fetchData() {
@@ -276,13 +297,26 @@ export default function RemunerationsPage() {
                           </span>
                         </td>
                         <td className="px-4 py-3.5">
-                          <Link
-                            href={`/remunerations/${r.id}`}
-                            onClick={(e) => e.stopPropagation()}
-                            className="inline-flex items-center gap-1 text-xs font-medium text-[#80642F] hover:underline"
-                          >
-                            View <ArrowUpRight size={12} />
-                          </Link>
+                          <div className="flex items-center justify-end gap-2">
+                            <Link
+                              href={`/remunerations/${r.id}`}
+                              onClick={(e) => e.stopPropagation()}
+                              className="inline-flex items-center gap-1 text-xs font-medium text-[#80642F] hover:underline"
+                            >
+                              View <ArrowUpRight size={12} />
+                            </Link>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setDeletingRem(r);
+                              }}
+                              className="p-1 rounded text-[#9994A5] hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+                              title="Delete remuneration"
+                            >
+                              <Trash2 size={13} />
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     );
@@ -293,6 +327,42 @@ export default function RemunerationsPage() {
           )}
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {deletingRem && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 animate-in fade-in duration-150">
+          <div className="rounded-2xl bg-white shadow-2xl w-full max-w-md p-6 space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-rose-50 text-rose-600 shrink-0">
+                <Trash2 size={20} />
+              </div>
+              <div>
+                <h2 className="font-semibold text-[#252331] text-base">Delete Remuneration?</h2>
+                <p className="text-xs text-[#9994A5]">This action cannot be undone</p>
+              </div>
+            </div>
+
+            <p className="text-xs text-[#706C7D] leading-relaxed">
+              Are you sure you want to permanently delete the remuneration agreement for{" "}
+              <strong className="text-[#252331]">{deletingRem.project?.name || "this project"}</strong>? All associated payment requests, logs, and splits will be deleted.
+            </p>
+
+            <div className="flex justify-end gap-2.5 pt-2">
+              <Button variant="secondary" onClick={() => setDeletingRem(null)} disabled={deleting}>
+                Cancel
+              </Button>
+              <Button
+                variant="danger-solid"
+                onClick={handleDelete}
+                disabled={deleting}
+                isLoading={deleting}
+              >
+                Delete Agreement
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
