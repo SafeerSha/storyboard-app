@@ -34,16 +34,16 @@ export function generatePaymentAllocatedTeamEmail({
   const formattedAllocated = formatCurrency(allocatedAmount, currency);
   const formattedTotalPayment = formatCurrency(paymentAmount, currency);
 
-  const subject = `💰 Payment Allocated: ${formattedAllocated} for ${projectName}`;
+  const subject = `✅ Payment Paid Successfully — Your Share of ${formattedAllocated} for ${projectName}`;
 
   const text = `
 Hello ${recipientName},
 
-A client payment of ${formattedTotalPayment} was recorded for ${projectName}, and a share of ${formattedAllocated}${percentage ? ` (${percentage}%)` : ""} has been allocated to you.
+A client payment of ${formattedTotalPayment} has been paid successfully for ${projectName}, and your share of ${formattedAllocated}${percentage ? ` (${percentage}%)` : ""} has been allocated to you.
 
 Project: ${projectName}
 Role: ${role || "Collaborator"}
-Allocated Amount: ${formattedAllocated}
+Your Share: ${formattedAllocated}
 Total Payment Received: ${formattedTotalPayment}
 Date Received: ${receivedDate}
 Payment Method: ${paymentMethod}
@@ -77,11 +77,11 @@ REQly Financial Team
                 <tr>
                   <td>
                     <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #B8944E; display: block; margin-bottom: 6px;">REQLY REMUNERATION</span>
-                    <h1 style="margin: 0; font-size: 22px; font-weight: 700; color: #ffffff; letter-spacing: -0.02em;">Payment Share Allocated</h1>
+                    <h1 style="margin: 0; font-size: 22px; font-weight: 700; color: #ffffff; letter-spacing: -0.02em;">Payment Paid Successfully</h1>
                   </td>
                   <td align="right">
                     <div style="background-color: rgba(184, 148, 78, 0.2); border: 1px solid rgba(184, 148, 78, 0.4); border-radius: 12px; padding: 8px 14px; text-align: center;">
-                      <span style="font-size: 10px; font-weight: 700; color: #E5C378; text-transform: uppercase; display: block;">YOUR ALLOCATION</span>
+                      <span style="font-size: 10px; font-weight: 700; color: #E5C378; text-transform: uppercase; display: block;">YOUR SHARE</span>
                       <span style="font-size: 18px; font-weight: 800; color: #ffffff;">${formattedAllocated}</span>
                     </div>
                   </td>
@@ -97,7 +97,7 @@ REQly Financial Team
                 Hi <strong>${recipientName}</strong>,
               </p>
               <p style="margin: 0 0 24px 0; font-size: 14px; line-height: 1.6; color: #706C7D;">
-                A client payment was logged for <strong>${projectName}</strong>, and an allocation of <strong>${formattedAllocated}</strong> has been credited to your project split share.
+                A client payment of <strong>${formattedTotalPayment}</strong> has been paid successfully for <strong>${projectName}</strong>, and your share of <strong>${formattedAllocated}</strong> has been credited to your project split.
               </p>
 
               <!-- Transaction Summary Box -->
@@ -115,11 +115,11 @@ REQly Financial Team
                   <td style="padding: 8px 12px; font-size: 13px; font-weight: 600; color: #252331;">${role || "Collaborator"}</td>
                 </tr>
                 <tr>
-                  <td style="padding: 8px 12px; font-size: 13px; color: #706C7D;">Total Client Payment</td>
+                  <td style="padding: 8px 12px; font-size: 13px; color: #706C7D;">Total Payment Received</td>
                   <td style="padding: 8px 12px; font-size: 13px; font-weight: 600; color: #252331;">${formattedTotalPayment}</td>
                 </tr>
                 <tr>
-                  <td style="padding: 8px 12px; font-size: 13px; color: #706C7D;">Payment Date</td>
+                  <td style="padding: 8px 12px; font-size: 13px; color: #706C7D;">Date Received</td>
                   <td style="padding: 8px 12px; font-size: 13px; font-weight: 600; color: #252331;">${receivedDate}</td>
                 </tr>
                 <tr>

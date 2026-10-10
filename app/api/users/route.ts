@@ -77,10 +77,19 @@ export async function GET() {
       });
 
       // 2. Team Members (from team_users + project_team_members)
-      const { data: teamUsers, error: tuError } = await adminClient
+      let { data: teamUsers, error: tuError } = await adminClient
         .from("team_users")
-        .select("id, project_id, name, username, role, status, created_at, updated_at, owner_id")
+        .select("id, project_id, name, username, email, role, status, created_at, updated_at, owner_id")
         .order("created_at", { ascending: false });
+
+      if (tuError && (tuError.code === "42703" || tuError.message?.includes("email"))) {
+        const fallbackTu = await adminClient
+          .from("team_users")
+          .select("id, project_id, name, username, role, status, created_at, updated_at, owner_id")
+          .order("created_at", { ascending: false });
+        teamUsers = (fallbackTu.data || []).map((u) => ({ ...u, email: null }));
+        tuError = fallbackTu.error;
+      }
 
       if (tuError) throw tuError;
 
@@ -115,7 +124,7 @@ export async function GET() {
           id: tu.id,
           userType: "team_user",
           name: tu.name,
-          email: null,
+          email: tu.email || null,
           username: tu.username,
           loginId: null,
           role: tu.role || "team_member",
@@ -170,11 +179,21 @@ export async function GET() {
       // ==========================================
       // B. Regular Freelancer: Load scoped team members
       // ==========================================
-      const { data: teamUsers, error: tuError } = await adminClient
+      let { data: teamUsers, error: tuError } = await adminClient
         .from("team_users")
-        .select("id, project_id, name, username, role, status, created_at, updated_at, owner_id")
+        .select("id, project_id, name, username, email, role, status, created_at, updated_at, owner_id")
         .eq("owner_id", actor.id)
         .order("created_at", { ascending: false });
+
+      if (tuError && (tuError.code === "42703" || tuError.message?.includes("email"))) {
+        const fallbackTu = await adminClient
+          .from("team_users")
+          .select("id, project_id, name, username, role, status, created_at, updated_at, owner_id")
+          .eq("owner_id", actor.id)
+          .order("created_at", { ascending: false });
+        teamUsers = (fallbackTu.data || []).map((u) => ({ ...u, email: null }));
+        tuError = fallbackTu.error;
+      }
 
       if (tuError) throw tuError;
 
@@ -209,7 +228,7 @@ export async function GET() {
           id: tu.id,
           userType: "team_user",
           name: tu.name,
-          email: null,
+          email: tu.email || null,
           username: tu.username,
           loginId: null,
           role: tu.role || "team_member",
@@ -364,6 +383,12 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: "Password must be at least 6 characters." }, { status: 400 });
       }
 
+      const emailRaw = body.email ? String(body.email).trim().toLowerCase() : null;
+      const cleanEmail = emailRaw && emailRaw.length > 0 ? emailRaw : null;
+      if (cleanEmail && (!cleanEmail.includes("@") || !cleanEmail.includes("."))) {
+        return NextResponse.json({ error: "Invalid email address format." }, { status: 400 });
+      }
+
       // Check unique username
       const { data: existingUser } = await adminClient
         .from("team_users")
@@ -377,21 +402,37 @@ export async function POST(req: Request) {
 
       const passwordHash = await bcrypt.hash(password, 10);
 
-      const { data: newTeamUser, error: createError } = await adminClient
+      const insertTuPayload: any = {
+        name,
+        username,
+        password_hash: passwordHash,
+        role: "team_member",
+        status,
+        project_id: projectIds[0] || null,
+        owner_id: actor.id,
+      };
+      if (cleanEmail) insertTuPayload.email = cleanEmail;
+
+      let { data: newTeamUser, error: createError } = await adminClient
         .from("team_users")
-        .insert({
-          name,
-          username,
-          password_hash: passwordHash,
-          role: "team_member",
-          status,
-          project_id: projectIds[0] || null,
-          owner_id: actor.id,
-        })
+        .insert(insertTuPayload)
         .select()
         .single();
 
-      if (createError) throw createError;
+      if (createError && (createError.code === "42703" || createError.message?.includes("email"))) {
+        delete insertTuPayload.email;
+        const fallbackCreate = await adminClient
+          .from("team_users")
+          .insert(insertTuPayload)
+          .select()
+          .single();
+        newTeamUser = fallbackCreate.data ? { ...fallbackCreate.data, email: null } : null;
+        createError = fallbackCreate.error;
+      }
+
+      if (createError || !newTeamUser) {
+        throw createError || new Error("Failed to create team member.");
+      }
 
       // Assign project memberships
       if (projectIds.length > 0) {
@@ -414,7 +455,7 @@ export async function POST(req: Request) {
         id: newTeamUser.id,
         userType: "team_user",
         name: newTeamUser.name,
-        email: null,
+        email: newTeamUser.email || cleanEmail || null,
         username: newTeamUser.username,
         loginId: null,
         role: "team_member",

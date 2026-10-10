@@ -560,11 +560,11 @@ export function ProjectRemunerationTab({
       </div>
 
       {/* ── Sub-view Segmented Tabs ── */}
-      <div className="flex border-b border-[rgba(74,61,100,0.10)] gap-1">
+      <div className="flex border-b border-[rgba(74,61,100,0.10)] gap-1 overflow-x-auto no-scrollbar pb-0.5 -mx-4 px-4 sm:mx-0 sm:px-0">
         <button
           type="button"
           onClick={() => setActiveTab("milestones")}
-          className={`pb-2.5 px-3 text-xs font-bold transition flex items-center gap-1.5 border-b-2 cursor-pointer ${
+          className={`pb-2.5 px-3 text-xs font-bold transition flex items-center gap-1.5 border-b-2 cursor-pointer whitespace-nowrap shrink-0 ${
             activeTab === "milestones"
               ? "border-[#B8944E] text-[#80642F]"
               : "border-transparent text-[#706C7D] hover:text-[#252331]"
@@ -577,7 +577,7 @@ export function ProjectRemunerationTab({
         <button
           type="button"
           onClick={() => setActiveTab("payments")}
-          className={`pb-2.5 px-3 text-xs font-bold transition flex items-center gap-1.5 border-b-2 cursor-pointer ${
+          className={`pb-2.5 px-3 text-xs font-bold transition flex items-center gap-1.5 border-b-2 cursor-pointer whitespace-nowrap shrink-0 ${
             activeTab === "payments"
               ? "border-[#B8944E] text-[#80642F]"
               : "border-transparent text-[#706C7D] hover:text-[#252331]"
@@ -590,7 +590,7 @@ export function ProjectRemunerationTab({
         <button
           type="button"
           onClick={() => setActiveTab("splits")}
-          className={`pb-2.5 px-3 text-xs font-bold transition flex items-center gap-1.5 border-b-2 cursor-pointer ${
+          className={`pb-2.5 px-3 text-xs font-bold transition flex items-center gap-1.5 border-b-2 cursor-pointer whitespace-nowrap shrink-0 ${
             activeTab === "splits"
               ? "border-[#B8944E] text-[#80642F]"
               : "border-transparent text-[#706C7D] hover:text-[#252331]"
@@ -603,7 +603,7 @@ export function ProjectRemunerationTab({
         <button
           type="button"
           onClick={() => setActiveTab("notifications")}
-          className={`pb-2.5 px-3 text-xs font-bold transition flex items-center gap-1.5 border-b-2 cursor-pointer ${
+          className={`pb-2.5 px-3 text-xs font-bold transition flex items-center gap-1.5 border-b-2 cursor-pointer whitespace-nowrap shrink-0 ${
             activeTab === "notifications"
               ? "border-[#B8944E] text-[#80642F]"
               : "border-transparent text-[#706C7D] hover:text-[#252331]"

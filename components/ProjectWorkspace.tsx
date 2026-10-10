@@ -23,6 +23,7 @@ import {
   CheckSquare,
   LayoutGrid,
   Receipt,
+  Calendar,
   X,
 } from "lucide-react";
 import { DashboardHeader } from "@/components/layout/DashboardHeader";
@@ -53,6 +54,7 @@ import { TasksWorkspace } from "@/components/tasks/TasksWorkspace";
 import { TaskModal } from "@/components/tasks/TaskModal";
 import type { Task } from "@/lib/types/task";
 import { ProjectRemunerationTab } from "@/components/remuneration/ProjectRemunerationTab";
+import { ProjectMeetingsTab } from "@/components/meetings/ProjectMeetingsTab";
 
 type ProjectWorkspaceProps = {
   projectId: string;
@@ -81,7 +83,7 @@ export function ProjectWorkspace({
   const [stories, setStories] = useState<Story[]>(initialStories);
   const [epics, setEpics] = useState<Epic[]>(initialEpics);
   const [notes, setNotes] = useState<ProjectNote[]>(initialNotes || []);
-  const [activeTab, setActiveTab] = useState<"hierarchy" | "tasks" | "notes" | "remuneration">("hierarchy");
+  const [activeTab, setActiveTab] = useState<"hierarchy" | "tasks" | "notes" | "meetings" | "remuneration">("hierarchy");
   const [feedbackCounts, setFeedbackCounts] = useState<Record<string, number>>({});
   const [projectTeamMembers, setProjectTeamMembers] = useState<
     Array<{ id: string; name: string; username: string; role?: string }>
@@ -144,7 +146,7 @@ export function ProjectWorkspace({
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
       const tabParam = params.get("tab");
-      if (tabParam === "remuneration" || tabParam === "tasks" || tabParam === "notes" || tabParam === "hierarchy") {
+      if (tabParam === "meetings" || tabParam === "remuneration" || tabParam === "tasks" || tabParam === "notes" || tabParam === "hierarchy") {
         setActiveTab(tabParam as any);
       }
     }
@@ -722,6 +724,23 @@ export function ProjectWorkspace({
 
           <button
             type="button"
+            onClick={() => setActiveTab("meetings")}
+            className={`inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-3.5 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold rounded-xl transition cursor-pointer whitespace-nowrap ${
+              activeTab === "meetings"
+                ? "bg-white text-[#252331] shadow-2xs border border-[rgba(74,61,100,0.12)]"
+                : "text-[#706C7D] hover:text-[#252331] hover:bg-white/60"
+            }`}
+          >
+            <Calendar size={14} className={activeTab === "meetings" ? "text-[#B8944E]" : "text-[#9994A5]"} />
+            <span className="hidden sm:inline">Meetings & Calls</span>
+            <span className="sm:hidden">Meetings</span>
+            <span className="rounded-full bg-[rgba(184,148,78,0.10)] px-1.5 sm:px-2 py-0.5 text-[10px] font-bold text-[#80642F]">
+              Schedule
+            </span>
+          </button>
+
+          <button
+            type="button"
             onClick={() => setActiveTab("remuneration")}
             className={`inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-3.5 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold rounded-xl transition cursor-pointer whitespace-nowrap ${
               activeTab === "remuneration"
@@ -738,7 +757,13 @@ export function ProjectWorkspace({
           </button>
         </div>
 
-        {activeTab === "remuneration" ? (
+        {activeTab === "meetings" ? (
+          <ProjectMeetingsTab
+            projectId={projectId}
+            projectName={projectName}
+            projectTeamMembers={projectTeamMembers}
+          />
+        ) : activeTab === "remuneration" ? (
           <ProjectRemunerationTab
             projectId={projectId}
             projectName={projectName}

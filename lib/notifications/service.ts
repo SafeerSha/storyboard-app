@@ -599,13 +599,24 @@ export async function notifyPaymentAllocatedToTeam({
       if (profile?.email) {
         recipientEmail = profile.email;
       } else {
-        const { data: teamUser } = await admin
+        let { data: teamUser, error: tuErr } = await admin
           .from("team_users")
-          .select("username")
+          .select("email, username")
           .eq("id", split.teamMemberId)
           .maybeSingle();
 
-        if (teamUser?.username && teamUser.username.includes("@")) {
+        if (tuErr && (tuErr.code === "42703" || tuErr.message?.includes("email"))) {
+          const fallback = await admin
+            .from("team_users")
+            .select("username")
+            .eq("id", split.teamMemberId)
+            .maybeSingle();
+          teamUser = fallback.data ? { ...fallback.data, email: null } : null;
+        }
+
+        if (teamUser?.email && teamUser.email.includes("@")) {
+          recipientEmail = teamUser.email;
+        } else if (teamUser?.username && teamUser.username.includes("@")) {
           recipientEmail = teamUser.username;
         }
       }

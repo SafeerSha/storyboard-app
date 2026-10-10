@@ -241,6 +241,7 @@ export default function UsersPage() {
           body: JSON.stringify({
             userType: "team_user",
             name: createName.trim(),
+            email: createEmail.trim().toLowerCase() || null,
             username: createUsername.trim().toLowerCase(),
             password: createPassword,
             projectIds: createProjectIds,
@@ -378,6 +379,7 @@ export default function UsersPage() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             name: editName.trim(),
+            email: editEmail.trim().toLowerCase() || null,
             projectIds: editProjectIds,
             status: editStatus,
           }),
@@ -1222,6 +1224,22 @@ export default function UsersPage() {
 
               <div>
                 <label className="block text-xs font-semibold text-[#252331] mb-1">
+                  Email Address <span className="text-[#9994A5] font-normal">(Optional)</span>
+                </label>
+                <input
+                  type="email"
+                  value={createEmail}
+                  onChange={(e) => setCreateEmail(e.target.value)}
+                  placeholder="e.g. member@company.com"
+                  className="h-10 w-full rounded-xl border border-[#EBE7F2] bg-white px-3 text-sm text-[#252331] outline-none transition focus:border-[#B8944E]"
+                />
+                <p className="text-[11px] text-[#9994A5] mt-1">
+                  Used for meeting invitations, task notifications & remuneration allocations.
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-[#252331] mb-1">
                   Map to Projects (Multi-Select)
                 </label>
                 <p className="text-[11px] text-[#9994A5] mb-2">
@@ -1671,10 +1689,27 @@ export default function UsersPage() {
                     </div>
                   </div>
                 ) : (
-                  <div>
-                    <label className="block text-xs font-semibold text-[#252331] mb-1">
-                      Assigned Projects
-                    </label>
+                  <div className="space-y-3">
+                    <div>
+                      <label className="block text-xs font-semibold text-[#252331] mb-1">
+                        Email Address <span className="text-[#9994A5] font-normal">(Optional)</span>
+                      </label>
+                      <input
+                        type="email"
+                        value={editEmail}
+                        onChange={(e) => setEditEmail(e.target.value)}
+                        placeholder="e.g. member@company.com"
+                        className="h-10 w-full rounded-xl border border-[#EBE7F2] bg-white px-3 text-sm text-[#252331] outline-none transition focus:border-[#B8944E]"
+                      />
+                      <p className="text-[11px] text-[#9994A5] mt-1">
+                        Used for meeting invitations, task notifications & remuneration allocations.
+                      </p>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-[#252331] mb-1">
+                        Assigned Projects
+                      </label>
                     <div className="max-h-36 overflow-y-auto rounded-xl border border-[#EBE7F2] bg-white p-2 space-y-1.5">
                       {projects.map((p) => {
                         const checked = editProjectIds.includes(p.id);
@@ -1704,8 +1739,9 @@ export default function UsersPage() {
                       })}
                     </div>
                   </div>
-                )}
-              </div>
+                </div>
+              )}
+            </div>
             )}
 
             {/* Client: Project picker */}

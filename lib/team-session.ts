@@ -51,7 +51,7 @@ export async function getAuthenticatedTeamUser() {
   const supabase = createAdminClient();
 
   // Look up the hash in team_sessions and join with team_users
-  const { data: session, error } = await supabase
+  let { data: session, error } = await supabase
     .from("team_sessions")
     .select(`
       expires_at,
@@ -59,6 +59,7 @@ export async function getAuthenticatedTeamUser() {
         id,
         name,
         username,
+        email,
         role,
         project_id,
         status
@@ -66,6 +67,26 @@ export async function getAuthenticatedTeamUser() {
     `)
     .eq("token_hash", tokenHash)
     .maybeSingle();
+
+  if (error && (error.code === "42703" || error.message?.includes("email"))) {
+    const fallback = await supabase
+      .from("team_sessions")
+      .select(`
+        expires_at,
+        team_users:team_user_id (
+          id,
+          name,
+          username,
+          role,
+          project_id,
+          status
+        )
+      `)
+      .eq("token_hash", tokenHash)
+      .maybeSingle();
+    session = fallback.data as any;
+    error = fallback.error;
+  }
 
   if (error || !session) return null;
 
@@ -87,6 +108,7 @@ export async function getAuthenticatedTeamUser() {
     id: teamUser.id,
     name: teamUser.name,
     username: teamUser.username,
+    email: (teamUser as any).email || null,
     role: (teamUser as any).role || "member",
     project_id: teamUser.project_id,
     status: teamUser.status,

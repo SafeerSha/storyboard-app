@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import { LogOut, PanelLeft } from "lucide-react";
 import { StoryBoardLogoMark } from "@/components/brand/StoryBoardLogo";
@@ -53,14 +54,36 @@ export function AppDock({
 }: AppDockProps) {
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [showAccountMenu, setShowAccountMenu] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const [menuCoords, setMenuCoords] = useState<{ bottom: number; right: number } | null>(null);
   const accountRef = useRef<HTMLDivElement>(null);
+  const menuPortalRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const updateMenuPosition = useCallback(() => {
+    if (!accountRef.current) return;
+    const rect = accountRef.current.getBoundingClientRect();
+    setMenuCoords({
+      bottom: Math.max(12, window.innerHeight - rect.top + 14),
+      right: Math.max(16, window.innerWidth - rect.right),
+    });
+  }, []);
 
   // Close account menu on click outside or Escape
   useEffect(() => {
     if (!showAccountMenu) return;
 
     function handleClickOutside(e: MouseEvent) {
-      if (accountRef.current && !accountRef.current.contains(e.target as Node)) {
+      const target = e.target as Node;
+      if (
+        accountRef.current &&
+        !accountRef.current.contains(target) &&
+        menuPortalRef.current &&
+        !menuPortalRef.current.contains(target)
+      ) {
         setShowAccountMenu(false);
       }
     }
@@ -71,13 +94,33 @@ export function AppDock({
       }
     }
 
-    document.addEventListener("mousedown", handleClickOutside);
+    // Small delay to ensure event that triggered open is completed
+    const timer = setTimeout(() => {
+      document.addEventListener("mousedown", handleClickOutside);
+    }, 10);
     document.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("resize", updateMenuPosition);
+    window.addEventListener("scroll", updateMenuPosition, true);
+
     return () => {
+      clearTimeout(timer);
       document.removeEventListener("mousedown", handleClickOutside);
       document.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("resize", updateMenuPosition);
+      window.removeEventListener("scroll", updateMenuPosition, true);
     };
-  }, [showAccountMenu]);
+  }, [showAccountMenu, updateMenuPosition]);
+
+  const toggleAccountMenu = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (showAccountMenu) {
+      setShowAccountMenu(false);
+    } else {
+      updateMenuPosition();
+      setShowAccountMenu(true);
+    }
+  };
 
   return (
     <div
@@ -85,7 +128,7 @@ export function AppDock({
     >
       <nav
         aria-label="macOS Desktop Dock Navigation"
-        className="pointer-events-auto flex items-center h-[62px] sm:h-[68px] rounded-2xl sm:rounded-full border border-white/20 bg-white/10 backdrop-blur-3xl px-3.5 sm:px-6 py-2 shadow-[0_30px_60px_rgba(0,0,0,0.12),0_10px_25px_rgba(0,0,0,0.05),inset_0_2px_4px_rgba(255,255,255,0.4),inset_0_0_10px_rgba(255,255,255,0.1),inset_0_-2px_6px_rgba(0,0,0,0.05)] gap-1 sm:gap-2 transition-all duration-200 max-w-[calc(100vw-2rem)] overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className="pointer-events-auto flex items-center h-[62px] sm:h-[68px] rounded-2xl sm:rounded-full border border-white/20 bg-white/10 backdrop-blur-3xl px-3.5 sm:px-6 py-2 shadow-[0_30px_60px_rgba(0,0,0,0.12),0_10px_25px_rgba(0,0,0,0.05),inset_0_2px_4px_rgba(255,255,255,0.4),inset_0_0_10px_rgba(255,255,255,0.1),inset_0_-2px_6px_rgba(0,0,0,0.05)] gap-1 sm:gap-2 transition-all duration-200 max-w-[calc(100vw-2rem)] overflow-visible"
         style={{
           WebkitBackdropFilter: "blur(32px) saturate(190%)",
           backdropFilter: "blur(32px) saturate(190%)",
@@ -254,7 +297,7 @@ export function AppDock({
             >
               <button
                 type="button"
-                onClick={() => setShowAccountMenu((prev) => !prev)}
+                onClick={toggleAccountMenu}
                 aria-expanded={showAccountMenu}
                 aria-haspopup="menu"
                 aria-label={`Account menu for ${user.name}`}
@@ -278,14 +321,22 @@ export function AppDock({
                 </div>
               )}
 
-              {/* Account Popover Menu Above */}
-              {showAccountMenu && (
+              {/* Account Popover Menu Rendered in Body Portal */}
+              {mounted && showAccountMenu && menuCoords && typeof document !== "undefined" && createPortal(
                 <div
+                  ref={menuPortalRef}
                   role="menu"
                   aria-label="Account options"
-                  className="absolute bottom-full mb-4 right-0 w-64 rounded-2xl border border-white/80 bg-white/90 backdrop-blur-2xl p-2.5 shadow-[0_24px_50px_rgba(0,0,0,0.18),inset_0_1px_1.5px_rgba(255,255,255,0.9)] animate-in fade-in zoom-in-95 duration-150 z-50"
+                  style={{
+                    position: "fixed",
+                    bottom: `${menuCoords.bottom}px`,
+                    right: `${menuCoords.right}px`,
+                    zIndex: 99999,
+                  }}
+                  className="w-64 rounded-2xl border border-zinc-200/90 bg-white/98 backdrop-blur-2xl p-2.5 shadow-[0_24px_50px_rgba(0,0,0,0.25),0_4px_16px_rgba(0,0,0,0.12)] animate-in fade-in zoom-in-95 duration-150 pointer-events-auto text-left select-none"
+                  onClick={(e) => e.stopPropagation()}
                 >
-                  <div className="px-3.5 py-2.5 border-b border-zinc-100">
+                  <div className="px-3 py-2 border-b border-zinc-100">
                     <div className="flex items-center justify-between gap-2">
                       <p className="text-xs font-bold text-zinc-900 truncate">{user.name}</p>
                       <span className="rounded-md bg-[#FAF5EC] px-1.5 py-0.5 text-[10px] font-bold text-[#7A5B20] border border-[#E5D2A8] shrink-0">
@@ -299,6 +350,20 @@ export function AppDock({
                     )}
                   </div>
 
+                  {onToggleLayout && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowAccountMenu(false);
+                        onToggleLayout();
+                      }}
+                      className="mt-1.5 flex w-full items-center gap-2 rounded-xl px-3 py-2 text-xs font-semibold text-zinc-700 hover:bg-zinc-100 hover:text-zinc-950 transition cursor-pointer"
+                    >
+                      <PanelLeft size={14} className="text-zinc-500" />
+                      <span>Switch to Sidebar</span>
+                    </button>
+                  )}
+
                   <button
                     type="button"
                     onClick={() => {
@@ -310,7 +375,8 @@ export function AppDock({
                     <LogOut size={14} />
                     <span>Sign out</span>
                   </button>
-                </div>
+                </div>,
+                document.body
               )}
             </div>
           </>

@@ -548,6 +548,170 @@ function SendAgreementModal({
 }
 
 // ==============================================================================
+// MODAL: Send Team Allocation Email
+// ==============================================================================
+interface SendTeamPaymentModalProps {
+  remId: string;
+  currency: string;
+  projectName: string;
+  payment: any;
+  split: any;
+  teamMembers: any[];
+  onClose: () => void;
+  onSuccess: () => void;
+}
+
+function SendTeamPaymentModal({
+  remId,
+  currency,
+  projectName,
+  payment,
+  split,
+  teamMembers = [],
+  onClose,
+  onSuccess,
+}: SendTeamPaymentModalProps) {
+  const existingMember = teamMembers.find(
+    (tm) => tm.id === split.team_user_id || tm.name?.toLowerCase() === split.member_name?.toLowerCase()
+  );
+  const defaultEmail = existingMember?.email || (existingMember?.username?.includes("@") ? existingMember.username : "");
+
+  const [email, setEmail] = useState(defaultEmail || "");
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleSend = async () => {
+    if (!email || !email.includes("@")) {
+      setError("Please provide a valid email address for the team member.");
+      return;
+    }
+
+    setSubmitting(true);
+    setError("");
+    try {
+      const res = await fetch(`/api/remunerations/${remId}/send-team-email`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          paymentId: payment?.id,
+          teamMemberId: split?.team_user_id || existingMember?.id,
+          memberName: split?.member_name,
+          recipientEmail: email,
+          amount: split?.amount,
+          role: split?.role,
+          percentage: split?.percentage,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to send allocation email");
+      toast.success(data.message || `Allocation email sent to ${split.member_name} (${email})!`);
+      onSuccess();
+      onClose();
+    } catch (e: any) {
+      setError(e.message || "Failed to send email.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const inputClass =
+    "w-full rounded-lg border border-[rgba(74,61,100,0.15)] px-3 py-2 text-xs sm:text-sm text-[#252331] focus:outline-none focus:ring-1 focus:ring-[#B8944E] bg-white";
+  const labelClass = "block text-[11px] font-bold uppercase tracking-wider text-[#706C7D] mb-1";
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 animate-in fade-in duration-150">
+      <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl border border-[rgba(74,61,100,0.1)] space-y-4">
+        <div className="flex items-center justify-between border-b border-[rgba(74,61,100,0.08)] pb-3">
+          <div className="flex items-center gap-2.5">
+            <div className="p-2 rounded-xl bg-[rgba(184,148,78,0.12)] text-[#80642F]">
+              <Mail size={18} />
+            </div>
+            <div>
+              <h2 className="font-semibold text-[#252331] text-sm sm:text-base">Send Allocation Email</h2>
+              <p className="text-[11px] text-[#706C7D]">Notify team member of their received payout</p>
+            </div>
+          </div>
+          <button onClick={onClose} className="text-[#9994A5] hover:text-[#252331] p-1 rounded-md cursor-pointer">✕</button>
+        </div>
+
+        {error && (
+          <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center gap-2">
+            <AlertCircle size={14} className="shrink-0" />
+            <span>{error}</span>
+          </div>
+        )}
+
+        {/* Member & Split Info Summary */}
+        <div className="rounded-xl border border-[rgba(74,61,100,0.08)] bg-[#faf9fc] p-3.5 space-y-2 text-xs">
+          <div className="flex items-center justify-between">
+            <span className="text-[#706C7D]">Team Member:</span>
+            <span className="font-bold text-[#252331]">{split.member_name}</span>
+          </div>
+          {split.role && (
+            <div className="flex items-center justify-between">
+              <span className="text-[#706C7D]">Role:</span>
+              <span className="text-[#252331] capitalize">{split.role}</span>
+            </div>
+          )}
+          <div className="flex items-center justify-between">
+            <span className="text-[#706C7D]">Allocated Share:</span>
+            <span className="font-bold text-emerald-700 text-sm">
+              {formatCurrency(split.amount, currency)}
+              {split.percentage ? ` (${split.percentage}%)` : ""}
+            </span>
+          </div>
+          <div className="flex items-center justify-between border-t border-[rgba(74,61,100,0.06)] pt-2">
+            <span className="text-[#706C7D]">Payment Recorded:</span>
+            <span className="text-[#252331]">{fmt(payment.payment_date)}</span>
+          </div>
+        </div>
+
+        <div>
+          <label className={labelClass}>Recipient Email Address</label>
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="member@example.com"
+            className={inputClass}
+            autoFocus={!defaultEmail}
+          />
+          {!defaultEmail ? (
+            <p className="text-[11px] text-amber-700 font-medium mt-1.5 flex items-center gap-1">
+              <AlertTriangle size={12} className="shrink-0 text-amber-600" />
+              <span>No email on file for {split.member_name}. Please enter their email address to send the allocation.</span>
+            </p>
+          ) : (
+            <p className="text-[10px] text-[#9994A5] mt-1.5">
+              Verified email address from team member records. You can modify if needed.
+            </p>
+          )}
+        </div>
+
+        <div className="flex justify-end gap-2 pt-3 border-t border-[rgba(74,61,100,0.06)]">
+          <Button variant="outline" size="sm" onClick={onClose} disabled={submitting}>
+            Cancel
+          </Button>
+          <Button variant="primary" size="sm" onClick={handleSend} disabled={submitting}>
+            {submitting ? (
+              <span className="flex items-center gap-1.5">
+                <Loader2 size={13} className="animate-spin" />
+                Sending...
+              </span>
+            ) : (
+              <span className="flex items-center gap-1.5">
+                <SendHorizontal size={13} />
+                Send Allocation Email
+              </span>
+            )}
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ==============================================================================
 // MAIN COMPONENT
 // ==============================================================================
 export default function RemunerationDetailPage() {
@@ -566,8 +730,15 @@ export default function RemunerationDetailPage() {
   const [deleting, setDeleting] = useState(false);
   const [preSelectedInstId, setPreSelectedInstId] = useState<string | undefined>(undefined);
   const [showAddMenu, setShowAddMenu] = useState(false);
-
   const menuRef = useRef<HTMLDivElement>(null);
+
+  const [installmentToDelete, setInstallmentToDelete] = useState<RemunerationInstallment | null>(null);
+  const [deletingInstallment, setDeletingInstallment] = useState(false);
+
+  const [paymentToDelete, setPaymentToDelete] = useState<any | null>(null);
+  const [deletingPayment, setDeletingPayment] = useState(false);
+
+  const [teamEmailTarget, setTeamEmailTarget] = useState<{ payment: any; split: any } | null>(null);
 
   const handleDeleteRemuneration = async () => {
     if (!rem?.id) return;
@@ -581,6 +752,44 @@ export default function RemunerationDetailPage() {
     } catch (e: any) {
       toast.error(e.message || "Failed to delete remuneration");
       setDeleting(false);
+    }
+  };
+
+  const handleDeleteInstallment = async () => {
+    if (!rem?.id || !installmentToDelete) return;
+    setDeletingInstallment(true);
+    try {
+      const res = await fetch(`/api/remunerations/${rem.id}/installments/${installmentToDelete.id}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to delete milestone");
+      toast.success("Payment request / milestone removed successfully");
+      setInstallmentToDelete(null);
+      await loadData();
+    } catch (e: any) {
+      toast.error(e.message || "Failed to delete milestone");
+    } finally {
+      setDeletingInstallment(false);
+    }
+  };
+
+  const handleDeletePayment = async () => {
+    if (!rem?.id || !paymentToDelete) return;
+    setDeletingPayment(true);
+    try {
+      const res = await fetch(`/api/remunerations/${rem.id}/payments/${paymentToDelete.id}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to delete transaction record");
+      toast.success("Transaction record deleted successfully");
+      setPaymentToDelete(null);
+      await loadData();
+    } catch (e: any) {
+      toast.error(e.message || "Failed to delete transaction record");
+    } finally {
+      setDeletingPayment(false);
     }
   };
 
@@ -854,7 +1063,7 @@ export default function RemunerationDetailPage() {
                           </div>
                         </div>
 
-                        <div className="flex items-center justify-between sm:justify-end gap-3 shrink-0">
+                        <div className="flex items-center justify-between sm:justify-end gap-2.5 shrink-0">
                           <div className="text-right">
                             <p className="text-base font-bold text-[#252331]">{formatCurrency(inst.amount, rem.currency)}</p>
                             {!isFullyPaid && (
@@ -874,6 +1083,15 @@ export default function RemunerationDetailPage() {
                               <CheckCircle2 size={13} className="mr-1" /> Receive
                             </button>
                           )}
+
+                          <button
+                            type="button"
+                            onClick={() => setInstallmentToDelete(inst)}
+                            title="Delete payment request / milestone"
+                            className="inline-flex items-center justify-center rounded-xl h-8 w-8 text-[#9994A5] hover:text-rose-600 hover:bg-rose-50 border border-transparent hover:border-rose-200 transition-colors cursor-pointer shrink-0"
+                          >
+                            <Trash2 size={14} />
+                          </button>
                         </div>
                       </div>
                     );
@@ -918,21 +1136,45 @@ export default function RemunerationDetailPage() {
                               {pm.payment_method}
                             </span>
                           </div>
-                          {pm.payment_reference && (
-                            <span className="font-mono text-[11px] text-[#252331] bg-white px-2 py-0.5 rounded border border-[rgba(74,61,100,0.10)]">
-                              Ref: {pm.payment_reference}
-                            </span>
-                          )}
+                          <div className="flex items-center gap-2">
+                            {pm.payment_reference && (
+                              <span className="font-mono text-[11px] text-[#252331] bg-white px-2 py-0.5 rounded border border-[rgba(74,61,100,0.10)]">
+                                Ref: {pm.payment_reference}
+                              </span>
+                            )}
+                            <button
+                              type="button"
+                              onClick={() => setPaymentToDelete(pm)}
+                              title="Delete transaction record"
+                              className="inline-flex items-center justify-center rounded-lg h-7 w-7 text-[#9994A5] hover:text-rose-600 hover:bg-rose-50 border border-transparent hover:border-rose-200 transition-colors cursor-pointer shrink-0"
+                            >
+                              <Trash2 size={13} />
+                            </button>
+                          </div>
                         </div>
 
                         {sps.length > 0 && (
-                          <div className="bg-white rounded-lg p-2.5 border border-[rgba(74,61,100,0.06)] space-y-1.5">
+                          <div className="bg-white rounded-lg p-2.5 border border-[rgba(74,61,100,0.06)] space-y-2">
                             <span className="font-bold text-[11px] text-[#80642F]">Team Allocation Breakdown:</span>
                             <div className="flex flex-wrap gap-2">
                               {sps.map((s: any, idx: number) => (
-                                <span key={idx} className="bg-zinc-50 border border-zinc-200 px-2 py-0.5 rounded text-[11px] text-[#252331]">
-                                  <strong>{s.member_name}</strong>: {formatCurrency(s.amount, rem.currency)}
-                                </span>
+                                <div
+                                  key={idx}
+                                  className="inline-flex items-center gap-2 bg-zinc-50 hover:bg-zinc-100/80 border border-zinc-200 px-2.5 py-1 rounded-lg text-[11px] text-[#252331] transition-colors shadow-2xs"
+                                >
+                                  <span>
+                                    <strong>{s.member_name}</strong>: {formatCurrency(s.amount, rem.currency)}
+                                  </span>
+                                  <button
+                                    type="button"
+                                    onClick={() => setTeamEmailTarget({ payment: pm, split: s })}
+                                    title={`Send allocation email to ${s.member_name}`}
+                                    className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold text-[#80642F] bg-[rgba(184,148,78,0.12)] hover:bg-[rgba(184,148,78,0.24)] transition-colors cursor-pointer"
+                                  >
+                                    <Mail size={11} />
+                                    <span>Send Mail</span>
+                                  </button>
+                                </div>
                               ))}
                             </div>
                           </div>
@@ -1081,6 +1323,125 @@ export default function RemunerationDetailPage() {
           onClose={() => setRecordModalOpen(false)}
           onSuccess={loadData}
         />
+      )}
+
+      {/* Team Member Payment Allocation Email Modal */}
+      {teamEmailTarget && (
+        <SendTeamPaymentModal
+          remId={rem.id}
+          currency={rem.currency}
+          projectName={rem.project?.name || "Project"}
+          payment={teamEmailTarget.payment}
+          split={teamEmailTarget.split}
+          teamMembers={rem.teamMembers || []}
+          onClose={() => setTeamEmailTarget(null)}
+          onSuccess={loadData}
+        />
+      )}
+
+      {/* Delete Installment / Payment Request Modal */}
+      {installmentToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 animate-in fade-in duration-150">
+          <div className="rounded-2xl bg-white shadow-2xl w-full max-w-md p-6 space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-rose-50 text-rose-600 shrink-0">
+                <Trash2 size={20} />
+              </div>
+              <div>
+                <h2 className="font-semibold text-[#252331] text-base">Delete Payment Request / Milestone?</h2>
+                <p className="text-xs text-[#9994A5]">Remove from schedule and ledger</p>
+              </div>
+            </div>
+
+            <div className="text-xs text-[#706C7D] space-y-2">
+              <p>
+                Are you sure you want to delete{" "}
+                <strong className="text-[#252331]">
+                  {installmentToDelete.name || `Payment Request #${installmentToDelete.installment_number}`}
+                </strong>{" "}
+                ({formatCurrency(installmentToDelete.amount, rem.currency)})?
+              </p>
+
+              {Number(installmentToDelete.received_amount) > 0 && (
+                <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-amber-800 text-[11px] flex items-start gap-2">
+                  <AlertTriangle size={15} className="shrink-0 mt-0.5 text-amber-600" />
+                  <span>
+                    This milestone has <strong>{formatCurrency(installmentToDelete.received_amount, rem.currency)}</strong> in recorded payments. Deleting it will also remove linked transaction records and reverse team allocations.
+                  </span>
+                </div>
+              )}
+            </div>
+
+            <div className="flex justify-end gap-2.5 pt-2">
+              <Button
+                variant="secondary"
+                onClick={() => setInstallmentToDelete(null)}
+                disabled={deletingInstallment}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="danger-solid"
+                onClick={handleDeleteInstallment}
+                disabled={deletingInstallment}
+                isLoading={deletingInstallment}
+              >
+                Delete Request
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Actual Transaction Record Modal */}
+      {paymentToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 animate-in fade-in duration-150">
+          <div className="rounded-2xl bg-white shadow-2xl w-full max-w-md p-6 space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-rose-50 text-rose-600 shrink-0">
+                <Trash2 size={20} />
+              </div>
+              <div>
+                <h2 className="font-semibold text-[#252331] text-base">Delete Transaction Record?</h2>
+                <p className="text-xs text-[#9994A5]">Remove completed transaction</p>
+              </div>
+            </div>
+
+            <div className="text-xs text-[#706C7D] space-y-2">
+              <p>
+                Are you sure you want to delete the transaction record of{" "}
+                <strong className="text-emerald-700">
+                  {formatCurrency(paymentToDelete.amount, rem.currency)}
+                </strong>{" "}
+                received on <strong>{fmt(paymentToDelete.payment_date)}</strong>?
+              </p>
+
+              <div className="rounded-lg border border-[rgba(74,61,100,0.10)] bg-[#faf9fc] p-3 text-[11px] text-[#706C7D] space-y-1">
+                <p>• Deducts {formatCurrency(paymentToDelete.amount, rem.currency)} from the collected total balance.</p>
+                <p>• Automatically reverts and recalculates milestone payment progress.</p>
+                <p>• Removes team split payouts associated with this transaction.</p>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-2.5 pt-2">
+              <Button
+                variant="secondary"
+                onClick={() => setPaymentToDelete(null)}
+                disabled={deletingPayment}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="danger-solid"
+                onClick={handleDeletePayment}
+                disabled={deletingPayment}
+                isLoading={deletingPayment}
+              >
+                Delete Transaction
+              </Button>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* Delete Confirmation Modal */}

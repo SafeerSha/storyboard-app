@@ -23,6 +23,8 @@ import {
   MessageSquare,
   FileText,
   Filter,
+  Calendar,
+  Receipt,
 } from "lucide-react";
 import { GenerateStoriesModal } from "@/components/GenerateStoriesModal";
 import { StoryEditor } from "@/components/StoryEditor";
@@ -46,6 +48,8 @@ import { AiEpicAgentPromptModal } from "@/components/epics/AiEpicAgentPromptModa
 import { sortEpics, sortStories } from "@/lib/epic-story-utils";
 import { ProjectNotesWorkspace } from "@/components/notes/ProjectNotesWorkspace";
 import { EpicNotesModal } from "@/components/notes/EpicNotesModal";
+import { ProjectMeetingsTab } from "@/components/meetings/ProjectMeetingsTab";
+import { TeamMemberRemunerationTab } from "@/components/remuneration/TeamMemberRemunerationTab";
 
 interface TeamWorkspaceProps {
   teamUser: {
@@ -70,6 +74,7 @@ interface TeamWorkspaceProps {
   initialEpics: Epic[];
   initialNotes?: ProjectNote[];
   initialTargetStoryId?: string;
+  initialTab?: "hierarchy" | "notes" | "meetings" | "remuneration";
 }
 
 export function TeamWorkspace({
@@ -80,14 +85,21 @@ export function TeamWorkspace({
   initialEpics,
   initialNotes,
   initialTargetStoryId,
+  initialTab = "hierarchy",
 }: TeamWorkspaceProps) {
   const [stories, setStories] = useState<Story[]>(initialStories);
   const [epics, setEpics] = useState<Epic[]>(initialEpics);
   const [notes, setNotes] = useState<ProjectNote[]>(initialNotes || []);
-  const [activeTab, setActiveTab] = useState<"hierarchy" | "notes">("hierarchy");
+  const [activeTab, setActiveTab] = useState<"hierarchy" | "notes" | "meetings" | "remuneration">(initialTab);
   const [feedbackCounts, setFeedbackCounts] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (initialTab) {
+      setActiveTab(initialTab);
+    }
+  }, [initialTab]);
 
 
   // Currently selected story for Document Inspector / StoryEditor (Right column)
@@ -876,9 +888,55 @@ export function TeamWorkspace({
               {notes.length}
             </span>
           </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab("meetings")}
+            className={`inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-3.5 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold rounded-xl transition cursor-pointer whitespace-nowrap ${
+              activeTab === "meetings"
+                ? "bg-white text-[#252331] shadow-2xs border border-[rgba(74,61,100,0.12)]"
+                : "text-[#706C7D] hover:text-[#252331] hover:bg-white/60"
+            }`}
+          >
+            <Calendar size={14} className={activeTab === "meetings" ? "text-[#B8944E]" : "text-[#9994A5]"} />
+            <span className="hidden sm:inline">Meetings & Calls</span>
+            <span className="sm:hidden">Meetings</span>
+            <span className="rounded-full bg-[rgba(184,148,78,0.10)] px-1.5 sm:px-2 py-0.5 text-[10px] font-bold text-[#80642F]">
+              Schedule
+            </span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab("remuneration")}
+            className={`inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-3.5 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold rounded-xl transition cursor-pointer whitespace-nowrap ${
+              activeTab === "remuneration"
+                ? "bg-white text-[#252331] shadow-2xs border border-[rgba(74,61,100,0.12)]"
+                : "text-[#706C7D] hover:text-[#252331] hover:bg-white/60"
+            }`}
+          >
+            <Receipt size={14} className={activeTab === "remuneration" ? "text-[#B8944E]" : "text-[#9994A5]"} />
+            <span className="hidden sm:inline">My Remuneration & Payouts</span>
+            <span className="sm:hidden">Remuneration</span>
+            <span className="rounded-full bg-[rgba(184,148,78,0.10)] px-1.5 sm:px-2 py-0.5 text-[10px] font-bold text-[#80642F]">
+              Payouts
+            </span>
+          </button>
         </div>
 
-        {activeTab === "notes" ? (
+        {activeTab === "meetings" ? (
+          <ProjectMeetingsTab
+            projectId={project.id}
+            projectName={project.name}
+            projectTeamMembers={projectTeamMembers}
+          />
+        ) : activeTab === "remuneration" ? (
+          <TeamMemberRemunerationTab
+            projectId={project.id}
+            projectName={project.name}
+            teamUser={teamUser}
+          />
+        ) : activeTab === "notes" ? (
           <ProjectNotesWorkspace
             projectId={project.id}
             epics={epics}
@@ -893,7 +951,6 @@ export function TeamWorkspace({
               });
               setEpicFilter("all");
             }}
-
           />
         ) : (
           <>

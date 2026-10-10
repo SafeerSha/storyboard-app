@@ -82,6 +82,15 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
       updates.project_id = projectIds[0];
     }
 
+    if (body.email !== undefined) {
+      const emailRaw = body.email ? String(body.email).trim().toLowerCase() : null;
+      const email = emailRaw && emailRaw.length > 0 ? emailRaw : null;
+      if (email && (!email.includes("@") || !email.includes("."))) {
+        return NextResponse.json({ error: "Invalid email address format." }, { status: 400 });
+      }
+      updates.email = email;
+    }
+
     if (body.role !== undefined) {
       updates.role = String(body.role).trim() || "member";
     }
@@ -93,15 +102,28 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
       updates.status = body.status;
     }
 
-    const { data: updatedUser, error: updateError } = await adminClient
+    let { data: updatedUser, error: updateError } = await adminClient
       .from("team_users")
       .update(updates)
       .eq("id", id)
-      .select("id, project_id, name, username, role, status, created_at, updated_at")
+      .select("id, project_id, name, username, email, role, status, created_at, updated_at")
       .single();
 
-    if (updateError) {
-      return NextResponse.json({ error: updateError.message }, { status: 500 });
+    if (updateError && (updateError.code === "42703" || updateError.message?.includes("email"))) {
+      const safeUpdates = { ...updates };
+      delete safeUpdates.email;
+      const fallbackUpdate = await adminClient
+        .from("team_users")
+        .update(safeUpdates)
+        .eq("id", id)
+        .select("id, project_id, name, username, role, status, created_at, updated_at")
+        .single();
+      updatedUser = fallbackUpdate.data ? { ...fallbackUpdate.data, email: updates.email || null } : null;
+      updateError = fallbackUpdate.error;
+    }
+
+    if (updateError || !updatedUser) {
+      return NextResponse.json({ error: updateError?.message || "Failed to update team user." }, { status: 500 });
     }
 
     const { data: currentMemberships } = await adminClient

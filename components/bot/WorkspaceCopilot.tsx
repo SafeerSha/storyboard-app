@@ -781,6 +781,8 @@ export function WorkspaceCopilot({ initialUser }: WorkspaceCopilotProps) {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
+  // Launcher pill state: idle shows robot icon only; hover/focus/click reveals the full labelled button
+  const [isLauncherExpanded, setLauncherExpanded] = useState(false);
   const [messages, setMessages] = useState<CopilotMessage[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [loading, setLoading] = useState(false);
@@ -1020,16 +1022,27 @@ export function WorkspaceCopilot({ initialUser }: WorkspaceCopilotProps) {
 
   return (
     <>
-      {/* 1. Ambient Floating Trigger Button (Deep Black with Signature Theme Gold Accents) */}
-      <div className="fixed bottom-20 right-3.5 sm:bottom-6 sm:right-6 z-[60] transition-all duration-200">
+      {/* 1. Ambient Floating Trigger Button — idle state shows the robot icon only, peeking from the screen edge */}
+      <div
+        className="fixed bottom-20 right-2.5 sm:bottom-6 sm:right-4 z-[60] transition-all duration-200"
+        onMouseEnter={() => setLauncherExpanded(true)}
+        onMouseLeave={() => setLauncherExpanded(false)}
+      >
         <button
           type="button"
           onClick={(e) => {
             e.stopPropagation();
+            setLauncherExpanded(true);
             setIsOpen((prev) => !prev);
           }}
-          className="group relative flex items-center gap-2.5 rounded-full bg-[#121118] border border-[#B8944E]/40 hover:border-[#B8944E]/85 p-3 sm:px-4 sm:py-2.5 text-white shadow-[0_12px_32px_rgba(0,0,0,0.40),0_0_20px_rgba(184,148,78,0.16)] transition-all duration-300 hover:scale-105 hover:shadow-[0_16px_40px_rgba(0,0,0,0.50),0_0_25px_rgba(184,148,78,0.28)] focus:outline-none focus:ring-2 focus:ring-[#B8944E]/60 focus:ring-offset-2 focus:ring-offset-[#121118] active:scale-95 cursor-pointer"
+          onFocus={() => setLauncherExpanded(true)}
+          onBlur={() => setLauncherExpanded(false)}
+          className={`group relative flex items-center justify-center rounded-full bg-[#121118] border border-[#B8944E]/40 hover:border-[#B8944E]/85 text-white shadow-[0_12px_32px_rgba(0,0,0,0.40),0_0_20px_rgba(184,148,78,0.16)] transition-all duration-300 hover:scale-105 hover:shadow-[0_16px_40px_rgba(0,0,0,0.50),0_0_25px_rgba(184,148,78,0.28)] focus:outline-none focus:ring-2 focus:ring-[#B8944E]/60 focus:ring-offset-2 focus:ring-offset-[#121118] active:scale-95 cursor-pointer ${
+            isLauncherExpanded ? "gap-2.5 px-4 py-2.5 sm:px-4 sm:py-2.5" : "p-3 sm:p-3.5"
+          }`}
           aria-label="Open REQly AI Copilot"
+          aria-expanded={isLauncherExpanded}
+          title="Open REQly AI Copilot"
         >
           <div className="relative flex items-center justify-center">
             <BotMessageSquare size={19} className="text-[#D6BD88] transition-transform group-hover:scale-110" />
@@ -1039,7 +1052,9 @@ export function WorkspaceCopilot({ initialUser }: WorkspaceCopilotProps) {
             </span>
           </div>
 
-          <span className="text-xs font-semibold tracking-wide text-white">Copilot</span>
+          {isLauncherExpanded && (
+            <span className="text-xs font-semibold tracking-wide text-white whitespace-nowrap">Copilot</span>
+          )}
         </button>
       </div>
 

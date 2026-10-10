@@ -10,7 +10,7 @@ import type { Story, Epic, ProjectNote } from "@/lib/types";
 export default async function TeamDashboardPage({
   searchParams,
 }: {
-  searchParams?: Promise<{ projectId?: string; storyId?: string }>;
+  searchParams?: Promise<{ projectId?: string; storyId?: string; tab?: string }>;
 }) {
   const teamUser = await getAuthenticatedTeamUser();
   if (!teamUser) {
@@ -20,6 +20,11 @@ export default async function TeamDashboardPage({
   const resolvedParams = searchParams ? await searchParams : {};
   const requestedProjectId = typeof resolvedParams.projectId === "string" ? resolvedParams.projectId : undefined;
   const initialTargetStoryId = typeof resolvedParams.storyId === "string" ? resolvedParams.storyId : undefined;
+  const rawTab = typeof resolvedParams.tab === "string" ? resolvedParams.tab : undefined;
+  const initialTab =
+    rawTab && ["hierarchy", "notes", "meetings", "remuneration"].includes(rawTab)
+      ? (rawTab as "hierarchy" | "notes" | "meetings" | "remuneration")
+      : undefined;
 
   const admin = createAdminClient();
 
@@ -133,6 +138,7 @@ export default async function TeamDashboardPage({
       initialEpics={initialEpics}
       initialNotes={(notesData || []) as ProjectNote[]}
       initialTargetStoryId={initialTargetStoryId}
+      initialTab={initialTab}
     />
   );
 }

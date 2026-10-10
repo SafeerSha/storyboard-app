@@ -2,8 +2,10 @@
 
 import React, { useEffect, useState, useRef, useMemo } from "react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
+  Calendar,
+  Receipt,
   Check,
   ChevronDown,
   ChevronsUpDown,
@@ -51,6 +53,8 @@ export function TeamSidebar({
 }: TeamSidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const activeTabParam = searchParams.get("tab");
   const [pendingReviewsCount, setPendingReviewsCount] = React.useState<number>(0);
   const [epics, setEpics] = React.useState<Array<{ id: string; name: string; storyCount: number }>>([]);
   const [hasInboxAccess, setHasInboxAccess] = React.useState<boolean>(false);
@@ -145,6 +149,8 @@ export function TeamSidebar({
   const initials = userName ? userName.slice(0, 2).toUpperCase() : "TU";
 
   const workspaceHref = activeProjectId ? `/team?projectId=${activeProjectId}` : "/team";
+  const meetingsHref = activeProjectId ? `/team?projectId=${activeProjectId}&tab=meetings` : "/team?tab=meetings";
+  const remunerationHref = activeProjectId ? `/team?projectId=${activeProjectId}&tab=remuneration` : "/team?tab=remuneration";
 
   // Mobile Bottom Dock shortcuts
   const mobileDockItems: MobileDockItem[] = [
@@ -247,6 +253,28 @@ export function TeamSidebar({
   ];
 
   const sheetSections: NavSheetSection[] = [
+    {
+      id: "project-work",
+      title: "Project Work",
+      items: [
+        {
+          id: "sheet-meetings",
+          label: "Meetings & Calls",
+          href: meetingsHref,
+          icon: Calendar,
+          isActive: pathname === "/team" && activeTabParam === "meetings",
+          description: "Schedule, join, and share meetings",
+        },
+        {
+          id: "sheet-remuneration",
+          label: "My Remuneration & Payouts",
+          href: remunerationHref,
+          icon: Receipt,
+          isActive: pathname === "/team" && activeTabParam === "remuneration",
+          description: "Agreed fee, disbursements, and pending balance",
+        },
+      ],
+    },
     {
       id: "discussion",
       title: "Collaboration",
@@ -395,6 +423,20 @@ export function TeamSidebar({
     {
       id: "dock-team-collab",
       items: [
+        {
+          id: "dock-team-meetings",
+          label: "Meetings",
+          href: meetingsHref,
+          icon: Calendar,
+          isActive: pathname === "/team" && activeTabParam === "meetings",
+        },
+        {
+          id: "dock-team-remuneration",
+          label: "Remuneration",
+          href: remunerationHref,
+          icon: Receipt,
+          isActive: pathname === "/team" && activeTabParam === "remuneration",
+        },
         {
           id: "dock-team-feedback",
           label: "Feedback",
@@ -559,16 +601,48 @@ export function TeamSidebar({
             <Link
               href={workspaceHref}
               className={`flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-xs sm:text-sm transition-colors ${
-                pathname === "/team"
+                pathname === "/team" && (!activeTabParam || activeTabParam === "hierarchy")
                   ? "bg-[rgba(184,148,78,0.09)] text-[#80642F] font-medium border border-[rgba(184,148,78,0.12)]"
                   : "text-[#706C7D] font-medium hover:bg-[rgba(184,148,78,0.04)] hover:text-[#80642F] border border-transparent"
               }`}
             >
               <Layers
                 size={16}
-                className={pathname === "/team" ? "text-[#B8944E]" : "text-[#9994A5]"}
+                className={pathname === "/team" && (!activeTabParam || activeTabParam === "hierarchy") ? "text-[#B8944E]" : "text-[#9994A5]"}
               />
               <span className="truncate">Workspace</span>
+            </Link>
+
+            {/* Meetings & Calls */}
+            <Link
+              href={meetingsHref}
+              className={`flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-xs sm:text-sm transition-colors ${
+                pathname === "/team" && activeTabParam === "meetings"
+                  ? "bg-[rgba(184,148,78,0.09)] text-[#80642F] font-medium border border-[rgba(184,148,78,0.12)]"
+                  : "text-[#706C7D] font-medium hover:bg-[rgba(184,148,78,0.04)] hover:text-[#80642F] border border-transparent"
+              }`}
+            >
+              <Calendar
+                size={16}
+                className={pathname === "/team" && activeTabParam === "meetings" ? "text-[#B8944E]" : "text-[#9994A5]"}
+              />
+              <span className="truncate">Meetings & Calls</span>
+            </Link>
+
+            {/* My Remuneration & Payouts */}
+            <Link
+              href={remunerationHref}
+              className={`flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-xs sm:text-sm transition-colors ${
+                pathname === "/team" && activeTabParam === "remuneration"
+                  ? "bg-[rgba(184,148,78,0.09)] text-[#80642F] font-medium border border-[rgba(184,148,78,0.12)]"
+                  : "text-[#706C7D] font-medium hover:bg-[rgba(184,148,78,0.04)] hover:text-[#80642F] border border-transparent"
+              }`}
+            >
+              <Receipt
+                size={16}
+                className={pathname === "/team" && activeTabParam === "remuneration" ? "text-[#B8944E]" : "text-[#9994A5]"}
+              />
+              <span className="truncate">My Remuneration</span>
             </Link>
 
             {/* My Reviews */}

@@ -69,12 +69,24 @@ export async function notifyTaskAssigned({
           targetEmail = client.email;
         }
       } else if (assigneeType === "team_user") {
-        const { data: teamUser } = await admin
+        let { data: teamUser, error: tuErr } = await admin
           .from("team_users")
-          .select("username")
+          .select("email, username")
           .eq("id", assigneeId)
           .maybeSingle();
-        if (teamUser?.username && teamUser.username.includes("@")) {
+
+        if (tuErr && (tuErr.code === "42703" || tuErr.message?.includes("email"))) {
+          const fallback = await admin
+            .from("team_users")
+            .select("username")
+            .eq("id", assigneeId)
+            .maybeSingle();
+          teamUser = fallback.data ? { ...fallback.data, email: null } : null;
+        }
+
+        if (teamUser?.email && teamUser.email.includes("@")) {
+          targetEmail = teamUser.email;
+        } else if (teamUser?.username && teamUser.username.includes("@")) {
           targetEmail = teamUser.username;
         }
       } else if (assigneeType === "freelancer") {

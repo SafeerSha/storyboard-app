@@ -4,6 +4,7 @@ import React, { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
+  Calendar,
   ChevronDown,
   FolderKanban,
   CheckSquare,
@@ -99,6 +100,7 @@ export function FreelancerSidebar({
   const isOverviewActive = pathname === "/";
   const isProjectsActive = pathname.startsWith("/project") || pathname.startsWith("/projects");
   const isTasksActive = pathname.startsWith("/tasks");
+  const isMeetingsActive = pathname.startsWith("/meetings");
   const isInboxActive = pathname.startsWith("/inbox");
   const isClientsActive = pathname.startsWith("/clients");
   const isSettingsActive = pathname.startsWith("/settings") || pathname === "/remuneration" || pathname.startsWith("/remuneration/");
@@ -137,6 +139,14 @@ export function FreelancerSidebar({
       href: "/projects",
       icon: FolderKanban,
       isActive: isProjectsActive,
+      onClick: closeMobile,
+    },
+    {
+      id: "dock-meetings",
+      label: "Meetings",
+      href: "/meetings",
+      icon: Calendar,
+      isActive: isMeetingsActive,
       onClick: closeMobile,
     },
     {
@@ -214,6 +224,14 @@ export function FreelancerSidebar({
       title: "Manage & Administration",
       items: [
         {
+          id: "sheet-meetings",
+          label: "Meetings",
+          href: "/meetings",
+          icon: Calendar,
+          isActive: isMeetingsActive,
+          description: "Schedule & review client meetings, demos & standups",
+        },
+        {
           id: "sheet-remunerations",
           label: "Remunerations",
           href: "/remunerations",
@@ -273,6 +291,13 @@ export function FreelancerSidebar({
           href: "/tasks",
           icon: CheckSquare,
           isActive: isTasksActive,
+        },
+        {
+          id: "dock-meetings",
+          label: "Meetings",
+          href: "/meetings",
+          icon: Calendar,
+          isActive: isMeetingsActive,
         },
         {
           id: "dock-inbox",
@@ -384,6 +409,21 @@ export function FreelancerSidebar({
                 className={isTasksActive ? "text-[#B8944E]" : "text-[#9994A5]"}
               />
               <span>Tasks</span>
+            </Link>
+
+            <Link
+              href="/meetings"
+              className={`flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-xs sm:text-sm transition-colors ${
+                isMeetingsActive
+                  ? "bg-[rgba(184,148,78,0.09)] border border-[rgba(184,148,78,0.12)] text-[#80642F] font-medium"
+                  : "text-[#706C7D] hover:bg-[rgba(184,148,78,0.04)] hover:text-[#80642F] border border-transparent font-medium"
+              }`}
+            >
+              <Calendar
+                size={16}
+                className={isMeetingsActive ? "text-[#B8944E]" : "text-[#9994A5]"}
+              />
+              <span>Meetings & Calls</span>
             </Link>
 
             <Link

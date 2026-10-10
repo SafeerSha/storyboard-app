@@ -17,14 +17,28 @@ export async function GET() {
   // Scope to only this actor's own team members (or all team members if super admin)
   let query = adminClient
     .from("team_users")
-    .select("id, project_id, name, username, role, status, created_at, updated_at, projects(id, name)")
+    .select("id, project_id, name, username, email, role, status, created_at, updated_at, projects(id, name)")
     .order("created_at", { ascending: false });
 
   if (!actor.isSuperAdmin) {
     query = query.eq("owner_id", actor.id);
   }
 
-  const { data: users, error } = await query;
+  let { data: users, error } = await query;
+
+  if (error && (error.code === "42703" || error.message?.includes("email"))) {
+    // Graceful fallback if column team_users.email is not yet created in Supabase
+    let fallbackQuery = adminClient
+      .from("team_users")
+      .select("id, project_id, name, username, role, status, created_at, updated_at, projects(id, name)")
+      .order("created_at", { ascending: false });
+    if (!actor.isSuperAdmin) {
+      fallbackQuery = fallbackQuery.eq("owner_id", actor.id);
+    }
+    const fallbackRes = await fallbackQuery;
+    users = (fallbackRes.data || []).map((u) => ({ ...u, email: null }));
+    error = fallbackRes.error;
+  }
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
@@ -129,28 +143,48 @@ export async function POST(req: Request) {
       }, { status: 400 });
     }
 
+    const emailRaw = body.email ? String(body.email).trim().toLowerCase() : null;
+    const email = emailRaw && emailRaw.length > 0 ? emailRaw : null;
+    if (email && (!email.includes("@") || !email.includes("."))) {
+      return NextResponse.json({ error: "Invalid email address format." }, { status: 400 });
+    }
+
     const passwordHash = await bcrypt.hash(password, 12);
 
+    const insertPayload: any = {
+      owner_id: actor.id,
+      name,
+      username,
+      password_hash: passwordHash,
+      project_id: projectIds[0],
+      role,
+      status,
+    };
+    if (email) insertPayload.email = email;
+
     // Insert into team_users with owner_id scoped to this actor
-    const { data: newUser, error: insertError } = await adminClient
+    let { data: newUser, error: insertError } = await adminClient
       .from("team_users")
-      .insert({
-        owner_id: actor.id,
-        name,
-        username,
-        password_hash: passwordHash,
-        project_id: projectIds[0],
-        role,
-        status,
-      })
-      .select("id, project_id, name, username, role, status, created_at, updated_at")
+      .insert(insertPayload)
+      .select("id, project_id, name, username, email, role, status, created_at, updated_at")
       .single();
 
-    if (insertError) {
-      if (insertError.code === "23505") {
+    if (insertError && (insertError.code === "42703" || insertError.message?.includes("email"))) {
+      delete insertPayload.email;
+      const fallbackInsert = await adminClient
+        .from("team_users")
+        .insert(insertPayload)
+        .select("id, project_id, name, username, role, status, created_at, updated_at")
+        .single();
+      newUser = fallbackInsert.data ? { ...fallbackInsert.data, email: null } : null;
+      insertError = fallbackInsert.error;
+    }
+
+    if (insertError || !newUser) {
+      if (insertError?.code === "23505") {
         return NextResponse.json({ error: `Username '${username}' is already taken. Please choose another.` }, { status: 400 });
       }
-      return NextResponse.json({ error: insertError.message }, { status: 500 });
+      return NextResponse.json({ error: insertError?.message || "Failed to create team user." }, { status: 500 });
     }
 
     // Insert all project memberships

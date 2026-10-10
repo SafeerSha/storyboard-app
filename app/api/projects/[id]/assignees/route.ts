@@ -72,16 +72,34 @@ export async function GET(
 
     // 3. Fetch Team Members connected to this project
     // Check both project_team_members and legacy team_users.project_id
-    const [ptmRes, legacyTeamRes] = await Promise.all([
+    let ptmRes: any;
+    let legacyTeamRes: any;
+    [ptmRes, legacyTeamRes] = await Promise.all([
       admin
         .from("project_team_members")
-        .select("team_user_id, team_users:team_users(id, name, username, role, status)")
+        .select("team_user_id, team_users:team_users(id, name, username, email, role, status)")
         .eq("project_id", projectId),
       admin
         .from("team_users")
-        .select("id, name, username, role, status")
+        .select("id, name, username, email, role, status")
         .eq("project_id", projectId),
     ]);
+
+    if (
+      (ptmRes.error && (ptmRes.error.code === "42703" || ptmRes.error.message?.includes("email"))) ||
+      (legacyTeamRes.error && (legacyTeamRes.error.code === "42703" || legacyTeamRes.error.message?.includes("email")))
+    ) {
+      [ptmRes, legacyTeamRes] = await Promise.all([
+        admin
+          .from("project_team_members")
+          .select("team_user_id, team_users:team_users(id, name, username, role, status)")
+          .eq("project_id", projectId),
+        admin
+          .from("team_users")
+          .select("id, name, username, role, status")
+          .eq("project_id", projectId),
+      ]);
+    }
 
     if (ptmRes.data) {
       for (const row of ptmRes.data) {
@@ -91,7 +109,7 @@ export async function GET(
             id: u.id,
             name: u.name,
             type: "team_user",
-            email: u.username?.includes("@") ? u.username : null,
+            email: u.email || (u.username?.includes("@") ? u.username : null),
             username: u.username,
             role: u.role || "Team Member",
           });
@@ -106,7 +124,7 @@ export async function GET(
             id: u.id,
             name: u.name,
             type: "team_user",
-            email: u.username?.includes("@") ? u.username : null,
+            email: (u as any).email || (u.username?.includes("@") ? u.username : null),
             username: u.username,
             role: u.role || "Team Member",
           });

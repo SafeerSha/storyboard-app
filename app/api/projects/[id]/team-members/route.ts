@@ -63,7 +63,7 @@ export async function GET(
     return NextResponse.json({ error: "Unauthorized or access denied." }, { status: 403 });
   }
 
-  const memberMap = new Map<string, { id: string; name: string; username: string; role: string; is_admin_or_owner?: boolean }>();
+  const memberMap = new Map<string, { id: string; name: string; username: string; email?: string | null; role: string; is_admin_or_owner?: boolean }>();
 
   // 3. Include Project Creator / Owner and Super Admins from freelancer_profiles
   try {
@@ -101,6 +101,7 @@ export async function GET(
             id: p.id,
             name: synced.name,
             username: synced.username,
+            email: p.email || null,
             role: roleTitle,
             is_admin_or_owner: true,
           });
@@ -110,6 +111,7 @@ export async function GET(
             id: p.id,
             name: p.name || roleTitle,
             username: p.email ? p.email.split("@")[0] : "admin",
+            email: p.email || null,
             role: roleTitle,
             is_admin_or_owner: true,
           });
@@ -121,7 +123,8 @@ export async function GET(
   }
 
   // 4. Query project_team_members joined with team_users
-  const { data: records, error } = await admin
+  let records: any = null;
+  const ptmQuery = await admin
     .from("project_team_members")
     .select(`
       team_user_id,
@@ -129,6 +132,7 @@ export async function GET(
         id,
         name,
         username,
+        email,
         role,
         status
       )
@@ -136,7 +140,26 @@ export async function GET(
     .eq("project_id", projectId)
     .eq("team_users.status", "active");
 
-  if (!error && records) {
+  records = ptmQuery.data;
+  if (ptmQuery.error && (ptmQuery.error.code === "42703" || ptmQuery.error.message?.includes("email"))) {
+    const fallbackRes = await admin
+      .from("project_team_members")
+      .select(`
+        team_user_id,
+        team_user:team_users!inner (
+          id,
+          name,
+          username,
+          role,
+          status
+        )
+      `)
+      .eq("project_id", projectId)
+      .eq("team_users.status", "active");
+    records = fallbackRes.data || [];
+  }
+
+  if (records) {
     for (const r of records) {
       const u = (r as any).team_user;
       if (u && u.id && u.status === "active") {
@@ -145,6 +168,7 @@ export async function GET(
             id: u.id,
             name: u.name,
             username: u.username,
+            email: u.email || (u.username?.includes("@") ? u.username : null),
             role: u.role || "member",
           });
         }
@@ -153,11 +177,22 @@ export async function GET(
   }
 
   // Seamless fallback for legacy unmigrated rows
-  const { data: legacyUsers } = await admin
+  let legacyUsers: any = null;
+  const legacyQuery = await admin
     .from("team_users")
-    .select("id, name, username, role, status")
+    .select("id, name, username, email, role, status")
     .eq("project_id", projectId)
     .eq("status", "active");
+
+  legacyUsers = legacyQuery.data;
+  if (legacyQuery.error && (legacyQuery.error.code === "42703" || legacyQuery.error.message?.includes("email"))) {
+    const fallbackLegacy = await admin
+      .from("team_users")
+      .select("id, name, username, role, status")
+      .eq("project_id", projectId)
+      .eq("status", "active");
+    legacyUsers = fallbackLegacy.data || [];
+  }
 
   if (legacyUsers) {
     for (const u of legacyUsers) {
@@ -166,6 +201,7 @@ export async function GET(
           id: u.id,
           name: u.name,
           username: u.username,
+          email: u.email || (u.username?.includes("@") ? u.username : null),
           role: (u as any).role || "member",
         });
       }

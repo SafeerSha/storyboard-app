@@ -46,6 +46,7 @@ export interface RemunerationRecord {
   installments?: RemunerationInstallment[];
   payments?: RemunerationPayment[];
   timeline?: RemunerationTimelineEvent[];
+  teamMembers?: any[];
   notification_preferences?: RemunerationNotificationPreferences | null;
   notification_logs?: NotificationLog[];
   // Calculated metadata

@@ -199,6 +199,7 @@ export type TeamUser = {
   id: string;
   name: string;
   username: string;
+  email?: string | null;
   role?: string;
   status: "active" | "disabled";
   created_at: string;
