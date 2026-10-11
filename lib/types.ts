@@ -135,6 +135,8 @@ export type Story = {
   client_approved_by_name?: string | null;
   client_approved_at?: string | null;
   raw_requirement?: string | null;
+  feature_branch?: string | null;
+  pull_request_url?: string | null;
   created_by_id?: string | null;
   reviewer_ids?: string[];
   reviewers?: Array<{ id: string; team_user_id: string; user_id?: string; name: string; username: string; role?: string }>;

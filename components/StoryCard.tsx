@@ -1,9 +1,17 @@
 "use client";
 
 import React from "react";
-import { CheckCircle2, MessageSquare, CheckSquare, Plus } from "lucide-react";
+import {
+  CheckCircle2,
+  MessageSquare,
+  CheckSquare,
+  Plus,
+  GitBranch,
+  GitPullRequest,
+} from "lucide-react";
 import { Badge, type BadgeVariant } from "@/components/ui/Badge";
 import { normalizeStoryStatus, type Story } from "@/lib/types";
+import type { StoryGitLinkField } from "@/components/stories/StoryGitLinksModal";
 
 interface StoryCardProps {
   story: Story;
@@ -13,6 +21,7 @@ interface StoryCardProps {
   tasksCount?: number;
   completedTasksCount?: number;
   onCreateTask?: (story: Story) => void;
+  onEditGitLinks?: (story: Story, field: StoryGitLinkField) => void;
   onClick?: () => void;
 }
 
@@ -24,6 +33,7 @@ export function StoryCard({
   tasksCount,
   completedTasksCount,
   onCreateTask,
+  onEditGitLinks,
   onClick,
 }: StoryCardProps) {
   const statusVariant = normalizeStoryStatus(story.status);
@@ -95,6 +105,36 @@ export function StoryCard({
               </>
             )}
 
+            {story.feature_branch && (
+              <>
+                <span className="text-[rgba(74,61,100,0.2)] text-xs">•</span>
+                <span
+                  className="inline-flex items-center gap-1 text-[11px] font-medium text-[#706C7D] bg-zinc-100 px-1.5 py-0.2 rounded border border-zinc-200 max-w-[220px]"
+                  title={`Feature branch: ${story.feature_branch}`}
+                >
+                  <GitBranch size={11} className="shrink-0" />
+                  <span className="font-mono truncate">{story.feature_branch}</span>
+                </span>
+              </>
+            )}
+
+            {story.pull_request_url && (
+              <>
+                <span className="text-[rgba(74,61,100,0.2)] text-xs">•</span>
+                <a
+                  href={story.pull_request_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  className="inline-flex items-center gap-1 text-[11px] font-medium text-[#6E5494] bg-[rgba(110,84,148,0.08)] px-1.5 py-0.2 rounded border border-[rgba(110,84,148,0.16)] hover:bg-[rgba(110,84,148,0.15)] transition"
+                  title={`Pull request: ${story.pull_request_url}`}
+                >
+                  <GitPullRequest size={11} className="stroke-[2.5]" />
+                  Pull Request
+                </a>
+              </>
+            )}
+
             {creatorName && (
               <>
                 <span className="text-[rgba(74,61,100,0.2)] text-xs">•</span>
@@ -132,6 +172,34 @@ export function StoryCard({
             >
               <Plus size={11} className="stroke-[2.5]" />
               <span>Task</span>
+            </button>
+          )}
+          {onEditGitLinks && !story.feature_branch && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onEditGitLinks(story, "feature_branch");
+              }}
+              title="Add feature branch for this story"
+              className="opacity-0 group-hover:opacity-100 transition-opacity inline-flex items-center gap-1 text-[11px] font-semibold text-[#4A5B8C] hover:bg-[rgba(74,91,140,0.15)] bg-[rgba(74,91,140,0.07)] px-2 py-0.5 rounded-lg border border-[rgba(74,91,140,0.2)]"
+            >
+              <GitBranch size={11} className="stroke-[2.5]" />
+              <span>Branch</span>
+            </button>
+          )}
+          {onEditGitLinks && !story.pull_request_url && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onEditGitLinks(story, "pull_request_url");
+              }}
+              title="Add pull request link for this story"
+              className="opacity-0 group-hover:opacity-100 transition-opacity inline-flex items-center gap-1 text-[11px] font-semibold text-[#6E5494] hover:bg-[rgba(110,84,148,0.15)] bg-[rgba(110,84,148,0.07)] px-2 py-0.5 rounded-lg border border-[rgba(110,84,148,0.2)]"
+            >
+              <GitPullRequest size={11} className="stroke-[2.5]" />
+              <span>PR</span>
             </button>
           )}
           <Badge variant={statusVariant} size="sm" className="shrink-0" />

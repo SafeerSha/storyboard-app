@@ -19,6 +19,8 @@ const patchSchema = z.object({
   assumptions: z.array(z.string()).optional(),
   clarifications: z.array(z.string()).optional(),
   raw_requirement: z.string().max(10000).optional(),
+  feature_branch: z.string().max(255).nullable().optional(),
+  pull_request_url: z.string().max(2000).nullable().optional(),
   reviewer_ids: z.array(z.string().uuid()).optional(),
   status: z
     .enum([

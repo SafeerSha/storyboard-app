@@ -60,6 +60,8 @@ export function ReviewClient({ initialStory, epics, teamUser, isReviewer }: Revi
           epic_id: updated.epic_id,
           reviewer_ids: updated.reviewer_ids,
           status: updated.status,
+          feature_branch: updated.feature_branch ?? null,
+          pull_request_url: updated.pull_request_url ?? null,
         }),
       });
       const data = await res.json();

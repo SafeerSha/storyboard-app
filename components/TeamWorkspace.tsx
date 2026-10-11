@@ -29,6 +29,10 @@ import {
 import { GenerateStoriesModal } from "@/components/GenerateStoriesModal";
 import { StoryEditor } from "@/components/StoryEditor";
 import { StoryCard } from "@/components/StoryCard";
+import {
+  StoryGitLinksModal,
+  type StoryGitLinkField,
+} from "@/components/stories/StoryGitLinksModal";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
@@ -159,6 +163,7 @@ export function TeamWorkspace({
   const [deletingStoryId, setDeletingStoryId] = useState<string | null>(null);
   const [deletingEpicItem, setDeletingEpicItem] = useState<Epic | null>(null);
   const [approvingStoryId, setApprovingStoryId] = useState<string | null>(null);
+  const [storyGitLink, setStoryGitLink] = useState<{ story: Story; field: StoryGitLinkField } | null>(null);
   const [confirmUnresolved, setConfirmUnresolved] = useState<{
     storyId: string;
     count: number;
@@ -545,6 +550,8 @@ export function TeamWorkspace({
           epic_id: updated.epic_id,
           reviewer_ids: updated.reviewer_ids,
           status: updated.status,
+          feature_branch: updated.feature_branch ?? null,
+          pull_request_url: updated.pull_request_url ?? null,
         }),
       });
       const data = await res.json();
@@ -1311,6 +1318,7 @@ export function TeamWorkspace({
                           isSelected={editingStory?.id === story.id}
                           openFeedbackCount={feedbackCounts[story.id] || 0}
                           creatorName={projectTeamMembers.find(tm => tm.id === story.created_by_id)?.name}
+                          onEditGitLinks={(s, field) => setStoryGitLink({ story: s, field })}
                           onClick={() => setEditingStory(story)}
                         />
                       ))}
@@ -1336,6 +1344,7 @@ export function TeamWorkspace({
                         isSelected={editingStory?.id === story.id}
                         openFeedbackCount={feedbackCounts[story.id] || 0}
                         creatorName={projectTeamMembers.find(tm => tm.id === story.created_by_id)?.name}
+                        onEditGitLinks={(s, field) => setStoryGitLink({ story: s, field })}
                         onClick={() => setEditingStory(story)}
                       />
                     ))}
@@ -1552,6 +1561,21 @@ export function TeamWorkspace({
           </div>
         </form>
       </Modal>
+
+      {/* Story Git Links Modal (Feature Branch / Pull Request) */}
+      {storyGitLink && (
+        <StoryGitLinksModal
+          isOpen={true}
+          onClose={() => setStoryGitLink(null)}
+          story={storyGitLink.story}
+          field={storyGitLink.field}
+          onSaved={(updatedStory) => {
+            setStories((v) => v.map((s) => (s.id === updatedStory.id ? updatedStory : s)));
+            setEditingStory((prev) => (prev && prev.id === updatedStory.id ? updatedStory : prev));
+            setStoryGitLink(null);
+          }}
+        />
+      )}
 
       {/* AI Generate Stories Modal */}
       {generatingEpicId && (

@@ -11,11 +11,16 @@
     "build:cf": "opennextjs-cloudflare build",
     "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
     "deploy:cf": "opennextjs-cloudflare deploy",
-    "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview"
+    "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
+    "mcp": "npm --prefix packages/mcp run start",
+    "mcp:http": "npm --prefix packages/mcp run start:http",
+    "mcp:test": "npm --prefix packages/mcp test"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1136.0",
     "@google/genai": "^1.20.0",
+    "@modelcontextprotocol/node": "^2.1.1",
+    "@modelcontextprotocol/server": "^2.3.1",
     "@supabase/server": "^1.5.3",
     "@supabase/ssr": "^0.7.0",
     "@supabase/supabase-js": "^2.57.0",

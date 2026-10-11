@@ -15,6 +15,8 @@ const schema = z.object({
   assumptions: z.array(z.string()).default([]),
   clarifications: z.array(z.string()).default([]),
   raw_requirement: z.string().max(10000).optional().default(""),
+  feature_branch: z.string().max(255).nullable().optional(),
+  pull_request_url: z.string().max(2000).nullable().optional(),
   reviewer_ids: z.array(z.string().uuid()).optional(),
   status: z
     .enum([
@@ -85,7 +87,7 @@ export async function GET(req: Request) {
 
   const { data: stories, error } = await admin
     .from("stories")
-    .select("id, project_id, epic_id, title, description, acceptance_criteria, assumptions, clarifications, status, team_review_status, team_approved_by_id, team_approved_by_name, team_approved_at, client_review_status, client_approved_by_id, client_approved_by_name, client_approved_at, created_by_id, created_at, updated_at")
+    .select("id, project_id, epic_id, title, description, acceptance_criteria, assumptions, clarifications, status, team_review_status, team_approved_by_id, team_approved_by_name, team_approved_at, client_review_status, client_approved_by_id, client_approved_by_name, client_approved_at, feature_branch, pull_request_url, created_by_id, created_at, updated_at")
     .eq("project_id", requestedProjectId)
     .order("updated_at", { ascending: false })
     .order("created_at", { ascending: false });
@@ -294,6 +296,8 @@ export async function POST(req: Request) {
         assumptions: body.assumptions,
         clarifications: body.clarifications,
         raw_requirement: body.raw_requirement,
+        feature_branch: body.feature_branch || null,
+        pull_request_url: body.pull_request_url || null,
         status: body.status,
         created_by_id: creatorId,
       })

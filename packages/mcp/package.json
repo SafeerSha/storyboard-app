@@ -1,0 +1,28 @@
+{
+  "name": "@reqly/mcp",
+  "version": "0.1.0",
+  "description": "Reqly Model Context Protocol (MCP) Server",
+  "type": "module",
+  "private": true,
+  "main": "./dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "tsx src/stdio.ts",
+    "dev": "tsx src/stdio.ts",
+    "start:http": "tsx src/http.ts",
+    "dev:http": "tsx --watch src/http.ts",
+    "test": "tsx --test tests/**/*.test.ts"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/server": "2.3.1",
+    "@modelcontextprotocol/node": "2.1.1",
+    "@supabase/supabase-js": "^2.57.0",
+    "dotenv": "^16.4.7",
+    "zod": "^4.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.17.30",
+    "tsx": "^4.19.3",
+    "typescript": "^5.9.2"
+  }
+}

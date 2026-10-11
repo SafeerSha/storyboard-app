@@ -31,6 +31,10 @@ import { AiEpicAgentPromptModal } from "@/components/epics/AiEpicAgentPromptModa
 import { GenerateStoriesModal } from "@/components/GenerateStoriesModal";
 import { StoryEditor } from "@/components/StoryEditor";
 import { StoryCard } from "@/components/StoryCard";
+import {
+  StoryGitLinksModal,
+  type StoryGitLinkField,
+} from "@/components/stories/StoryGitLinksModal";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
@@ -91,6 +95,7 @@ export function ProjectWorkspace({
   const [projectTasks, setProjectTasks] = useState<Task[]>([]);
   const [storyTaskModalOpen, setStoryTaskModalOpen] = useState(false);
   const [storyForTask, setStoryForTask] = useState<Story | null>(null);
+  const [storyGitLink, setStoryGitLink] = useState<{ story: Story; field: StoryGitLinkField } | null>(null);
 
   const [generatingEpicId, setGeneratingEpicId] = useState<string | null>(null);
   const [editing, setEditing] = useState<Story | null>(null);
@@ -1204,6 +1209,7 @@ export function ProjectWorkspace({
                             setStoryForTask(s);
                             setStoryTaskModalOpen(true);
                           }}
+                          onEditGitLinks={(s, field) => setStoryGitLink({ story: s, field })}
                           onClick={() => setEditing(story)}
                         />
                       ))}
@@ -1235,6 +1241,7 @@ export function ProjectWorkspace({
                           setStoryForTask(s);
                           setStoryTaskModalOpen(true);
                         }}
+                        onEditGitLinks={(s, field) => setStoryGitLink({ story: s, field })}
                         onClick={() => setEditing(story)}
                       />
                     ))}
@@ -1289,6 +1296,8 @@ export function ProjectWorkspace({
                       epic_id: updated.epic_id,
                       reviewer_ids: updated.reviewer_ids,
                       status: updated.status,
+                      feature_branch: updated.feature_branch ?? null,
+                      pull_request_url: updated.pull_request_url ?? null,
                     });
                   }}
                   onCreateEpic={openCreateEpic}
@@ -1518,6 +1527,21 @@ export function ProjectWorkspace({
           projectId={projectId}
           notes={notes}
           onNotesChange={(updatedNotes) => setNotes(updatedNotes)}
+        />
+      )}
+
+      {/* Story Git Links Modal (Feature Branch / Pull Request) */}
+      {storyGitLink && (
+        <StoryGitLinksModal
+          isOpen={true}
+          onClose={() => setStoryGitLink(null)}
+          story={storyGitLink.story}
+          field={storyGitLink.field}
+          onSaved={(updatedStory) => {
+            setStories((v) => v.map((s) => (s.id === updatedStory.id ? updatedStory : s)));
+            setEditing((prev) => (prev && prev.id === updatedStory.id ? updatedStory : prev));
+            setStoryGitLink(null);
+          }}
         />
       )}
 

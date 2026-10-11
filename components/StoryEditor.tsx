@@ -18,6 +18,8 @@ import {
   Sparkles,
   Clock,
   Loader2,
+  GitBranch,
+  GitPullRequest,
 } from "lucide-react";
 import { toast } from "@/lib/toast";
 import { Badge } from "@/components/ui/Badge";
@@ -397,6 +399,70 @@ export function StoryEditor({
     </div>
   );
 
+  const renderGitLinks = () => (
+    <div className="space-y-3">
+      <div>
+        <label className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-[#9994A5] mb-1.5">
+          <GitBranch size={13} className="text-[#80642F]" />
+          Feature Branch
+        </label>
+        {isReadOnly ? (
+          story.feature_branch ? (
+            <span
+              className="inline-flex max-w-full items-center gap-1.5 rounded-lg border border-zinc-200 bg-zinc-100 px-2.5 py-1.5"
+              title={story.feature_branch}
+            >
+              <GitBranch size={12} className="shrink-0 text-[#706C7D]" />
+              <span className="truncate font-mono text-xs text-[#252331]">{story.feature_branch}</span>
+            </span>
+          ) : (
+            <p className="text-xs text-[#9994A5]">No feature branch linked.</p>
+          )
+        ) : (
+          <input
+            type="text"
+            value={value.feature_branch || ""}
+            onChange={(e) => setValue((v) => ({ ...v, feature_branch: e.target.value }))}
+            placeholder="e.g. feature/requirements-hierarchy-toggle"
+            className="h-10 w-full rounded-xl border border-[rgba(74,61,100,0.11)] bg-white px-3.5 font-mono text-xs text-[#252331] placeholder-[#9994A5] placeholder:font-sans outline-none transition focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)]"
+          />
+        )}
+      </div>
+
+      <div>
+        <label className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-[#9994A5] mb-1.5">
+          <GitPullRequest size={13} className="text-[#80642F]" />
+          Pull Request
+        </label>
+        {isReadOnly ? (
+          story.pull_request_url ? (
+            <a
+              href={story.pull_request_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex max-w-full items-center gap-1.5 rounded-lg border border-[rgba(110,84,148,0.16)] bg-[rgba(110,84,148,0.07)] px-2.5 py-1.5 text-xs font-medium text-[#6E5494] hover:bg-[rgba(110,84,148,0.14)] transition"
+              title={story.pull_request_url}
+            >
+              <GitPullRequest size={12} className="shrink-0" />
+              <span>Open pull request</span>
+              <ExternalLink size={12} className="shrink-0" />
+            </a>
+          ) : (
+            <p className="text-xs text-[#9994A5]">No pull request linked.</p>
+          )
+        ) : (
+          <input
+            type="url"
+            value={value.pull_request_url || ""}
+            onChange={(e) => setValue((v) => ({ ...v, pull_request_url: e.target.value }))}
+            placeholder="https://github.com/org/repo/pull/123"
+            className="h-10 w-full rounded-xl border border-[rgba(74,61,100,0.11)] bg-white px-3.5 text-xs text-[#252331] placeholder-[#9994A5] outline-none transition focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)]"
+          />
+        )}
+      </div>
+    </div>
+  );
+
   return (
     <div className="rounded-[18px] border border-[rgba(74,61,100,0.08)] bg-white p-4 sm:p-7 shadow-[0_8px_30px_rgba(70,55,95,0.055)] space-y-5 sm:space-y-6">
       {/* Header */}
@@ -537,6 +603,9 @@ export function StoryEditor({
                 </div>
               </div>
             )}
+
+            {/* Feature Branch & Pull Request */}
+            {renderGitLinks()}
 
             {/* Story Title */}
             <div>
@@ -690,6 +759,9 @@ export function StoryEditor({
                 </div>
               )}
             </div>
+
+            {/* Feature Branch & Pull Request */}
+            {renderGitLinks()}
 
             {/* Story Reviewers Section */}
             {projectId && (
