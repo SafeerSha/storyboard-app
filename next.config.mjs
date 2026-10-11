@@ -6,6 +6,13 @@ const nextConfig = {
   reactStrictMode: true,
 
   webpack: (config, { isServer }) => {
+    // Resolve `.js` import specifiers to TypeScript sources so packages
+    // written with ESM-style `.js` extensions (packages/mcp) build correctly.
+    config.resolve.extensionAlias = {
+      ...(config.resolve.extensionAlias || {}),
+      ".js": [".ts", ".tsx", ".js"],
+    };
+
     config.ignoreWarnings = [
       ...(config.ignoreWarnings || []),
       { message: /\[webpack\.cache\.PackFileCacheStrategy\]/ },
