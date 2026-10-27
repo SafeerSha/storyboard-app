@@ -12,6 +12,8 @@ export interface ReqlyLogoProps {
   badge?: string;
   /** Inverted theme for dark backgrounds */
   inverted?: boolean;
+  /** Background tile style: 'none' (transparent, default) or 'white' (porcelain pearl) */
+  bg?: "none" | "white";
   /** Custom outer wrapper className */
   className?: string;
   /** Custom icon wrapper className */
@@ -30,18 +32,22 @@ const SIZE_MAP = {
 };
 
 /**
- * Reqly Signature Vector Logo Mark
- * Metaphor: The Reqly Hierarchy — Epic Column (Left), In-Progress Story (Top Right),
- * and Approved Signed-Off Story (Bottom Right) inside a premium champagne-gold jewel squircle.
+ * Reqly Signature Vector Logo Mark — Concept B: 3D Stepped Hierarchy Cubes
+ * Architectural 3D isometric ingots representing Requirements -> Breakdown -> Delivery.
+ * Free-standing on transparent background (or optional clean white porcelain badge).
+ * Pure geometric architectural symbol — non-lettermark.
  */
 export function ReqlyLogoMark({
   size = 32,
   className = "",
+  bg = "none",
 }: {
   size?: number;
   className?: string;
+  bg?: "none" | "white";
 }) {
-  const gradientId = React.useId();
+  const rawId = React.useId();
+  const id = rawId.replace(/[^a-zA-Z0-9-_]/g, "");
 
   return (
     <div
@@ -56,170 +62,128 @@ export function ReqlyLogoMark({
         aria-hidden="true"
       >
         <defs>
-          {/* Champagne gold metallic squircle gradient */}
+          {/* Optional Porcelain Pearl Squircle Gradient */}
           <linearGradient
-            id={`sb-bg-${gradientId}`}
-            x1="2"
-            y1="2"
-            x2="30"
-            y2="30"
-            gradientUnits="userSpaceOnUse"
-          >
-            <stop offset="0%" stopColor="#E2C17C" />
-            <stop offset="35%" stopColor="#C89F52" />
-            <stop offset="70%" stopColor="#B8944E" />
-            <stop offset="100%" stopColor="#87621E" />
-          </linearGradient>
-
-          {/* Frosted glass inner border reflection */}
-          <linearGradient
-            id={`sb-glass-${gradientId}`}
+            id={`cube-white-bg-${id}`}
             x1="0"
             y1="0"
             x2="32"
             y2="32"
             gradientUnits="userSpaceOnUse"
           >
-            <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.5" />
-            <stop offset="40%" stopColor="#FFFFFF" stopOpacity="0.15" />
-            <stop offset="100%" stopColor="#FFFFFF" stopOpacity="0.04" />
+            <stop offset="0%" stopColor="#FFFFFF" />
+            <stop offset="100%" stopColor="#F8F9FA" />
           </linearGradient>
 
-          {/* Soft depth shadow for internal cards */}
+          {/* Champagne Gold Perimeter Hairline Rim */}
+          <linearGradient
+            id={`cube-rim-${id}`}
+            x1="0"
+            y1="0"
+            x2="32"
+            y2="32"
+            gradientUnits="userSpaceOnUse"
+          >
+            <stop offset="0%" stopColor="#FCE5A4" stopOpacity="0.85" />
+            <stop offset="35%" stopColor="#D4A73B" stopOpacity="0.5" />
+            <stop offset="70%" stopColor="#8A6014" stopOpacity="0.25" />
+            <stop offset="100%" stopColor="#FFFFFF" stopOpacity="0.1" />
+          </linearGradient>
+
+          {/* Top Face (Specular Champagne Light) */}
+          <linearGradient id={`cube-top-${id}`} x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor="#FFFDF7" />
+            <stop offset="35%" stopColor="#FCEAB8" />
+            <stop offset="100%" stopColor="#E2B74B" />
+          </linearGradient>
+
+          {/* Left Face (Warm Satin Metallic Midtone) */}
+          <linearGradient id={`cube-left-${id}`} x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor="#ECC670" />
+            <stop offset="55%" stopColor="#CCA038" />
+            <stop offset="100%" stopColor="#A1741D" />
+          </linearGradient>
+
+          {/* Right Face (Deep Honey-Bronze Shadow) */}
+          <linearGradient id={`cube-right-${id}`} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#996D14" />
+            <stop offset="60%" stopColor="#734F0C" />
+            <stop offset="100%" stopColor="#473005" />
+          </linearGradient>
+
+          {/* Edge Specular Glint */}
+          <linearGradient id={`cube-glint-${id}`} x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.95" />
+            <stop offset="60%" stopColor="#FCE5A4" stopOpacity="0.5" />
+            <stop offset="100%" stopColor="#CCA038" stopOpacity="0.1" />
+          </linearGradient>
+
+          {/* Warm Amber-Bronze Ambient Drop Shadow (No harsh black) */}
           <filter
-            id={`sb-card-shadow-${gradientId}`}
-            x="-15%"
-            y="-15%"
-            width="130%"
-            height="130%"
+            id={`cube-drop-${id}`}
+            x="-20%"
+            y="-20%"
+            width="140%"
+            height="140%"
           >
             <feDropShadow
               dx="0"
-              dy="1"
-              stdDeviation="0.8"
-              floodColor="#2E2008"
+              dy="1.5"
+              stdDeviation="1.2"
+              floodColor="#785312"
               floodOpacity="0.28"
+            />
+            <feDropShadow
+              dx="0"
+              dy="0.5"
+              stdDeviation="0.4"
+              floodColor="#2A1B05"
+              floodOpacity="0.20"
             />
           </filter>
         </defs>
 
-        {/* Squircle Background */}
-        <rect width="32" height="32" rx="8.5" fill={`url(#sb-bg-${gradientId})`} />
-        <rect
-          x="0.5"
-          y="0.5"
-          width="31"
-          height="31"
-          rx="8"
-          stroke={`url(#sb-glass-${gradientId})`}
-          strokeWidth="1"
-        />
+        {/* 1. Optional White Porcelain Badge (Only rendered if bg === "white") */}
+        {bg === "white" && (
+          <>
+            <rect width="32" height="32" rx="8" fill={`url(#cube-white-bg-${id})`} />
+            <rect
+              x="0.5"
+              y="0.5"
+              width="31"
+              height="31"
+              rx="7.5"
+              stroke={`url(#cube-rim-${id})`}
+              strokeWidth="1"
+            />
+          </>
+        )}
 
-        {/* 1. Left Column: Epic/Hierarchy Stream */}
-        <g filter={`url(#sb-card-shadow-${gradientId})`}>
-          <rect
-            x="6.5"
-            y="6.5"
-            width="7.5"
-            height="19"
-            rx="2"
-            fill="white"
-            fillOpacity="0.96"
-          />
-          {/* Header pill on Epic card */}
-          <rect
-            x="8"
-            y="8.5"
-            width="4.5"
-            height="2"
-            rx="0.8"
-            fill="#B8944E"
-            fillOpacity="0.9"
-          />
-          {/* Stream slot 1 */}
-          <rect
-            x="8"
-            y="12"
-            width="4.5"
-            height="1.5"
-            rx="0.6"
-            fill="#87621E"
-            fillOpacity="0.32"
-          />
-          {/* Stream slot 2 */}
-          <rect
-            x="8"
-            y="15"
-            width="4.5"
-            height="1.5"
-            rx="0.6"
-            fill="#87621E"
-            fillOpacity="0.32"
-          />
-          {/* Stream slot 3 */}
-          <rect
-            x="8"
-            y="18"
-            width="3"
-            height="1.5"
-            rx="0.6"
-            fill="#87621E"
-            fillOpacity="0.25"
-          />
-        </g>
+        {/* 2. 3D Stepped Hierarchy Cubes (Free-standing, no 'R' letter, no dark box) */}
+        <g filter={`url(#cube-drop-${id})`}>
+          {/* ================= 1. TOP CUBE (Peak / Verified Delivery) ================= */}
+          <path d="M16.5 8.5L16.5 15L21 17.5L21 11Z" fill={`url(#cube-left-${id})`} />
+          <path d="M21 11L21 17.5L25.5 15L25.5 8.5Z" fill={`url(#cube-right-${id})`} />
+          <path d="M21 6L25.5 8.5L21 11L16.5 8.5Z" fill={`url(#cube-top-${id})`} />
+          <path d="M21 6L16.5 8.5L21 11" stroke={`url(#cube-glint-${id})`} strokeWidth="0.6" strokeLinecap="round" />
 
-        {/* 2. Top Right: Active Feature Story Card */}
-        <g filter={`url(#sb-card-shadow-${gradientId})`}>
-          <rect
-            x="16"
-            y="6.5"
-            width="9.5"
-            height="8.5"
-            rx="2"
-            fill="white"
-            fillOpacity="0.93"
-          />
-          {/* Title line */}
-          <rect
-            x="17.8"
-            y="8.5"
-            width="6"
-            height="1.6"
-            rx="0.7"
-            fill="#B8944E"
-            fillOpacity="0.9"
-          />
-          {/* Sub-criterion line */}
-          <rect
-            x="17.8"
-            y="11.5"
-            width="4.2"
-            height="1.3"
-            rx="0.6"
-            fill="#87621E"
-            fillOpacity="0.3"
-          />
-        </g>
+          {/* ================= 2. CENTER CUBE (Story Breakdown Tier) ================= */}
+          <path d="M11 13.5L11 20L15.5 22.5L15.5 16Z" fill={`url(#cube-left-${id})`} />
+          <path d="M15.5 16L15.5 22.5L17.5 21.4L17.5 14.9Z" fill={`url(#cube-right-${id})`} />
+          <path d="M15.5 11L20 13.5L15.5 16L11 13.5Z" fill={`url(#cube-top-${id})`} />
+          <path d="M15.5 11L11 13.5L15.5 16" stroke={`url(#cube-glint-${id})`} strokeWidth="0.6" strokeLinecap="round" />
 
-        {/* 3. Bottom Right: Approved Sign-Off Story Card with Signature Checkmark */}
-        <g filter={`url(#sb-card-shadow-${gradientId})`}>
-          <rect
-            x="16"
-            y="17"
-            width="9.5"
-            height="8.5"
-            rx="2"
-            fill="white"
-            fillOpacity="0.97"
-          />
-          {/* Checkmark indicator */}
-          <path
-            d="M18.2 21.3 L19.8 23 L23.5 19"
-            stroke="#2E8B70"
-            strokeWidth="1.65"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
+          {/* ================= 3. BOTTOM-LEFT CUBE (Requirements Base Tier) ================= */}
+          <path d="M6 18.5L6 25L10.5 27.5L10.5 21Z" fill={`url(#cube-left-${id})`} />
+          <path d="M10.5 21L10.5 27.5L15 25L15 18.5Z" fill={`url(#cube-right-${id})`} />
+          <path d="M10.5 16L15 18.5L10.5 21L6 18.5Z" fill={`url(#cube-top-${id})`} />
+          <path d="M10.5 16L6 18.5L10.5 21" stroke={`url(#cube-glint-${id})`} strokeWidth="0.6" strokeLinecap="round" />
+
+          {/* ================= 4. BOTTOM-RIGHT CUBE (Verified Output Tier) ================= */}
+          <path d="M16.5 18.5L16.5 25L21 27.5L21 21Z" fill={`url(#cube-left-${id})`} />
+          <path d="M21 21L21 27.5L25.5 25L25.5 18.5Z" fill={`url(#cube-right-${id})`} />
+          <path d="M21 16L25.5 18.5L21 21L16.5 18.5Z" fill={`url(#cube-top-${id})`} />
+          <path d="M21 16L16.5 18.5L21 21" stroke={`url(#cube-glint-${id})`} strokeWidth="0.6" strokeLinecap="round" />
         </g>
       </svg>
     </div>
@@ -238,6 +202,7 @@ export function ReqlyLogo({
   variant = "full",
   badge,
   inverted = false,
+  bg = "none",
   className = "",
   iconClassName = "",
 }: ReqlyLogoProps) {
@@ -245,20 +210,20 @@ export function ReqlyLogo({
   const sizeConfig = typeof size === "string" ? SIZE_MAP[size] : SIZE_MAP.md;
 
   if (variant === "icon") {
-    return <ReqlyLogoMark size={pixelSize} className={iconClassName || className} />;
+    return <ReqlyLogoMark size={pixelSize} className={iconClassName || className} bg={bg} />;
   }
 
   if (variant === "stacked") {
     return (
       <div className={`flex flex-col items-center text-center ${className}`}>
-        <ReqlyLogoMark size={pixelSize} className={`mb-3 ${iconClassName}`} />
+        <ReqlyLogoMark size={pixelSize} className={`mb-3 ${iconClassName}`} bg={bg} />
         <div className="flex items-center justify-center gap-2">
           <span
             className={`font-bold tracking-tight ${sizeConfig.text} ${
-              inverted ? "text-white" : "text-[#252331]"
+              inverted ? "text-white" : "text-[#0F172A]"
             }`}
           >
-            REQ<span className="text-[#B8944E]">ly</span>
+            REQ<span className="text-[#CCA038]">ly</span>
           </span>
           {badge && (
             <span
@@ -267,7 +232,7 @@ export function ReqlyLogo({
               } ${
                 inverted
                   ? "bg-white/15 text-white border-white/20"
-                  : "bg-[rgba(184,148,78,0.12)] text-[#80642F] border-[rgba(184,148,78,0.16)]"
+                  : "bg-[rgba(204,160,56,0.12)] text-[#785312] border-[rgba(204,160,56,0.16)]"
               }`}
             >
               {badge}
@@ -281,14 +246,14 @@ export function ReqlyLogo({
   // Variant === "full" (Horizontal lockup)
   return (
     <div className={`flex items-center gap-2.5 ${className}`}>
-      <ReqlyLogoMark size={pixelSize} className={iconClassName} />
+      <ReqlyLogoMark size={pixelSize} className={iconClassName} bg={bg} />
       <div className="flex items-center gap-2 min-w-0">
         <span
           className={`font-bold tracking-tight leading-none truncate ${sizeConfig.text} ${
-            inverted ? "text-white" : "text-[#252331]"
+            inverted ? "text-white" : "text-[#0F172A]"
           }`}
         >
-          REQ<span className="text-[#B8944E]">ly</span>
+          REQ<span className="text-[#CCA038]">ly</span>
         </span>
         {badge && (
           <span
@@ -297,7 +262,7 @@ export function ReqlyLogo({
             } ${
               inverted
                 ? "bg-white/15 text-white border-white/20"
-                : "bg-[rgba(184,148,78,0.10)] text-[#80642F] border-[rgba(184,148,78,0.14)]"
+                : "bg-[rgba(204,160,56,0.10)] text-[#785312] border-[rgba(204,160,56,0.14)]"
             }`}
           >
             {badge}

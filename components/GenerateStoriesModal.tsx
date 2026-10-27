@@ -152,7 +152,7 @@ export function GenerateStoriesModal({
                     key={story.id || i}
                     className="flex items-center gap-2.5 rounded-lg bg-white p-2.5 border border-zinc-200/60 shadow-2xs"
                   >
-                    <FileText size={14} className="text-[#B8944E] shrink-0" />
+                    <FileText size={14} className="text-[#CCA038] shrink-0" />
                     <span className="text-xs sm:text-sm font-medium text-slate-900 truncate">
                       {story.title}
                     </span>
@@ -178,7 +178,7 @@ export function GenerateStoriesModal({
         ) : loading ? (
           /* Meaningful Multi-Step Loading Screen */
           <div className="py-8 px-2 text-center space-y-5">
-            <div className="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-[rgba(184,148,78,0.10)] text-[#B8944E] shadow-xs">
+            <div className="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-[rgba(204,160,56,0.10)] text-[#CCA038] shadow-xs">
               <Sparkles size={22} className="animate-pulse" />
             </div>
 
@@ -201,14 +201,14 @@ export function GenerateStoriesModal({
                     key={stepText}
                     className={`flex items-center gap-2.5 text-xs transition-opacity ${
                       isCurrent
-                        ? "text-[#80642F] font-semibold opacity-100"
+                        ? "text-[#785312] font-semibold opacity-100"
                         : isDone
                         ? "text-zinc-500 opacity-60"
                         : "text-zinc-400 opacity-30"
                     }`}
                   >
                     {isCurrent ? (
-                      <Loader2 size={13} className="animate-spin text-[#B8944E] shrink-0" />
+                      <Loader2 size={13} className="animate-spin text-[#CCA038] shrink-0" />
                     ) : isDone ? (
                       <CheckCircle2 size={13} className="text-emerald-600 shrink-0" />
                     ) : (
@@ -224,7 +224,7 @@ export function GenerateStoriesModal({
           /* Generation Input Form */
           <form onSubmit={handleGenerate} className="space-y-4">
             <div className="flex items-center gap-3 pr-8">
-              <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-[rgba(184,148,78,0.10)] text-[#B8944E] border border-[rgba(184,148,78,0.15)]">
+              <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-[rgba(204,160,56,0.10)] text-[#CCA038] border border-[rgba(204,160,56,0.15)]">
                 <Sparkles size={18} />
               </div>
               <div>
@@ -248,7 +248,7 @@ export function GenerateStoriesModal({
                 value={requirement}
                 onChange={(e) => setRequirement(e.target.value)}
                 placeholder="e.g. Users should be able to manage their profile, update email and password, and upload an avatar."
-                className="w-full rounded-xl border border-zinc-200 p-3 text-xs sm:text-sm text-zinc-900 outline-none transition focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)] resize-y leading-relaxed"
+                className="w-full rounded-xl border border-zinc-200 p-3 text-xs sm:text-sm text-zinc-900 outline-none transition focus:border-[#CCA038] focus:ring-1 focus:ring-[rgba(204,160,56,0.14)] resize-y leading-relaxed"
               />
               <p className="mt-1.5 text-xs text-zinc-400">
                 The AI will determine whether the requirement should be one story or multiple stories.

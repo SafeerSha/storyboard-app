@@ -56,7 +56,7 @@ export function getClientStatusMeta(story: {
       return {
         label: "Team Responded",
         icon: Sparkles,
-        colorClasses: "bg-[rgba(184,148,78,0.14)] text-[#80642F] border-[rgba(184,148,78,0.24)]",
+        colorClasses: "bg-[rgba(204,160,56,0.14)] text-[#785312] border-[rgba(204,160,56,0.24)]",
       };
     }
     return {
@@ -69,7 +69,7 @@ export function getClientStatusMeta(story: {
     return {
       label: "Ready for Your Review",
       icon: Sparkles,
-      colorClasses: "bg-[rgba(184,148,78,0.12)] text-[#80642F] border-[rgba(184,148,78,0.22)]",
+      colorClasses: "bg-[rgba(204,160,56,0.12)] text-[#785312] border-[rgba(204,160,56,0.22)]",
     };
   }
   return {
@@ -121,10 +121,10 @@ export function ClientStoryCard({
       id={`story-${story.id}`}
       className={`group rounded-[18px] border transition-all duration-200 overflow-hidden ${
         isApproved
-          ? "bg-[rgba(46,139,112,0.04)] border-[rgba(46,139,112,0.20)] shadow-[0_4px_20px_rgba(46,139,112,0.04)]"
+          ? "bg-[rgba(5,150,105,0.04)] border-[rgba(5,150,105,0.20)] shadow-[0_4px_20px_rgba(5,150,105,0.04)]"
           : isChangesRequested
           ? "bg-[rgba(244,63,94,0.03)] border-rose-200/80 shadow-[0_4px_20px_rgba(244,63,94,0.04)]"
-          : "bg-white/88 border-[rgba(74,61,100,0.08)] hover:border-[#B8944E]/30 shadow-[0_6px_24px_rgba(70,55,95,0.04)] backdrop-blur-[16px]"
+          : "bg-white/88 border-[rgba(15,23,42,0.08)] hover:border-[#CCA038]/30 shadow-[0_6px_24px_rgba(15,23,42,0.04)] backdrop-blur-[16px]"
       }`}
     >
       {/* Header / Summary row */}
@@ -145,14 +145,14 @@ export function ClientStoryCard({
             {/* Meta badges row */}
             <div className="flex flex-wrap items-center gap-2 text-xs mb-1.5 font-medium">
               {story.epic_name && (
-                <span className="inline-flex items-center gap-1 rounded-md bg-[rgba(74,61,100,0.06)] px-2 py-0.5 text-[11px] font-semibold text-[#706C7D] border border-[rgba(74,61,100,0.08)]">
-                  <Bookmark size={11} className="text-[#B8944E]" />
+                <span className="inline-flex items-center gap-1 rounded-md bg-[rgba(15,23,42,0.06)] px-2 py-0.5 text-[11px] font-semibold text-[#334155] border border-[rgba(15,23,42,0.08)]">
+                  <Bookmark size={11} className="text-[#CCA038]" />
                   <span className="truncate max-w-[150px]">{story.epic_name}</span>
                 </span>
               )}
 
-              <span className="inline-flex items-center gap-1 text-[11px] text-[#706C7D]">
-                <Check size={12} className="text-[#80642F]" />
+              <span className="inline-flex items-center gap-1 text-[11px] text-[#334155]">
+                <Check size={12} className="text-[#785312]" />
                 <span>{story.acceptance_criteria?.length ?? 0} criteria</span>
               </span>
 
@@ -166,7 +166,7 @@ export function ClientStoryCard({
               )}
 
               {story.team_approved_by_name && (
-                <span className="text-[11px] text-[#706C7D]/80">
+                <span className="text-[11px] text-[#334155]/80">
                   • Team Signed Off
                 </span>
               )}
@@ -174,15 +174,15 @@ export function ClientStoryCard({
 
             {/* Story Title */}
             <h3
-              className={`text-sm sm:text-base font-bold tracking-tight text-[#252331] transition-colors line-clamp-2 mb-1 ${
-                isOpen ? "text-[#80642F]" : "group-hover:text-[#80642F]"
+              className={`text-sm sm:text-base font-bold tracking-tight text-[#0F172A] transition-colors line-clamp-2 mb-1 ${
+                isOpen ? "text-[#785312]" : "group-hover:text-[#785312]"
               }`}
             >
               {story.title}
             </h3>
 
             {!compact && story.description && !isOpen && (
-              <p className="mt-1 text-xs text-[#706C7D] line-clamp-2 max-w-3xl">
+              <p className="mt-1 text-xs text-[#334155] line-clamp-2 max-w-3xl">
                 {story.description}
               </p>
             )}
@@ -219,14 +219,14 @@ export function ClientStoryCard({
                 }}
                 className={
                   !isOpen
-                    ? "bg-[#B8944E] hover:bg-[#9F7D3E] text-white border-none shadow-xs text-xs"
+                    ? "bg-[#CCA038] hover:bg-[#B58422] text-white border-none shadow-xs text-xs"
                     : "text-xs"
                 }
               >
                 {isOpen ? "Collapse" : "Review →"}
               </Button>
 
-              <div className="grid h-7 w-7 place-items-center rounded-lg text-[#9994A5] group-hover:text-[#252331] transition bg-white/50 border border-transparent group-hover:border-[rgba(74,61,100,0.08)]">
+              <div className="grid h-7 w-7 place-items-center rounded-lg text-[#64748B] group-hover:text-[#0F172A] transition bg-white/50 border border-transparent group-hover:border-[rgba(15,23,42,0.08)]">
                 <ChevronDown
                   size={16}
                   className={`transition-transform duration-200 ${
@@ -241,13 +241,13 @@ export function ClientStoryCard({
 
       {/* Expanded Review Body */}
       {isOpen && (
-        <div className="border-t border-[rgba(74,61,100,0.08)] bg-white/95 p-4 sm:p-6 backdrop-blur-[20px] space-y-5">
+        <div className="border-t border-[rgba(15,23,42,0.08)] bg-white/95 p-4 sm:p-6 backdrop-blur-[20px] space-y-5">
           {story.description && (
-            <div className="rounded-xl border border-[rgba(74,61,100,0.06)] bg-[rgba(74,61,100,0.02)] p-4">
-              <h4 className="text-[11px] font-bold uppercase tracking-wider text-[#80642F] mb-1">
+            <div className="rounded-xl border border-[rgba(15,23,42,0.06)] bg-[rgba(15,23,42,0.02)] p-4">
+              <h4 className="text-[11px] font-bold uppercase tracking-wider text-[#785312] mb-1">
                 Story Requirement Summary
               </h4>
-              <p className="text-xs sm:text-sm text-[#252331] leading-relaxed whitespace-pre-wrap">
+              <p className="text-xs sm:text-sm text-[#0F172A] leading-relaxed whitespace-pre-wrap">
                 {story.description}
               </p>
             </div>

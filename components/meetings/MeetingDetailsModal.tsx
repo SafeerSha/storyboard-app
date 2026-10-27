@@ -171,7 +171,7 @@ export function MeetingDetailsModal({
     >
       <div className="space-y-5 pt-1">
         {/* Top Header Card */}
-        <div className="rounded-2xl border border-[rgba(74,61,100,0.10)] bg-[#faf9fc] p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="rounded-2xl border border-[rgba(15,23,42,0.10)] bg-[#F8F9FB] p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex flex-wrap items-center gap-2">
             <span
               className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border ${statusConfig.badgeClass}`}
@@ -186,11 +186,11 @@ export function MeetingDetailsModal({
               {typeConfig.label}
             </span>
 
-            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-white border border-[rgba(74,61,100,0.12)] text-[#252331]">
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-white border border-[rgba(15,23,42,0.12)] text-[#0F172A]">
               {meeting.platform === "whatsapp_call" ? (
                 <PhoneCall size={12} className="text-emerald-600" />
               ) : (
-                <Video size={12} className="text-[#80642F]" />
+                <Video size={12} className="text-[#785312]" />
               )}
               {platformConfig.label}
             </span>
@@ -202,7 +202,7 @@ export function MeetingDetailsModal({
               href={meeting.meeting_url}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-[#B8944E] hover:bg-[#9F7D3E] text-white text-xs sm:text-sm font-semibold px-4 py-2 transition-all shadow-xs shrink-0"
+              className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-[#CCA038] hover:bg-[#B58422] text-white text-xs sm:text-sm font-semibold px-4 py-2 transition-all shadow-xs shrink-0"
             >
               <ExternalLink size={14} />
               <span>Join Meeting</span>
@@ -215,36 +215,36 @@ export function MeetingDetailsModal({
           {/* Left Column (2 spans): Details & Agenda */}
           <div className="md:col-span-2 space-y-4">
             {/* Meta Schedule Info Card */}
-            <div className="rounded-xl border border-[rgba(74,61,100,0.08)] bg-white p-4 space-y-2.5 text-xs text-[#706C7D]">
-              <div className="flex items-center justify-between py-1 border-b border-[rgba(74,61,100,0.05)]">
+            <div className="rounded-xl border border-[rgba(15,23,42,0.08)] bg-white p-4 space-y-2.5 text-xs text-[#334155]">
+              <div className="flex items-center justify-between py-1 border-b border-[rgba(15,23,42,0.05)]">
                 <span className="flex items-center gap-1.5">
-                  <Calendar size={13} className="text-[#9994A5]" />
+                  <Calendar size={13} className="text-[#64748B]" />
                   <span>Date:</span>
                 </span>
-                <span className="font-semibold text-[#252331]">{formattedDate}</span>
+                <span className="font-semibold text-[#0F172A]">{formattedDate}</span>
               </div>
 
-              <div className="flex items-center justify-between py-1 border-b border-[rgba(74,61,100,0.05)]">
+              <div className="flex items-center justify-between py-1 border-b border-[rgba(15,23,42,0.05)]">
                 <span className="flex items-center gap-1.5">
-                  <Clock size={13} className="text-[#9994A5]" />
+                  <Clock size={13} className="text-[#64748B]" />
                   <span>Time:</span>
                 </span>
-                <span className="font-semibold text-[#252331]">
-                  {timeRange} {durationText && <span className="font-normal text-[#706C7D]">({durationText})</span>}
+                <span className="font-semibold text-[#0F172A]">
+                  {timeRange} {durationText && <span className="font-normal text-[#334155]">({durationText})</span>}
                 </span>
               </div>
 
               {meeting.meeting_url && meeting.platform !== "whatsapp_call" && (
-                <div className="flex items-center justify-between py-1 border-b border-[rgba(74,61,100,0.05)]">
+                <div className="flex items-center justify-between py-1 border-b border-[rgba(15,23,42,0.05)]">
                   <span className="flex items-center gap-1.5">
-                    <Link2 size={13} className="text-[#9994A5]" />
+                    <Link2 size={13} className="text-[#64748B]" />
                     <span>Meeting Link:</span>
                   </span>
                   <a
                     href={meeting.meeting_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="font-semibold text-[#80642F] hover:underline truncate max-w-[220px]"
+                    className="font-semibold text-[#785312] hover:underline truncate max-w-[220px]"
                   >
                     {meeting.meeting_url}
                   </a>
@@ -253,25 +253,25 @@ export function MeetingDetailsModal({
 
               <div className="flex items-center justify-between py-1">
                 <span>Organizer:</span>
-                <span className="font-semibold text-[#252331]">{meeting.created_by_name}</span>
+                <span className="font-semibold text-[#0F172A]">{meeting.created_by_name}</span>
               </div>
             </div>
 
             {/* Agenda */}
-            <div className="rounded-xl border border-[rgba(74,61,100,0.08)] bg-white p-4 space-y-2">
-              <h4 className="text-[11px] font-bold uppercase tracking-wider text-[#80642F]">
+            <div className="rounded-xl border border-[rgba(15,23,42,0.08)] bg-white p-4 space-y-2">
+              <h4 className="text-[11px] font-bold uppercase tracking-wider text-[#785312]">
                 Agenda Items
               </h4>
-              <ul className="space-y-1.5 text-xs text-[#353140] pl-1">
+              <ul className="space-y-1.5 text-xs text-[#0F172A] pl-1">
                 {agendaItems.length > 0 ? (
                   agendaItems.map((item, idx) => (
                     <li key={idx} className="flex items-start gap-2">
-                      <span className="font-bold text-[#80642F] shrink-0">{idx + 1}.</span>
+                      <span className="font-bold text-[#785312] shrink-0">{idx + 1}.</span>
                       <span className="leading-relaxed">{item}</span>
                     </li>
                   ))
                 ) : (
-                  <li className="text-[#9994A5]">Open discussion.</li>
+                  <li className="text-[#64748B]">Open discussion.</li>
                 )}
               </ul>
             </div>
@@ -298,7 +298,7 @@ export function MeetingDetailsModal({
                   <button
                     type="button"
                     onClick={() => setEditingNote(true)}
-                    className="text-[10px] font-semibold text-[#80642F] hover:underline cursor-pointer"
+                    className="text-[10px] font-semibold text-[#785312] hover:underline cursor-pointer"
                   >
                     Edit Note
                   </button>
@@ -306,7 +306,7 @@ export function MeetingDetailsModal({
                   <button
                     type="button"
                     onClick={() => setEditingNote(false)}
-                    className="text-[10px] font-semibold text-[#706C7D] hover:underline cursor-pointer"
+                    className="text-[10px] font-semibold text-[#334155] hover:underline cursor-pointer"
                   >
                     Cancel
                   </button>
@@ -329,7 +329,7 @@ export function MeetingDetailsModal({
                     rows={3}
                     value={noteValue}
                     onChange={(e) => setNoteValue(e.target.value)}
-                    className="w-full rounded-lg border border-amber-300 bg-white p-2 text-xs text-[#252331] focus:outline-none focus:ring-1 focus:ring-[#B8944E]"
+                    className="w-full rounded-lg border border-amber-300 bg-white p-2 text-xs text-[#0F172A] focus:outline-none focus:ring-1 focus:ring-[#CCA038]"
                     placeholder="Add internal notes..."
                   />
                   <div className="flex justify-end">
@@ -348,31 +348,31 @@ export function MeetingDetailsModal({
             </div>
 
             {/* Timeline Audit Events */}
-            <div className="rounded-xl border border-[rgba(74,61,100,0.08)] bg-white p-3.5 space-y-2.5 text-xs">
-              <div className="flex items-center justify-between border-b border-[rgba(74,61,100,0.06)] pb-2">
-                <span className="font-bold text-[#252331] flex items-center gap-1.5">
-                  <History size={13} className="text-[#9994A5]" />
+            <div className="rounded-xl border border-[rgba(15,23,42,0.08)] bg-white p-3.5 space-y-2.5 text-xs">
+              <div className="flex items-center justify-between border-b border-[rgba(15,23,42,0.06)] pb-2">
+                <span className="font-bold text-[#0F172A] flex items-center gap-1.5">
+                  <History size={13} className="text-[#64748B]" />
                   <span>Meeting History</span>
                 </span>
               </div>
 
               {loadingEvents ? (
-                <div className="py-4 text-center text-[#9994A5]">
+                <div className="py-4 text-center text-[#64748B]">
                   <Loader2 size={16} className="animate-spin mx-auto" />
                 </div>
               ) : events.length === 0 ? (
-                <p className="text-[#9994A5] text-[11px] py-2">No history recorded yet.</p>
+                <p className="text-[#64748B] text-[11px] py-2">No history recorded yet.</p>
               ) : (
                 <div className="space-y-2.5 max-h-52 overflow-y-auto pr-1">
                   {events.map((ev) => (
-                    <div key={ev.id} className="text-[11px] border-l-2 border-[rgba(184,148,78,0.4)] pl-2 space-y-0.5">
+                    <div key={ev.id} className="text-[11px] border-l-2 border-[rgba(204,160,56,0.4)] pl-2 space-y-0.5">
                       <div className="flex items-center justify-between">
-                        <span className="font-bold text-[#252331]">{ev.title}</span>
-                        <span className="text-[10px] text-[#9994A5]">
+                        <span className="font-bold text-[#0F172A]">{ev.title}</span>
+                        <span className="text-[10px] text-[#64748B]">
                           {new Date(ev.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                         </span>
                       </div>
-                      <p className="text-[#706C7D]">{ev.description}</p>
+                      <p className="text-[#334155]">{ev.description}</p>
                     </div>
                   ))}
                 </div>
@@ -382,7 +382,7 @@ export function MeetingDetailsModal({
         </div>
 
         {/* Modal Action Bar */}
-        <div className="flex flex-wrap items-center justify-between gap-2.5 pt-3 border-t border-[rgba(74,61,100,0.08)]">
+        <div className="flex flex-wrap items-center justify-between gap-2.5 pt-3 border-t border-[rgba(15,23,42,0.08)]">
           <div className="flex items-center gap-2 flex-wrap">
             <Button
               variant="outline"

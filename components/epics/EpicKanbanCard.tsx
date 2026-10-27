@@ -132,7 +132,7 @@ export function EpicKanbanCard({
       case "todo":
         return <CircleDot size={14} className="text-amber-600" />;
       case "in_progress":
-        return <PlayCircle size={14} className="text-[#80642F]" />;
+        return <PlayCircle size={14} className="text-[#785312]" />;
       case "qa_review":
         return <Eye size={14} className="text-purple-600" />;
       case "done":
@@ -150,8 +150,8 @@ export function EpicKanbanCard({
       draggable
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
-      className={`group relative rounded-2xl border border-[rgba(74,61,100,0.09)] bg-white/95 p-4 shadow-[0_4px_20px_rgba(70,55,95,0.04)] backdrop-blur-md transition-all duration-200 hover:shadow-[0_8px_30px_rgba(70,55,95,0.08)] hover:-translate-y-0.5 select-none ${
-        isDragging ? "opacity-40 scale-95 ring-2 ring-[#B8944E]" : ""
+      className={`group relative rounded-2xl border border-[rgba(15,23,42,0.09)] bg-white/95 p-4 shadow-[0_4px_20px_rgba(15,23,42,0.04)] backdrop-blur-md transition-all duration-200 hover:shadow-[0_8px_30px_rgba(15,23,42,0.08)] hover:-translate-y-0.5 select-none ${
+        isDragging ? "opacity-40 scale-95 ring-2 ring-[#CCA038]" : ""
       }`}
     >
       {/* Top Header: Status Pill, Priority Badge & Top-Right Actions + Status Icon */}
@@ -167,7 +167,7 @@ export function EpicKanbanCard({
                 onStatusChange(epic.id, s);
               }}
               aria-label={`Change status for epic ${epic.name}`}
-              className={`appearance-none cursor-pointer rounded-full pl-2.5 pr-6 py-0.5 text-[11px] font-bold tracking-tight border transition-colors outline-none focus:ring-1 focus:ring-[#B8944E] ${columnConfig.badgeBg} ${columnConfig.badgeText} border-transparent hover:border-black/10`}
+              className={`appearance-none cursor-pointer rounded-full pl-2.5 pr-6 py-0.5 text-[11px] font-bold tracking-tight border transition-colors outline-none focus:ring-1 focus:ring-[#CCA038] ${columnConfig.badgeBg} ${columnConfig.badgeText} border-transparent hover:border-black/10`}
             >
               {EPIC_KANBAN_COLUMNS.map((col) => (
                 <option key={col.id} value={col.id}>
@@ -191,7 +191,7 @@ export function EpicKanbanCard({
               onChange={(e) => handlePrioritySelect(e.target.value as EpicPriority)}
               aria-label={`Change priority for epic ${epic.name}`}
               title={`Priority: ${priorityConfig.label} (Click to change)`}
-              className={`appearance-none cursor-pointer rounded-md pl-4 pr-3.5 py-0.5 text-[10px] font-bold uppercase tracking-wider border transition-colors outline-none focus:ring-1 focus:ring-[#B8944E] ${priorityConfig.badgeBg} ${priorityConfig.badgeText} ${priorityConfig.borderColor}`}
+              className={`appearance-none cursor-pointer rounded-md pl-4 pr-3.5 py-0.5 text-[10px] font-bold uppercase tracking-wider border transition-colors outline-none focus:ring-1 focus:ring-[#CCA038] ${priorityConfig.badgeBg} ${priorityConfig.badgeText} ${priorityConfig.borderColor}`}
             >
               <option value="low">Low Priority</option>
               <option value="medium">Medium Priority</option>
@@ -221,7 +221,7 @@ export function EpicKanbanCard({
             aria-label={`Current status: ${getEpicStatusLabel(
               optimisticStatus
             )}. Click to cycle to next status.`}
-            className={`group/icon relative grid h-7 w-7 place-items-center rounded-lg border transition-all duration-150 hover:scale-105 active:scale-95 shadow-2xs ${columnConfig.badgeBg} ${columnConfig.borderColor} border-[rgba(74,61,100,0.12)] hover:border-[#B8944E]`}
+            className={`group/icon relative grid h-7 w-7 place-items-center rounded-lg border transition-all duration-150 hover:scale-105 active:scale-95 shadow-2xs ${columnConfig.badgeBg} ${columnConfig.borderColor} border-[rgba(15,23,42,0.12)] hover:border-[#CCA038]`}
           >
             {renderStatusIcon()}
             <span className="sr-only">
@@ -233,7 +233,7 @@ export function EpicKanbanCard({
             type="button"
             onClick={() => onAddStory(epic.id)}
             title="Add Story to this Epic"
-            className="rounded-lg p-1 text-[#706C7D] hover:text-[#80642F] hover:bg-[rgba(184,148,78,0.08)] transition"
+            className="rounded-lg p-1 text-[#334155] hover:text-[#785312] hover:bg-[rgba(204,160,56,0.08)] transition"
           >
             <Plus size={14} />
           </button>
@@ -243,7 +243,7 @@ export function EpicKanbanCard({
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             aria-expanded={isMenuOpen}
             title="More actions"
-            className="rounded-lg p-1 text-[#706C7D] hover:text-[#252331] hover:bg-[rgba(74,61,100,0.06)] transition"
+            className="rounded-lg p-1 text-[#334155] hover:text-[#0F172A] hover:bg-[rgba(15,23,42,0.06)] transition"
           >
             <MoreVertical size={14} />
           </button>
@@ -252,14 +252,14 @@ export function EpicKanbanCard({
           {isMenuOpen && (
             <>
               <div className="fixed inset-0 z-30" onClick={() => setIsMenuOpen(false)} />
-              <div className="absolute right-0 top-7 z-40 w-48 rounded-xl border border-[rgba(74,61,100,0.12)] bg-white/98 p-1 shadow-lg backdrop-blur-md animate-in fade-in zoom-in-95 duration-150">
+              <div className="absolute right-0 top-7 z-40 w-48 rounded-xl border border-[rgba(15,23,42,0.12)] bg-white/98 p-1 shadow-lg backdrop-blur-md animate-in fade-in zoom-in-95 duration-150">
                 <button
                   type="button"
                   onClick={() => {
                     setIsMenuOpen(false);
                     onEditEpic(epic);
                   }}
-                  className="flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-[#252331] hover:bg-[rgba(184,148,78,0.08)] hover:text-[#80642F] transition"
+                  className="flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-[#0F172A] hover:bg-[rgba(204,160,56,0.08)] hover:text-[#785312] transition"
                 >
                   <Pencil size={13} />
                   <span>Edit Epic</span>
@@ -271,7 +271,7 @@ export function EpicKanbanCard({
                     setIsMenuOpen(false);
                     setShowMediaModal(true);
                   }}
-                  className="flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-[#252331] hover:bg-[rgba(184,148,78,0.08)] hover:text-[#80642F] transition"
+                  className="flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-[#0F172A] hover:bg-[rgba(204,160,56,0.08)] hover:text-[#785312] transition"
                 >
                   <Paperclip size={13} />
                   <span>Attach Media...</span>
@@ -283,7 +283,7 @@ export function EpicKanbanCard({
                     setIsMenuOpen(false);
                     onAddStory(epic.id);
                   }}
-                  className="flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-[#252331] hover:bg-[rgba(184,148,78,0.08)] hover:text-[#80642F] transition"
+                  className="flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-[#0F172A] hover:bg-[rgba(204,160,56,0.08)] hover:text-[#785312] transition"
                 >
                   <Plus size={13} />
                   <span>Add Story</span>
@@ -296,16 +296,16 @@ export function EpicKanbanCard({
                       setIsMenuOpen(false);
                       onNavigateToEpic(epic.id);
                     }}
-                    className="flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-[#252331] hover:bg-[rgba(184,148,78,0.08)] hover:text-[#80642F] transition"
+                    className="flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-[#0F172A] hover:bg-[rgba(204,160,56,0.08)] hover:text-[#785312] transition"
                   >
                     <Layers size={13} />
                     <span>View in Hierarchy</span>
                   </button>
                 )}
 
-                <div className="my-1 border-t border-[rgba(74,61,100,0.08)]" />
+                <div className="my-1 border-t border-[rgba(15,23,42,0.08)]" />
 
-                <div className="px-2 py-1 text-[10px] font-bold uppercase text-[#9994A5]">
+                <div className="px-2 py-1 text-[10px] font-bold uppercase text-[#64748B]">
                   Set Priority
                 </div>
                 <div className="grid grid-cols-3 gap-1 px-1 pb-1">
@@ -331,7 +331,7 @@ export function EpicKanbanCard({
                   })}
                 </div>
 
-                <div className="my-1 border-t border-[rgba(74,61,100,0.08)]" />
+                <div className="my-1 border-t border-[rgba(15,23,42,0.08)]" />
 
                 <button
                   type="button"
@@ -353,7 +353,7 @@ export function EpicKanbanCard({
       {/* Epic Title */}
       <h4
         onClick={() => onNavigateToEpic?.(epic.id)}
-        className="text-sm font-bold tracking-tight text-[#252331] group-hover:text-[#80642F] transition-colors line-clamp-2 cursor-pointer leading-snug"
+        className="text-sm font-bold tracking-tight text-[#0F172A] group-hover:text-[#785312] transition-colors line-clamp-2 cursor-pointer leading-snug"
         title={epic.name}
       >
         {epic.name}
@@ -361,27 +361,27 @@ export function EpicKanbanCard({
 
       {/* Description Snippet */}
       {cleanDesc ? (
-        <p className="mt-1 text-xs text-[#706C7D] line-clamp-2 leading-relaxed">{cleanDesc}</p>
+        <p className="mt-1 text-xs text-[#334155] line-clamp-2 leading-relaxed">{cleanDesc}</p>
       ) : (
-        <p className="mt-1 text-[11px] italic text-[#9994A5]">No scope description provided.</p>
+        <p className="mt-1 text-[11px] italic text-[#64748B]">No scope description provided.</p>
       )}
 
       {/* Progress & Stories Metrics */}
-      <div className="mt-3.5 pt-3 border-t border-[rgba(74,61,100,0.06)] space-y-2">
+      <div className="mt-3.5 pt-3 border-t border-[rgba(15,23,42,0.06)] space-y-2">
         {/* Progress Bar Row */}
-        <div className="flex items-center justify-between text-[11px] font-semibold text-[#706C7D]">
+        <div className="flex items-center justify-between text-[11px] font-semibold text-[#334155]">
           <span className="flex items-center gap-1">
-            <Layers size={12} className="text-[#B8944E]" />
+            <Layers size={12} className="text-[#CCA038]" />
             <span>
               {totalStories} {totalStories === 1 ? "Story" : "Stories"}
             </span>
           </span>
-          <span className="font-mono text-[#80642F] font-bold">{progressPercent}%</span>
+          <span className="font-mono text-[#785312] font-bold">{progressPercent}%</span>
         </div>
 
-        <div className="h-1.5 w-full overflow-hidden rounded-full bg-[rgba(74,61,100,0.07)]">
+        <div className="h-1.5 w-full overflow-hidden rounded-full bg-[rgba(15,23,42,0.07)]">
           <div
-            className="h-full rounded-full bg-[#B8944E] transition-all duration-300"
+            className="h-full rounded-full bg-[#CCA038] transition-all duration-300"
             style={{ width: `${progressPercent}%` }}
           />
         </div>
@@ -395,7 +395,7 @@ export function EpicKanbanCard({
             </span>
           )}
           {activeCount > 0 && (
-            <span className="inline-flex items-center gap-1 rounded-md bg-[rgba(184,148,78,0.1)] px-1.5 py-0.5 text-[#80642F] border border-[rgba(184,148,78,0.2)]">
+            <span className="inline-flex items-center gap-1 rounded-md bg-[rgba(204,160,56,0.1)] px-1.5 py-0.5 text-[#785312] border border-[rgba(204,160,56,0.2)]">
               <Clock size={10} />
               {activeCount} Active
             </span>
@@ -424,12 +424,12 @@ export function EpicKanbanCard({
 
       {/* Card Footer: Quick Navigation Link */}
       {onNavigateToEpic && (
-        <div className="mt-3 pt-2 flex items-center justify-between text-[11px] text-[#706C7D]">
-          <span className="text-[10px] text-[#9994A5]">Drag card to move column</span>
+        <div className="mt-3 pt-2 flex items-center justify-between text-[11px] text-[#334155]">
+          <span className="text-[10px] text-[#64748B]">Drag card to move column</span>
           <button
             type="button"
             onClick={() => onNavigateToEpic(epic.id)}
-            className="inline-flex items-center gap-1 font-bold text-[#80642F] hover:text-[#5B461E] transition hover:underline"
+            className="inline-flex items-center gap-1 font-bold text-[#785312] hover:text-[#5B461E] transition hover:underline"
           >
             <span>Stories</span>
             <ArrowRight size={11} />

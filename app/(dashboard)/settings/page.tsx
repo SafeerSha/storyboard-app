@@ -220,16 +220,16 @@ export default function SettingsPage() {
           }`}
       >
         {/* Navigation Tabs */}
-        <div className="flex items-center gap-2 border-b border-[#EBE7F2] pb-4 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] -mx-4 px-4 sm:mx-0 sm:px-0">
+        <div className="flex items-center gap-2 border-b border-[#E2E8F0] pb-4 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] -mx-4 px-4 sm:mx-0 sm:px-0">
           <button
             type="button"
             onClick={() => handleTabChange("general")}
             className={`inline-flex items-center gap-2 rounded-xl px-4 py-2 text-xs sm:text-sm font-semibold transition-all ${activeTab === "general"
-                ? "bg-[#B8944E] text-white shadow-sm"
-                : "bg-white/80 border border-[#EBE7F2] text-[#706C7D] hover:bg-white hover:text-[#252331]"
+              ? "bg-[#CCA038] text-white shadow-sm"
+              : "bg-white/80 border border-[#E2E8F0] text-[#334155] hover:bg-white hover:text-[#0F172A]"
               }`}
           >
-            <User size={15} className={activeTab === "general" ? "text-white" : "text-[#9994A5]"} />
+            <User size={15} className={activeTab === "general" ? "text-white" : "text-[#64748B]"} />
             <span>Account & Workspace</span>
           </button>
 
@@ -237,19 +237,19 @@ export default function SettingsPage() {
             type="button"
             onClick={() => handleTabChange("remuneration")}
             className={`inline-flex items-center gap-2 rounded-xl px-4 py-2 text-xs sm:text-sm font-semibold transition-all ${activeTab === "remuneration"
-                ? "bg-[#B8944E] text-white shadow-sm"
-                : "bg-white/80 border border-[#EBE7F2] text-[#706C7D] hover:bg-white hover:text-[#252331]"
+              ? "bg-[#CCA038] text-white shadow-sm"
+              : "bg-white/80 border border-[#E2E8F0] text-[#334155] hover:bg-white hover:text-[#0F172A]"
               }`}
           >
             <Calculator
               size={15}
-              className={activeTab === "remuneration" ? "text-white" : "text-[#B8944E]"}
+              className={activeTab === "remuneration" ? "text-white" : "text-[#CCA038]"}
             />
-            <span>Remuneration Calculator</span>
+            <span>Invoice Generator</span>
             <span
               className={`rounded-md px-1.5 py-0.5 text-[10px] font-semibold ${activeTab === "remuneration"
-                  ? "bg-[#80642F] text-white"
-                  : "bg-[rgba(184,148,78,0.10)] text-[#80642F] border border-[rgba(184,148,78,0.18)]"
+                ? "bg-[#785312] text-white"
+                : "bg-[rgba(204,160,56,0.10)] text-[#785312] border border-[rgba(204,160,56,0.18)]"
                 }`}
             >
               Estimator
@@ -260,19 +260,19 @@ export default function SettingsPage() {
             type="button"
             onClick={() => handleTabChange("quotations")}
             className={`inline-flex items-center gap-2 rounded-xl px-4 py-2 text-xs sm:text-sm font-semibold transition-all ${activeTab === "quotations"
-                ? "bg-[#B8944E] text-white shadow-sm"
-                : "bg-white/80 border border-[#EBE7F2] text-[#706C7D] hover:bg-white hover:text-[#252331]"
+              ? "bg-[#CCA038] text-white shadow-sm"
+              : "bg-white/80 border border-[#E2E8F0] text-[#334155] hover:bg-white hover:text-[#0F172A]"
               }`}
           >
             <Send
               size={14}
-              className={activeTab === "quotations" ? "text-white" : "text-[#B8944E]"}
+              className={activeTab === "quotations" ? "text-white" : "text-[#CCA038]"}
             />
             <span>Sent Quotations</span>
             <span
               className={`rounded-md px-1.5 py-0.5 text-[10px] font-semibold ${activeTab === "quotations"
-                  ? "bg-[#80642F] text-white"
-                  : "bg-[rgba(184,148,78,0.10)] text-[#80642F] border border-[rgba(184,148,78,0.18)]"
+                ? "bg-[#785312] text-white"
+                : "bg-[rgba(204,160,56,0.10)] text-[#785312] border border-[rgba(204,160,56,0.18)]"
                 }`}
             >
               Proposals
@@ -283,17 +283,17 @@ export default function SettingsPage() {
         {/* Tab Content */}
         {activeTab === "remuneration" || activeTab === "quotations" ? (
           <div className="space-y-6 animate-in fade-in duration-200">
-            <div className="rounded-2xl border border-[#EBE7F2] bg-[#FAF9FC]/88 p-5 sm:p-6 shadow-card backdrop-blur-xl">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#EBE7F2] pb-5">
+            <div className="rounded-2xl border border-[#E2E8F0] bg-[#F8F9FB]/88 p-5 sm:p-6 shadow-card backdrop-blur-xl">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#E2E8F0] pb-5">
                 <div className="flex items-start sm:items-center gap-3.5">
-                  <div className="grid h-11 w-11 place-items-center rounded-xl bg-[rgba(184,148,78,0.10)] border border-[rgba(184,148,78,0.18)] text-[#80642F] shrink-0 shadow-xs">
+                  <div className="grid h-11 w-11 place-items-center rounded-xl bg-[rgba(204,160,56,0.10)] border border-[rgba(204,160,56,0.18)] text-[#785312] shrink-0 shadow-xs">
                     {activeTab === "quotations" ? <Send size={20} /> : <Calculator size={20} />}
                   </div>
                   <div>
-                    <h2 className="text-base sm:text-lg font-bold text-[#252331] tracking-tight">
+                    <h2 className="text-base sm:text-lg font-bold text-[#0F172A] tracking-tight">
                       {activeTab === "quotations" ? "Sent Quotations & Client Proposals" : "Project Remuneration Estimator"}
                     </h2>
-                    <p className="text-xs sm:text-sm text-[#706C7D] mt-0.5">
+                    <p className="text-xs sm:text-sm text-[#334155] mt-0.5">
                       {activeTab === "quotations"
                         ? "Track sent quotations, client review decisions, negotiation threads, and recall or edit proposals."
                         : "Estimate story effort, calculate expected earnings, and export estimates to PDF & Excel."}
@@ -313,35 +313,35 @@ export default function SettingsPage() {
         ) : (
           <div className="space-y-6 animate-in fade-in duration-200">
             {/* Account Profile Card */}
-            <section className="rounded-2xl border border-[#EBE7F2] bg-[#FAF9FC]/88 p-5 sm:p-6 shadow-card backdrop-blur-xl space-y-4">
-              <div className="flex items-center gap-3 border-b border-[#EBE7F2] pb-4">
-                <div className="grid h-9 w-9 place-items-center rounded-xl bg-[rgba(184,148,78,0.10)] border border-[rgba(184,148,78,0.15)] text-[#80642F] shrink-0 shadow-xs">
+            <section className="rounded-2xl border border-[#E2E8F0] bg-[#F8F9FB]/88 p-5 sm:p-6 shadow-card backdrop-blur-xl space-y-4">
+              <div className="flex items-center gap-3 border-b border-[#E2E8F0] pb-4">
+                <div className="grid h-9 w-9 place-items-center rounded-xl bg-[rgba(204,160,56,0.10)] border border-[rgba(204,160,56,0.15)] text-[#785312] shrink-0 shadow-xs">
                   <User size={17} />
                 </div>
                 <div>
-                  <h3 className="text-base font-semibold text-[#252331] tracking-tight">
+                  <h3 className="text-base font-semibold text-[#0F172A] tracking-tight">
                     {roleTitle}
                   </h3>
-                  <p className="text-xs text-[#706C7D]">{roleSubtitle}</p>
+                  <p className="text-xs text-[#334155]">{roleSubtitle}</p>
                 </div>
               </div>
 
               <div className="space-y-4 max-w-md">
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-[#9994A5] mb-1">
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-[#64748B] mb-1">
                     Email Address
                   </label>
-                  <p className="text-sm font-semibold text-[#252331]">
+                  <p className="text-sm font-semibold text-[#0F172A]">
                     {loading ? "Loading account..." : email || "freelancer@storyboard"}
                   </p>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-[#9994A5] mb-1">
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-[#64748B] mb-1">
                     Authentication Method
                   </label>
                   <div className="flex items-center gap-2 text-xs text-[#4D4959]">
-                    <CheckCircle2 size={14} className="text-[#2E8B70]" />
+                    <CheckCircle2 size={14} className="text-[#059669]" />
                     <span>Supabase Secure Auth Session</span>
                   </div>
                 </div>
@@ -360,16 +360,16 @@ export default function SettingsPage() {
             </section>
 
             {/* Security & Password Card */}
-            <section className="rounded-2xl border border-[#EBE7F2] bg-[#FAF9FC]/88 p-5 sm:p-6 shadow-card backdrop-blur-xl space-y-4">
-              <div className="flex items-center gap-3 border-b border-[#EBE7F2] pb-4">
-                <div className="grid h-9 w-9 place-items-center rounded-xl bg-[rgba(184,148,78,0.10)] border border-[rgba(184,148,78,0.15)] text-[#80642F] shrink-0 shadow-xs">
+            <section className="rounded-2xl border border-[#E2E8F0] bg-[#F8F9FB]/88 p-5 sm:p-6 shadow-card backdrop-blur-xl space-y-4">
+              <div className="flex items-center gap-3 border-b border-[#E2E8F0] pb-4">
+                <div className="grid h-9 w-9 place-items-center rounded-xl bg-[rgba(204,160,56,0.10)] border border-[rgba(204,160,56,0.15)] text-[#785312] shrink-0 shadow-xs">
                   <KeyRound size={17} />
                 </div>
                 <div>
-                  <h3 className="text-base font-semibold text-[#252331] tracking-tight">
+                  <h3 className="text-base font-semibold text-[#0F172A] tracking-tight">
                     Security & Password
                   </h3>
-                  <p className="text-xs text-[#706C7D]">Manage your account login credentials</p>
+                  <p className="text-xs text-[#334155]">Manage your account login credentials</p>
                 </div>
               </div>
 
@@ -382,7 +382,7 @@ export default function SettingsPage() {
                   <Button
                     variant="secondary"
                     size="sm"
-                    leftIcon={<KeyRound size={14} className="text-[#B8944E]" />}
+                    leftIcon={<KeyRound size={14} className="text-[#CCA038]" />}
                     onClick={() => setShowChangePassword(true)}
                     disabled={loading || !email}
                   >
@@ -393,22 +393,22 @@ export default function SettingsPage() {
             </section>
 
             {/* Email & Notifications Card */}
-            <section className="rounded-2xl border border-[#EBE7F2] bg-[#FAF9FC]/88 p-5 sm:p-6 shadow-card backdrop-blur-xl space-y-4">
-              <div className="flex items-center gap-3 border-b border-[#EBE7F2] pb-4">
-                <div className="grid h-9 w-9 place-items-center rounded-xl bg-[rgba(184,148,78,0.10)] border border-[rgba(184,148,78,0.15)] text-[#80642F] shrink-0 shadow-xs">
+            <section className="rounded-2xl border border-[#E2E8F0] bg-[#F8F9FB]/88 p-5 sm:p-6 shadow-card backdrop-blur-xl space-y-4">
+              <div className="flex items-center gap-3 border-b border-[#E2E8F0] pb-4">
+                <div className="grid h-9 w-9 place-items-center rounded-xl bg-[rgba(204,160,56,0.10)] border border-[rgba(204,160,56,0.15)] text-[#785312] shrink-0 shadow-xs">
                   <Mail size={17} />
                 </div>
                 <div>
-                  <h3 className="text-base font-semibold text-[#252331] tracking-tight">
+                  <h3 className="text-base font-semibold text-[#0F172A] tracking-tight">
                     Email & Notifications
                   </h3>
-                  <p className="text-xs text-[#706C7D]">Configure the sender identity for outgoing email notifications</p>
+                  <p className="text-xs text-[#334155]">Configure the sender identity for outgoing email notifications</p>
                 </div>
               </div>
 
               <div className="space-y-4 max-w-lg">
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-[#9994A5] mb-1.5">
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-[#64748B] mb-1.5">
                     Display Name
                   </label>
                   <input
@@ -417,15 +417,15 @@ export default function SettingsPage() {
                     onChange={(e) => setFullName(e.target.value)}
                     placeholder="e.g. Your Name"
                     disabled={settingsLoading}
-                    className="w-full rounded-lg border border-[#EBE7F2] bg-white px-3 py-2.5 text-sm text-[#252331] placeholder-[#B8B4C2] focus:outline-none focus:ring-2 focus:ring-[#B8944E]/30 focus:border-[#B8944E] transition-all disabled:opacity-50"
+                    className="w-full rounded-lg border border-[#E2E8F0] bg-white px-3 py-2.5 text-sm text-[#0F172A] placeholder-[#B8B4C2] focus:outline-none focus:ring-2 focus:ring-[#CCA038]/30 focus:border-[#CCA038] transition-all disabled:opacity-50"
                   />
-                  <p className="mt-1 text-[11px] text-[#9994A5]">
+                  <p className="mt-1 text-[11px] text-[#64748B]">
                     Your name as it appears in sent emails
                   </p>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-[#9994A5] mb-1.5">
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-[#64748B] mb-1.5">
                     Email From Address
                   </label>
                   <input
@@ -434,9 +434,9 @@ export default function SettingsPage() {
                     onChange={(e) => setEmailFrom(e.target.value)}
                     placeholder='e.g. Your Name <your-email@reqly.in>'
                     disabled={settingsLoading}
-                    className="w-full rounded-lg border border-[#EBE7F2] bg-white px-3 py-2.5 text-sm text-[#252331] placeholder-[#B8B4C2] focus:outline-none focus:ring-2 focus:ring-[#B8944E]/30 focus:border-[#B8944E] transition-all disabled:opacity-50 font-mono text-xs"
+                    className="w-full rounded-lg border border-[#E2E8F0] bg-white px-3 py-2.5 text-sm text-[#0F172A] placeholder-[#B8B4C2] focus:outline-none focus:ring-2 focus:ring-[#CCA038]/30 focus:border-[#CCA038] transition-all disabled:opacity-50 font-mono text-xs"
                   />
-                  <p className="mt-1 text-[11px] text-[#9994A5]">
+                  <p className="mt-1 text-[11px] text-[#64748B]">
                     The &quot;From&quot; header on quotation emails, discussion notifications, and recall notices. Format: <code className="bg-[#F4F1F9] px-1 py-0.5 rounded text-[10px]">Name &lt;email@domain.com&gt;</code>
                   </p>
                 </div>
@@ -452,7 +452,7 @@ export default function SettingsPage() {
                     {settingsSaving ? "Saving..." : settingsSaved ? "Saved" : "Save Email Settings"}
                   </Button>
                   {settingsSaved && (
-                    <span className="text-xs text-[#2E8B70] font-medium animate-in fade-in duration-300">
+                    <span className="text-xs text-[#059669] font-medium animate-in fade-in duration-300">
                       ✓ Settings updated
                     </span>
                   )}
@@ -462,38 +462,38 @@ export default function SettingsPage() {
 
             {/* AI Engine Card — Super Admin Only */}
             {role === "super_admin" && (
-              <section className="rounded-2xl border border-[#EBE7F2] bg-[#FAF9FC]/88 p-5 sm:p-6 shadow-card backdrop-blur-xl space-y-4">
-                <div className="flex items-center gap-3 border-b border-[#EBE7F2] pb-4">
-                  <div className="grid h-9 w-9 place-items-center rounded-xl bg-[rgba(184,148,78,0.10)] border border-[rgba(184,148,78,0.15)] text-[#80642F] shrink-0">
+              <section className="rounded-2xl border border-[#E2E8F0] bg-[#F8F9FB]/88 p-5 sm:p-6 shadow-card backdrop-blur-xl space-y-4">
+                <div className="flex items-center gap-3 border-b border-[#E2E8F0] pb-4">
+                  <div className="grid h-9 w-9 place-items-center rounded-xl bg-[rgba(204,160,56,0.10)] border border-[rgba(204,160,56,0.15)] text-[#785312] shrink-0">
                     <Bot size={18} />
                   </div>
                   <div>
-                    <h3 className="text-base font-semibold text-[#252331] tracking-tight">
+                    <h3 className="text-base font-semibold text-[#0F172A] tracking-tight">
                       AI Requirements Engine
                     </h3>
-                    <p className="text-xs text-[#706C7D]">Powered by Google Gemini</p>
+                    <p className="text-xs text-[#334155]">Powered by Google Gemini</p>
                   </div>
                 </div>
 
                 <div className="grid gap-3 sm:gap-4 sm:grid-cols-2">
-                  <div className="rounded-xl border border-[#EBE7F2] bg-white/70 p-4 shadow-xs">
+                  <div className="rounded-xl border border-[#E2E8F0] bg-white/70 p-4 shadow-xs">
                     <div className="flex items-center justify-between">
-                      <span className="text-xs text-[#9994A5] font-medium">Model</span>
+                      <span className="text-xs text-[#64748B] font-medium">Model</span>
                       <Badge variant="approved" size="sm" showIcon={false}>
                         Active
                       </Badge>
                     </div>
-                    <p className="mt-2 text-sm font-semibold text-[#252331]">Gemini 2.5 Flash</p>
-                    <p className="mt-1 text-xs text-[#706C7D]">Fast structured JSON output schema</p>
+                    <p className="mt-2 text-sm font-semibold text-[#0F172A]">Gemini 2.5 Flash</p>
+                    <p className="mt-1 text-xs text-[#334155]">Fast structured JSON output schema</p>
                   </div>
 
-                  <div className="rounded-xl border border-[#EBE7F2] bg-white/70 p-4 shadow-xs">
+                  <div className="rounded-xl border border-[#E2E8F0] bg-white/70 p-4 shadow-xs">
                     <div className="flex items-center justify-between">
-                      <span className="text-xs text-[#9994A5] font-medium">Features</span>
-                      <Sparkles size={14} className="text-[#B8944E]" />
+                      <span className="text-xs text-[#64748B] font-medium">Features</span>
+                      <Sparkles size={14} className="text-[#CCA038]" />
                     </div>
-                    <p className="mt-2 text-sm font-semibold text-[#252331]">Story Decomposition</p>
-                    <p className="mt-1 text-xs text-[#706C7D]">Criteria, assumptions & Epic correction</p>
+                    <p className="mt-2 text-sm font-semibold text-[#0F172A]">Story Decomposition</p>
+                    <p className="mt-1 text-xs text-[#334155]">Criteria, assumptions & Epic correction</p>
                   </div>
                 </div>
               </section>
@@ -501,16 +501,16 @@ export default function SettingsPage() {
 
             {/* Security Architecture Card — Super Admin Only */}
             {role === "super_admin" && (
-              <section className="rounded-2xl border border-[#EBE7F2] bg-[#FAF9FC]/88 p-5 sm:p-6 shadow-card backdrop-blur-xl space-y-4">
-                <div className="flex items-center gap-3 border-b border-[#EBE7F2] pb-4">
-                  <div className="grid h-9 w-9 place-items-center rounded-xl bg-[#E3F4ED] border border-[#C5E8DB] text-[#2E8B70] shrink-0">
+              <section className="rounded-2xl border border-[#E2E8F0] bg-[#F8F9FB]/88 p-5 sm:p-6 shadow-card backdrop-blur-xl space-y-4">
+                <div className="flex items-center gap-3 border-b border-[#E2E8F0] pb-4">
+                  <div className="grid h-9 w-9 place-items-center rounded-xl bg-[#E3F4ED] border border-[#C5E8DB] text-[#059669] shrink-0">
                     <ShieldCheck size={18} />
                   </div>
                   <div>
-                    <h3 className="text-base font-semibold text-[#252331] tracking-tight">
+                    <h3 className="text-base font-semibold text-[#0F172A] tracking-tight">
                       Role & Session Isolation
                     </h3>
-                    <p className="text-xs text-[#706C7D]">Client vs Team vs Admin Boundary</p>
+                    <p className="text-xs text-[#334155]">Client vs Team vs Admin Boundary</p>
                   </div>
                 </div>
 
@@ -521,16 +521,16 @@ export default function SettingsPage() {
             )}
 
             {/* Media & Asset Uploads Card (Story 2) */}
-            <section className="rounded-2xl border border-[#EBE7F2] bg-[#FAF9FC]/88 p-5 sm:p-6 shadow-card backdrop-blur-xl space-y-4">
-              <div className="flex items-center gap-3 border-b border-[#EBE7F2] pb-4">
-                <div className="grid h-9 w-9 place-items-center rounded-xl bg-[rgba(184,148,78,0.10)] border border-[rgba(184,148,78,0.15)] text-[#80642F] shrink-0 shadow-xs">
+            <section className="rounded-2xl border border-[#E2E8F0] bg-[#F8F9FB]/88 p-5 sm:p-6 shadow-card backdrop-blur-xl space-y-4">
+              <div className="flex items-center gap-3 border-b border-[#E2E8F0] pb-4">
+                <div className="grid h-9 w-9 place-items-center rounded-xl bg-[rgba(204,160,56,0.10)] border border-[rgba(204,160,56,0.15)] text-[#785312] shrink-0 shadow-xs">
                   <UploadCloud size={17} />
                 </div>
                 <div>
-                  <h3 className="text-base font-semibold text-[#252331] tracking-tight">
+                  <h3 className="text-base font-semibold text-[#0F172A] tracking-tight">
                     Media & Asset Uploads
                   </h3>
-                  <p className="text-xs text-[#706C7D]">Upload project visual assets, screenshots, and walkthrough videos</p>
+                  <p className="text-xs text-[#334155]">Upload project visual assets, screenshots, and walkthrough videos</p>
                 </div>
               </div>
 
@@ -549,19 +549,19 @@ export default function SettingsPage() {
             {/* Super Admin Only — User Management Card */}
             {role === "super_admin" && (
               <section className="rounded-2xl border border-[#D4B896] bg-[#FBF8F3]/90 p-5 sm:p-6 shadow-card backdrop-blur-xl space-y-4">
-                <div className="flex items-center justify-between gap-3 border-b border-[#EBE7F2] pb-4">
+                <div className="flex items-center justify-between gap-3 border-b border-[#E2E8F0] pb-4">
                   <div className="flex items-center gap-3">
-                    <div className="grid h-9 w-9 place-items-center rounded-xl bg-[rgba(184,148,78,0.12)] border border-[rgba(184,148,78,0.25)] text-[#80642F] shrink-0 shadow-xs">
+                    <div className="grid h-9 w-9 place-items-center rounded-xl bg-[rgba(204,160,56,0.12)] border border-[rgba(204,160,56,0.25)] text-[#785312] shrink-0 shadow-xs">
                       <Users size={17} />
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
-                        <h3 className="text-base font-semibold text-[#252331] tracking-tight">User Management</h3>
-                        <span className="inline-flex items-center rounded-md bg-[rgba(184,148,78,0.12)] border border-[rgba(184,148,78,0.25)] px-2 py-0.5 text-[10px] font-semibold text-[#80642F]">
+                        <h3 className="text-base font-semibold text-[#0F172A] tracking-tight">User Management</h3>
+                        <span className="inline-flex items-center rounded-md bg-[rgba(204,160,56,0.12)] border border-[rgba(204,160,56,0.25)] px-2 py-0.5 text-[10px] font-semibold text-[#785312]">
                           Super Admin Only
                         </span>
                       </div>
-                      <p className="text-xs text-[#706C7D]">Create and manage freelancer workspace accounts</p>
+                      <p className="text-xs text-[#334155]">Create and manage freelancer workspace accounts</p>
                     </div>
                   </div>
                   <Button
@@ -580,8 +580,8 @@ export default function SettingsPage() {
                   </Button>
                 </div>
 
-                <div className="rounded-xl border border-dashed border-[#D4B896] bg-[rgba(184,148,78,0.04)] p-4">
-                  <p className="text-xs text-[#706C7D] leading-relaxed">
+                <div className="rounded-xl border border-dashed border-[#D4B896] bg-[rgba(204,160,56,0.04)] p-4">
+                  <p className="text-xs text-[#334155] leading-relaxed">
                     Freelancer accounts have access to their own projects, clients, inbox, and settings — but cannot access team member management or other users' data. Only Super Admins can create new freelancer accounts.
                   </p>
                 </div>
@@ -616,7 +616,7 @@ export default function SettingsPage() {
       >
         <form id="create-freelancer-form" onSubmit={handleCreateFreelancer} className="space-y-4">
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-[#706C7D] mb-1.5">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-[#334155] mb-1.5">
               Full Name <span className="text-rose-500">*</span>
             </label>
             <input
@@ -626,12 +626,12 @@ export default function SettingsPage() {
               value={newFreelancerName}
               onChange={(e) => setNewFreelancerName(e.target.value)}
               placeholder="e.g. Vivek Babu"
-              className="h-10 w-full rounded-xl border border-[#EBE7F2] bg-white px-3.5 text-sm text-[#252331] outline-none transition focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)]"
+              className="h-10 w-full rounded-xl border border-[#E2E8F0] bg-white px-3.5 text-sm text-[#0F172A] outline-none transition focus:border-[#CCA038] focus:ring-1 focus:ring-[rgba(204,160,56,0.14)]"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-[#706C7D] mb-1.5">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-[#334155] mb-1.5">
               Email Address <span className="text-rose-500">*</span>
             </label>
             <input
@@ -642,19 +642,19 @@ export default function SettingsPage() {
               value={newFreelancerEmail}
               onChange={(e) => setNewFreelancerEmail(e.target.value.toLowerCase())}
               placeholder="e.g. vivek@example.com"
-              className="h-10 w-full rounded-xl border border-[#EBE7F2] bg-white px-3.5 text-sm font-mono text-[#252331] outline-none transition focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)]"
+              className="h-10 w-full rounded-xl border border-[#E2E8F0] bg-white px-3.5 text-sm font-mono text-[#0F172A] outline-none transition focus:border-[#CCA038] focus:ring-1 focus:ring-[rgba(204,160,56,0.14)]"
             />
           </div>
 
           <div>
             <div className="flex items-center justify-between mb-1.5">
-              <label className="text-xs font-semibold uppercase tracking-wider text-[#706C7D]">
+              <label className="text-xs font-semibold uppercase tracking-wider text-[#334155]">
                 Initial Password <span className="text-rose-500">*</span>
               </label>
               <button
                 type="button"
                 onClick={() => setNewFreelancerPassword(generatePassword())}
-                className="text-xs text-[#80642F] hover:underline"
+                className="text-xs text-[#785312] hover:underline"
               >
                 Regenerate
               </button>
@@ -664,9 +664,9 @@ export default function SettingsPage() {
               required
               value={newFreelancerPassword}
               onChange={(e) => setNewFreelancerPassword(e.target.value)}
-              className="h-10 w-full rounded-xl border border-[#EBE7F2] bg-white px-3.5 text-sm font-mono text-[#252331] outline-none transition focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)]"
+              className="h-10 w-full rounded-xl border border-[#E2E8F0] bg-white px-3.5 text-sm font-mono text-[#0F172A] outline-none transition focus:border-[#CCA038] focus:ring-1 focus:ring-[rgba(204,160,56,0.14)]"
             />
-            <p className="mt-1 text-[11px] text-[#9994A5]">Share this with the freelancer — they should change it after first login.</p>
+            <p className="mt-1 text-[11px] text-[#64748B]">Share this with the freelancer — they should change it after first login.</p>
           </div>
 
           {createFreelancerError && (
@@ -690,17 +690,17 @@ export default function SettingsPage() {
         {createdFreelancerCreds && (
           <div className="space-y-4">
             <div className="rounded-xl border border-[#C5E8DB] bg-[#E3F4ED]/60 p-4 space-y-2">
-              <div className="flex items-center justify-between text-xs text-[#2E8B70] font-medium">
+              <div className="flex items-center justify-between text-xs text-[#059669] font-medium">
                 <span>Full Name:</span>
-                <span className="font-semibold text-[#252331]">{createdFreelancerCreds.name}</span>
+                <span className="font-semibold text-[#0F172A]">{createdFreelancerCreds.name}</span>
               </div>
-              <div className="flex items-center justify-between text-xs text-[#2E8B70] font-medium">
+              <div className="flex items-center justify-between text-xs text-[#059669] font-medium">
                 <span>Email:</span>
-                <span className="font-mono font-bold text-[#252331]">{createdFreelancerCreds.email}</span>
+                <span className="font-mono font-bold text-[#0F172A]">{createdFreelancerCreds.email}</span>
               </div>
-              <div className="flex items-center justify-between text-xs text-[#2E8B70] font-medium">
+              <div className="flex items-center justify-between text-xs text-[#059669] font-medium">
                 <span>Password:</span>
-                <span className="font-mono font-bold text-[#252331]">{createdFreelancerCreds.password}</span>
+                <span className="font-mono font-bold text-[#0F172A]">{createdFreelancerCreds.password}</span>
               </div>
             </div>
 

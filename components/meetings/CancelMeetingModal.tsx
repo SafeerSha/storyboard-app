@@ -70,7 +70,7 @@ export function CancelMeetingModal({
         </div>
 
         <div>
-          <label className="block text-[11px] font-bold uppercase tracking-wider text-[#706C7D] mb-1.5">
+          <label className="block text-[11px] font-bold uppercase tracking-wider text-[#334155] mb-1.5">
             Cancellation Reason (Optional)
           </label>
           <textarea
@@ -78,11 +78,11 @@ export function CancelMeetingModal({
             placeholder="e.g. Rescheduling requested by client, design review postponed..."
             value={reason}
             onChange={(e) => setReason(e.target.value)}
-            className="w-full rounded-xl border border-[rgba(74,61,100,0.15)] bg-white px-3 py-2 text-xs text-[#252331] focus:outline-none focus:ring-1 focus:ring-[#B8944E]"
+            className="w-full rounded-xl border border-[rgba(15,23,42,0.15)] bg-white px-3 py-2 text-xs text-[#0F172A] focus:outline-none focus:ring-1 focus:ring-[#CCA038]"
           />
         </div>
 
-        <div className="flex justify-end gap-2.5 pt-2 border-t border-[rgba(74,61,100,0.06)]">
+        <div className="flex justify-end gap-2.5 pt-2 border-t border-[rgba(15,23,42,0.06)]">
           <Button variant="secondary" size="md" onClick={onClose} disabled={cancelling}>
             Keep Meeting
           </Button>

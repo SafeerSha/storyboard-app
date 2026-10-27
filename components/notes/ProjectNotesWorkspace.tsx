@@ -352,18 +352,18 @@ export function ProjectNotesWorkspace({
   }, [activeNote, epics]);
 
   return (
-    <div className="rounded-[18px] border border-[rgba(74,61,100,0.08)] bg-white/88 shadow-[0_8px_30px_rgba(70,55,95,0.055)] backdrop-blur-[16px] overflow-hidden">
+    <div className="rounded-[18px] border border-[rgba(15,23,42,0.08)] bg-white/88 shadow-[0_8px_30px_rgba(15,23,42,0.055)] backdrop-blur-[16px] overflow-hidden">
       {/* Top Banner / Explainer */}
-      <div className="border-b border-[rgba(74,61,100,0.06)] bg-[#FAF9FC]/90 px-4 py-3 sm:px-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div className="border-b border-[rgba(15,23,42,0.06)] bg-[#F8F9FB]/90 px-4 py-3 sm:px-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex items-center gap-2.5">
-          <div className="grid h-8 w-8 place-items-center rounded-xl bg-[rgba(184,148,78,0.10)] text-[#80642F] border border-[rgba(184,148,78,0.20)] shrink-0">
+          <div className="grid h-8 w-8 place-items-center rounded-xl bg-[rgba(204,160,56,0.10)] text-[#785312] border border-[rgba(204,160,56,0.20)] shrink-0">
             <FileText size={15} />
           </div>
           <div>
-            <h3 className="text-xs sm:text-sm font-bold text-[#252331] leading-tight">
+            <h3 className="text-xs sm:text-sm font-bold text-[#0F172A] leading-tight">
               Discussion & Meeting Notes
             </h3>
-            <p className="text-[11px] text-[#706C7D]">
+            <p className="text-[11px] text-[#334155]">
               Jot down client requirements during calls, then convert them directly into Epics and User Stories.
             </p>
           </div>
@@ -385,32 +385,32 @@ export function ProjectNotesWorkspace({
       {/* Main Workspace Split Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-[340px_1fr] min-h-[560px]">
         {/* Left Column: Notes List & Search */}
-        <div className="border-b lg:border-b-0 lg:border-r border-[rgba(74,61,100,0.08)] flex flex-col bg-[#FAF9FC]/40">
+        <div className="border-b lg:border-b-0 lg:border-r border-[rgba(15,23,42,0.08)] flex flex-col bg-[#F8F9FB]/40">
           {/* Search & Filter Header */}
-          <div className="p-3 sm:p-4 border-b border-[rgba(74,61,100,0.06)] space-y-2.5">
+          <div className="p-3 sm:p-4 border-b border-[rgba(15,23,42,0.06)] space-y-2.5">
             <div className="relative">
               <Search
                 size={13}
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-[#9994A5]"
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-[#64748B]"
               />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search notes or tags..."
-                className="w-full h-8 pl-8 pr-3 text-xs rounded-xl border border-[rgba(74,61,100,0.10)] bg-white text-[#252331] outline-none focus:border-[#B8944E]"
+                className="w-full h-8 pl-8 pr-3 text-xs rounded-xl border border-[rgba(15,23,42,0.10)] bg-white text-[#0F172A] outline-none focus:border-[#CCA038]"
               />
             </div>
 
             {/* Segmented Filter */}
-            <div className="grid grid-cols-4 gap-1 bg-[#FAF9FC] p-0.5 rounded-xl border border-[rgba(74,61,100,0.08)] text-[10px]">
+            <div className="grid grid-cols-4 gap-1 bg-[#F8F9FB] p-0.5 rounded-xl border border-[rgba(15,23,42,0.08)] text-[10px]">
               <button
                 type="button"
                 onClick={() => setStatusFilter("all")}
                 className={`py-1 rounded-lg font-medium transition cursor-pointer text-center ${
                   statusFilter === "all"
-                    ? "bg-white text-[#252331] shadow-2xs font-semibold"
-                    : "text-[#706C7D] hover:text-[#252331]"
+                    ? "bg-white text-[#0F172A] shadow-2xs font-semibold"
+                    : "text-[#334155] hover:text-[#0F172A]"
                 }`}
               >
                 All ({notes.length})
@@ -420,8 +420,8 @@ export function ProjectNotesWorkspace({
                 onClick={() => setStatusFilter("active")}
                 className={`py-1 rounded-lg font-medium transition cursor-pointer text-center ${
                   statusFilter === "active"
-                    ? "bg-white text-[#252331] shadow-2xs font-semibold"
-                    : "text-[#706C7D] hover:text-[#252331]"
+                    ? "bg-white text-[#0F172A] shadow-2xs font-semibold"
+                    : "text-[#334155] hover:text-[#0F172A]"
                 }`}
               >
                 Drafts ({notes.filter((n) => n.status === "active").length})
@@ -431,8 +431,8 @@ export function ProjectNotesWorkspace({
                 onClick={() => setStatusFilter("converted")}
                 className={`py-1 rounded-lg font-medium transition cursor-pointer text-center ${
                   statusFilter === "converted"
-                    ? "bg-white text-[#252331] shadow-2xs font-semibold"
-                    : "text-[#706C7D] hover:text-[#252331]"
+                    ? "bg-white text-[#0F172A] shadow-2xs font-semibold"
+                    : "text-[#334155] hover:text-[#0F172A]"
                 }`}
               >
                 Done ({notes.filter((n) => n.status === "converted").length})
@@ -443,7 +443,7 @@ export function ProjectNotesWorkspace({
                 className={`py-1 rounded-lg font-medium transition cursor-pointer text-center ${
                   statusFilter === "client"
                     ? "bg-white text-emerald-800 shadow-2xs font-semibold"
-                    : "text-[#706C7D] hover:text-emerald-700"
+                    : "text-[#334155] hover:text-emerald-700"
                 }`}
               >
                 Client ({notes.filter((n) => n.is_client_visible).length})
@@ -453,13 +453,13 @@ export function ProjectNotesWorkspace({
             {/* Epic Filter Dropdown */}
             {epics.length > 0 && (
               <div className="flex items-center gap-1.5 pt-0.5">
-                <span className="text-[10px] font-semibold uppercase tracking-wider text-[#9994A5] shrink-0">
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-[#64748B] shrink-0">
                   Epic:
                 </span>
                 <select
                   value={epicFilter}
                   onChange={(e) => setEpicFilter(e.target.value)}
-                  className="w-full h-7 rounded-lg border border-[rgba(74,61,100,0.10)] bg-white px-2 text-[11px] font-medium text-[#252331] outline-none transition focus:border-[#B8944E]"
+                  className="w-full h-7 rounded-lg border border-[rgba(15,23,42,0.10)] bg-white px-2 text-[11px] font-medium text-[#0F172A] outline-none transition focus:border-[#CCA038]"
                 >
                   <option value="all">All Epics &amp; General ({notes.length})</option>
                   <option value="none">Project-wide Only ({notes.filter((n) => !n.epic_id).length})</option>
@@ -480,9 +480,9 @@ export function ProjectNotesWorkspace({
           <div className="flex-1 overflow-y-auto max-h-[600px] p-2 space-y-1.5">
             {filteredNotes.length === 0 ? (
               <div className="p-8 text-center space-y-2">
-                <FileText size={20} className="mx-auto text-[#9994A5]" />
-                <p className="text-xs font-semibold text-[#252331]">No notes found</p>
-                <p className="text-[11px] text-[#706C7D]">
+                <FileText size={20} className="mx-auto text-[#64748B]" />
+                <p className="text-xs font-semibold text-[#0F172A]">No notes found</p>
+                <p className="text-[11px] text-[#334155]">
                   {searchQuery ? "Try a different search term" : "Click 'New Note' to start noting discussion points."}
                 </p>
               </div>
@@ -499,18 +499,18 @@ export function ProjectNotesWorkspace({
                     onClick={() => setActiveNoteId(noteItem.id)}
                     className={`w-full text-left p-3 rounded-xl transition border cursor-pointer flex flex-col gap-1.5 ${
                       isSelected
-                        ? "border-[#B8944E] bg-white shadow-xs ring-1 ring-[#B8944E]"
-                        : "border-transparent hover:border-[rgba(74,61,100,0.08)] hover:bg-white/80"
+                        ? "border-[#CCA038] bg-white shadow-xs ring-1 ring-[#CCA038]"
+                        : "border-transparent hover:border-[rgba(15,23,42,0.08)] hover:bg-white/80"
                     }`}
                   >
                     <div className="flex items-start justify-between gap-2">
-                      <h4 className="text-xs font-bold text-[#252331] line-clamp-1">
+                      <h4 className="text-xs font-bold text-[#0F172A] line-clamp-1">
                         {noteItem.title || "Untitled Note"}
                       </h4>
                       <div className="flex items-center gap-1 shrink-0 flex-wrap justify-end">
                         {linkedEpic && (
                           <span
-                            className="inline-flex items-center gap-0.5 rounded-md bg-[rgba(184,148,78,0.12)] px-1.5 py-0.5 text-[9px] font-semibold text-[#80642F] border border-[rgba(184,148,78,0.20)] truncate max-w-[90px]"
+                            className="inline-flex items-center gap-0.5 rounded-md bg-[rgba(204,160,56,0.12)] px-1.5 py-0.5 text-[9px] font-semibold text-[#785312] border border-[rgba(204,160,56,0.20)] truncate max-w-[90px]"
                             title={`Linked Epic: ${linkedEpic.name}`}
                           >
                             <Layers size={8} />
@@ -535,11 +535,11 @@ export function ProjectNotesWorkspace({
                       </div>
                     </div>
 
-                    <p className="text-[11px] text-[#706C7D] line-clamp-2">
+                    <p className="text-[11px] text-[#334155] line-clamp-2">
                       {noteItem.content || "Empty note. Click to start typing..."}
                     </p>
 
-                    <div className="flex items-center justify-between text-[10px] text-[#9994A5] pt-1">
+                    <div className="flex items-center justify-between text-[10px] text-[#64748B] pt-1">
                       <div className="flex items-center gap-1.5">
                         <span className="flex items-center gap-1">
                           <Clock size={10} />
@@ -550,7 +550,7 @@ export function ProjectNotesWorkspace({
                         </span>
                         {noteItem.images && noteItem.images.length > 0 && (
                           <span
-                            className="inline-flex items-center gap-0.5 rounded-md bg-[rgba(184,148,78,0.12)] px-1.5 py-0.2 text-[9px] font-bold text-[#80642F]"
+                            className="inline-flex items-center gap-0.5 rounded-md bg-[rgba(204,160,56,0.12)] px-1.5 py-0.2 text-[9px] font-bold text-[#785312]"
                             title={`${noteItem.images.length} image(s) attached`}
                           >
                             <ImageIcon size={9} />
@@ -575,12 +575,12 @@ export function ProjectNotesWorkspace({
         {activeNote ? (
           <div className="flex flex-col bg-white">
             {/* Action Bar Header */}
-            <div className="border-b border-[rgba(74,61,100,0.08)] px-4 sm:px-6 py-3.5 flex flex-wrap items-center justify-between gap-3 bg-[#FAF9FC]/60">
+            <div className="border-b border-[rgba(15,23,42,0.08)] px-4 sm:px-6 py-3.5 flex flex-wrap items-center justify-between gap-3 bg-[#F8F9FB]/60">
               <div className="flex items-center gap-2">
-                <span className="inline-flex items-center gap-1.5 text-[11px] text-[#706C7D] font-medium">
+                <span className="inline-flex items-center gap-1.5 text-[11px] text-[#334155] font-medium">
                   {saveStatus === "saving" ? (
                     <>
-                      <span className="h-1.5 w-1.5 rounded-full bg-[#B8944E] animate-pulse" />
+                      <span className="h-1.5 w-1.5 rounded-full bg-[#CCA038] animate-pulse" />
                       Saving changes...
                     </>
                   ) : saveStatus === "saved" ? (
@@ -606,7 +606,7 @@ export function ProjectNotesWorkspace({
                   className={`inline-flex items-center gap-1.5 rounded-xl px-2.5 py-1.5 text-xs font-semibold transition border cursor-pointer ${
                     isClientVisible
                       ? "bg-emerald-50 text-emerald-800 border-emerald-300 hover:bg-emerald-100/80 shadow-2xs"
-                      : "bg-white text-[#706C7D] border-[rgba(74,61,100,0.12)] hover:bg-[#FAF9FC] hover:text-[#252331]"
+                      : "bg-white text-[#334155] border-[rgba(15,23,42,0.12)] hover:bg-[#F8F9FB] hover:text-[#0F172A]"
                   }`}
                   title={
                     isClientVisible
@@ -621,7 +621,7 @@ export function ProjectNotesWorkspace({
                     </>
                   ) : (
                     <>
-                      <EyeOff size={13} className="text-[#9994A5]" />
+                      <EyeOff size={13} className="text-[#64748B]" />
                       <span>Internal Only</span>
                     </>
                   )}
@@ -630,9 +630,9 @@ export function ProjectNotesWorkspace({
                 <Button
                   variant="secondary"
                   size="sm"
-                  leftIcon={<Trash2 size={13} className="text-[#C25D72]" />}
+                  leftIcon={<Trash2 size={13} className="text-[#E11D48]" />}
                   onClick={() => setDeletingNoteId(activeNote.id)}
-                  className="text-xs text-[#C25D72] hover:bg-rose-50"
+                  className="text-xs text-[#E11D48] hover:bg-rose-50"
                   title="Delete note"
                 >
                   Delete
@@ -653,9 +653,9 @@ export function ProjectNotesWorkspace({
                 <Button
                   variant="primary"
                   size="sm"
-                  leftIcon={<Sparkles size={13} className="text-[#80642F]" />}
+                  leftIcon={<Sparkles size={13} className="text-[#785312]" />}
                   onClick={() => setConvertModalOpen(true)}
-                  className="text-xs font-semibold bg-gradient-to-r from-[rgba(184,148,78,0.18)] to-[rgba(184,148,78,0.28)] text-[#80642F] border border-[rgba(184,148,78,0.35)] hover:bg-[rgba(184,148,78,0.3)] shadow-2xs"
+                  className="text-xs font-semibold bg-gradient-to-r from-[rgba(204,160,56,0.18)] to-[rgba(204,160,56,0.28)] text-[#785312] border border-[rgba(204,160,56,0.35)] hover:bg-[rgba(204,160,56,0.3)] shadow-2xs"
                   title="Autonomously convert notes into bugs and user stories with AI"
                 >
                   Convert to Stories (AI)
@@ -694,7 +694,7 @@ export function ProjectNotesWorkspace({
                 className={`flex items-center justify-between gap-2 px-3 py-1.5 rounded-xl text-xs border transition-colors ${
                   isClientVisible
                     ? "bg-emerald-50/80 border-emerald-200/80 text-emerald-900"
-                    : "bg-[#FAF9FC] border-[rgba(74,61,100,0.06)] text-[#706C7D]"
+                    : "bg-[#F8F9FB] border-[rgba(15,23,42,0.06)] text-[#334155]"
                 }`}
               >
                 <div className="flex items-center gap-1.5 min-w-0">
@@ -707,7 +707,7 @@ export function ProjectNotesWorkspace({
                     </>
                   ) : (
                     <>
-                      <EyeOff size={13} className="text-[#9994A5] shrink-0" />
+                      <EyeOff size={13} className="text-[#64748B] shrink-0" />
                       <span className="truncate">
                         <strong>Internal Note:</strong> Only visible to you and assigned team members.
                       </span>
@@ -717,7 +717,7 @@ export function ProjectNotesWorkspace({
                 <button
                   type="button"
                   onClick={handleToggleClientVisible}
-                  className="text-[11px] font-semibold underline hover:opacity-80 shrink-0 cursor-pointer text-[#80642F]"
+                  className="text-[11px] font-semibold underline hover:opacity-80 shrink-0 cursor-pointer text-[#785312]"
                 >
                   {isClientVisible ? "Make Internal" : "Share with Client"}
                 </button>
@@ -726,8 +726,8 @@ export function ProjectNotesWorkspace({
               {/* Linked Epic Selector */}
               {epics.length > 0 && (
                 <div className="flex items-center gap-2">
-                  <span className="text-[11px] font-semibold uppercase tracking-wider text-[#9994A5] flex items-center gap-1 shrink-0">
-                    <Layers size={12} className="text-[#B8944E]" />
+                  <span className="text-[11px] font-semibold uppercase tracking-wider text-[#64748B] flex items-center gap-1 shrink-0">
+                    <Layers size={12} className="text-[#CCA038]" />
                     <span>Linked Epic:</span>
                   </span>
                   <select
@@ -742,7 +742,7 @@ export function ProjectNotesWorkspace({
                           : "Note detached to project-wide"
                       );
                     }}
-                    className="h-7 rounded-lg border border-[rgba(74,61,100,0.12)] bg-[#FAF9FC] px-2.5 text-xs font-semibold text-[#80642F] outline-none transition focus:border-[#B8944E] cursor-pointer shadow-2xs"
+                    className="h-7 rounded-lg border border-[rgba(15,23,42,0.12)] bg-[#F8F9FB] px-2.5 text-xs font-semibold text-[#785312] outline-none transition focus:border-[#CCA038] cursor-pointer shadow-2xs"
                   >
                     <option value="">Project-wide (General Note)</option>
                     {epics.map((ep) => (
@@ -760,22 +760,22 @@ export function ProjectNotesWorkspace({
                 value={title}
                 onChange={(e) => handleTitleChange(e.target.value)}
                 placeholder="Note Title (e.g. Kickoff Discussion - User Roles & Auth)"
-                className="w-full text-base sm:text-xl font-bold tracking-tight text-[#252331] outline-none placeholder:text-[#9994A5] bg-transparent border-b border-transparent focus:border-[rgba(74,61,100,0.12)] pb-1 transition"
+                className="w-full text-base sm:text-xl font-bold tracking-tight text-[#0F172A] outline-none placeholder:text-[#64748B] bg-transparent border-b border-transparent focus:border-[rgba(15,23,42,0.12)] pb-1 transition"
               />
 
               {/* Tags row */}
               <div className="flex items-center gap-1.5 flex-wrap">
-                <Tag size={12} className="text-[#9994A5] shrink-0" />
+                <Tag size={12} className="text-[#64748B] shrink-0" />
                 {tags.map((t) => (
                   <span
                     key={t}
-                    className="inline-flex items-center gap-1 text-[11px] rounded-md bg-[rgba(74,61,100,0.06)] text-[#706C7D] px-2 py-0.5"
+                    className="inline-flex items-center gap-1 text-[11px] rounded-md bg-[rgba(15,23,42,0.06)] text-[#334155] px-2 py-0.5"
                   >
                     <span>#{t}</span>
                     <button
                       type="button"
                       onClick={() => handleRemoveTag(t)}
-                      className="hover:text-[#252331]"
+                      className="hover:text-[#0F172A]"
                     >
                       ×
                     </button>
@@ -792,7 +792,7 @@ export function ProjectNotesWorkspace({
                     }
                   }}
                   placeholder="+ Add tag..."
-                  className="text-xs bg-transparent text-[#252331] outline-none placeholder:text-[#9994A5] w-24 py-0.5"
+                  className="text-xs bg-transparent text-[#0F172A] outline-none placeholder:text-[#64748B] w-24 py-0.5"
                 />
               </div>
 
@@ -811,12 +811,12 @@ Example:
 • Login should support Email + Password and Magic Link via Resend.
 • Profile page should allow changing notification preferences.
 • Stripe integration needed for monthly recurring subscriptions.`}
-                  className="w-full flex-1 rounded-xl border border-[rgba(74,61,100,0.10)] p-4 text-xs sm:text-sm text-[#252331] leading-relaxed outline-none focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)] bg-[#FAF9FC]/30 resize-none font-sans"
+                  className="w-full flex-1 rounded-xl border border-[rgba(15,23,42,0.10)] p-4 text-xs sm:text-sm text-[#0F172A] leading-relaxed outline-none focus:border-[#CCA038] focus:ring-1 focus:ring-[rgba(204,160,56,0.14)] bg-[#F8F9FB]/30 resize-none font-sans"
                 />
               </div>
 
               {/* Discussion Note Attached Images Gallery & Upload Controls */}
-              <div className="border-t border-[rgba(74,61,100,0.08)] pt-3">
+              <div className="border-t border-[rgba(15,23,42,0.08)] pt-3">
                 <NoteImageGallery
                   projectId={projectId}
                   noteId={activeNote.id}
@@ -838,11 +838,11 @@ Example:
         ) : (
           <div className="grid place-items-center p-12 text-center">
             <div className="space-y-3 max-w-sm">
-              <div className="grid h-12 w-12 place-items-center rounded-2xl bg-[rgba(184,148,78,0.10)] text-[#80642F] mx-auto border border-[rgba(184,148,78,0.20)]">
+              <div className="grid h-12 w-12 place-items-center rounded-2xl bg-[rgba(204,160,56,0.10)] text-[#785312] mx-auto border border-[rgba(204,160,56,0.20)]">
                 <FileText size={22} />
               </div>
-              <h4 className="text-sm font-bold text-[#252331]">No note selected</h4>
-              <p className="text-xs text-[#706C7D]">
+              <h4 className="text-sm font-bold text-[#0F172A]">No note selected</h4>
+              <p className="text-xs text-[#334155]">
                 Select a note from the left to review or edit, or create a new note for your ongoing meeting.
               </p>
               <Button

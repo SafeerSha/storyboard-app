@@ -105,7 +105,7 @@ export function MobileNavigationSheet({
           <button
             type="button"
             onClick={onClose}
-            className="grid h-9 w-9 place-items-center rounded-full bg-zinc-100 text-zinc-600 hover:bg-zinc-200 hover:text-zinc-900 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B8944E] cursor-pointer"
+            className="grid h-9 w-9 place-items-center rounded-full bg-zinc-100 text-zinc-600 hover:bg-zinc-200 hover:text-zinc-900 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#CCA038] cursor-pointer"
             aria-label="Close navigation"
           >
             <X size={18} />
@@ -137,14 +137,14 @@ export function MobileNavigationSheet({
                       }}
                       className={`relative flex flex-col items-center justify-center rounded-2xl p-3 text-center transition-all duration-150 active:scale-97 border ${
                         item.isActive
-                          ? "bg-[#FAF5EC] border-2 border-[#B8944E] text-[#5C4112] shadow-sm"
+                          ? "bg-[#FAF5EC] border-2 border-[#CCA038] text-[#5C4112] shadow-sm"
                           : "bg-zinc-50 border-zinc-200 text-zinc-800 hover:bg-zinc-100 hover:border-zinc-300 hover:text-zinc-950 shadow-2xs"
                       }`}
                     >
                       <div
                         className={`grid h-11 w-11 place-items-center rounded-xl mb-2 transition-colors ${
                           item.isActive
-                            ? "bg-[#B8944E] text-white shadow-xs"
+                            ? "bg-[#CCA038] text-white shadow-xs"
                             : "bg-white border border-zinc-200 text-zinc-700 shadow-2xs"
                         }`}
                       >
@@ -192,7 +192,7 @@ export function MobileNavigationSheet({
                         <div
                           className={`grid h-9 w-9 shrink-0 place-items-center rounded-xl ${
                             item.isActive
-                              ? "bg-[#B8944E] text-white shadow-xs"
+                              ? "bg-[#CCA038] text-white shadow-xs"
                               : "bg-white border border-zinc-200 text-zinc-700 shadow-2xs"
                           }`}
                         >
@@ -214,7 +214,7 @@ export function MobileNavigationSheet({
                         {item.badge}
                         <ChevronRight
                           size={18}
-                          className={item.isActive ? "text-[#B8944E]" : "text-zinc-400"}
+                          className={item.isActive ? "text-[#CCA038]" : "text-zinc-400"}
                         />
                       </div>
                     </Link>
@@ -232,7 +232,7 @@ export function MobileNavigationSheet({
             <div className="pt-1">
               <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-4 shadow-2xs flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3 min-w-0">
-                  <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-[#B8944E] to-[#7A5B20] text-white font-bold text-sm shadow-xs">
+                  <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-[#CCA038] to-[#7A5B20] text-white font-bold text-sm shadow-xs">
                     {user.initials}
                   </div>
                   <div className="min-w-0 flex-1">

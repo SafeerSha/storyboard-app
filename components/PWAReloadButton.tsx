@@ -44,11 +44,11 @@ export function PWAReloadButton() {
         h-8 w-8
         rounded-full
         bg-white/70 backdrop-blur-md
-        border border-[rgba(74,61,100,0.10)]
-        shadow-[0_2px_8px_rgba(70,55,95,0.08)]
-        text-[#9994A5]
-        hover:text-[#B8944E] hover:bg-white/90 hover:border-[rgba(184,148,78,0.25)]
-        hover:shadow-[0_4px_14px_rgba(184,148,78,0.12)]
+        border border-[rgba(15,23,42,0.10)]
+        shadow-[0_2px_8px_rgba(15,23,42,0.08)]
+        text-[#64748B]
+        hover:text-[#CCA038] hover:bg-white/90 hover:border-[rgba(204,160,56,0.25)]
+        hover:shadow-[0_4px_14px_rgba(204,160,56,0.12)]
         active:scale-90
         transition-all duration-200 ease-out
         cursor-pointer

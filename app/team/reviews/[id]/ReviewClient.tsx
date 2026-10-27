@@ -191,7 +191,7 @@ export function ReviewClient({ initialStory, epics, teamUser, isReviewer }: Revi
             </Button>
             <Button
               variant="primary"
-              className="bg-[#B8944E] hover:bg-[#9F7D3E] text-white border-none shadow-[0_4px_14px_rgba(184,148,78,0.22)]"
+              className="bg-[#CCA038] hover:bg-[#B58422] text-white border-none shadow-[0_4px_14px_rgba(204,160,56,0.22)]"
               isLoading={approvingStoryId === story.id && !!confirmUnresolved}
               onClick={() => confirmUnresolved && handleApproveStory(confirmUnresolved.storyId, true)}
             >
@@ -200,7 +200,7 @@ export function ReviewClient({ initialStory, epics, teamUser, isReviewer }: Revi
           </>
         }
       >
-        <p className="text-xs text-[#706C7D]">
+        <p className="text-xs text-[#334155]">
           The open discussions will remain visible for client review.
         </p>
       </Modal>

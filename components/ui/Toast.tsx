@@ -81,15 +81,15 @@ function ToastElement({ item, onDismiss }: ToastItemProps) {
     <div
       role={isAlert ? "alert" : "status"}
       aria-live={isAlert ? "assertive" : "polite"}
-      className="pointer-events-auto flex items-start gap-3 rounded-2xl border border-white/90 bg-white/92 p-3.5 sm:px-4 sm:py-3.5 shadow-[0_12px_35px_rgba(70,55,95,0.12)] backdrop-blur-[20px] transition-all animate-in fade-in slide-in-from-bottom-3 duration-200 motion-reduce:transition-none motion-reduce:animate-none w-full select-none"
+      className="pointer-events-auto flex items-start gap-3 rounded-2xl border border-white/90 bg-white/92 p-3.5 sm:px-4 sm:py-3.5 shadow-[0_12px_35px_rgba(15,23,42,0.12)] backdrop-blur-[20px] transition-all animate-in fade-in slide-in-from-bottom-3 duration-200 motion-reduce:transition-none motion-reduce:animate-none w-full select-none"
     >
       <div className="mt-0.5">{renderIcon()}</div>
       <div className="min-w-0 flex-1 pt-0.5">
-        <p className="text-xs sm:text-sm font-semibold tracking-tight text-[#252331] leading-snug break-words">
+        <p className="text-xs sm:text-sm font-semibold tracking-tight text-[#0F172A] leading-snug break-words">
           {item.message}
         </p>
         {item.description && (
-          <p className="mt-0.5 text-xs text-[#706C7D] leading-relaxed break-words">
+          <p className="mt-0.5 text-xs text-[#334155] leading-relaxed break-words">
             {item.description}
           </p>
         )}
@@ -98,7 +98,7 @@ function ToastElement({ item, onDismiss }: ToastItemProps) {
         type="button"
         onClick={() => onDismiss(item.id)}
         aria-label="Dismiss notification"
-        className="ml-1 -mr-1 -mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-lg text-[#9994A5] hover:bg-[#E9E3F4]/30 hover:text-[#252331] transition"
+        className="ml-1 -mr-1 -mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-lg text-[#64748B] hover:bg-[#F1F5F9]/30 hover:text-[#0F172A] transition"
       >
         <X size={14} />
       </button>

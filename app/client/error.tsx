@@ -17,7 +17,7 @@ export default function ClientPortalError({
     <div
       style={{
         minHeight: "100vh",
-        background: "#F5F2F7",
+        background: "#F8F9FA",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -34,8 +34,8 @@ export default function ClientPortalError({
           maxWidth: "440px",
           width: "100%",
           textAlign: "center",
-          boxShadow: "0 4px 32px rgba(74,61,100,0.10)",
-          border: "1px solid rgba(74,61,100,0.10)",
+          boxShadow: "0 4px 32px rgba(15,23,42,0.10)",
+          border: "1px solid rgba(15,23,42,0.10)",
         }}
       >
         <div
@@ -43,7 +43,7 @@ export default function ClientPortalError({
             width: "52px",
             height: "52px",
             borderRadius: "50%",
-            background: "rgba(184,148,78,0.10)",
+            background: "rgba(204,160,56,0.10)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -59,7 +59,7 @@ export default function ClientPortalError({
             margin: "0 0 0.5rem",
             fontSize: "1.125rem",
             fontWeight: 700,
-            color: "#252331",
+            color: "#0F172A",
             letterSpacing: "-0.02em",
           }}
         >
@@ -70,7 +70,7 @@ export default function ClientPortalError({
           style={{
             margin: "0 0 1.5rem",
             fontSize: "0.875rem",
-            color: "#706C7D",
+            color: "#334155",
             lineHeight: 1.6,
           }}
         >
@@ -83,7 +83,7 @@ export default function ClientPortalError({
             style={{
               margin: "-0.5rem 0 1rem",
               fontSize: "0.7rem",
-              color: "#9994A5",
+              color: "#64748B",
               fontFamily: "monospace",
             }}
           >
@@ -96,7 +96,7 @@ export default function ClientPortalError({
           style={{
             padding: "0.625rem 1.5rem",
             borderRadius: "0.625rem",
-            background: "#B8944E",
+            background: "#CCA038",
             color: "#fff",
             border: "none",
             cursor: "pointer",

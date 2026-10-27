@@ -199,10 +199,10 @@ export function ProjectRemunerationTab({
 
   if (loading) {
     return (
-      <div className="rounded-2xl border border-[rgba(74,61,100,0.08)] bg-white/70 p-12 text-center shadow-sm backdrop-blur-md">
-        <Loader2 size={32} className="animate-spin text-[#B8944E] mx-auto mb-3" />
-        <p className="text-sm font-semibold text-[#252331]">Loading Financial & Remuneration Ledger…</p>
-        <p className="text-xs text-[#9994A5] mt-1">Retrieving planned milestones, payment records, team splits, and notification logs</p>
+      <div className="rounded-2xl border border-[rgba(15,23,42,0.08)] bg-white/70 p-12 text-center shadow-sm backdrop-blur-md">
+        <Loader2 size={32} className="animate-spin text-[#CCA038] mx-auto mb-3" />
+        <p className="text-sm font-semibold text-[#0F172A]">Loading Financial & Remuneration Ledger…</p>
+        <p className="text-xs text-[#64748B] mt-1">Retrieving planned milestones, payment records, team splits, and notification logs</p>
       </div>
     );
   }
@@ -213,14 +213,14 @@ export function ProjectRemunerationTab({
   if (!rem) {
     return (
       <div className="space-y-6">
-        <div className="rounded-2xl border border-dashed border-[rgba(184,148,78,0.30)] bg-white/80 p-8 sm:p-12 text-center shadow-sm backdrop-blur-md">
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[rgba(184,148,78,0.12)] text-[#80642F] shadow-sm mb-4">
+        <div className="rounded-2xl border border-dashed border-[rgba(204,160,56,0.30)] bg-white/80 p-8 sm:p-12 text-center shadow-sm backdrop-blur-md">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[rgba(204,160,56,0.12)] text-[#785312] shadow-sm mb-4">
             <BadgeDollarSign size={28} />
           </div>
-          <h2 className="text-lg sm:text-xl font-bold tracking-tight text-[#252331]">
+          <h2 className="text-lg sm:text-xl font-bold tracking-tight text-[#0F172A]">
             No Remuneration Agreement Configured for {projectName}
           </h2>
-          <p className="mx-auto mt-1.5 max-w-lg text-xs sm:text-sm text-[#706C7D] leading-relaxed">
+          <p className="mx-auto mt-1.5 max-w-lg text-xs sm:text-sm text-[#334155] leading-relaxed">
             Configure the agreed project contract value, setup installment milestones, record client payments, distribute collaborator splits, and manage email notification preferences.
           </p>
 
@@ -282,20 +282,20 @@ export function ProjectRemunerationTab({
   return (
     <div className="space-y-6">
       {/* ── Top Header & Actions Toolbar ── */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white/70 backdrop-blur-md p-4 sm:p-5 rounded-2xl border border-[rgba(74,61,100,0.08)] shadow-2xs">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white/70 backdrop-blur-md p-4 sm:p-5 rounded-2xl border border-[rgba(15,23,42,0.08)] shadow-2xs">
         <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-xl bg-[rgba(184,148,78,0.12)] flex items-center justify-center text-[#80642F] shrink-0">
+          <div className="h-10 w-10 rounded-xl bg-[rgba(204,160,56,0.12)] flex items-center justify-center text-[#785312] shrink-0">
             <Receipt size={20} />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="text-base sm:text-lg font-bold text-[#252331]">Project Remuneration & Financial Ledger</h2>
+              <h2 className="text-base sm:text-lg font-bold text-[#0F172A]">Project Remuneration & Financial Ledger</h2>
               <span className={`inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[11px] font-semibold ${statusCfg.bg}`}>
                 <span className={`h-1.5 w-1.5 rounded-full ${statusCfg.indicator}`} />
                 {statusCfg.label}
               </span>
             </div>
-            <p className="text-xs text-[#706C7D] mt-0.5">
+            <p className="text-xs text-[#334155] mt-0.5">
               Production-ready ledger separating agreed contract fees, planned milestones, actual payments, and team splits.
             </p>
           </div>
@@ -307,9 +307,9 @@ export function ProjectRemunerationTab({
             type="button"
             onClick={() => setNotifSettingsModalOpen(true)}
             title="Configure client emails and team member notifications"
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-[rgba(74,61,100,0.12)] bg-white text-xs font-semibold text-[#252331] hover:bg-zinc-50 transition cursor-pointer"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-[rgba(15,23,42,0.12)] bg-white text-xs font-semibold text-[#0F172A] hover:bg-zinc-50 transition cursor-pointer"
           >
-            <Bell size={13} className="text-[#80642F]" />
+            <Bell size={13} className="text-[#785312]" />
             <span>Notification Settings</span>
           </button>
 
@@ -318,7 +318,7 @@ export function ProjectRemunerationTab({
             variant="secondary"
             size="sm"
             className="rounded-xl px-3 py-1.5 text-xs font-semibold"
-            leftIcon={<Users size={13} className="text-[#80642F]" />}
+            leftIcon={<Users size={13} className="text-[#785312]" />}
             onClick={() => setSplitsModalOpen(true)}
           >
             Team Splits
@@ -357,10 +357,10 @@ export function ProjectRemunerationTab({
             type="button"
             onClick={() => loadData(true)}
             disabled={refreshing}
-            className="grid h-8 w-8 place-items-center rounded-xl border border-[rgba(74,61,100,0.12)] bg-white text-[#706C7D] hover:text-[#252331] hover:bg-zinc-50 transition cursor-pointer"
+            className="grid h-8 w-8 place-items-center rounded-xl border border-[rgba(15,23,42,0.12)] bg-white text-[#334155] hover:text-[#0F172A] hover:bg-zinc-50 transition cursor-pointer"
             title="Refresh transactions"
           >
-            <RefreshCcw size={13} className={refreshing ? "animate-spin text-[#B8944E]" : ""} />
+            <RefreshCcw size={13} className={refreshing ? "animate-spin text-[#CCA038]" : ""} />
           </button>
         </div>
       </div>
@@ -400,22 +400,22 @@ export function ProjectRemunerationTab({
       {/* ── Financial Ledger KPI Metrics (Requirement 1 & 12) ── */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
         {/* Total Agreed Remuneration */}
-        <div className="rounded-xl border border-[rgba(74,61,100,0.08)] bg-white/90 p-3.5 shadow-2xs relative group">
+        <div className="rounded-xl border border-[rgba(15,23,42,0.08)] bg-white/90 p-3.5 shadow-2xs relative group">
           <div className="flex items-center justify-between mb-1.5">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-[#9994A5]">Agreed Remuneration</span>
-            <div className="h-5 w-5 rounded-md bg-[rgba(184,148,78,0.10)] flex items-center justify-center text-[#80642F]">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-[#64748B]">Agreed Remuneration</span>
+            <div className="h-5 w-5 rounded-md bg-[rgba(204,160,56,0.10)] flex items-center justify-center text-[#785312]">
               <BadgeDollarSign size={13} />
             </div>
           </div>
-          <p className="text-lg sm:text-xl font-extrabold text-[#252331] tracking-tight">
+          <p className="text-lg sm:text-xl font-extrabold text-[#0F172A] tracking-tight">
             {formatCurrency(totalAgreed, rem.currency)}
           </p>
-          <div className="mt-1 flex items-center justify-between text-[10px] text-[#706C7D]">
-            <span>Status: <strong className="capitalize text-[#80642F]">{rem.agreement_status || "Active"}</strong></span>
+          <div className="mt-1 flex items-center justify-between text-[10px] text-[#334155]">
+            <span>Status: <strong className="capitalize text-[#785312]">{rem.agreement_status || "Active"}</strong></span>
             <button
               type="button"
               onClick={() => setEditAgreementModalOpen(true)}
-              className="text-[#80642F] hover:underline flex items-center gap-0.5 font-medium cursor-pointer"
+              className="text-[#785312] hover:underline flex items-center gap-0.5 font-medium cursor-pointer"
             >
               <Edit3 size={10} /> Edit
             </button>
@@ -505,45 +505,45 @@ export function ProjectRemunerationTab({
       </div>
 
       {/* ── Collection Progress Bar ── */}
-      <div className="rounded-xl border border-[rgba(74,61,100,0.08)] bg-white/90 p-4 shadow-2xs space-y-2">
+      <div className="rounded-xl border border-[rgba(15,23,42,0.08)] bg-white/90 p-4 shadow-2xs space-y-2">
         <div className="flex items-center justify-between text-xs">
-          <span className="font-semibold text-[#252331]">Project Collection & Settlement</span>
-          <span className="font-bold text-[#80642F]">
+          <span className="font-semibold text-[#0F172A]">Project Collection & Settlement</span>
+          <span className="font-bold text-[#785312]">
             {formatCurrency(totalPaid, rem.currency)} of {formatCurrency(totalAgreed, rem.currency)} ({progressPct}%)
           </span>
         </div>
-        <div className="relative h-2.5 w-full rounded-full bg-[rgba(74,61,100,0.08)] overflow-hidden">
+        <div className="relative h-2.5 w-full rounded-full bg-[rgba(15,23,42,0.08)] overflow-hidden">
           <div
-            className="h-full bg-gradient-to-r from-[#B8944E] to-emerald-500 rounded-full transition-all duration-500 ease-out"
+            className="h-full bg-gradient-to-r from-[#CCA038] to-emerald-500 rounded-full transition-all duration-500 ease-out"
             style={{ width: `${progressPct}%` }}
           />
         </div>
       </div>
 
       {/* ── Agreement Details Banner (Requirement 1) ── */}
-      <div className="rounded-xl border border-[rgba(74,61,100,0.08)] bg-white/95 p-4 shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs">
-        <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-[#706C7D]">
+      <div className="rounded-xl border border-[rgba(15,23,42,0.08)] bg-white/95 p-4 shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs">
+        <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-[#334155]">
           <div>
-            <span className="text-[#9994A5] font-medium mr-1.5">Agreement Date:</span>
-            <strong className="text-[#252331]">{fmtDate(rem.agreement_date)}</strong>
+            <span className="text-[#64748B] font-medium mr-1.5">Agreement Date:</span>
+            <strong className="text-[#0F172A]">{fmtDate(rem.agreement_date)}</strong>
           </div>
           <div>
-            <span className="text-[#9994A5] font-medium mr-1.5">Currency:</span>
-            <strong className="text-[#252331]">{rem.currency}</strong>
+            <span className="text-[#64748B] font-medium mr-1.5">Currency:</span>
+            <strong className="text-[#0F172A]">{rem.currency}</strong>
           </div>
           <div>
-            <span className="text-[#9994A5] font-medium mr-1.5">Payment Method:</span>
-            <strong className="capitalize text-[#252331]">{rem.payment_method === "single" ? "Single Payment" : "Milestone Installments"}</strong>
+            <span className="text-[#64748B] font-medium mr-1.5">Payment Method:</span>
+            <strong className="capitalize text-[#0F172A]">{rem.payment_method === "single" ? "Single Payment" : "Milestone Installments"}</strong>
           </div>
           <div>
-            <span className="text-[#9994A5] font-medium mr-1.5">Client Billing:</span>
-            <strong className="text-[#252331]">{rem.client?.name || client?.name || "Direct / In-House"}</strong>
+            <span className="text-[#64748B] font-medium mr-1.5">Client Billing:</span>
+            <strong className="text-[#0F172A]">{rem.client?.name || client?.name || "Direct / In-House"}</strong>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
           {rem.notes && (
-            <span className="italic text-[#706C7D] max-w-xs truncate" title={rem.notes}>
+            <span className="italic text-[#334155] max-w-xs truncate" title={rem.notes}>
               "{rem.notes}"
             </span>
           )}
@@ -560,14 +560,14 @@ export function ProjectRemunerationTab({
       </div>
 
       {/* ── Sub-view Segmented Tabs ── */}
-      <div className="flex border-b border-[rgba(74,61,100,0.10)] gap-1 overflow-x-auto no-scrollbar pb-0.5 -mx-4 px-4 sm:mx-0 sm:px-0">
+      <div className="flex border-b border-[rgba(15,23,42,0.10)] gap-1 overflow-x-auto no-scrollbar pb-0.5 -mx-4 px-4 sm:mx-0 sm:px-0">
         <button
           type="button"
           onClick={() => setActiveTab("milestones")}
           className={`pb-2.5 px-3 text-xs font-bold transition flex items-center gap-1.5 border-b-2 cursor-pointer whitespace-nowrap shrink-0 ${
             activeTab === "milestones"
-              ? "border-[#B8944E] text-[#80642F]"
-              : "border-transparent text-[#706C7D] hover:text-[#252331]"
+              ? "border-[#CCA038] text-[#785312]"
+              : "border-transparent text-[#334155] hover:text-[#0F172A]"
           }`}
         >
           <Calendar size={14} />
@@ -579,8 +579,8 @@ export function ProjectRemunerationTab({
           onClick={() => setActiveTab("payments")}
           className={`pb-2.5 px-3 text-xs font-bold transition flex items-center gap-1.5 border-b-2 cursor-pointer whitespace-nowrap shrink-0 ${
             activeTab === "payments"
-              ? "border-[#B8944E] text-[#80642F]"
-              : "border-transparent text-[#706C7D] hover:text-[#252331]"
+              ? "border-[#CCA038] text-[#785312]"
+              : "border-transparent text-[#334155] hover:text-[#0F172A]"
           }`}
         >
           <Receipt size={14} />
@@ -592,8 +592,8 @@ export function ProjectRemunerationTab({
           onClick={() => setActiveTab("splits")}
           className={`pb-2.5 px-3 text-xs font-bold transition flex items-center gap-1.5 border-b-2 cursor-pointer whitespace-nowrap shrink-0 ${
             activeTab === "splits"
-              ? "border-[#B8944E] text-[#80642F]"
-              : "border-transparent text-[#706C7D] hover:text-[#252331]"
+              ? "border-[#CCA038] text-[#785312]"
+              : "border-transparent text-[#334155] hover:text-[#0F172A]"
           }`}
         >
           <Users size={14} />
@@ -605,8 +605,8 @@ export function ProjectRemunerationTab({
           onClick={() => setActiveTab("notifications")}
           className={`pb-2.5 px-3 text-xs font-bold transition flex items-center gap-1.5 border-b-2 cursor-pointer whitespace-nowrap shrink-0 ${
             activeTab === "notifications"
-              ? "border-[#B8944E] text-[#80642F]"
-              : "border-transparent text-[#706C7D] hover:text-[#252331]"
+              ? "border-[#CCA038] text-[#785312]"
+              : "border-transparent text-[#334155] hover:text-[#0F172A]"
           }`}
         >
           <History size={14} />
@@ -618,17 +618,17 @@ export function ProjectRemunerationTab({
       {/* SUB-VIEW 1: Planned Milestones / Installments (Requirement 2)            */}
       {/* ======================================================================== */}
       {activeTab === "milestones" && (
-        <div className="rounded-2xl border border-[rgba(74,61,100,0.08)] bg-white/95 p-5 shadow-sm space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[rgba(74,61,100,0.08)] pb-3">
+        <div className="rounded-2xl border border-[rgba(15,23,42,0.08)] bg-white/95 p-5 shadow-sm space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[rgba(15,23,42,0.08)] pb-3">
             <div>
-              <h3 className="text-sm font-bold uppercase tracking-wider text-[#252331]">Planned Payment Milestones</h3>
-              <p className="text-xs text-[#706C7D]">
+              <h3 className="text-sm font-bold uppercase tracking-wider text-[#0F172A]">Planned Payment Milestones</h3>
+              <p className="text-xs text-[#334155]">
                 Independent installment milestones. Expected dates, planned amounts, and collection progress.
               </p>
             </div>
 
             <div className="flex items-center gap-2">
-              <div className="flex rounded-lg border border-[rgba(74,61,100,0.12)] bg-white overflow-hidden text-xs font-semibold">
+              <div className="flex rounded-lg border border-[rgba(15,23,42,0.12)] bg-white overflow-hidden text-xs font-semibold">
                 {(["all", "pending", "completed", "overdue"] as const).map((filter) => (
                   <button
                     key={filter}
@@ -636,8 +636,8 @@ export function ProjectRemunerationTab({
                     onClick={() => setInstallmentFilter(filter)}
                     className={`px-2.5 py-1 capitalize transition ${
                       installmentFilter === filter
-                        ? "bg-[#B8944E] text-white"
-                        : "text-[#706C7D] hover:bg-zinc-50"
+                        ? "bg-[#CCA038] text-white"
+                        : "text-[#334155] hover:bg-zinc-50"
                     }`}
                   >
                     {filter}
@@ -661,7 +661,7 @@ export function ProjectRemunerationTab({
           </div>
 
           {filteredInstallments.length === 0 ? (
-            <div className="py-8 text-center text-xs text-[#706C7D]">
+            <div className="py-8 text-center text-xs text-[#334155]">
               No installment milestones match the selected filter.
             </div>
           ) : (
@@ -676,7 +676,7 @@ export function ProjectRemunerationTab({
                   <div
                     key={inst.id}
                     className={`rounded-xl border bg-white shadow-2xs overflow-hidden transition-all ${
-                      isPastDue ? "border-rose-200 ring-1 ring-rose-100" : "border-[rgba(74,61,100,0.10)]"
+                      isPastDue ? "border-rose-200 ring-1 ring-rose-100" : "border-[rgba(15,23,42,0.10)]"
                     }`}
                   >
                     <div className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -687,7 +687,7 @@ export function ProjectRemunerationTab({
                               ? "bg-emerald-100 text-emerald-800"
                               : isPastDue
                               ? "bg-rose-100 text-rose-800"
-                              : "bg-[rgba(184,148,78,0.12)] text-[#80642F]"
+                              : "bg-[rgba(204,160,56,0.12)] text-[#785312]"
                           }`}
                         >
                           #{inst.installment_number}
@@ -695,10 +695,10 @@ export function ProjectRemunerationTab({
 
                         <div>
                           <div className="flex items-center gap-2">
-                            <span className="text-sm font-bold text-[#252331]">
+                            <span className="text-sm font-bold text-[#0F172A]">
                               {inst.name || `Milestone #${inst.installment_number}`}
                             </span>
-                            <span className="text-base font-extrabold text-[#252331]">
+                            <span className="text-base font-extrabold text-[#0F172A]">
                               {formatCurrency(inst.amount, rem.currency)}
                             </span>
                             <span className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.2 text-[10px] font-semibold ${instCfg.bg}`}>
@@ -708,8 +708,8 @@ export function ProjectRemunerationTab({
                           </div>
 
                           <div className="flex flex-wrap items-center gap-3 mt-1 text-xs">
-                            <div className="flex items-center gap-1 text-[#706C7D]">
-                              <Calendar size={12} className="text-[#9994A5]" />
+                            <div className="flex items-center gap-1 text-[#334155]">
+                              <Calendar size={12} className="text-[#64748B]" />
                               <span className={isPastDue ? "text-rose-600 font-bold" : ""}>
                                 {inst.due_date
                                   ? isPastDue
@@ -726,7 +726,7 @@ export function ProjectRemunerationTab({
                             )}
 
                             {inst.description && (
-                              <span className="text-[#9994A5] truncate max-w-xs font-normal">
+                              <span className="text-[#64748B] truncate max-w-xs font-normal">
                                 • {inst.description}
                               </span>
                             )}
@@ -751,7 +751,7 @@ export function ProjectRemunerationTab({
                         <button
                           type="button"
                           onClick={() => handleDeleteInstallment(inst)}
-                          className="text-zinc-400 hover:text-rose-600 transition p-1.5 rounded-lg border border-[rgba(74,61,100,0.10)]"
+                          className="text-zinc-400 hover:text-rose-600 transition p-1.5 rounded-lg border border-[rgba(15,23,42,0.10)]"
                           title="Remove milestone"
                         >
                           <Trash2 size={12} />
@@ -791,15 +791,15 @@ export function ProjectRemunerationTab({
 
                     {/* Proofs list if attached */}
                     {inst.proofs && inst.proofs.length > 0 && (
-                      <div className="border-t border-[rgba(74,61,100,0.06)] bg-[#faf9fc] px-4 py-2 flex items-center gap-2 text-xs">
-                        <span className="text-[11px] font-semibold text-[#706C7D]">Proof Documents:</span>
+                      <div className="border-t border-[rgba(15,23,42,0.06)] bg-[#F8F9FB] px-4 py-2 flex items-center gap-2 text-xs">
+                        <span className="text-[11px] font-semibold text-[#334155]">Proof Documents:</span>
                         {inst.proofs.map((p) => (
                           <a
                             key={p.id}
                             href={`/api/remunerations/${rem.id}/installments/${inst.id}/proof?proofId=${p.id}`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#80642F] bg-white px-2 py-0.5 rounded-md border border-[rgba(184,148,78,0.20)] hover:bg-[#FAF5EC] transition"
+                            className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#785312] bg-white px-2 py-0.5 rounded-md border border-[rgba(204,160,56,0.20)] hover:bg-[#FAF5EC] transition"
                           >
                             <Paperclip size={10} />
                             <span className="truncate max-w-[120px]">{p.file_name}</span>
@@ -820,11 +820,11 @@ export function ProjectRemunerationTab({
       {/* SUB-VIEW 2: Actual Payment Records (Ledger) (Requirement 3 & 4)         */}
       {/* ======================================================================== */}
       {activeTab === "payments" && (
-        <div className="rounded-2xl border border-[rgba(74,61,100,0.08)] bg-white/95 p-5 shadow-sm space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[rgba(74,61,100,0.08)] pb-3">
+        <div className="rounded-2xl border border-[rgba(15,23,42,0.08)] bg-white/95 p-5 shadow-sm space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[rgba(15,23,42,0.08)] pb-3">
             <div>
-              <h3 className="text-sm font-bold uppercase tracking-wider text-[#252331]">Actual Payment Transactions</h3>
-              <p className="text-xs text-[#706C7D]">
+              <h3 className="text-sm font-bold uppercase tracking-wider text-[#0F172A]">Actual Payment Transactions</h3>
+              <p className="text-xs text-[#334155]">
                 Audit ledger of actual received client transactions, payment references (UTR), and team distributions.
               </p>
             </div>
@@ -847,8 +847,8 @@ export function ProjectRemunerationTab({
           {allPayments.length === 0 ? (
             <div className="py-10 text-center space-y-2">
               <Receipt size={28} className="mx-auto text-zinc-300" />
-              <p className="text-xs font-semibold text-[#706C7D]">No actual payments recorded for this project yet.</p>
-              <p className="text-[11px] text-[#9994A5]">
+              <p className="text-xs font-semibold text-[#334155]">No actual payments recorded for this project yet.</p>
+              <p className="text-[11px] text-[#64748B]">
                 When client funds are received for an installment, click "Record Payment" to log the transaction and distribute team member shares.
               </p>
             </div>
@@ -862,9 +862,9 @@ export function ProjectRemunerationTab({
                 return (
                   <div
                     key={pm.id}
-                    className="rounded-xl border border-[rgba(74,61,100,0.10)] bg-white p-4 shadow-2xs space-y-3"
+                    className="rounded-xl border border-[rgba(15,23,42,0.10)] bg-white p-4 shadow-2xs space-y-3"
                   >
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[rgba(74,61,100,0.06)] pb-3">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[rgba(15,23,42,0.06)] pb-3">
                       <div className="flex items-center gap-3">
                         <div className="h-9 w-9 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center shrink-0">
                           <CheckCircle2 size={18} />
@@ -874,19 +874,19 @@ export function ProjectRemunerationTab({
                             <span className="text-base font-extrabold text-emerald-800">
                               {formatCurrency(pm.amount, rem.currency)}
                             </span>
-                            <span className="text-xs font-semibold text-[#706C7D]">
+                            <span className="text-xs font-semibold text-[#334155]">
                               on {fmtDate(pm.payment_date)}
                             </span>
                             <span className="rounded-md bg-zinc-100 border border-zinc-200 px-2 py-0.2 text-[10px] font-bold text-zinc-700">
                               {pm.payment_method || "Bank Transfer"}
                             </span>
                           </div>
-                          <div className="flex flex-wrap items-center gap-2 text-xs text-[#706C7D] mt-0.5">
+                          <div className="flex flex-wrap items-center gap-2 text-xs text-[#334155] mt-0.5">
                             {pm.installment && (
                               <span>For Milestone #{pm.installment.installment_number} ({pm.installment.name || "Installment"})</span>
                             )}
                             {pm.payment_reference && (
-                              <span className="font-mono text-[11px] bg-zinc-50 border border-zinc-200 px-1.5 py-0.2 rounded text-[#252331]">
+                              <span className="font-mono text-[11px] bg-zinc-50 border border-zinc-200 px-1.5 py-0.2 rounded text-[#0F172A]">
                                 UTR: {pm.payment_reference}
                               </span>
                             )}
@@ -896,26 +896,26 @@ export function ProjectRemunerationTab({
                       </div>
 
                       <div className="text-right text-xs">
-                        <span className="text-[10px] uppercase font-bold text-[#9994A5] block">Team Allocation</span>
-                        <span className="font-bold text-[#80642F]">
+                        <span className="text-[10px] uppercase font-bold text-[#64748B] block">Team Allocation</span>
+                        <span className="font-bold text-[#785312]">
                           {formatCurrency(splitTotal, rem.currency)} / {formatCurrency(pm.amount, rem.currency)}
                         </span>
                       </div>
                     </div>
 
                     {/* Team Member Splits for this exact payment */}
-                    <div className="bg-[#faf9fc] rounded-lg p-3 space-y-2 border border-[rgba(74,61,100,0.06)]">
+                    <div className="bg-[#F8F9FB] rounded-lg p-3 space-y-2 border border-[rgba(15,23,42,0.06)]">
                       <div className="flex items-center justify-between text-xs">
-                        <span className="font-bold text-[#252331] flex items-center gap-1.5">
-                          <Users size={12} className="text-[#80642F]" /> Team Distribution for this Payment
+                        <span className="font-bold text-[#0F172A] flex items-center gap-1.5">
+                          <Users size={12} className="text-[#785312]" /> Team Distribution for this Payment
                         </span>
-                        <span className="text-[11px] text-[#706C7D]">
-                          Remaining Undistributed: <strong className="text-[#252331]">{formatCurrency(remainingMargin, rem.currency)}</strong>
+                        <span className="text-[11px] text-[#334155]">
+                          Remaining Undistributed: <strong className="text-[#0F172A]">{formatCurrency(remainingMargin, rem.currency)}</strong>
                         </span>
                       </div>
 
                       {splitsList.length === 0 ? (
-                        <p className="text-[11px] text-[#9994A5] italic">
+                        <p className="text-[11px] text-[#64748B] italic">
                           No team splits were allocated for this payment transaction (100% project margin).
                         </p>
                       ) : (
@@ -923,15 +923,15 @@ export function ProjectRemunerationTab({
                           {splitsList.map((s, idx) => (
                             <div
                               key={s.id || idx}
-                              className="rounded-lg bg-white border border-[rgba(74,61,100,0.08)] p-2 text-xs flex items-center justify-between"
+                              className="rounded-lg bg-white border border-[rgba(15,23,42,0.08)] p-2 text-xs flex items-center justify-between"
                             >
                               <div>
-                                <p className="font-bold text-[#252331] truncate">{s.member_name}</p>
-                                <p className="text-[10px] text-[#9994A5]">{s.role || "Collaborator"}</p>
+                                <p className="font-bold text-[#0F172A] truncate">{s.member_name}</p>
+                                <p className="text-[10px] text-[#64748B]">{s.role || "Collaborator"}</p>
                               </div>
                               <div className="text-right">
-                                <p className="font-extrabold text-[#80642F]">{formatCurrency(s.amount, rem.currency)}</p>
-                                {s.percentage && <p className="text-[10px] text-[#706C7D]">{s.percentage}%</p>}
+                                <p className="font-extrabold text-[#785312]">{formatCurrency(s.amount, rem.currency)}</p>
+                                {s.percentage && <p className="text-[10px] text-[#334155]">{s.percentage}%</p>}
                               </div>
                             </div>
                           ))}
@@ -950,15 +950,15 @@ export function ProjectRemunerationTab({
       {/* SUB-VIEW 3: Team-Wise Revenue Splits (Project Margin) (Requirement 4)   */}
       {/* ======================================================================== */}
       {activeTab === "splits" && (
-        <div className="rounded-2xl border border-[rgba(74,61,100,0.08)] bg-white/95 p-5 shadow-sm space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[rgba(74,61,100,0.08)] pb-3">
+        <div className="rounded-2xl border border-[rgba(15,23,42,0.08)] bg-white/95 p-5 shadow-sm space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[rgba(15,23,42,0.08)] pb-3">
             <div className="flex items-center gap-2.5">
-              <div className="h-8 w-8 rounded-xl bg-[rgba(184,148,78,0.12)] flex items-center justify-center text-[#80642F]">
+              <div className="h-8 w-8 rounded-xl bg-[rgba(204,160,56,0.12)] flex items-center justify-center text-[#785312]">
                 <Users size={16} />
               </div>
               <div>
-                <h3 className="text-sm font-bold uppercase tracking-wider text-[#252331]">Project Team Revenue Share</h3>
-                <p className="text-xs text-[#706C7D]">
+                <h3 className="text-sm font-bold uppercase tracking-wider text-[#0F172A]">Project Team Revenue Share</h3>
+                <p className="text-xs text-[#334155]">
                   Target fee allocation, member percentage shares, and proportional payout progress.
                 </p>
               </div>
@@ -975,9 +975,9 @@ export function ProjectRemunerationTab({
           </div>
 
           {splits.length === 0 ? (
-            <div className="rounded-xl border border-dashed border-[rgba(74,61,100,0.15)] bg-[#faf9fc] p-6 text-center">
-              <p className="text-xs font-semibold text-[#706C7D]">No team splits configured for this project yet.</p>
-              <p className="text-[11px] text-[#9994A5] mt-0.5">
+            <div className="rounded-xl border border-dashed border-[rgba(15,23,42,0.15)] bg-[#F8F9FB] p-6 text-center">
+              <p className="text-xs font-semibold text-[#334155]">No team splits configured for this project yet.</p>
+              <p className="text-[11px] text-[#64748B] mt-0.5">
                 Allocate percentages and payout amounts to team members working on this project.
               </p>
               <Button
@@ -993,7 +993,7 @@ export function ProjectRemunerationTab({
             <>
               {/* Visual Multi-Color Allocation Stack Bar */}
               <div className="space-y-1.5">
-                <div className="h-2.5 w-full rounded-full bg-[rgba(74,61,100,0.08)] overflow-hidden flex">
+                <div className="h-2.5 w-full rounded-full bg-[rgba(15,23,42,0.08)] overflow-hidden flex">
                   {splits.map((s, idx) => {
                     const pct = s.percentage || (totalAgreed > 0 ? (s.amount / totalAgreed) * 100 : 0);
                     const color = SPLIT_COLORS[idx % SPLIT_COLORS.length];
@@ -1020,7 +1020,7 @@ export function ProjectRemunerationTab({
                   return (
                     <div
                       key={s.id || s.teamMemberId || idx}
-                      className="flex flex-col justify-between rounded-xl border border-[rgba(74,61,100,0.08)] bg-[#faf9fc] p-3.5 space-y-2 hover:bg-white transition"
+                      className="flex flex-col justify-between rounded-xl border border-[rgba(15,23,42,0.08)] bg-[#F8F9FB] p-3.5 space-y-2 hover:bg-white transition"
                     >
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex items-center gap-2.5 min-w-0">
@@ -1028,30 +1028,30 @@ export function ProjectRemunerationTab({
                             {s.name.slice(0, 2).toUpperCase()}
                           </div>
                           <div className="min-w-0">
-                            <p className="text-xs font-bold text-[#252331] truncate">{s.name}</p>
-                            <p className="text-[11px] text-[#706C7D] truncate font-medium">
+                            <p className="text-xs font-bold text-[#0F172A] truncate">{s.name}</p>
+                            <p className="text-[11px] text-[#334155] truncate font-medium">
                               {s.role || "Collaborator"}
                             </p>
                           </div>
                         </div>
 
                         <div className="text-right shrink-0">
-                          <p className="text-xs font-extrabold text-[#252331]">
+                          <p className="text-xs font-extrabold text-[#0F172A]">
                             {formatCurrency(s.amount, rem.currency)}
                           </p>
-                          <span className="rounded-md bg-white border border-[rgba(74,61,100,0.10)] px-1.5 py-0.2 text-[10px] font-bold text-[#80642F]">
+                          <span className="rounded-md bg-white border border-[rgba(15,23,42,0.10)] px-1.5 py-0.2 text-[10px] font-bold text-[#785312]">
                             {s.percentage !== null && s.percentage !== undefined ? `${s.percentage}%` : ""}
                           </span>
                         </div>
                       </div>
 
                       {s.notes && (
-                        <p className="text-[11px] text-[#706C7D] italic bg-white/70 rounded-lg px-2 py-1 border border-[rgba(74,61,100,0.06)]">
+                        <p className="text-[11px] text-[#334155] italic bg-white/70 rounded-lg px-2 py-1 border border-[rgba(15,23,42,0.06)]">
                           {s.notes}
                         </p>
                       )}
 
-                      <div className="flex items-center justify-between text-[10px] font-semibold border-t border-[rgba(74,61,100,0.06)] pt-1.5 text-[#706C7D]">
+                      <div className="flex items-center justify-between text-[10px] font-semibold border-t border-[rgba(15,23,42,0.06)] pt-1.5 text-[#334155]">
                         <span className="text-emerald-700">Collected: {formatCurrency(memberCollectedSoFar, rem.currency)}</span>
                         <span className="text-amber-700">Pending: {formatCurrency(memberPending, rem.currency)}</span>
                       </div>
@@ -1070,15 +1070,15 @@ export function ProjectRemunerationTab({
       {activeTab === "notifications" && (
         <div className="space-y-6">
           {/* Notification Preferences Overview Card */}
-          <div className="rounded-2xl border border-[rgba(74,61,100,0.08)] bg-white/95 p-5 shadow-sm space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[rgba(74,61,100,0.08)] pb-3">
+          <div className="rounded-2xl border border-[rgba(15,23,42,0.08)] bg-white/95 p-5 shadow-sm space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[rgba(15,23,42,0.08)] pb-3">
               <div className="flex items-center gap-2.5">
-                <div className="h-8 w-8 rounded-xl bg-[rgba(184,148,78,0.12)] flex items-center justify-center text-[#80642F]">
+                <div className="h-8 w-8 rounded-xl bg-[rgba(204,160,56,0.12)] flex items-center justify-center text-[#785312]">
                   <Bell size={16} />
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold uppercase tracking-wider text-[#252331]">Notification Triggers & Channels</h3>
-                  <p className="text-xs text-[#706C7D]">
+                  <h3 className="text-sm font-bold uppercase tracking-wider text-[#0F172A]">Notification Triggers & Channels</h3>
+                  <p className="text-xs text-[#334155]">
                     Configurable rules for client emails, team email notifications, and in-app alerts.
                   </p>
                 </div>
@@ -1096,11 +1096,11 @@ export function ProjectRemunerationTab({
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-              <div className="rounded-xl border border-[rgba(74,61,100,0.08)] bg-[#faf9fc] p-4 space-y-2">
-                <span className="font-bold text-[#252331] uppercase tracking-wider text-[11px] block">
+              <div className="rounded-xl border border-[rgba(15,23,42,0.08)] bg-[#F8F9FB] p-4 space-y-2">
+                <span className="font-bold text-[#0F172A] uppercase tracking-wider text-[11px] block">
                   Client Email Triggers
                 </span>
-                <div className="space-y-1.5 text-[#706C7D]">
+                <div className="space-y-1.5 text-[#334155]">
                   <div className="flex justify-between">
                     <span>Payment Received Receipts:</span>
                     <strong className="text-emerald-700">Enabled (ON)</strong>
@@ -1116,11 +1116,11 @@ export function ProjectRemunerationTab({
                 </div>
               </div>
 
-              <div className="rounded-xl border border-[rgba(74,61,100,0.08)] bg-[#faf9fc] p-4 space-y-2">
-                <span className="font-bold text-[#252331] uppercase tracking-wider text-[11px] block">
+              <div className="rounded-xl border border-[rgba(15,23,42,0.08)] bg-[#F8F9FB] p-4 space-y-2">
+                <span className="font-bold text-[#0F172A] uppercase tracking-wider text-[11px] block">
                   Team Member Notifications
                 </span>
-                <div className="space-y-1.5 text-[#706C7D]">
+                <div className="space-y-1.5 text-[#334155]">
                   <div className="flex justify-between">
                     <span>In-App Notifications:</span>
                     <strong className="text-emerald-700">Active</strong>
@@ -1139,28 +1139,28 @@ export function ProjectRemunerationTab({
           </div>
 
           {/* Notification Delivery Audit Trail (Requirement 8) */}
-          <div className="rounded-2xl border border-[rgba(74,61,100,0.08)] bg-white/95 p-5 shadow-sm space-y-4">
-            <div className="flex items-center justify-between border-b border-[rgba(74,61,100,0.08)] pb-3">
+          <div className="rounded-2xl border border-[rgba(15,23,42,0.08)] bg-white/95 p-5 shadow-sm space-y-4">
+            <div className="flex items-center justify-between border-b border-[rgba(15,23,42,0.08)] pb-3">
               <div className="flex items-center gap-2">
-                <History size={16} className="text-[#80642F]" />
-                <h3 className="text-sm font-bold uppercase tracking-wider text-[#252331]">
+                <History size={16} className="text-[#785312]" />
+                <h3 className="text-sm font-bold uppercase tracking-wider text-[#0F172A]">
                   Notification Delivery History / Audit Log
                 </h3>
               </div>
-              <span className="text-xs text-[#9994A5]">
+              <span className="text-xs text-[#64748B]">
                 {notifLogs.length} logged events
               </span>
             </div>
 
             {notifLogs.length === 0 ? (
-              <p className="text-xs text-[#9994A5] py-8 text-center">
+              <p className="text-xs text-[#64748B] py-8 text-center">
                 No notification attempts logged yet. Delivery events will appear here when client receipts or team split notifications are dispatched.
               </p>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
                   <thead>
-                    <tr className="border-b border-[rgba(74,61,100,0.08)] text-[10px] uppercase font-bold text-[#9994A5]">
+                    <tr className="border-b border-[rgba(15,23,42,0.08)] text-[10px] uppercase font-bold text-[#64748B]">
                       <th className="pb-2">Recipient</th>
                       <th className="pb-2">Type</th>
                       <th className="pb-2">Event</th>
@@ -1169,10 +1169,10 @@ export function ProjectRemunerationTab({
                       <th className="pb-2 text-right">Timestamp</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[rgba(74,61,100,0.06)] text-[#706C7D]">
+                  <tbody className="divide-y divide-[rgba(15,23,42,0.06)] text-[#334155]">
                     {notifLogs.map((log) => (
                       <tr key={log.id} className="hover:bg-zinc-50/50 transition">
-                        <td className="py-2.5 font-medium text-[#252331]">
+                        <td className="py-2.5 font-medium text-[#0F172A]">
                           {log.recipient}
                         </td>
                         <td className="py-2.5 capitalize">
@@ -1180,7 +1180,7 @@ export function ProjectRemunerationTab({
                             {log.recipient_type}
                           </span>
                         </td>
-                        <td className="py-2.5 font-mono text-[11px] text-[#252331]">
+                        <td className="py-2.5 font-mono text-[11px] text-[#0F172A]">
                           {log.notification_type}
                         </td>
                         <td className="py-2.5 capitalize">
@@ -1387,8 +1387,8 @@ function EditAgreementModal({ isOpen, onClose, rem, projectId, onSuccess }: Edit
   };
 
   const inputClass =
-    "w-full rounded-lg border border-[rgba(74,61,100,0.15)] px-3 py-2 text-xs sm:text-sm text-[#252331] focus:outline-none focus:ring-1 focus:ring-[#B8944E] bg-white";
-  const labelClass = "block text-[11px] font-bold uppercase tracking-wider text-[#706C7D] mb-1";
+    "w-full rounded-lg border border-[rgba(15,23,42,0.15)] px-3 py-2 text-xs sm:text-sm text-[#0F172A] focus:outline-none focus:ring-1 focus:ring-[#CCA038] bg-white";
+  const labelClass = "block text-[11px] font-bold uppercase tracking-wider text-[#334155] mb-1";
 
   return (
     <Modal
@@ -1560,8 +1560,8 @@ function InstallmentModal({
   };
 
   const inputClass =
-    "w-full rounded-lg border border-[rgba(74,61,100,0.15)] px-3 py-2 text-xs sm:text-sm text-[#252331] focus:outline-none focus:ring-1 focus:ring-[#B8944E] bg-white";
-  const labelClass = "block text-[11px] font-bold uppercase tracking-wider text-[#706C7D] mb-1";
+    "w-full rounded-lg border border-[rgba(15,23,42,0.15)] px-3 py-2 text-xs sm:text-sm text-[#0F172A] focus:outline-none focus:ring-1 focus:ring-[#CCA038] bg-white";
+  const labelClass = "block text-[11px] font-bold uppercase tracking-wider text-[#334155] mb-1";
 
   return (
     <Modal
@@ -1660,16 +1660,16 @@ function InstallmentModal({
         </div>
 
         {!isEditing && (
-          <div className="flex items-center justify-between rounded-lg border border-[rgba(74,61,100,0.10)] bg-[#faf9fc] p-3">
+          <div className="flex items-center justify-between rounded-lg border border-[rgba(15,23,42,0.10)] bg-[#F8F9FB] p-3">
             <div>
-              <span className="text-xs font-semibold text-[#252331]">Auto-Adjust Total Agreed Fee</span>
-              <p className="text-[11px] text-[#9994A5]">Increment agreed remuneration by this milestone amount</p>
+              <span className="text-xs font-semibold text-[#0F172A]">Auto-Adjust Total Agreed Fee</span>
+              <p className="text-[11px] text-[#64748B]">Increment agreed remuneration by this milestone amount</p>
             </div>
             <input
               type="checkbox"
               checked={autoAdjustTotal}
               onChange={(e) => setAutoAdjustTotal(e.target.checked)}
-              className="h-4 w-4 rounded text-[#B8944E] focus:ring-[#B8944E]"
+              className="h-4 w-4 rounded text-[#CCA038] focus:ring-[#CCA038]"
             />
           </div>
         )}
@@ -1799,8 +1799,8 @@ function RecordPaymentModal({
   };
 
   const inputClass =
-    "w-full rounded-lg border border-[rgba(74,61,100,0.15)] px-3 py-2 text-xs sm:text-sm text-[#252331] focus:outline-none focus:ring-1 focus:ring-[#B8944E] bg-white";
-  const labelClass = "block text-[11px] font-bold uppercase tracking-wider text-[#706C7D] mb-1";
+    "w-full rounded-lg border border-[rgba(15,23,42,0.15)] px-3 py-2 text-xs sm:text-sm text-[#0F172A] focus:outline-none focus:ring-1 focus:ring-[#CCA038] bg-white";
+  const labelClass = "block text-[11px] font-bold uppercase tracking-wider text-[#334155] mb-1";
 
   return (
     <Modal
@@ -1886,11 +1886,11 @@ function RecordPaymentModal({
         <div>
           <label className={labelClass}>Payment Proof Document / Receipt (optional)</label>
           <div
-            className="flex items-center gap-3 rounded-lg border border-dashed border-[rgba(74,61,100,0.20)] bg-[#faf9fc] px-4 py-2.5 cursor-pointer hover:border-[#B8944E] transition"
+            className="flex items-center gap-3 rounded-lg border border-dashed border-[rgba(15,23,42,0.20)] bg-[#F8F9FB] px-4 py-2.5 cursor-pointer hover:border-[#CCA038] transition"
             onClick={() => fileRef.current?.click()}
           >
-            <Paperclip size={15} className="text-[#9994A5]" />
-            <span className="text-xs text-[#706C7D]">
+            <Paperclip size={15} className="text-[#64748B]" />
+            <span className="text-xs text-[#334155]">
               {proof ? proof.name : "Attach invoice, screenshot, or PDF receipt"}
             </span>
           </div>
@@ -1904,13 +1904,13 @@ function RecordPaymentModal({
         </div>
 
         {/* ── Team Member Payment Split Section (Requirement 4) ── */}
-        <div className="rounded-xl border border-[rgba(74,61,100,0.12)] bg-[#faf9fc] p-4 space-y-3">
+        <div className="rounded-xl border border-[rgba(15,23,42,0.12)] bg-[#F8F9FB] p-4 space-y-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Users size={16} className="text-[#80642F]" />
+              <Users size={16} className="text-[#785312]" />
               <div>
-                <span className="text-xs font-bold text-[#252331]">Team Member Payment Split</span>
-                <p className="text-[11px] text-[#706C7D]">Distribute this actual received payment among collaborators</p>
+                <span className="text-xs font-bold text-[#0F172A]">Team Member Payment Split</span>
+                <p className="text-[11px] text-[#334155]">Distribute this actual received payment among collaborators</p>
               </div>
             </div>
             <label className="relative inline-flex items-center cursor-pointer">
@@ -1920,26 +1920,26 @@ function RecordPaymentModal({
                 onChange={(e) => handleToggleSplit(e.target.checked)}
                 className="sr-only peer"
               />
-              <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#B8944E]" />
+              <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#CCA038]" />
             </label>
           </div>
 
           {enableTeamSplit && (
-            <div className="space-y-3 pt-2 border-t border-[rgba(74,61,100,0.08)]">
+            <div className="space-y-3 pt-2 border-t border-[rgba(15,23,42,0.08)]">
               {/* Allocation Summary Card */}
-              <div className="grid grid-cols-3 gap-2 bg-white rounded-lg p-2.5 border border-[rgba(74,61,100,0.08)] text-center text-xs">
+              <div className="grid grid-cols-3 gap-2 bg-white rounded-lg p-2.5 border border-[rgba(15,23,42,0.08)] text-center text-xs">
                 <div>
-                  <span className="text-[10px] uppercase font-bold text-[#9994A5] block">Payment Amount</span>
-                  <span className="font-extrabold text-[#252331]">{formatCurrency(numAmount, currency)}</span>
+                  <span className="text-[10px] uppercase font-bold text-[#64748B] block">Payment Amount</span>
+                  <span className="font-extrabold text-[#0F172A]">{formatCurrency(numAmount, currency)}</span>
                 </div>
                 <div>
-                  <span className="text-[10px] uppercase font-bold text-[#9994A5] block">Allocated to Team</span>
-                  <span className={`font-extrabold ${isOverAllocated ? "text-rose-600" : "text-[#80642F]"}`}>
+                  <span className="text-[10px] uppercase font-bold text-[#64748B] block">Allocated to Team</span>
+                  <span className={`font-extrabold ${isOverAllocated ? "text-rose-600" : "text-[#785312]"}`}>
                     {formatCurrency(totalAllocatedToTeam, currency)}
                   </span>
                 </div>
                 <div>
-                  <span className="text-[10px] uppercase font-bold text-[#9994A5] block">Remaining Margin</span>
+                  <span className="text-[10px] uppercase font-bold text-[#64748B] block">Remaining Margin</span>
                   <span className="font-extrabold text-emerald-700">{formatCurrency(remainingUndistributed, currency)}</span>
                 </div>
               </div>
@@ -1953,10 +1953,10 @@ function RecordPaymentModal({
               {/* Members rows */}
               <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
                 {splits.map((s, idx) => (
-                  <div key={idx} className="flex items-center justify-between gap-2 bg-white p-2 rounded-lg border border-[rgba(74,61,100,0.06)] text-xs">
+                  <div key={idx} className="flex items-center justify-between gap-2 bg-white p-2 rounded-lg border border-[rgba(15,23,42,0.06)] text-xs">
                     <div className="min-w-0">
-                      <p className="font-bold text-[#252331] truncate">{s.name}</p>
-                      <p className="text-[10px] text-[#9994A5]">{s.role || "Member"}</p>
+                      <p className="font-bold text-[#0F172A] truncate">{s.name}</p>
+                      <p className="text-[10px] text-[#64748B]">{s.role || "Member"}</p>
                     </div>
 
                     <div className="flex items-center gap-2 shrink-0">
@@ -1971,7 +1971,7 @@ function RecordPaymentModal({
                           className="w-full text-xs p-1.5 border rounded bg-white"
                         />
                       </div>
-                      <span className="text-[11px] text-[#706C7D] w-12 text-right font-medium">
+                      <span className="text-[11px] text-[#334155] w-12 text-right font-medium">
                         {s.percentage}%
                       </span>
                     </div>
@@ -1983,31 +1983,31 @@ function RecordPaymentModal({
         </div>
 
         {/* ── Notification Toggles (Requirements 5 & 6) ── */}
-        <div className="space-y-2 bg-[#faf9fc] p-3 rounded-lg border border-[rgba(74,61,100,0.08)]">
+        <div className="space-y-2 bg-[#F8F9FB] p-3 rounded-lg border border-[rgba(15,23,42,0.08)]">
           <div className="flex items-center justify-between text-xs">
             <div>
-              <span className="font-semibold text-[#252331]">Send Client Payment Confirmation Email</span>
-              <p className="text-[11px] text-[#9994A5]">Sends payment receipt email to client</p>
+              <span className="font-semibold text-[#0F172A]">Send Client Payment Confirmation Email</span>
+              <p className="text-[11px] text-[#64748B]">Sends payment receipt email to client</p>
             </div>
             <input
               type="checkbox"
               checked={sendEmail}
               onChange={(e) => setSendEmail(e.target.checked)}
-              className="h-4 w-4 rounded text-[#B8944E] focus:ring-[#B8944E]"
+              className="h-4 w-4 rounded text-[#CCA038] focus:ring-[#CCA038]"
             />
           </div>
 
           {enableTeamSplit && (
-            <div className="flex items-center justify-between text-xs border-t border-[rgba(74,61,100,0.06)] pt-2">
+            <div className="flex items-center justify-between text-xs border-t border-[rgba(15,23,42,0.06)] pt-2">
               <div>
-                <span className="font-semibold text-[#252331]">Notify Team Members</span>
-                <p className="text-[11px] text-[#9994A5]">Send payout allocation notices to team collaborators</p>
+                <span className="font-semibold text-[#0F172A]">Notify Team Members</span>
+                <p className="text-[11px] text-[#64748B]">Send payout allocation notices to team collaborators</p>
               </div>
               <input
                 type="checkbox"
                 checked={notifyTeam}
                 onChange={(e) => setNotifyTeam(e.target.checked)}
-                className="h-4 w-4 rounded text-[#B8944E] focus:ring-[#B8944E]"
+                className="h-4 w-4 rounded text-[#CCA038] focus:ring-[#CCA038]"
               />
             </div>
           )}
@@ -2122,15 +2122,15 @@ function NotificationSettingsModal({
         )}
 
         {/* ── Client Email Notification Controller (Requirement 6) ── */}
-        <div className="rounded-xl border border-[rgba(74,61,100,0.10)] bg-white p-3.5 space-y-2.5">
+        <div className="rounded-xl border border-[rgba(15,23,42,0.10)] bg-white p-3.5 space-y-2.5">
           <div className="flex items-center gap-2">
-            <Mail size={15} className="text-[#80642F]" />
-            <span className="text-xs font-bold uppercase tracking-wider text-[#252331]">
+            <Mail size={15} className="text-[#785312]" />
+            <span className="text-xs font-bold uppercase tracking-wider text-[#0F172A]">
               Client Email Notification Triggers
             </span>
           </div>
 
-          <div className="space-y-2 text-xs divide-y divide-[rgba(74,61,100,0.06)] pt-1">
+          <div className="space-y-2 text-xs divide-y divide-[rgba(15,23,42,0.06)] pt-1">
             {[
               { key: "payment_received", label: "Payment Received Confirmation", desc: "Dispatch email when client payment is recorded" },
               { key: "receipt_generated", label: "Payment Receipt Attachment", desc: "Attach transaction receipt summary" },
@@ -2141,8 +2141,8 @@ function NotificationSettingsModal({
             ].map((item) => (
               <div key={item.key} className="flex items-center justify-between pt-2">
                 <div>
-                  <p className="font-semibold text-[#252331]">{item.label}</p>
-                  <p className="text-[11px] text-[#9994A5]">{item.desc}</p>
+                  <p className="font-semibold text-[#0F172A]">{item.label}</p>
+                  <p className="text-[11px] text-[#64748B]">{item.desc}</p>
                 </div>
                 <input
                   type="checkbox"
@@ -2150,7 +2150,7 @@ function NotificationSettingsModal({
                   onChange={(e) =>
                     setClientEmails((prev: any) => ({ ...prev, [item.key]: e.target.checked }))
                   }
-                  className="h-4 w-4 rounded text-[#B8944E] focus:ring-[#B8944E]"
+                  className="h-4 w-4 rounded text-[#CCA038] focus:ring-[#CCA038]"
                 />
               </div>
             ))}
@@ -2158,19 +2158,19 @@ function NotificationSettingsModal({
         </div>
 
         {/* ── Team Member Notification Configuration (Requirement 5) ── */}
-        <div className="rounded-xl border border-[rgba(74,61,100,0.10)] bg-white p-3.5 space-y-2.5">
+        <div className="rounded-xl border border-[rgba(15,23,42,0.10)] bg-white p-3.5 space-y-2.5">
           <div className="flex items-center gap-2">
-            <Users size={15} className="text-[#80642F]" />
-            <span className="text-xs font-bold uppercase tracking-wider text-[#252331]">
+            <Users size={15} className="text-[#785312]" />
+            <span className="text-xs font-bold uppercase tracking-wider text-[#0F172A]">
               Team Member Notification Channels & Triggers
             </span>
           </div>
 
-          <div className="space-y-2 text-xs divide-y divide-[rgba(74,61,100,0.06)] pt-1">
+          <div className="space-y-2 text-xs divide-y divide-[rgba(15,23,42,0.06)] pt-1">
             <div className="flex items-center justify-between pb-1">
               <div>
-                <p className="font-semibold text-[#252331]">Send Email Notifications</p>
-                <p className="text-[11px] text-[#9994A5]">Deliver payout share details to collaborator emails</p>
+                <p className="font-semibold text-[#0F172A]">Send Email Notifications</p>
+                <p className="text-[11px] text-[#64748B]">Deliver payout share details to collaborator emails</p>
               </div>
               <input
                 type="checkbox"
@@ -2181,14 +2181,14 @@ function NotificationSettingsModal({
                     channels: { ...prev?.channels, email: e.target.checked },
                   }))
                 }
-                className="h-4 w-4 rounded text-[#B8944E] focus:ring-[#B8944E]"
+                className="h-4 w-4 rounded text-[#CCA038] focus:ring-[#CCA038]"
               />
             </div>
 
             <div className="flex items-center justify-between pt-2">
               <div>
-                <p className="font-semibold text-[#252331]">Send In-App Notifications</p>
-                <p className="text-[11px] text-[#9994A5]">Deliver in-app notification center alerts</p>
+                <p className="font-semibold text-[#0F172A]">Send In-App Notifications</p>
+                <p className="text-[11px] text-[#64748B]">Deliver in-app notification center alerts</p>
               </div>
               <input
                 type="checkbox"
@@ -2199,20 +2199,20 @@ function NotificationSettingsModal({
                     channels: { ...prev?.channels, in_app: e.target.checked },
                   }))
                 }
-                className="h-4 w-4 rounded text-[#B8944E] focus:ring-[#B8944E]"
+                className="h-4 w-4 rounded text-[#CCA038] focus:ring-[#CCA038]"
               />
             </div>
 
             <div className="flex items-center justify-between pt-2">
               <div>
-                <p className="font-semibold text-[#252331]">Require Full Split Before Processing</p>
-                <p className="text-[11px] text-[#9994A5]">Mandate 100% of received payment to be distributed</p>
+                <p className="font-semibold text-[#0F172A]">Require Full Split Before Processing</p>
+                <p className="text-[11px] text-[#64748B]">Mandate 100% of received payment to be distributed</p>
               </div>
               <input
                 type="checkbox"
                 checked={requireFullSplit}
                 onChange={(e) => setRequireFullSplit(e.target.checked)}
-                className="h-4 w-4 rounded text-[#B8944E] focus:ring-[#B8944E]"
+                className="h-4 w-4 rounded text-[#CCA038] focus:ring-[#CCA038]"
               />
             </div>
           </div>
@@ -2288,10 +2288,10 @@ function RequestPaymentModal({
             {error}
           </div>
         )}
-        <p className="text-xs sm:text-sm text-[#706C7D] leading-relaxed">
+        <p className="text-xs sm:text-sm text-[#334155] leading-relaxed">
           An automated payment notification email will be sent to the assigned client requesting{" "}
-          <strong className="text-[#252331] font-bold">{formatCurrency(installment.amount, currency)}</strong> due on{" "}
-          <strong className="text-[#252331] font-bold">{fmtDate(installment.due_date)}</strong>.
+          <strong className="text-[#0F172A] font-bold">{formatCurrency(installment.amount, currency)}</strong> due on{" "}
+          <strong className="text-[#0F172A] font-bold">{fmtDate(installment.due_date)}</strong>.
         </p>
       </div>
     </Modal>
@@ -2408,7 +2408,7 @@ function ManageTeamSplitsModal({
   };
 
   const inputClass =
-    "w-full rounded-lg border border-[rgba(74,61,100,0.15)] px-2.5 py-1.5 text-xs text-[#252331] focus:outline-none focus:ring-1 focus:ring-[#B8944E] bg-white";
+    "w-full rounded-lg border border-[rgba(15,23,42,0.15)] px-2.5 py-1.5 text-xs text-[#0F172A] focus:outline-none focus:ring-1 focus:ring-[#CCA038] bg-white";
 
   return (
     <Modal
@@ -2436,22 +2436,22 @@ function ManageTeamSplitsModal({
           </div>
         )}
 
-        <div className="rounded-xl bg-[#faf9fc] border border-[rgba(74,61,100,0.08)] p-3.5 space-y-2">
+        <div className="rounded-xl bg-[#F8F9FB] border border-[rgba(15,23,42,0.08)] p-3.5 space-y-2">
           <div className="flex items-center justify-between text-xs font-semibold">
             <span>Total Split Allocation:</span>
-            <span className={totalAllocated > totalAmount ? "text-rose-600 font-bold" : "text-[#80642F] font-bold"}>
+            <span className={totalAllocated > totalAmount ? "text-rose-600 font-bold" : "text-[#785312] font-bold"}>
               {formatCurrency(totalAllocated, currency)} ({totalAllocatedPct}%)
             </span>
           </div>
-          <div className="h-2 w-full rounded-full bg-[rgba(74,61,100,0.08)] overflow-hidden">
+          <div className="h-2 w-full rounded-full bg-[rgba(15,23,42,0.08)] overflow-hidden">
             <div
               className={`h-full rounded-full transition-all ${
-                totalAllocated > totalAmount ? "bg-rose-500" : "bg-[#B8944E]"
+                totalAllocated > totalAmount ? "bg-rose-500" : "bg-[#CCA038]"
               }`}
               style={{ width: `${Math.min(100, (totalAllocated / (totalAmount || 1)) * 100)}%` }}
             />
           </div>
-          <div className="flex justify-between text-[11px] text-[#706C7D]">
+          <div className="flex justify-between text-[11px] text-[#334155]">
             <span>Remaining Unallocated:</span>
             <span className="font-semibold">{formatCurrency(unallocatedAmount, currency)}</span>
           </div>
@@ -2459,7 +2459,7 @@ function ManageTeamSplitsModal({
 
         {teamMembers.length > 0 && (
           <div className="space-y-1.5">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[#9994A5]">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-[#64748B]">
               Quick Add Project Team Member:
             </span>
             <div className="flex flex-wrap gap-1.5">
@@ -2474,12 +2474,12 @@ function ManageTeamSplitsModal({
                     className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium transition cursor-pointer ${
                       isAdded
                         ? "bg-zinc-100 text-zinc-400 cursor-not-allowed"
-                        : "bg-white border border-[rgba(74,61,100,0.12)] text-[#252331] hover:border-[#B8944E] hover:text-[#80642F]"
+                        : "bg-white border border-[rgba(15,23,42,0.12)] text-[#0F172A] hover:border-[#CCA038] hover:text-[#785312]"
                     }`}
                   >
                     <Plus size={11} />
                     <span>{m.name}</span>
-                    <span className="text-[10px] text-[#9994A5]">({m.role || "Member"})</span>
+                    <span className="text-[10px] text-[#64748B]">({m.role || "Member"})</span>
                   </button>
                 );
               })}
@@ -2491,11 +2491,11 @@ function ManageTeamSplitsModal({
           {splits.map((s, idx) => (
             <div
               key={idx}
-              className="rounded-xl border border-[rgba(74,61,100,0.10)] bg-white p-3 space-y-2 shadow-2xs"
+              className="rounded-xl border border-[rgba(15,23,42,0.10)] bg-white p-3 space-y-2 shadow-2xs"
             >
               <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2 min-w-0">
-                  <div className="h-6 w-6 rounded-full bg-[rgba(184,148,78,0.15)] text-[#80642F] font-bold text-[10px] flex items-center justify-center shrink-0">
+                  <div className="h-6 w-6 rounded-full bg-[rgba(204,160,56,0.15)] text-[#785312] font-bold text-[10px] flex items-center justify-center shrink-0">
                     {idx + 1}
                   </div>
                   <input
@@ -2507,7 +2507,7 @@ function ManageTeamSplitsModal({
                       setSplits(updated);
                     }}
                     placeholder="Member Name"
-                    className="font-bold text-xs text-[#252331] border-b border-transparent hover:border-zinc-300 focus:border-[#B8944E] outline-none"
+                    className="font-bold text-xs text-[#0F172A] border-b border-transparent hover:border-zinc-300 focus:border-[#CCA038] outline-none"
                   />
                   <input
                     type="text"
@@ -2518,7 +2518,7 @@ function ManageTeamSplitsModal({
                       setSplits(updated);
                     }}
                     placeholder="Role"
-                    className="text-[11px] text-[#706C7D] border-b border-transparent hover:border-zinc-300 focus:border-[#B8944E] outline-none max-w-[120px]"
+                    className="text-[11px] text-[#334155] border-b border-transparent hover:border-zinc-300 focus:border-[#CCA038] outline-none max-w-[120px]"
                   />
                 </div>
 
@@ -2533,7 +2533,7 @@ function ManageTeamSplitsModal({
 
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                 <div>
-                  <label className="block text-[10px] uppercase font-bold text-[#9994A5]">Percentage (%)</label>
+                  <label className="block text-[10px] uppercase font-bold text-[#64748B]">Percentage (%)</label>
                   <input
                     type="number"
                     min="0"
@@ -2546,7 +2546,7 @@ function ManageTeamSplitsModal({
                   />
                 </div>
                 <div>
-                  <label className="block text-[10px] uppercase font-bold text-[#9994A5]">Amount ({currency})</label>
+                  <label className="block text-[10px] uppercase font-bold text-[#64748B]">Amount ({currency})</label>
                   <input
                     type="number"
                     min="0"
@@ -2558,7 +2558,7 @@ function ManageTeamSplitsModal({
                   />
                 </div>
                 <div className="col-span-2 sm:col-span-1">
-                  <label className="block text-[10px] uppercase font-bold text-[#9994A5]">Notes / Deliverable</label>
+                  <label className="block text-[10px] uppercase font-bold text-[#64748B]">Notes / Deliverable</label>
                   <input
                     type="text"
                     value={s.notes || ""}
@@ -2704,8 +2704,8 @@ function SetupRemunerationModal({
   };
 
   const inputClass =
-    "w-full rounded-lg border border-[rgba(74,61,100,0.15)] px-3 py-2 text-xs sm:text-sm text-[#252331] focus:outline-none focus:ring-1 focus:ring-[#B8944E] bg-white";
-  const labelClass = "block text-[11px] font-bold uppercase tracking-wider text-[#706C7D] mb-1";
+    "w-full rounded-lg border border-[rgba(15,23,42,0.15)] px-3 py-2 text-xs sm:text-sm text-[#0F172A] focus:outline-none focus:ring-1 focus:ring-[#CCA038] bg-white";
+  const labelClass = "block text-[11px] font-bold uppercase tracking-wider text-[#334155] mb-1";
 
   return (
     <Modal
@@ -2793,7 +2793,7 @@ function SetupRemunerationModal({
           </div>
         ) : (
           <div className="space-y-2">
-            <div className="flex items-center justify-between text-xs font-bold text-[#706C7D]">
+            <div className="flex items-center justify-between text-xs font-bold text-[#334155]">
               <span>Milestone Installment Schedule</span>
               <button
                 type="button"
@@ -2803,16 +2803,16 @@ function SetupRemunerationModal({
                     { number: prev.length + 1, name: `Milestone #${prev.length + 1}`, amount: "", dueDate: "", notes: "" },
                   ])
                 }
-                className="text-[#80642F] hover:underline inline-flex items-center gap-1 cursor-pointer"
+                className="text-[#785312] hover:underline inline-flex items-center gap-1 cursor-pointer"
               >
                 <Plus size={11} /> Add Milestone
               </button>
             </div>
 
             {installments.map((inst, idx) => (
-              <div key={idx} className="grid grid-cols-3 gap-2 bg-[#faf9fc] p-2.5 rounded-lg border border-[rgba(74,61,100,0.08)]">
+              <div key={idx} className="grid grid-cols-3 gap-2 bg-[#F8F9FB] p-2.5 rounded-lg border border-[rgba(15,23,42,0.08)]">
                 <div>
-                  <label className="text-[10px] text-[#9994A5] font-bold">#{inst.number} Name</label>
+                  <label className="text-[10px] text-[#64748B] font-bold">#{inst.number} Name</label>
                   <input
                     type="text"
                     value={inst.name}
@@ -2826,7 +2826,7 @@ function SetupRemunerationModal({
                   />
                 </div>
                 <div>
-                  <label className="text-[10px] text-[#9994A5] font-bold">Amount ({currency})</label>
+                  <label className="text-[10px] text-[#64748B] font-bold">Amount ({currency})</label>
                   <input
                     type="number"
                     value={inst.amount}
@@ -2840,7 +2840,7 @@ function SetupRemunerationModal({
                   />
                 </div>
                 <div>
-                  <label className="text-[10px] text-[#9994A5] font-bold">Due Date (Optional)</label>
+                  <label className="text-[10px] text-[#64748B] font-bold">Due Date (Optional)</label>
                   <input
                     type="date"
                     value={inst.dueDate}
@@ -2868,16 +2868,16 @@ function SetupRemunerationModal({
           />
         </div>
 
-        <div className="flex items-center justify-between rounded-lg border border-[rgba(74,61,100,0.10)] bg-[#faf9fc] p-3">
+        <div className="flex items-center justify-between rounded-lg border border-[rgba(15,23,42,0.10)] bg-[#F8F9FB] p-3">
           <div>
-            <span className="text-xs font-semibold text-[#252331]">Send Client Receipt Emails</span>
-            <p className="text-[11px] text-[#9994A5]">Automated receipts dispatched whenever payments are logged</p>
+            <span className="text-xs font-semibold text-[#0F172A]">Send Client Receipt Emails</span>
+            <p className="text-[11px] text-[#64748B]">Automated receipts dispatched whenever payments are logged</p>
           </div>
           <input
             type="checkbox"
             checked={sendReceiptEmail}
             onChange={(e) => setSendReceiptEmail(e.target.checked)}
-            className="h-4 w-4 rounded text-[#B8944E] focus:ring-[#B8944E]"
+            className="h-4 w-4 rounded text-[#CCA038] focus:ring-[#CCA038]"
           />
         </div>
       </div>

@@ -346,7 +346,7 @@ export function FreelancerSidebar({
   const renderDesktopNav = () => (
     <div className="flex h-full flex-col bg-transparent">
       {/* Brand Header */}
-      <div className="flex h-[76px] items-center border-b border-[rgba(74,61,100,0.08)] px-5 bg-transparent">
+      <div className="flex h-[76px] items-center border-b border-[rgba(15,23,42,0.08)] px-5 bg-transparent">
         <Link
           href="/"
           className="flex items-center group focus-visible:outline-none"
@@ -363,7 +363,7 @@ export function FreelancerSidebar({
       <div className="flex-1 overflow-y-auto px-2.5 py-4 space-y-5">
         {/* Workspace group */}
         <div>
-          <p className="px-2.5 pb-1.5 text-[11px] font-semibold uppercase tracking-wider text-[#9994A5]">
+          <p className="px-2.5 pb-1.5 text-[11px] font-semibold uppercase tracking-wider text-[#64748B]">
             Workspace
           </p>
           <nav className="space-y-0.5">
@@ -371,13 +371,13 @@ export function FreelancerSidebar({
               href="/"
               className={`flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-xs sm:text-sm transition-colors ${
                 isOverviewActive
-                  ? "bg-[rgba(184,148,78,0.09)] border border-[rgba(184,148,78,0.12)] text-[#80642F] font-medium"
-                  : "text-[#706C7D] hover:bg-[rgba(184,148,78,0.04)] hover:text-[#80642F] border border-transparent font-medium"
+                  ? "bg-[rgba(204,160,56,0.09)] border border-[rgba(204,160,56,0.12)] text-[#785312] font-medium"
+                  : "text-[#334155] hover:bg-[rgba(204,160,56,0.04)] hover:text-[#785312] border border-transparent font-medium"
               }`}
             >
               <LayoutDashboard
                 size={16}
-                className={isOverviewActive ? "text-[#B8944E]" : "text-[#9994A5]"}
+                className={isOverviewActive ? "text-[#CCA038]" : "text-[#64748B]"}
               />
               <span>Overview</span>
             </Link>
@@ -385,13 +385,13 @@ export function FreelancerSidebar({
               href="/projects"
               className={`flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-xs sm:text-sm transition-colors ${
                 isProjectsActive
-                  ? "bg-[rgba(184,148,78,0.09)] border border-[rgba(184,148,78,0.12)] text-[#80642F] font-medium"
-                  : "text-[#706C7D] hover:bg-[rgba(184,148,78,0.04)] hover:text-[#80642F] border border-transparent font-medium"
+                  ? "bg-[rgba(204,160,56,0.09)] border border-[rgba(204,160,56,0.12)] text-[#785312] font-medium"
+                  : "text-[#334155] hover:bg-[rgba(204,160,56,0.04)] hover:text-[#785312] border border-transparent font-medium"
               }`}
             >
               <FolderKanban
                 size={16}
-                className={isProjectsActive ? "text-[#B8944E]" : "text-[#9994A5]"}
+                className={isProjectsActive ? "text-[#CCA038]" : "text-[#64748B]"}
               />
               <span>Projects</span>
             </Link>
@@ -400,13 +400,13 @@ export function FreelancerSidebar({
               href="/tasks"
               className={`flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-xs sm:text-sm transition-colors ${
                 isTasksActive
-                  ? "bg-[rgba(184,148,78,0.09)] border border-[rgba(184,148,78,0.12)] text-[#80642F] font-medium"
-                  : "text-[#706C7D] hover:bg-[rgba(184,148,78,0.04)] hover:text-[#80642F] border border-transparent font-medium"
+                  ? "bg-[rgba(204,160,56,0.09)] border border-[rgba(204,160,56,0.12)] text-[#785312] font-medium"
+                  : "text-[#334155] hover:bg-[rgba(204,160,56,0.04)] hover:text-[#785312] border border-transparent font-medium"
               }`}
             >
               <CheckSquare
                 size={16}
-                className={isTasksActive ? "text-[#B8944E]" : "text-[#9994A5]"}
+                className={isTasksActive ? "text-[#CCA038]" : "text-[#64748B]"}
               />
               <span>Tasks</span>
             </Link>
@@ -415,23 +415,23 @@ export function FreelancerSidebar({
               href="/meetings"
               className={`flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-xs sm:text-sm transition-colors ${
                 isMeetingsActive
-                  ? "bg-[rgba(184,148,78,0.09)] border border-[rgba(184,148,78,0.12)] text-[#80642F] font-medium"
-                  : "text-[#706C7D] hover:bg-[rgba(184,148,78,0.04)] hover:text-[#80642F] border border-transparent font-medium"
+                  ? "bg-[rgba(204,160,56,0.09)] border border-[rgba(204,160,56,0.12)] text-[#785312] font-medium"
+                  : "text-[#334155] hover:bg-[rgba(204,160,56,0.04)] hover:text-[#785312] border border-transparent font-medium"
               }`}
             >
               <Calendar
                 size={16}
-                className={isMeetingsActive ? "text-[#B8944E]" : "text-[#9994A5]"}
+                className={isMeetingsActive ? "text-[#CCA038]" : "text-[#64748B]"}
               />
-              <span>Meetings & Calls</span>
+              <span>Meetings</span>
             </Link>
 
             <Link
               href="/inbox"
               className={`flex items-center justify-between rounded-lg px-2.5 py-1.5 text-xs sm:text-sm transition-colors group ${
                 isInboxActive
-                  ? "bg-[rgba(184,148,78,0.09)] border border-[rgba(184,148,78,0.12)] text-[#80642F] font-medium"
-                  : "text-[#706C7D] hover:bg-[rgba(184,148,78,0.04)] hover:text-[#80642F] border border-transparent font-medium"
+                  ? "bg-[rgba(204,160,56,0.09)] border border-[rgba(204,160,56,0.12)] text-[#785312] font-medium"
+                  : "text-[#334155] hover:bg-[rgba(204,160,56,0.04)] hover:text-[#785312] border border-transparent font-medium"
               }`}
             >
               <div className="flex items-center gap-2.5 min-w-0">
@@ -439,13 +439,13 @@ export function FreelancerSidebar({
                   size={16}
                   className={
                     isInboxActive
-                      ? "text-[#B8944E]"
-                      : "text-[#9994A5] group-hover:text-[#B8944E]"
+                      ? "text-[#CCA038]"
+                      : "text-[#64748B] group-hover:text-[#CCA038]"
                   }
                 />
                 <span className="truncate">Project Inbox</span>
               </div>
-              <span className="rounded bg-[rgba(184,148,78,0.10)] px-1.5 py-0.5 text-[10px] font-semibold text-[#80642F] border border-[rgba(184,148,78,0.14)]">
+              <span className="rounded bg-[rgba(204,160,56,0.10)] px-1.5 py-0.5 text-[10px] font-semibold text-[#785312] border border-[rgba(204,160,56,0.14)]">
                 Ideas
               </span>
             </Link>
@@ -453,13 +453,13 @@ export function FreelancerSidebar({
             <button
               type="button"
               onClick={() => window.dispatchEvent(new CustomEvent("storyboard:open-copilot"))}
-              className="flex w-full items-center justify-between rounded-lg px-2.5 py-1.5 text-xs sm:text-sm transition-colors text-[#80642F] bg-[rgba(184,148,78,0.09)] hover:bg-[rgba(184,148,78,0.16)] border border-[rgba(184,148,78,0.20)] font-medium group cursor-pointer"
+              className="flex w-full items-center justify-between rounded-lg px-2.5 py-1.5 text-xs sm:text-sm transition-colors text-[#785312] bg-[rgba(204,160,56,0.09)] hover:bg-[rgba(204,160,56,0.16)] border border-[rgba(204,160,56,0.20)] font-medium group cursor-pointer"
             >
               <div className="flex items-center gap-2.5 min-w-0">
-                <BotMessageSquare size={16} className="text-[#B8944E] group-hover:scale-110 transition-transform" />
+                <BotMessageSquare size={16} className="text-[#CCA038] group-hover:scale-110 transition-transform" />
                 <span className="truncate">AI Copilot</span>
               </div>
-              <span className="rounded bg-[rgba(184,148,78,0.12)] px-1.5 py-0.5 text-[10px] font-mono text-[#80642F] font-semibold border border-[rgba(184,148,78,0.24)]">
+              <span className="rounded bg-[rgba(204,160,56,0.12)] px-1.5 py-0.5 text-[10px] font-mono text-[#785312] font-semibold border border-[rgba(204,160,56,0.24)]">
                 Ctrl+J
               </span>
             </button>
@@ -468,7 +468,7 @@ export function FreelancerSidebar({
 
         {/* Manage group */}
         <div>
-          <p className="px-2.5 pb-1.5 text-[11px] font-semibold uppercase tracking-wider text-[#9994A5]">
+          <p className="px-2.5 pb-1.5 text-[11px] font-semibold uppercase tracking-wider text-[#64748B]">
             Manage
           </p>
           <nav className="space-y-0.5">
@@ -476,13 +476,13 @@ export function FreelancerSidebar({
               href="/remunerations"
               className={`flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-xs sm:text-sm transition-colors ${
                 isRemunerationsActive
-                  ? "bg-[rgba(184,148,78,0.09)] border border-[rgba(184,148,78,0.12)] text-[#80642F] font-medium"
-                  : "text-[#706C7D] hover:bg-[rgba(184,148,78,0.04)] hover:text-[#80642F] border border-transparent font-medium"
+                  ? "bg-[rgba(204,160,56,0.09)] border border-[rgba(204,160,56,0.12)] text-[#785312] font-medium"
+                  : "text-[#334155] hover:bg-[rgba(204,160,56,0.04)] hover:text-[#785312] border border-transparent font-medium"
               }`}
             >
               <Receipt
                 size={16}
-                className={isRemunerationsActive ? "text-[#B8944E]" : "text-[#9994A5]"}
+                className={isRemunerationsActive ? "text-[#CCA038]" : "text-[#64748B]"}
               />
               <span>Remunerations</span>
             </Link>
@@ -490,13 +490,13 @@ export function FreelancerSidebar({
               href="/clients"
               className={`flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-xs sm:text-sm transition-colors ${
                 isClientsActive
-                  ? "bg-[rgba(184,148,78,0.09)] border border-[rgba(184,148,78,0.12)] text-[#80642F] font-medium"
-                  : "text-[#706C7D] hover:bg-[rgba(184,148,78,0.04)] hover:text-[#80642F] border border-transparent font-medium"
+                  ? "bg-[rgba(204,160,56,0.09)] border border-[rgba(204,160,56,0.12)] text-[#785312] font-medium"
+                  : "text-[#334155] hover:bg-[rgba(204,160,56,0.04)] hover:text-[#785312] border border-transparent font-medium"
               }`}
             >
               <Users
                 size={16}
-                className={isClientsActive ? "text-[#B8944E]" : "text-[#9994A5]"}
+                className={isClientsActive ? "text-[#CCA038]" : "text-[#64748B]"}
               />
               <span>Clients</span>
             </Link>
@@ -504,13 +504,13 @@ export function FreelancerSidebar({
               href="/users"
               className={`flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-xs sm:text-sm transition-colors ${
                 isUsersActive
-                  ? "bg-[rgba(184,148,78,0.09)] border border-[rgba(184,148,78,0.12)] text-[#80642F] font-medium"
-                  : "text-[#706C7D] hover:bg-[rgba(184,148,78,0.04)] hover:text-[#80642F] border border-transparent font-medium"
+                  ? "bg-[rgba(204,160,56,0.09)] border border-[rgba(204,160,56,0.12)] text-[#785312] font-medium"
+                  : "text-[#334155] hover:bg-[rgba(204,160,56,0.04)] hover:text-[#785312] border border-transparent font-medium"
               }`}
             >
               <ShieldCheck
                 size={16}
-                className={isUsersActive ? "text-[#B8944E]" : "text-[#9994A5]"}
+                className={isUsersActive ? "text-[#CCA038]" : "text-[#64748B]"}
               />
               <span>Users</span>
             </Link>
@@ -518,14 +518,14 @@ export function FreelancerSidebar({
               href="/settings"
               className={`flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-xs sm:text-sm transition-colors ${
                 isSettingsActive && !isUsersActive
-                  ? "bg-[rgba(184,148,78,0.09)] border border-[rgba(184,148,78,0.12)] text-[#80642F] font-medium"
-                  : "text-[#706C7D] hover:bg-[rgba(184,148,78,0.04)] hover:text-[#80642F] border border-transparent font-medium"
+                  ? "bg-[rgba(204,160,56,0.09)] border border-[rgba(204,160,56,0.12)] text-[#785312] font-medium"
+                  : "text-[#334155] hover:bg-[rgba(204,160,56,0.04)] hover:text-[#785312] border border-transparent font-medium"
               }`}
             >
               <Settings
                 size={16}
                 className={
-                  isSettingsActive && !isUsersActive ? "text-[#B8944E]" : "text-[#9994A5]"
+                  isSettingsActive && !isUsersActive ? "text-[#CCA038]" : "text-[#64748B]"
                 }
               />
               <span>Settings</span>
@@ -535,36 +535,36 @@ export function FreelancerSidebar({
       </div>
 
       {/* User Profile Pill & Popover Menu */}
-      <div className="relative border-t border-[rgba(74,61,100,0.08)] p-3 space-y-2" ref={menuRef}>
+      <div className="relative border-t border-[rgba(15,23,42,0.08)] p-3 space-y-2" ref={menuRef}>
         {/* Switch to Bottom Dock Button */}
         <button
           type="button"
           onClick={toggleDesktopNavMode}
           title="Switch to macOS Bottom Dock"
           aria-label="Switch to macOS Bottom Dock"
-          className="flex w-full items-center justify-between gap-2 rounded-xl px-2.5 py-2 text-xs font-semibold text-zinc-600 hover:text-zinc-950 bg-white/60 hover:bg-[rgba(184,148,78,0.08)] border border-zinc-200/80 hover:border-[#B8944E]/40 transition-all cursor-pointer group shadow-2xs"
+          className="flex w-full items-center justify-between gap-2 rounded-xl px-2.5 py-2 text-xs font-semibold text-zinc-600 hover:text-zinc-950 bg-white/60 hover:bg-[rgba(204,160,56,0.08)] border border-zinc-200/80 hover:border-[#CCA038]/40 transition-all cursor-pointer group shadow-2xs"
         >
           <div className="flex items-center gap-2 min-w-0">
-            <PanelBottom size={15} className="text-zinc-500 group-hover:text-[#B8944E] transition-colors shrink-0" />
+            <PanelBottom size={15} className="text-zinc-500 group-hover:text-[#CCA038] transition-colors shrink-0" />
             <span className="truncate">Dock Layout</span>
           </div>
-          <span className="text-[10px] font-bold text-zinc-400 group-hover:text-[#80642F] uppercase tracking-wider shrink-0">Switch</span>
+          <span className="text-[10px] font-bold text-zinc-400 group-hover:text-[#785312] uppercase tracking-wider shrink-0">Switch</span>
         </button>
 
         {showUserMenu && (
-          <div className="absolute bottom-full left-3 right-3 mb-2 overflow-hidden rounded-xl border border-[rgba(74,61,100,0.10)] bg-white/94 backdrop-blur-[20px] p-1 shadow-[0_15px_40px_rgba(70,55,95,0.12)] animate-in fade-in zoom-in-95 duration-100">
-            <div className="border-b border-[rgba(74,61,100,0.08)] px-3 py-2">
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-[#9994A5]">
+          <div className="absolute bottom-full left-3 right-3 mb-2 overflow-hidden rounded-xl border border-[rgba(15,23,42,0.10)] bg-white/94 backdrop-blur-[20px] p-1 shadow-[0_15px_40px_rgba(15,23,42,0.12)] animate-in fade-in zoom-in-95 duration-100">
+            <div className="border-b border-[rgba(15,23,42,0.08)] px-3 py-2">
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-[#64748B]">
                 Signed in as
               </p>
-              <p className="truncate text-xs font-medium text-[#252331]">
+              <p className="truncate text-xs font-medium text-[#0F172A]">
                 {userEmail || "freelancer@reqly.io"}
               </p>
             </div>
             <button
               type="button"
               onClick={handleSignOut}
-              className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium text-[#C25D72] hover:bg-rose-50/80 transition cursor-pointer"
+              className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium text-[#E11D48] hover:bg-rose-50/80 transition cursor-pointer"
             >
               <LogOut size={14} />
               <span>Sign out</span>
@@ -575,18 +575,18 @@ export function FreelancerSidebar({
         <button
           type="button"
           onClick={() => setShowUserMenu((prev) => !prev)}
-          className="flex w-full items-center gap-2.5 rounded-lg p-1.5 text-left transition hover:bg-[rgba(184,148,78,0.05)] cursor-pointer"
+          className="flex w-full items-center gap-2.5 rounded-lg p-1.5 text-left transition hover:bg-[rgba(204,160,56,0.05)] cursor-pointer"
         >
-          <div className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-[#B8944E] text-[11px] font-semibold text-white">
+          <div className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-[#CCA038] text-[11px] font-semibold text-white">
             {userInitials}
           </div>
           <div className="min-w-0 flex-1">
-            <p className="truncate text-xs font-medium text-[#252331]">{userName}</p>
-            <p className="truncate text-[11px] text-[#706C7D] font-medium">{roleDisplay}</p>
+            <p className="truncate text-xs font-medium text-[#0F172A]">{userName}</p>
+            <p className="truncate text-[11px] text-[#334155] font-medium">{roleDisplay}</p>
           </div>
           <ChevronDown
             size={14}
-            className={`text-[#9994A5] transition-transform duration-150 ${
+            className={`text-[#64748B] transition-transform duration-150 ${
               showUserMenu ? "rotate-180" : ""
             }`}
           />
@@ -621,7 +621,7 @@ export function FreelancerSidebar({
 
       {/* Desktop Persistent Sidebar (when sidebar mode selected) */}
       {desktopNavMode === "sidebar" && (
-        <aside className="fixed inset-y-0 left-0 z-30 hidden w-56 border-r border-[rgba(74,61,100,0.08)] bg-[rgba(250,249,252,0.80)] backdrop-blur-[20px] md:flex md:flex-col">
+        <aside className="fixed inset-y-0 left-0 z-30 hidden w-56 border-r border-[rgba(15,23,42,0.08)] bg-[rgba(250,249,252,0.80)] backdrop-blur-[20px] md:flex md:flex-col">
           {renderDesktopNav()}
         </aside>
       )}

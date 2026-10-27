@@ -215,14 +215,14 @@ export default function ProjectsPage() {
           <div className="relative flex-1 max-w-sm">
             <Search
               size={15}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-[#9994A5]"
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-[#64748B]"
             />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search projects..."
-              className="h-9 w-full rounded-xl border border-[rgba(74,61,100,0.11)] bg-white/85 pl-9 pr-3.5 text-xs sm:text-sm text-[#252331] placeholder-[#9994A5] outline-none transition focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)]"
+              className="h-9 w-full rounded-xl border border-[rgba(15,23,42,0.11)] bg-white/85 pl-9 pr-3.5 text-xs sm:text-sm text-[#0F172A] placeholder-[#64748B] outline-none transition focus:border-[#CCA038] focus:ring-1 focus:ring-[rgba(204,160,56,0.14)]"
             />
           </div>
 
@@ -230,7 +230,7 @@ export default function ProjectsPage() {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="h-9 rounded-xl border border-[rgba(74,61,100,0.11)] bg-white/85 px-3 text-xs sm:text-sm font-medium text-[#252331] outline-none transition focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)] cursor-pointer"
+              className="h-9 rounded-xl border border-[rgba(15,23,42,0.11)] bg-white/85 px-3 text-xs sm:text-sm font-medium text-[#0F172A] outline-none transition focus:border-[#CCA038] focus:ring-1 focus:ring-[rgba(204,160,56,0.14)] cursor-pointer"
             >
               <option value="all">All statuses</option>
               <option value="active">Active</option>
@@ -241,7 +241,7 @@ export default function ProjectsPage() {
         </div>
 
         {error && (
-          <div className="rounded-xl border border-rose-200/80 bg-rose-50/80 p-4 text-xs sm:text-sm text-[#C25D72]">
+          <div className="rounded-xl border border-rose-200/80 bg-rose-50/80 p-4 text-xs sm:text-sm text-[#E11D48]">
             {error}
           </div>
         )}
@@ -270,9 +270,9 @@ export default function ProjectsPage() {
               }
             />
           ) : (
-            <div className="rounded-[18px] border border-dashed border-[rgba(74,61,100,0.14)] bg-white/50 p-8 text-center">
-              <p className="text-sm font-medium text-[#252331]">No projects found</p>
-              <p className="mt-1 text-xs text-[#9994A5]">
+            <div className="rounded-[18px] border border-dashed border-[rgba(15,23,42,0.14)] bg-white/50 p-8 text-center">
+              <p className="text-sm font-medium text-[#0F172A]">No projects found</p>
+              <p className="mt-1 text-xs text-[#64748B]">
                 Try searching with a different term or reset the status filter.
               </p>
               <Button
@@ -305,19 +305,19 @@ export default function ProjectsPage() {
               return (
                 <div
                   key={project.id}
-                  className="group relative flex flex-col justify-between rounded-[18px] border border-[rgba(74,61,100,0.08)] bg-white/82 p-5 shadow-[0_8px_30px_rgba(70,55,95,0.055)] backdrop-blur-[16px] transition-all hover:border-[rgba(74,61,100,0.16)] hover:shadow-[0_12px_35px_rgba(70,55,95,0.08)]"
+                  className="group relative flex flex-col justify-between rounded-[18px] border border-[rgba(15,23,42,0.08)] bg-white/82 p-5 shadow-[0_8px_30px_rgba(15,23,42,0.055)] backdrop-blur-[16px] transition-all hover:border-[rgba(15,23,42,0.16)] hover:shadow-[0_12px_35px_rgba(15,23,42,0.08)]"
                 >
                   <div>
                     {/* Top Row: Title, Status Badge, & Menu */}
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex items-center gap-3 min-w-0 flex-1">
-                        <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-[#FAF9FC] border border-[rgba(184,148,78,0.16)] text-xs font-semibold text-[#80642F]">
+                        <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-[#F8F9FB] border border-[rgba(204,160,56,0.16)] text-xs font-semibold text-[#785312]">
                           {project.name.slice(0, 1).toUpperCase()}
                         </div>
                         <div className="min-w-0 flex-1">
                           <Link
                             href={`/project/${project.id}`}
-                            className="block text-base font-semibold tracking-tight text-[#252331] group-hover:text-[#80642F] transition truncate"
+                            className="block text-base font-semibold tracking-tight text-[#0F172A] group-hover:text-[#785312] transition truncate"
                           >
                             {project.name}
                           </Link>
@@ -367,36 +367,36 @@ export default function ProjectsPage() {
                     </div>
 
                     {/* Description */}
-                    <p className="mt-3 text-xs sm:text-sm text-[#706C7D] line-clamp-2 leading-relaxed min-h-[2.5rem]">
+                    <p className="mt-3 text-xs sm:text-sm text-[#334155] line-clamp-2 leading-relaxed min-h-[2.5rem]">
                       {project.description || "No project description provided."}
                     </p>
 
                     {/* Stats Hierarchy */}
-                    <div className="mt-4 flex items-center gap-3 text-xs text-[#706C7D] font-medium">
+                    <div className="mt-4 flex items-center gap-3 text-xs text-[#334155] font-medium">
                       <span>{project.epics || 0} Epics</span>
-                      <span className="text-[rgba(74,61,100,0.2)]">•</span>
+                      <span className="text-[rgba(15,23,42,0.2)]">•</span>
                       <span>{project.total || 0} Stories</span>
-                      <span className="text-[rgba(74,61,100,0.2)]">•</span>
-                      <span className="text-[#2E8B70] font-semibold">
+                      <span className="text-[rgba(15,23,42,0.2)]">•</span>
+                      <span className="text-[#059669] font-semibold">
                         {project.approved || 0} Approved
                       </span>
                     </div>
 
                     {/* Progress Bar */}
-                    <div className="mt-2.5 h-1.5 w-full overflow-hidden rounded-full bg-[rgba(74,61,100,0.06)]">
+                    <div className="mt-2.5 h-1.5 w-full overflow-hidden rounded-full bg-[rgba(15,23,42,0.06)]">
                       <div
-                        className="h-full rounded-full bg-[#B8944E] transition-all duration-300"
+                        className="h-full rounded-full bg-[#CCA038] transition-all duration-300"
                         style={{ width: `${progress}%` }}
                       />
                     </div>
                   </div>
 
                   {/* Card Footer */}
-                  <div className="mt-4 pt-3 border-t border-[rgba(74,61,100,0.06)] flex items-center justify-between text-xs text-[#706C7D]">
+                  <div className="mt-4 pt-3 border-t border-[rgba(15,23,42,0.06)] flex items-center justify-between text-xs text-[#334155]">
                     <span>{progress}% reviewed</span>
                     <Link
                       href={`/project/${project.id}`}
-                      className="inline-flex items-center gap-1 font-medium text-[#252331] group-hover:text-[#80642F] transition"
+                      className="inline-flex items-center gap-1 font-medium text-[#0F172A] group-hover:text-[#785312] transition"
                     >
                       <span>Open</span>
                       <ArrowRight size={13} className="transition-transform group-hover:translate-x-0.5" />
@@ -448,12 +448,12 @@ export default function ProjectsPage() {
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g. OfferNearU, Customer Portal"
-              className="h-10 w-full rounded-xl border border-[rgba(74,61,100,0.11)] bg-white px-3.5 text-sm text-[#252331] outline-none transition focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)]"
+              className="h-10 w-full rounded-xl border border-[rgba(15,23,42,0.11)] bg-white px-3.5 text-sm text-[#0F172A] outline-none transition focus:border-[#CCA038] focus:ring-1 focus:ring-[rgba(204,160,56,0.14)]"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-[#706C7D] mb-1.5">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-[#334155] mb-1.5">
               Short Description
             </label>
             <Textarea
@@ -461,19 +461,19 @@ export default function ProjectsPage() {
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Brief description of the product or initiative..."
-              className="w-full rounded-xl border border-[rgba(74,61,100,0.11)] bg-white p-3 text-sm text-[#252331] outline-none transition focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)] resize-none"
+              className="w-full rounded-xl border border-[rgba(15,23,42,0.11)] bg-white p-3 text-sm text-[#0F172A] outline-none transition focus:border-[#CCA038] focus:ring-1 focus:ring-[rgba(204,160,56,0.14)] resize-none"
             />
           </div>
 
           {isSuperAdmin && (
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-[#706C7D] mb-1.5">
+              <label className="block text-xs font-semibold uppercase tracking-wider text-[#334155] mb-1.5">
                 Assign to Freelancer (Lead)
               </label>
               <select
                 value={createOwnerId}
                 onChange={(e) => setCreateOwnerId(e.target.value)}
-                className="h-10 w-full rounded-xl border border-[rgba(74,61,100,0.11)] bg-white px-3 text-sm text-[#252331] outline-none transition focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)] cursor-pointer"
+                className="h-10 w-full rounded-xl border border-[rgba(15,23,42,0.11)] bg-white px-3 text-sm text-[#0F172A] outline-none transition focus:border-[#CCA038] focus:ring-1 focus:ring-[rgba(204,160,56,0.14)] cursor-pointer"
               >
                 <option value="">Default (Super Admin)</option>
                 {freelancers.map((f) => (
@@ -482,7 +482,7 @@ export default function ProjectsPage() {
                   </option>
                 ))}
               </select>
-              <p className="mt-1 text-[11px] text-[#9994A5]">
+              <p className="mt-1 text-[11px] text-[#64748B]">
                 The mapped freelancer will see this project on their dashboard with project lead access.
               </p>
             </div>
@@ -525,7 +525,7 @@ export default function ProjectsPage() {
       >
         <form id="edit-project-form" onSubmit={handleUpdate} className="space-y-4">
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-[#706C7D] mb-1.5">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-[#334155] mb-1.5">
               Project Name <span className="text-rose-500">*</span>
             </label>
             <input
@@ -533,30 +533,30 @@ export default function ProjectsPage() {
               required
               value={editName}
               onChange={(e) => setEditName(e.target.value)}
-              className="h-10 w-full rounded-xl border border-[rgba(74,61,100,0.11)] bg-white px-3.5 text-sm text-[#252331] outline-none transition focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)]"
+              className="h-10 w-full rounded-xl border border-[rgba(15,23,42,0.11)] bg-white px-3.5 text-sm text-[#0F172A] outline-none transition focus:border-[#CCA038] focus:ring-1 focus:ring-[rgba(204,160,56,0.14)]"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-[#706C7D] mb-1.5">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-[#334155] mb-1.5">
               Description
             </label>
             <Textarea
               rows={3}
               value={editDesc}
               onChange={(e) => setEditDesc(e.target.value)}
-              className="w-full rounded-xl border border-[rgba(74,61,100,0.11)] bg-white p-3 text-sm text-[#252331] outline-none transition focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)] resize-none"
+              className="w-full rounded-xl border border-[rgba(15,23,42,0.11)] bg-white p-3 text-sm text-[#0F172A] outline-none transition focus:border-[#CCA038] focus:ring-1 focus:ring-[rgba(204,160,56,0.14)] resize-none"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-[#706C7D] mb-1.5">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-[#334155] mb-1.5">
               Status
             </label>
             <select
               value={editStatus}
               onChange={(e) => setEditStatus(e.target.value)}
-              className="h-10 w-full rounded-xl border border-[rgba(74,61,100,0.11)] bg-white px-3 text-sm text-[#252331] outline-none transition focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)] cursor-pointer"
+              className="h-10 w-full rounded-xl border border-[rgba(15,23,42,0.11)] bg-white px-3 text-sm text-[#0F172A] outline-none transition focus:border-[#CCA038] focus:ring-1 focus:ring-[rgba(204,160,56,0.14)] cursor-pointer"
             >
               <option value="active">Active</option>
               <option value="completed">Completed</option>
@@ -566,13 +566,13 @@ export default function ProjectsPage() {
 
           {isSuperAdmin && (
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-[#706C7D] mb-1.5">
+              <label className="block text-xs font-semibold uppercase tracking-wider text-[#334155] mb-1.5">
                 Assigned Freelancer / Project Lead
               </label>
               <select
                 value={editOwnerId}
                 onChange={(e) => setEditOwnerId(e.target.value)}
-                className="h-10 w-full rounded-xl border border-[rgba(74,61,100,0.11)] bg-white px-3 text-sm text-[#252331] outline-none transition focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)] cursor-pointer"
+                className="h-10 w-full rounded-xl border border-[rgba(15,23,42,0.11)] bg-white px-3 text-sm text-[#0F172A] outline-none transition focus:border-[#CCA038] focus:ring-1 focus:ring-[rgba(204,160,56,0.14)] cursor-pointer"
               >
                 <option value="">Unassigned (Super Admin)</option>
                 {freelancers.map((f) => (
@@ -581,7 +581,7 @@ export default function ProjectsPage() {
                   </option>
                 ))}
               </select>
-              <p className="mt-1 text-[11px] text-[#9994A5]">
+              <p className="mt-1 text-[11px] text-[#64748B]">
                 Reassigning this project will map it directly to the selected freelancer as Project Lead.
               </p>
             </div>

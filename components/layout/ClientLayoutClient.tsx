@@ -56,21 +56,21 @@ export function ClientLayoutClient({
         }`}
       >
         {/* Mobile Sticky Header */}
-        <header className="sticky top-0 z-20 flex h-[64px] sm:h-[72px] items-center justify-between border-b border-[rgba(74,61,100,0.08)] bg-white/68 backdrop-blur-[20px] px-4 md:hidden">
+        <header className="sticky top-0 z-20 flex h-[64px] sm:h-[72px] items-center justify-between border-b border-[rgba(15,23,42,0.08)] bg-white/68 backdrop-blur-[20px] px-4 md:hidden">
           <button
             type="button"
             onClick={() => setMobileOpen(true)}
-            className="grid h-10 w-10 place-items-center rounded-xl text-[#706C7D] hover:bg-[#E9E3F4]/30 hover:text-[#252331] transition"
+            className="grid h-10 w-10 place-items-center rounded-xl text-[#334155] hover:bg-[#F1F5F9]/30 hover:text-[#0F172A] transition"
             aria-label="Open navigation menu"
           >
             <Menu size={20} />
           </button>
 
           <div className="flex items-center gap-2 min-w-0">
-            <span className="text-sm font-semibold tracking-tight text-[#252331] truncate">
+            <span className="text-sm font-semibold tracking-tight text-[#0F172A] truncate">
               {projectName}
             </span>
-            <span className="rounded-full bg-[rgba(184,148,78,0.10)] px-2 py-0.5 text-[10px] font-semibold text-[#80642F] border border-[rgba(184,148,78,0.18)] shrink-0">
+            <span className="rounded-full bg-[rgba(204,160,56,0.10)] px-2 py-0.5 text-[10px] font-semibold text-[#785312] border border-[rgba(204,160,56,0.18)] shrink-0">
               Client
             </span>
           </div>

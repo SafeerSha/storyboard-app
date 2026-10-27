@@ -40,19 +40,19 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 
     const variantStyles: Record<ButtonVariant, string> = {
       primary:
-        "bg-[#B8944E] text-white hover:bg-[#9F7D3E] active:scale-[0.99] shadow-xs focus-visible:outline-[#B8944E]",
+        "bg-gradient-to-b from-[#D4A73B] via-[#C2932E] to-[#AB7E20] text-white hover:from-[#DBB046] hover:to-[#B58726] active:translate-y-[0.5px] shadow-[inset_0_1px_0_rgba(255,255,255,0.45),inset_0_-1.5px_0_rgba(70,45,10,0.25),0_2px_4px_rgba(120,80,15,0.18)] border border-[#B0801E] font-semibold focus-visible:outline-[#CCA038]",
       secondary:
-        "bg-white/85 text-[#353140] border border-[rgba(74,61,100,0.10)] hover:bg-white active:scale-[0.99] shadow-xs focus-visible:outline-[#B8944E]",
+        "bg-gradient-to-b from-white to-[#F9FAFB] text-[#0F172A] border border-slate-200/90 hover:bg-white hover:border-slate-300 active:scale-[0.99] shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_1px_2px_rgba(15,23,42,0.05)] focus-visible:outline-[#CCA038]",
       outline:
-        "bg-transparent text-[#706C7D] border border-[rgba(74,61,100,0.12)] hover:bg-white/60 hover:text-[#252331] focus-visible:outline-[#B8944E]",
+        "bg-transparent text-[#334155] border border-slate-200/90 hover:bg-white hover:text-[#0F172A] shadow-2xs focus-visible:outline-[#CCA038]",
       ghost:
-        "bg-transparent text-[#706C7D] hover:bg-[rgba(184,148,78,0.06)] hover:text-[#252331] focus-visible:outline-[#B8944E]",
+        "bg-transparent text-[#334155] hover:bg-slate-100/70 hover:text-[#0F172A] focus-visible:outline-[#CCA038]",
       danger:
-        "bg-rose-50/80 text-[#C25D72] border border-rose-200/70 hover:bg-rose-100/70 focus-visible:outline-[#C25D72]",
+        "bg-rose-50/80 text-[#E11D48] border border-rose-200/70 hover:bg-rose-100/70 focus-visible:outline-[#E11D48]",
       "danger-solid":
-        "bg-[#C25D72] text-white hover:bg-[#B14E63] focus-visible:outline-[#C25D72] shadow-xs",
+        "bg-gradient-to-b from-[#E83B61] to-[#D01944] text-white hover:brightness-105 active:translate-y-[0.5px] shadow-[inset_0_1px_0_rgba(255,255,255,0.35),0_1.5px_3px_rgba(200,20,50,0.25)] border border-[#BE123C] focus-visible:outline-[#E11D48]",
       brand:
-        "bg-[#B8944E] text-white hover:bg-[#9F7D3E] active:scale-[0.99] shadow-xs focus-visible:outline-[#B8944E]",
+        "bg-gradient-to-b from-[#D4A73B] via-[#C2932E] to-[#AB7E20] text-white hover:from-[#DBB046] hover:to-[#B58726] active:translate-y-[0.5px] shadow-[inset_0_1px_0_rgba(255,255,255,0.45),inset_0_-1.5px_0_rgba(70,45,10,0.25),0_2px_4px_rgba(120,80,15,0.18)] border border-[#B0801E] font-semibold focus-visible:outline-[#CCA038]",
     };
 
     const sizeStyles: Record<ButtonSize, string> = {

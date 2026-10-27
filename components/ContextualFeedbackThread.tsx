@@ -305,7 +305,7 @@ export function ContextualFeedbackThread({
                             ? "bg-emerald-50/50 border-emerald-100"
                             : isClient
                             ? "bg-white border-zinc-200/80 shadow-2xs"
-                            : "bg-[rgba(184,148,78,0.06)] border-[rgba(184,148,78,0.15)]"
+                            : "bg-[rgba(204,160,56,0.06)] border-[rgba(204,160,56,0.15)]"
                         } group`}
                       >
                         <div className="flex items-center justify-between text-xs mb-1">
@@ -323,7 +323,7 @@ export function ContextualFeedbackThread({
                                     ? "bg-emerald-100 text-emerald-800"
                                     : msg.author_type === "admin"
                                     ? "bg-purple-100 text-purple-800"
-                                    : "bg-[rgba(184,148,78,0.12)] text-[#80642F]"
+                                    : "bg-[rgba(204,160,56,0.12)] text-[#785312]"
                                 }`}
                               >
                                 {isTeamUser
@@ -350,7 +350,7 @@ export function ContextualFeedbackThread({
                                     setEditingMessageId(msg.id);
                                     setEditContent(msg.body);
                                   }}
-                                  className="text-zinc-400 hover:text-[#B8944E] transition"
+                                  className="text-zinc-400 hover:text-[#CCA038] transition"
                                 >
                                   <Edit2 size={13} />
                                 </button>
@@ -371,7 +371,7 @@ export function ContextualFeedbackThread({
                             <Textarea
                               value={editContent}
                               onChange={(e) => setEditContent(e.target.value)}
-                              className="w-full text-xs min-h-[60px] rounded-lg border border-zinc-200 bg-white p-2 outline-none focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)]"
+                              className="w-full text-xs min-h-[60px] rounded-lg border border-zinc-200 bg-white p-2 outline-none focus:border-[#CCA038] focus:ring-1 focus:ring-[rgba(204,160,56,0.14)]"
                               autoFocus
                             />
                             <div className="flex items-center gap-2 mt-2 justify-end">
@@ -432,7 +432,7 @@ export function ContextualFeedbackThread({
                         }}
                         placeholder="Write a reply..."
                         containerClassName="flex-1 min-w-0"
-                        className="h-8 w-full rounded-lg border border-zinc-200 bg-white px-2.5 text-xs text-zinc-900 outline-none focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)]"
+                        className="h-8 w-full rounded-lg border border-zinc-200 bg-white px-2.5 text-xs text-zinc-900 outline-none focus:border-[#CCA038] focus:ring-1 focus:ring-[rgba(204,160,56,0.14)]"
                         disabled={loading}
                       />
                       <button
@@ -459,7 +459,7 @@ export function ContextualFeedbackThread({
           <button
             type="button"
             onClick={() => setIsOpenInput(true)}
-            className="inline-flex items-center gap-1 text-xs font-medium text-[#80642F] hover:text-[#B8944E] transition p-1 rounded hover:bg-[rgba(184,148,78,0.06)]"
+            className="inline-flex items-center gap-1 text-xs font-medium text-[#785312] hover:text-[#CCA038] transition p-1 rounded hover:bg-[rgba(204,160,56,0.06)]"
           >
             <MessageSquare size={13} />
             <span>{actionLabel}</span>
@@ -474,9 +474,9 @@ export function ContextualFeedbackThread({
       )}
 
       {!isReadOnly && isOpenInput && (
-        <div className="rounded-xl border border-[rgba(184,148,78,0.2)] bg-white p-3 shadow-xs space-y-2.5">
+        <div className="rounded-xl border border-[rgba(204,160,56,0.2)] bg-white p-3 shadow-xs space-y-2.5">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-[#80642F]">
+            <span className="text-xs font-semibold text-[#785312]">
               {pointNumber !== undefined
                 ? `${
                     sectionType === "acceptance_criteria"
@@ -509,7 +509,7 @@ export function ContextualFeedbackThread({
                 ? "Describe what should be adjusted or clarified..."
                 : "Add a discussion note or feedback item..."
             }
-            className="w-full rounded-lg border border-zinc-200 p-2.5 text-xs sm:text-sm text-zinc-900 outline-none focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)] resize-none"
+            className="w-full rounded-lg border border-zinc-200 p-2.5 text-xs sm:text-sm text-zinc-900 outline-none focus:border-[#CCA038] focus:ring-1 focus:ring-[rgba(204,160,56,0.14)] resize-none"
           />
 
           <div className="flex items-center justify-end gap-2">

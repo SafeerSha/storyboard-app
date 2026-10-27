@@ -51,15 +51,15 @@ export function EpicMediaModal({
     >
       <div className="space-y-4">
         {/* Epic Info Header */}
-        <div className="rounded-xl border border-[rgba(74,61,100,0.08)] bg-[#FAF9FC] p-3 flex items-center gap-2.5">
-          <div className="grid h-8 w-8 place-items-center rounded-lg bg-[rgba(184,148,78,0.12)] text-[#80642F] shrink-0">
+        <div className="rounded-xl border border-[rgba(15,23,42,0.08)] bg-[#F8F9FB] p-3 flex items-center gap-2.5">
+          <div className="grid h-8 w-8 place-items-center rounded-lg bg-[rgba(204,160,56,0.12)] text-[#785312] shrink-0">
             <Layers size={16} />
           </div>
           <div className="min-w-0 flex-1">
-            <span className="block text-[10px] font-bold uppercase tracking-wider text-[#9994A5]">
+            <span className="block text-[10px] font-bold uppercase tracking-wider text-[#64748B]">
               Target Epic
             </span>
-            <span className="block text-xs font-bold text-[#252331] truncate">
+            <span className="block text-xs font-bold text-[#0F172A] truncate">
               {targetName}
             </span>
           </div>

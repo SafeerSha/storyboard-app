@@ -111,7 +111,7 @@ export function generateQuotationPublishedEmail({
       safePublishNote
         ? `
       <!-- Personal Note from Project Lead -->
-      <div style="margin: 0 0 24px 0; padding: 14px 18px; background-color: #fafafa; border-left: 3px solid #B8944E; border-radius: 4px; border-top: 1px solid #f4f4f5; border-right: 1px solid #f4f4f5; border-bottom: 1px solid #f4f4f5;">
+      <div style="margin: 0 0 24px 0; padding: 14px 18px; background-color: #fafafa; border-left: 3px solid #CCA038; border-radius: 4px; border-top: 1px solid #f4f4f5; border-right: 1px solid #f4f4f5; border-bottom: 1px solid #f4f4f5;">
         <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: #71717a; margin-bottom: 4px; letter-spacing: 0.5px;">
           Note from ${safeFreelancerName}:
         </div>

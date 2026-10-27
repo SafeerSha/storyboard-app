@@ -123,7 +123,7 @@ export function RecallEstimateModal({
         {/* Reason for Recall */}
         <div className="space-y-1.5">
           <label className="text-xs font-bold uppercase tracking-wider text-zinc-700 flex items-center gap-1.5">
-            <MessageSquare className="w-3.5 h-3.5 text-[#B8944E]" />
+            <MessageSquare className="w-3.5 h-3.5 text-[#CCA038]" />
             Reason for Recall (Optional)
           </label>
           <textarea
@@ -131,7 +131,7 @@ export function RecallEstimateModal({
             value={recallReason}
             onChange={(e) => setRecallReason(e.target.value)}
             placeholder="e.g., Adjusting sprint timeline, test allocations, and feature scope."
-            className="w-full rounded-xl border border-zinc-200 px-3 py-2 text-xs text-zinc-900 placeholder:text-zinc-400 focus:border-[#B8944E] focus:ring-1 focus:ring-[#B8944E]/30 focus:outline-none resize-none"
+            className="w-full rounded-xl border border-zinc-200 px-3 py-2 text-xs text-zinc-900 placeholder:text-zinc-400 focus:border-[#CCA038] focus:ring-1 focus:ring-[#CCA038]/30 focus:outline-none resize-none"
           />
           <p className="text-[11px] text-zinc-500">
             This note will be included in the email dispatched to your client.
@@ -141,7 +141,7 @@ export function RecallEstimateModal({
         {/* Sender Email Address */}
         <div className="space-y-1.5">
           <label className="text-xs font-bold uppercase tracking-wider text-zinc-700 flex items-center gap-1.5">
-            <Mail className="w-3.5 h-3.5 text-[#B8944E]" />
+            <Mail className="w-3.5 h-3.5 text-[#CCA038]" />
             Sender / From Email Address
           </label>
           <input
@@ -149,7 +149,7 @@ export function RecallEstimateModal({
             value={fromEmail}
             onChange={(e) => setFromEmail(e.target.value)}
             placeholder="e.g., Your Name <your-email@reqly.in>"
-            className="w-full rounded-xl border border-zinc-200 px-3 py-2 text-xs text-zinc-900 placeholder:text-zinc-400 focus:border-[#B8944E] focus:ring-1 focus:ring-[#B8944E]/30 focus:outline-none"
+            className="w-full rounded-xl border border-zinc-200 px-3 py-2 text-xs text-zinc-900 placeholder:text-zinc-400 focus:border-[#CCA038] focus:ring-1 focus:ring-[#CCA038]/30 focus:outline-none"
           />
         </div>
       </div>

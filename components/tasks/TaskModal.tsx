@@ -548,7 +548,7 @@ export function TaskModal({
         {/* Project Selector (if multiple projects and not fixed) */}
         {projects.length > 1 && !defaultProjectId && (
           <div>
-            <label className="block text-xs font-semibold text-[#252331] uppercase tracking-wider mb-1.5">
+            <label className="block text-xs font-semibold text-[#0F172A] uppercase tracking-wider mb-1.5">
               Project <span className="text-rose-500">*</span>
             </label>
             <select
@@ -560,7 +560,7 @@ export function TaskModal({
                 setSelectedAssignees([]);
               }}
               disabled={isEditing}
-              className="w-full rounded-xl border border-[rgba(74,61,100,0.12)] bg-white px-3.5 py-2.5 text-sm text-[#252331] focus:border-[#B8944E] focus:outline-none focus:ring-2 focus:ring-[#B8944E]/20"
+              className="w-full rounded-xl border border-[rgba(15,23,42,0.12)] bg-white px-3.5 py-2.5 text-sm text-[#0F172A] focus:border-[#CCA038] focus:outline-none focus:ring-2 focus:ring-[#CCA038]/20"
             >
               {projects.map((p) => (
                 <option key={p.id} value={p.id}>
@@ -574,10 +574,10 @@ export function TaskModal({
         {/* ========================================================= */}
         {/* 🌟 AI TASK ASSISTANT (Saves user from filling manually)   */}
         {/* ========================================================= */}
-        <div className="rounded-2xl border border-[#B8944E]/30 bg-gradient-to-br from-[#80642F]/[0.08] via-amber-500/[0.04] to-purple-500/[0.03] p-4 shadow-xs relative overflow-hidden transition-all">
+        <div className="rounded-2xl border border-[#CCA038]/30 bg-gradient-to-br from-[#785312]/[0.08] via-amber-500/[0.04] to-purple-500/[0.03] p-4 shadow-xs relative overflow-hidden transition-all">
           <div className="flex items-center justify-between gap-2 mb-2.5">
             <div className="flex items-center gap-2.5">
-              <div className="h-7 w-7 rounded-lg bg-gradient-to-tr from-[#80642F] to-[#B8944E] flex items-center justify-center text-white shadow-xs">
+              <div className="h-7 w-7 rounded-lg bg-gradient-to-tr from-[#785312] to-[#CCA038] flex items-center justify-center text-white shadow-xs">
                 {aiLoading ? (
                   <Loader2 size={15} className="animate-spin" />
                 ) : (
@@ -586,8 +586,8 @@ export function TaskModal({
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <h4 className="text-xs font-bold text-[#252331]">AI Task Auto-Fill</h4>
-                  <span className="text-[10px] font-semibold bg-[#B8944E]/20 text-[#80642F] px-1.5 py-0.5 rounded-full border border-[#B8944E]/30">
+                  <h4 className="text-xs font-bold text-[#0F172A]">AI Task Auto-Fill</h4>
+                  <span className="text-[10px] font-semibold bg-[#CCA038]/20 text-[#785312] px-1.5 py-0.5 rounded-full border border-[#CCA038]/30">
                     Gemini AI
                   </span>
                 </div>
@@ -600,7 +600,7 @@ export function TaskModal({
             <button
               type="button"
               onClick={() => setShowAiPanel(!showAiPanel)}
-              className="text-[#9994A5] hover:text-[#252331] p-1 rounded-lg hover:bg-black/5 transition"
+              className="text-[#64748B] hover:text-[#0F172A] p-1 rounded-lg hover:bg-black/5 transition"
               title={showAiPanel ? "Hide AI Panel" : "Show AI Panel"}
             >
               {showAiPanel ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
@@ -611,14 +611,14 @@ export function TaskModal({
             <div className="space-y-3 pt-1">
               {/* If Story Linked: 1-Click Story Auto-Fill Banner */}
               {storyId && (
-                <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 bg-white/90 border border-[#B8944E]/20 rounded-xl p-2.5 text-xs shadow-xs">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 bg-white/90 border border-[#CCA038]/20 rounded-xl p-2.5 text-xs shadow-xs">
                   <div className="flex items-center gap-2 min-w-0">
-                    <span className="shrink-0 flex h-5 w-5 items-center justify-center rounded-full bg-[#B8944E]/15 text-[#80642F]">
+                    <span className="shrink-0 flex h-5 w-5 items-center justify-center rounded-full bg-[#CCA038]/15 text-[#785312]">
                       ✨
                     </span>
-                    <span className="text-[#252331] font-medium truncate">
+                    <span className="text-[#0F172A] font-medium truncate">
                       Story:{" "}
-                      <strong className="text-[#80642F]">
+                      <strong className="text-[#785312]">
                         {selectedStory?.title || "Linked Story"}
                       </strong>
                     </span>
@@ -631,7 +631,7 @@ export function TaskModal({
                       variant="primary"
                       onClick={() => handleAiGenerateSingle()}
                       isLoading={aiLoading && aiMode === "single"}
-                      className="h-8 px-2.5 text-xs bg-gradient-to-r from-[#80642F] to-[#B8944E] hover:from-[#6b5327] hover:to-[#a07f3f] text-white shadow-xs rounded-lg font-medium justify-center"
+                      className="h-8 px-2.5 text-xs bg-gradient-to-r from-[#785312] to-[#CCA038] hover:from-[#6b5327] hover:to-[#a07f3f] text-white shadow-xs rounded-lg font-medium justify-center"
                     >
                       <Sparkles size={12} className="mr-1 shrink-0" />
                       <span className="truncate">Auto-Fill</span>
@@ -643,7 +643,7 @@ export function TaskModal({
                       variant="outline"
                       onClick={() => handleAiBreakdown()}
                       isLoading={aiLoading && aiMode === "breakdown"}
-                      className="h-8 px-2.5 text-xs text-[#80642F] border-[#B8944E]/30 hover:bg-[#80642F]/10 rounded-lg font-medium justify-center"
+                      className="h-8 px-2.5 text-xs text-[#785312] border-[#CCA038]/30 hover:bg-[#785312]/10 rounded-lg font-medium justify-center"
                     >
                       <Layers size={12} className="mr-1 shrink-0" />
                       <span className="truncate">Subtasks</span>
@@ -655,7 +655,7 @@ export function TaskModal({
               {/* Natural Language Prompt Bar */}
               <div className="flex items-center gap-1.5">
                 <div className="relative flex-1">
-                  <Bot size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#9994A5]" />
+                  <Bot size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#64748B]" />
                   <input
                     type="text"
                     value={aiPrompt}
@@ -671,7 +671,7 @@ export function TaskModal({
                         ? "Optional: specific instruction (e.g. 'Build UI component only')..."
                         : "Describe what needs to be done (e.g. 'Create login page with validation by Friday')..."
                     }
-                    className="w-full pl-8 pr-3 py-1.5 text-xs rounded-xl border border-[rgba(74,61,100,0.15)] bg-white/95 text-[#252331] placeholder:text-[#9994A5] focus:outline-none focus:ring-1 focus:ring-[#B8944E] focus:border-[#B8944E]"
+                    className="w-full pl-8 pr-3 py-1.5 text-xs rounded-xl border border-[rgba(15,23,42,0.15)] bg-white/95 text-[#0F172A] placeholder:text-[#64748B] focus:outline-none focus:ring-1 focus:ring-[#CCA038] focus:border-[#CCA038]"
                     disabled={aiLoading}
                   />
                 </div>
@@ -681,7 +681,7 @@ export function TaskModal({
                   variant="primary"
                   onClick={() => handleAiGenerateSingle()}
                   isLoading={aiLoading && aiMode === "single"}
-                  className="h-8 px-3 text-xs bg-[#80642F] hover:bg-[#6b5327] text-white shadow-xs shrink-0 rounded-xl font-medium"
+                  className="h-8 px-3 text-xs bg-[#785312] hover:bg-[#6b5327] text-white shadow-xs shrink-0 rounded-xl font-medium"
                 >
                   <Wand2 size={12} className="mr-1" />
                   Auto-Fill
@@ -690,14 +690,14 @@ export function TaskModal({
 
               {/* Quick Preset Pills */}
               <div className="flex flex-wrap items-center gap-1 text-[11px] text-[#716B7E]">
-                <span className="text-[10px] uppercase font-bold text-[#9994A5] mr-1">Presets:</span>
+                <span className="text-[10px] uppercase font-bold text-[#64748B] mr-1">Presets:</span>
                 <button
                   type="button"
                   onClick={() => {
                     setCategory("frontend");
                     handleAiGenerateSingle("Frontend UI components, styling, and user interactions");
                   }}
-                  className="px-2 py-0.5 rounded-lg bg-white border border-[rgba(74,61,100,0.12)] text-[#252331] hover:border-[#B8944E] hover:text-[#80642F] transition-colors"
+                  className="px-2 py-0.5 rounded-lg bg-white border border-[rgba(15,23,42,0.12)] text-[#0F172A] hover:border-[#CCA038] hover:text-[#785312] transition-colors"
                 >
                   🎨 Frontend UI
                 </button>
@@ -707,7 +707,7 @@ export function TaskModal({
                     setCategory("backend");
                     handleAiGenerateSingle("Backend API route, database query, and validation");
                   }}
-                  className="px-2 py-0.5 rounded-lg bg-white border border-[rgba(74,61,100,0.12)] text-[#252331] hover:border-[#B8944E] hover:text-[#80642F] transition-colors"
+                  className="px-2 py-0.5 rounded-lg bg-white border border-[rgba(15,23,42,0.12)] text-[#0F172A] hover:border-[#CCA038] hover:text-[#785312] transition-colors"
                 >
                   ⚡ Backend API
                 </button>
@@ -717,7 +717,7 @@ export function TaskModal({
                     setCategory("test");
                     handleAiGenerateSingle("QA test plan, edge case verification, and bug fixing");
                   }}
-                  className="px-2 py-0.5 rounded-lg bg-white border border-[rgba(74,61,100,0.12)] text-[#252331] hover:border-[#B8944E] hover:text-[#80642F] transition-colors"
+                  className="px-2 py-0.5 rounded-lg bg-white border border-[rgba(15,23,42,0.12)] text-[#0F172A] hover:border-[#CCA038] hover:text-[#785312] transition-colors"
                 >
                   🧪 QA & Tests
                 </button>
@@ -727,7 +727,7 @@ export function TaskModal({
                     setCategory("fullstack");
                     handleAiGenerateSingle("End-to-end full stack capability implementation");
                   }}
-                  className="px-2 py-0.5 rounded-lg bg-white border border-[rgba(74,61,100,0.12)] text-[#252331] hover:border-[#B8944E] hover:text-[#80642F] transition-colors"
+                  className="px-2 py-0.5 rounded-lg bg-white border border-[rgba(15,23,42,0.12)] text-[#0F172A] hover:border-[#CCA038] hover:text-[#785312] transition-colors"
                 >
                   🌐 Full Stack
                 </button>
@@ -737,17 +737,17 @@ export function TaskModal({
               {/* ⚡ MULTI-TASK BREAKDOWN RESULTS (Batch Insert)            */}
               {/* ========================================================= */}
               {breakdownTasks.length > 0 && (
-                <div className="mt-3 pt-3 border-t border-[rgba(74,61,100,0.12)] space-y-2.5">
+                <div className="mt-3 pt-3 border-t border-[rgba(15,23,42,0.12)] space-y-2.5">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-[#252331] flex items-center gap-1.5">
-                      <Layers size={14} className="text-[#80642F]" />
+                    <span className="text-xs font-bold text-[#0F172A] flex items-center gap-1.5">
+                      <Layers size={14} className="text-[#785312]" />
                       Story Breakdown ({breakdownTasks.filter((t) => t.selected).length}/
                       {breakdownTasks.length} selected)
                     </span>
                     <button
                       type="button"
                       onClick={() => setBreakdownTasks([])}
-                      className="text-[11px] text-[#9994A5] hover:text-[#252331]"
+                      className="text-[11px] text-[#64748B] hover:text-[#0F172A]"
                     >
                       Dismiss
                     </button>
@@ -762,17 +762,17 @@ export function TaskModal({
                           onClick={() => toggleSubtaskSelected(idx)}
                           className={`p-2.5 rounded-xl border transition-all cursor-pointer ${
                             sub.selected
-                              ? "bg-white border-[#B8944E]/40 shadow-xs"
+                              ? "bg-white border-[#CCA038]/40 shadow-xs"
                               : "bg-white/50 border-gray-200 opacity-60"
                           }`}
                         >
                           <div className="flex items-start gap-2.5">
                             <button
                               type="button"
-                              className="mt-0.5 text-[#80642F] hover:text-[#6b5327]"
+                              className="mt-0.5 text-[#785312] hover:text-[#6b5327]"
                             >
                               {sub.selected ? (
-                                <CheckSquare size={16} className="text-[#80642F]" />
+                                <CheckSquare size={16} className="text-[#785312]" />
                               ) : (
                                 <Square size={16} className="text-gray-400" />
                               )}
@@ -780,7 +780,7 @@ export function TaskModal({
 
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center justify-between gap-2">
-                                <span className="text-xs font-semibold text-[#252331] truncate">
+                                <span className="text-xs font-semibold text-[#0F172A] truncate">
                                   {sub.title}
                                 </span>
                                 <div className="flex items-center gap-1.5 shrink-0">
@@ -812,7 +812,7 @@ export function TaskModal({
                               </div>
 
                               {sub.assignee && (
-                                <div className="mt-1 flex items-center gap-1 text-[11px] text-[#80642F]">
+                                <div className="mt-1 flex items-center gap-1 text-[11px] text-[#785312]">
                                   <User size={10} />
                                   <span>Suggested: {sub.assignee.name}</span>
                                 </div>
@@ -831,7 +831,7 @@ export function TaskModal({
                       variant="primary"
                       onClick={handleCreateBatchTasks}
                       isLoading={batchSubmitting}
-                      className="h-8 px-3 text-xs bg-gradient-to-r from-[#80642F] to-[#B8944E] text-white shadow-xs rounded-xl"
+                      className="h-8 px-3 text-xs bg-gradient-to-r from-[#785312] to-[#CCA038] text-white shadow-xs rounded-xl"
                     >
                       <Check size={13} className="mr-1.5" />
                       Create All {breakdownTasks.filter((t) => t.selected).length} Tasks
@@ -850,7 +850,7 @@ export function TaskModal({
           {/* Task Title */}
           <div>
             <div className="flex items-center justify-between mb-1.5">
-              <label className="block text-xs font-semibold text-[#252331] uppercase tracking-wider">
+              <label className="block text-xs font-semibold text-[#0F172A] uppercase tracking-wider">
                 Task Title <span className="text-rose-500">*</span>
               </label>
 
@@ -859,7 +859,7 @@ export function TaskModal({
                   type="button"
                   onClick={() => handleAiGenerateSingle(title)}
                   disabled={aiLoading}
-                  className="text-[11px] font-semibold text-[#80642F] hover:text-[#6b5327] flex items-center gap-1"
+                  className="text-[11px] font-semibold text-[#785312] hover:text-[#6b5327] flex items-center gap-1"
                   title="Auto-fill description, priority & assignees based on this title"
                 >
                   <Sparkles size={11} />
@@ -870,7 +870,7 @@ export function TaskModal({
 
             <div
               className={`rounded-xl transition-all ${
-                aiHighlight ? "ring-2 ring-[#B8944E] bg-amber-50/20" : ""
+                aiHighlight ? "ring-2 ring-[#CCA038] bg-amber-50/20" : ""
               }`}
             >
               <Input
@@ -888,14 +888,14 @@ export function TaskModal({
           {/* ========================================================= */}
           <div>
             <div className="flex items-center justify-between mb-1.5">
-              <label className="block text-xs font-semibold text-[#252331] uppercase tracking-wider">
-                Engineering Domain / Category <span className="text-[11px] text-[#9994A5] font-normal lowercase">(optional)</span>
+              <label className="block text-xs font-semibold text-[#0F172A] uppercase tracking-wider">
+                Engineering Domain / Category <span className="text-[11px] text-[#64748B] font-normal lowercase">(optional)</span>
               </label>
               {category && (
                 <button
                   type="button"
                   onClick={() => setCategory(null)}
-                  className="text-[11px] text-[#80642F] hover:underline"
+                  className="text-[11px] text-[#785312] hover:underline"
                 >
                   Clear Domain
                 </button>
@@ -909,7 +909,7 @@ export function TaskModal({
                 className={`flex items-center justify-center gap-1.5 py-2.5 px-3 min-h-[42px] rounded-xl text-xs font-semibold border transition-all ${
                   category === "frontend"
                     ? "bg-sky-500 text-white border-sky-600 shadow-xs"
-                    : "bg-white text-[#252331] border-[rgba(74,61,100,0.12)] hover:border-sky-400 hover:bg-sky-50/50"
+                    : "bg-white text-[#0F172A] border-[rgba(15,23,42,0.12)] hover:border-sky-400 hover:bg-sky-50/50"
                 }`}
               >
                 <Monitor size={14} className={category === "frontend" ? "text-white" : "text-sky-500"} />
@@ -922,7 +922,7 @@ export function TaskModal({
                 className={`flex items-center justify-center gap-1.5 py-2.5 px-3 min-h-[42px] rounded-xl text-xs font-semibold border transition-all ${
                   category === "backend"
                     ? "bg-emerald-600 text-white border-emerald-700 shadow-xs"
-                    : "bg-white text-[#252331] border-[rgba(74,61,100,0.12)] hover:border-emerald-400 hover:bg-emerald-50/50"
+                    : "bg-white text-[#0F172A] border-[rgba(15,23,42,0.12)] hover:border-emerald-400 hover:bg-emerald-50/50"
                 }`}
               >
                 <Server size={14} className={category === "backend" ? "text-white" : "text-emerald-600"} />
@@ -935,7 +935,7 @@ export function TaskModal({
                 className={`flex items-center justify-center gap-1.5 py-2.5 px-3 min-h-[42px] rounded-xl text-xs font-semibold border transition-all ${
                   category === "fullstack"
                     ? "bg-purple-600 text-white border-purple-700 shadow-xs"
-                    : "bg-white text-[#252331] border-[rgba(74,61,100,0.12)] hover:border-purple-400 hover:bg-purple-50/50"
+                    : "bg-white text-[#0F172A] border-[rgba(15,23,42,0.12)] hover:border-purple-400 hover:bg-purple-50/50"
                 }`}
               >
                 <Layers size={14} className={category === "fullstack" ? "text-white" : "text-purple-600"} />
@@ -948,7 +948,7 @@ export function TaskModal({
                 className={`flex items-center justify-center gap-1.5 py-2.5 px-3 min-h-[42px] rounded-xl text-xs font-semibold border transition-all ${
                   category === "test"
                     ? "bg-amber-600 text-white border-amber-700 shadow-xs"
-                    : "bg-white text-[#252331] border-[rgba(74,61,100,0.12)] hover:border-amber-400 hover:bg-amber-50/50"
+                    : "bg-white text-[#0F172A] border-[rgba(15,23,42,0.12)] hover:border-amber-400 hover:bg-amber-50/50"
                 }`}
               >
                 <FlaskConical size={14} className={category === "test" ? "text-white" : "text-amber-600"} />
@@ -960,14 +960,14 @@ export function TaskModal({
           {/* Story Link Selector */}
           <div>
             <div className="flex items-center justify-between mb-1.5">
-              <label className="block text-xs font-semibold text-[#252331] uppercase tracking-wider">
+              <label className="block text-xs font-semibold text-[#0F172A] uppercase tracking-wider">
                 Linked Story (Optional)
               </label>
               {storyId && (
                 <button
                   type="button"
                   onClick={() => setStoryId("")}
-                  className="text-[11px] text-[#80642F] hover:underline"
+                  className="text-[11px] text-[#785312] hover:underline"
                 >
                   Clear Story Link
                 </button>
@@ -976,7 +976,7 @@ export function TaskModal({
             <select
               value={storyId}
               onChange={(e) => setStoryId(e.target.value)}
-              className="w-full rounded-xl border border-[rgba(74,61,100,0.12)] bg-white px-3.5 py-2.5 text-sm text-[#252331] focus:border-[#B8944E] focus:outline-none focus:ring-2 focus:ring-[#B8944E]/20"
+              className="w-full rounded-xl border border-[rgba(15,23,42,0.12)] bg-white px-3.5 py-2.5 text-sm text-[#0F172A] focus:border-[#CCA038] focus:outline-none focus:ring-2 focus:ring-[#CCA038]/20"
             >
               <option value="">No Story (Standalone Project Task)</option>
               {loadingStories ? (
@@ -996,7 +996,7 @@ export function TaskModal({
           {/* ========================================================= */}
           <div className="relative" ref={assigneeDropdownRef}>
             <div className="flex items-center justify-between mb-1.5">
-              <label className="block text-xs font-semibold text-[#252331] uppercase tracking-wider">
+              <label className="block text-xs font-semibold text-[#0F172A] uppercase tracking-wider">
                 Assign To (Multi-Select Members & Clients)
               </label>
               <div className="flex items-center gap-2">
@@ -1013,7 +1013,7 @@ export function TaskModal({
                   <button
                     type="button"
                     onClick={selectAllTeam}
-                    className="text-[11px] text-[#80642F] hover:underline font-medium"
+                    className="text-[11px] text-[#785312] hover:underline font-medium"
                   >
                     + Add All Team
                   </button>
@@ -1024,12 +1024,12 @@ export function TaskModal({
             {/* Selected Assignees Chips Container */}
             <div
               onClick={() => setIsAssigneeDropdownOpen(!isAssigneeDropdownOpen)}
-              className={`min-h-[46px] w-full rounded-xl border border-[rgba(74,61,100,0.12)] bg-white p-2 text-sm text-[#252331] cursor-pointer hover:border-[#B8944E] transition-all flex flex-wrap items-center gap-1.5 ${
-                aiHighlight ? "ring-2 ring-[#B8944E] bg-amber-50/20" : ""
+              className={`min-h-[46px] w-full rounded-xl border border-[rgba(15,23,42,0.12)] bg-white p-2 text-sm text-[#0F172A] cursor-pointer hover:border-[#CCA038] transition-all flex flex-wrap items-center gap-1.5 ${
+                aiHighlight ? "ring-2 ring-[#CCA038] bg-amber-50/20" : ""
               }`}
             >
               {selectedAssignees.length === 0 ? (
-                <span className="text-[#9994A5] text-xs px-2 py-1 flex items-center gap-1.5">
+                <span className="text-[#64748B] text-xs px-2 py-1 flex items-center gap-1.5">
                   <User size={13} />
                   Click to select assignees (Connected team members or clients)...
                 </span>
@@ -1037,20 +1037,20 @@ export function TaskModal({
                 selectedAssignees.map((assignee) => (
                   <span
                     key={assignee.id}
-                    className="inline-flex items-center gap-1.5 rounded-lg bg-[rgba(184,148,78,0.1)] border border-[rgba(184,148,78,0.25)] px-2 py-1 text-xs text-[#80642F] font-medium max-w-full"
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-[rgba(204,160,56,0.1)] border border-[rgba(204,160,56,0.25)] px-2 py-1 text-xs text-[#785312] font-medium max-w-full"
                     onClick={(e) => e.stopPropagation()}
                   >
-                    <span className="h-4 w-4 rounded-full bg-[#B8944E] text-white text-[9px] font-bold grid place-items-center shrink-0">
+                    <span className="h-4 w-4 rounded-full bg-[#CCA038] text-white text-[9px] font-bold grid place-items-center shrink-0">
                       {assignee.name?.[0]?.toUpperCase() || "U"}
                     </span>
                     <span className="truncate max-w-[95px] sm:max-w-[150px]">{assignee.name}</span>
-                    <span className="text-[9px] uppercase px-1 py-0.2 rounded bg-white/80 text-[#80642F] font-bold shrink-0">
+                    <span className="text-[9px] uppercase px-1 py-0.2 rounded bg-white/80 text-[#785312] font-bold shrink-0">
                       {assignee.type === "team_user" ? "Team" : assignee.type === "client" ? "Client" : "Owner"}
                     </span>
                     <button
                       type="button"
                       onClick={() => removeAssignee(assignee.id)}
-                      className="text-[#80642F] hover:text-rose-600 p-1 min-w-[20px] min-h-[20px] flex items-center justify-center rounded-md shrink-0 transition-colors"
+                      className="text-[#785312] hover:text-rose-600 p-1 min-w-[20px] min-h-[20px] flex items-center justify-center rounded-md shrink-0 transition-colors"
                       aria-label={`Remove ${assignee.name}`}
                     >
                       <X size={13} />
@@ -1059,34 +1059,34 @@ export function TaskModal({
                 ))
               )}
 
-              <div className="ml-auto flex items-center pr-1 text-[#9994A5]">
+              <div className="ml-auto flex items-center pr-1 text-[#64748B]">
                 <ChevronDown size={16} />
               </div>
             </div>
 
             {/* Dropdown Popover */}
             {isAssigneeDropdownOpen && (
-              <div className="absolute z-30 mt-1.5 w-full rounded-2xl border border-[rgba(74,61,100,0.15)] bg-white p-3 shadow-xl max-h-64 overflow-y-auto space-y-2 animate-in fade-in-0 zoom-in-95 duration-100">
+              <div className="absolute z-30 mt-1.5 w-full rounded-2xl border border-[rgba(15,23,42,0.15)] bg-white p-3 shadow-xl max-h-64 overflow-y-auto space-y-2 animate-in fade-in-0 zoom-in-95 duration-100">
                 {/* Search Bar */}
                 {assigneeOptions.length > 3 && (
                   <div className="relative mb-2">
-                    <Search size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[#9994A5]" />
+                    <Search size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[#64748B]" />
                     <input
                       type="text"
                       value={assigneeSearch}
                       onChange={(e) => setAssigneeSearch(e.target.value)}
                       placeholder="Search members or clients..."
-                      className="w-full pl-7 pr-3 py-1.5 text-xs rounded-lg border border-[rgba(74,61,100,0.1)] bg-slate-50 focus:outline-none focus:border-[#B8944E]"
+                      className="w-full pl-7 pr-3 py-1.5 text-xs rounded-lg border border-[rgba(15,23,42,0.1)] bg-slate-50 focus:outline-none focus:border-[#CCA038]"
                     />
                   </div>
                 )}
 
                 {loadingAssignees ? (
-                  <div className="py-4 text-center text-xs text-[#9994A5]">
+                  <div className="py-4 text-center text-xs text-[#64748B]">
                     Loading assignees...
                   </div>
                 ) : filteredAssignees.length === 0 ? (
-                  <div className="py-4 text-center text-xs text-[#9994A5]">
+                  <div className="py-4 text-center text-xs text-[#64748B]">
                     No matching assignees found.
                   </div>
                 ) : (
@@ -1099,17 +1099,17 @@ export function TaskModal({
                           onClick={() => toggleAssignee(opt)}
                           className={`flex items-center justify-between p-2.5 rounded-xl text-xs cursor-pointer transition-all ${
                             isSelected
-                              ? "bg-[rgba(184,148,78,0.12)] border border-[rgba(184,148,78,0.3)] text-[#80642F] font-semibold"
-                              : "hover:bg-slate-50 text-[#252331]"
+                              ? "bg-[rgba(204,160,56,0.12)] border border-[rgba(204,160,56,0.3)] text-[#785312] font-semibold"
+                              : "hover:bg-slate-50 text-[#0F172A]"
                           }`}
                         >
                           <div className="flex items-center gap-2 min-w-0">
-                            <div className="h-6 w-6 rounded-full bg-[rgba(184,148,78,0.15)] text-[#80642F] font-bold text-[10px] grid place-items-center shrink-0">
+                            <div className="h-6 w-6 rounded-full bg-[rgba(204,160,56,0.15)] text-[#785312] font-bold text-[10px] grid place-items-center shrink-0">
                               {opt.name?.[0]?.toUpperCase() || <User size={12} />}
                             </div>
                             <div className="flex flex-col min-w-0">
                               <span className="truncate">{opt.name}</span>
-                              <span className="text-[10px] text-[#9994A5] truncate">
+                              <span className="text-[10px] text-[#64748B] truncate">
                                 {opt.role || opt.email || opt.username || "Connected Member"}
                               </span>
                             </div>
@@ -1129,7 +1129,7 @@ export function TaskModal({
                             </span>
 
                             {isSelected ? (
-                              <CheckSquare size={16} className="text-[#80642F]" />
+                              <CheckSquare size={16} className="text-[#785312]" />
                             ) : (
                               <Square size={16} className="text-gray-300" />
                             )}
@@ -1144,8 +1144,8 @@ export function TaskModal({
 
             {/* Notification alert banner */}
             {selectedAssignees.length > 0 && (
-              <div className="mt-2 flex items-center gap-2 rounded-lg bg-[rgba(184,148,78,0.06)] border border-[rgba(184,148,78,0.18)] p-2.5 text-xs text-[#80642F]">
-                <Bell size={14} className="shrink-0 text-[#B8944E]" />
+              <div className="mt-2 flex items-center gap-2 rounded-lg bg-[rgba(204,160,56,0.06)] border border-[rgba(204,160,56,0.18)] p-2.5 text-xs text-[#785312]">
+                <Bell size={14} className="shrink-0 text-[#CCA038]" />
                 <span>
                   <strong>
                     {selectedAssignees.length === 1
@@ -1162,13 +1162,13 @@ export function TaskModal({
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             {/* Status */}
             <div>
-              <label className="block text-xs font-semibold text-[#252331] uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-semibold text-[#0F172A] uppercase tracking-wider mb-1.5">
                 Status
               </label>
               <select
                 value={status}
                 onChange={(e) => setStatus(e.target.value as TaskStatus)}
-                className="w-full rounded-xl border border-[rgba(74,61,100,0.12)] bg-white px-3 py-2 text-sm text-[#252331] focus:border-[#B8944E] focus:outline-none focus:ring-2 focus:ring-[#B8944E]/20"
+                className="w-full rounded-xl border border-[rgba(15,23,42,0.12)] bg-white px-3 py-2 text-sm text-[#0F172A] focus:border-[#CCA038] focus:outline-none focus:ring-2 focus:ring-[#CCA038]/20"
               >
                 <option value="todo">To Do</option>
                 <option value="in_progress">In Progress</option>
@@ -1179,14 +1179,14 @@ export function TaskModal({
 
             {/* Priority */}
             <div>
-              <label className="block text-xs font-semibold text-[#252331] uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-semibold text-[#0F172A] uppercase tracking-wider mb-1.5">
                 Priority
               </label>
               <select
                 value={priority}
                 onChange={(e) => setPriority(e.target.value as TaskPriority)}
-                className={`w-full rounded-xl border border-[rgba(74,61,100,0.12)] bg-white px-3 py-2 text-sm text-[#252331] focus:border-[#B8944E] focus:outline-none focus:ring-2 focus:ring-[#B8944E]/20 transition-all ${
-                  aiHighlight ? "ring-2 ring-[#B8944E] bg-amber-50/20" : ""
+                className={`w-full rounded-xl border border-[rgba(15,23,42,0.12)] bg-white px-3 py-2 text-sm text-[#0F172A] focus:border-[#CCA038] focus:outline-none focus:ring-2 focus:ring-[#CCA038]/20 transition-all ${
+                  aiHighlight ? "ring-2 ring-[#CCA038] bg-amber-50/20" : ""
                 }`}
               >
                 <option value="low">Low</option>
@@ -1198,15 +1198,15 @@ export function TaskModal({
 
             {/* Due Date */}
             <div>
-              <label className="block text-xs font-semibold text-[#252331] uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-semibold text-[#0F172A] uppercase tracking-wider mb-1.5">
                 Due Date
               </label>
               <input
                 type="date"
                 value={dueDate}
                 onChange={(e) => setDueDate(e.target.value)}
-                className={`w-full rounded-xl border border-[rgba(74,61,100,0.12)] bg-white px-3 py-2 text-sm text-[#252331] focus:border-[#B8944E] focus:outline-none focus:ring-2 focus:ring-[#B8944E]/20 transition-all ${
-                  aiHighlight ? "ring-2 ring-[#B8944E] bg-amber-50/20" : ""
+                className={`w-full rounded-xl border border-[rgba(15,23,42,0.12)] bg-white px-3 py-2 text-sm text-[#0F172A] focus:border-[#CCA038] focus:outline-none focus:ring-2 focus:ring-[#CCA038]/20 transition-all ${
+                  aiHighlight ? "ring-2 ring-[#CCA038] bg-amber-50/20" : ""
                 }`}
               />
             </div>
@@ -1215,7 +1215,7 @@ export function TaskModal({
           {/* Description */}
           <div>
             <div className="flex items-center justify-between mb-1.5">
-              <label className="block text-xs font-semibold text-[#252331] uppercase tracking-wider">
+              <label className="block text-xs font-semibold text-[#0F172A] uppercase tracking-wider">
                 Description / Instructions
               </label>
               {description.trim() && (
@@ -1223,7 +1223,7 @@ export function TaskModal({
                   type="button"
                   onClick={handleAiPolishDescription}
                   disabled={aiLoading}
-                  className="text-[11px] font-semibold text-[#80642F] hover:text-[#6b5327] flex items-center gap-1"
+                  className="text-[11px] font-semibold text-[#785312] hover:text-[#6b5327] flex items-center gap-1"
                   title="Format into markdown checklist with acceptance criteria"
                 >
                   <Wand2 size={11} />
@@ -1234,7 +1234,7 @@ export function TaskModal({
 
             <div
               className={`rounded-xl transition-all ${
-                aiHighlight ? "ring-2 ring-[#B8944E] bg-amber-50/20" : ""
+                aiHighlight ? "ring-2 ring-[#CCA038] bg-amber-50/20" : ""
               }`}
             >
               <Textarea
@@ -1247,7 +1247,7 @@ export function TaskModal({
           </div>
 
           {/* Modal Actions */}
-          <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2.5 pt-3 border-t border-[rgba(74,61,100,0.08)]">
+          <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2.5 pt-3 border-t border-[rgba(15,23,42,0.08)]">
             <Button
               type="button"
               variant="outline"

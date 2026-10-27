@@ -113,13 +113,13 @@ export async function POST(req: Request) {
         to: email,
         subject: "Your REQly password was changed",
         html: `
-          <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 500px; margin: 0 auto; padding: 24px; background: #ffffff; border-radius: 12px; border: 1px solid #EBE7F2;">
-            <div style="font-size: 20px; font-weight: 800; color: #252331; margin-bottom: 12px;">REQ<span style="color: #B8944E;">ly</span></div>
-            <h2 style="font-size: 16px; font-weight: 700; color: #252331; margin: 0 0 8px 0;">Password Changed Successfully</h2>
+          <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 500px; margin: 0 auto; padding: 24px; background: #ffffff; border-radius: 12px; border: 1px solid #E2E8F0;">
+            <div style="font-size: 20px; font-weight: 800; color: #0F172A; margin-bottom: 12px;">REQ<span style="color: #CCA038;">ly</span></div>
+            <h2 style="font-size: 16px; font-weight: 700; color: #0F172A; margin: 0 0 8px 0;">Password Changed Successfully</h2>
             <p style="font-size: 13px; line-height: 1.6; color: #585365; margin: 0 0 16px 0;">
               Your REQly account password was just changed. If you made this change, you can safely disregard this notice.
             </p>
-            <div style="background-color: #FAF9FC; border-left: 3px solid #B8944E; padding: 10px 14px; border-radius: 4px; font-size: 12px; color: #706C7D; line-height: 1.5;">
+            <div style="background-color: #F8F9FB; border-left: 3px solid #CCA038; padding: 10px 14px; border-radius: 4px; font-size: 12px; color: #334155; line-height: 1.5;">
               If you did not request or authorize this change, please contact your workspace administrator immediately.
             </div>
           </div>

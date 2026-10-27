@@ -11,8 +11,8 @@ export function generatePasswordResetOtpEmail({
   recipientName,
   expiresInMinutes = 10,
 }: PasswordResetOtpEmailProps): string {
-  const brandGold = "#B8944E";
-  const brandDark = "#252331";
+  const brandGold = "#CCA038";
+  const brandDark = "#0F172A";
   const safeName = recipientName ? escapeHtml(recipientName) : "there";
   const safeOtp = escapeHtml(otp);
 
@@ -29,7 +29,7 @@ export function generatePasswordResetOtpEmail({
   <style type="text/css">
     body, table, td, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
     table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
-    body { height: 100% !important; margin: 0 !important; padding: 0 !important; width: 100% !important; background-color: #F5F2F7; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; color: #252331; }
+    body { height: 100% !important; margin: 0 !important; padding: 0 !important; width: 100% !important; background-color: #F8F9FA; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; color: #0F172A; }
     @media only screen and (max-width: 600px) {
       .email-container { width: 100% !important; max-width: 100% !important; border-radius: 0 !important; border: none !important; }
       .email-content { padding: 24px 20px !important; }
@@ -37,20 +37,20 @@ export function generatePasswordResetOtpEmail({
     }
   </style>
 </head>
-<body style="margin: 0; padding: 0; background-color: #F5F2F7; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;">
-  <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #F5F2F7; padding: 40px 12px;">
+<body style="margin: 0; padding: 0; background-color: #F8F9FA; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;">
+  <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #F8F9FA; padding: 40px 12px;">
     <tr>
       <td align="center">
         <!-- Main Container Card -->
-        <table role="presentation" class="email-container" width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width: 520px; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 30px rgba(70, 55, 95, 0.08); border: 1px solid rgba(74, 61, 100, 0.08);">
+        <table role="presentation" class="email-container" width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width: 520px; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 30px rgba(15,23,42, 0.08); border: 1px solid rgba(15,23,42, 0.08);">
           
           <!-- Brand Header -->
           <tr>
-            <td class="email-header" style="background-color: #ffffff; padding: 28px 32px 20px 32px; border-bottom: 1px solid rgba(74, 61, 100, 0.08); text-align: center;">
+            <td class="email-header" style="background-color: #ffffff; padding: 28px 32px 20px 32px; border-bottom: 1px solid rgba(15,23,42, 0.08); text-align: center;">
               <div style="font-size: 22px; font-weight: 800; letter-spacing: -0.04em; color: ${brandDark}; line-height: 1;">
                 REQ<span style="color: ${brandGold};">ly</span>
               </div>
-              <div style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #9994A5; margin-top: 6px;">
+              <div style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #64748B; margin-top: 6px;">
                 Password Verification Code
               </div>
             </td>
@@ -85,7 +85,7 @@ export function generatePasswordResetOtpEmail({
               </p>
 
               <!-- Security Notice -->
-              <div style="background-color: #FAF9FC; border-left: 3px solid ${brandGold}; padding: 12px 16px; border-radius: 4px; font-size: 12px; color: #706C7D; line-height: 1.5;">
+              <div style="background-color: #F8F9FB; border-left: 3px solid ${brandGold}; padding: 12px 16px; border-radius: 4px; font-size: 12px; color: #334155; line-height: 1.5;">
                 <strong>Security Reminder:</strong> Never share your verification code with anyone. REQly team members will never ask for your code.
               </div>
             </td>
@@ -93,7 +93,7 @@ export function generatePasswordResetOtpEmail({
 
           <!-- Footer -->
           <tr>
-            <td style="background-color: #FAF9FC; border-top: 1px solid rgba(74, 61, 100, 0.08); padding: 20px 32px; text-align: center;">
+            <td style="background-color: #F8F9FB; border-top: 1px solid rgba(15,23,42, 0.08); padding: 20px 32px; text-align: center;">
               <p style="margin: 0; font-size: 11px; color: #A19CAE;">
                 &copy; ${new Date().getFullYear()} REQly. From requirements to delivery.
               </p>

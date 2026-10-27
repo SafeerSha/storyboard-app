@@ -110,7 +110,7 @@ export function SectionDiscussionDrawer({
                 onClick={() => setShowCounterOffer(!showCounterOffer)}
                 className={`text-xs font-semibold px-2.5 py-1 rounded-lg border transition ${
                   showCounterOffer
-                    ? "bg-[#B8944E]/10 text-[#80642F] border-[#B8944E]/40"
+                    ? "bg-[#CCA038]/10 text-[#785312] border-[#CCA038]/40"
                     : "text-zinc-600 border-zinc-200 hover:bg-zinc-50"
                 }`}
               >
@@ -155,7 +155,7 @@ export function SectionDiscussionDrawer({
                       className={`px-1.5 py-0.2 rounded text-[9px] font-bold ${
                         isClientMsg
                           ? "bg-blue-50 text-blue-700 border border-blue-200"
-                          : "bg-amber-50 text-[#80642F] border border-amber-200"
+                          : "bg-amber-50 text-[#785312] border border-amber-200"
                       }`}
                     >
                       {isClientMsg ? "Client" : "Freelancer"}
@@ -172,7 +172,7 @@ export function SectionDiscussionDrawer({
                   <div
                     className={`max-w-[85%] rounded-2xl p-3.5 text-xs leading-relaxed ${
                       isMe
-                        ? "bg-[#B8944E] text-white rounded-tr-xs"
+                        ? "bg-[#CCA038] text-white rounded-tr-xs"
                         : "bg-zinc-100 text-zinc-800 rounded-tl-xs"
                     }`}
                   >
@@ -211,7 +211,7 @@ export function SectionDiscussionDrawer({
         {/* Input Box */}
         <div className="pt-3 mt-2 border-t border-zinc-100 space-y-2">
           {showCounterOffer && (
-            <div className="p-2.5 rounded-xl bg-[#B8944E]/[0.06] border border-[#B8944E]/25 grid grid-cols-2 gap-3 animate-in fade-in duration-150">
+            <div className="p-2.5 rounded-xl bg-[#CCA038]/[0.06] border border-[#CCA038]/25 grid grid-cols-2 gap-3 animate-in fade-in duration-150">
               <div>
                 <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-600 block mb-1">
                   Proposed Hours
@@ -224,7 +224,7 @@ export function SectionDiscussionDrawer({
                     placeholder="e.g. 4.0"
                     value={proposedHours}
                     onChange={(e) => setProposedHours(e.target.value)}
-                    className="w-full rounded-lg border border-zinc-200 bg-white px-2 py-1 text-xs text-zinc-900 focus:border-[#B8944E] focus:outline-none"
+                    className="w-full rounded-lg border border-zinc-200 bg-white px-2 py-1 text-xs text-zinc-900 focus:border-[#CCA038] focus:outline-none"
                   />
                   <span className="text-[11px] text-zinc-500 font-medium">hrs</span>
                 </div>
@@ -240,7 +240,7 @@ export function SectionDiscussionDrawer({
                   placeholder="e.g. 4500"
                   value={proposedAmount}
                   onChange={(e) => setProposedAmount(e.target.value)}
-                  className="w-full rounded-lg border border-zinc-200 bg-white px-2 py-1 text-xs text-zinc-900 focus:border-[#B8944E] focus:outline-none"
+                  className="w-full rounded-lg border border-zinc-200 bg-white px-2 py-1 text-xs text-zinc-900 focus:border-[#CCA038] focus:outline-none"
                 />
               </div>
             </div>
@@ -262,7 +262,7 @@ export function SectionDiscussionDrawer({
                   ? "Discuss or bargain on this section (Press Enter to send)..."
                   : "Reply to client discussion..."
               }
-              className="flex-1 rounded-xl border border-zinc-200 px-3 py-2 text-xs text-zinc-900 placeholder:text-zinc-400 focus:border-[#B8944E] focus:ring-1 focus:ring-[#B8944E]/30 focus:outline-none resize-none"
+              className="flex-1 rounded-xl border border-zinc-200 px-3 py-2 text-xs text-zinc-900 placeholder:text-zinc-400 focus:border-[#CCA038] focus:ring-1 focus:ring-[#CCA038]/30 focus:outline-none resize-none"
             />
             <Button
               type="submit"

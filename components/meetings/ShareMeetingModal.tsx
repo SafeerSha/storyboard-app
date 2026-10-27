@@ -185,7 +185,7 @@ export function ShareMeetingModal({
             className={`py-2 px-3 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
               activeTab === "whatsapp"
                 ? "bg-white text-emerald-800 shadow-2xs font-bold"
-                : "text-[#706C7D] hover:text-[#252331]"
+                : "text-[#334155] hover:text-[#0F172A]"
             }`}
           >
             <MessageSquare size={13} className="text-emerald-600" />
@@ -197,11 +197,11 @@ export function ShareMeetingModal({
             onClick={() => setActiveTab("email")}
             className={`py-2 px-3 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
               activeTab === "email"
-                ? "bg-white text-[#80642F] shadow-2xs font-bold"
-                : "text-[#706C7D] hover:text-[#252331]"
+                ? "bg-white text-[#785312] shadow-2xs font-bold"
+                : "text-[#334155] hover:text-[#0F172A]"
             }`}
           >
-            <Mail size={13} className="text-[#80642F]" />
+            <Mail size={13} className="text-[#785312]" />
             <span>Email</span>
           </button>
 
@@ -210,11 +210,11 @@ export function ShareMeetingModal({
             onClick={() => setActiveTab("copy")}
             className={`py-2 px-3 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
               activeTab === "copy"
-                ? "bg-white text-[#252331] shadow-2xs font-bold"
-                : "text-[#706C7D] hover:text-[#252331]"
+                ? "bg-white text-[#0F172A] shadow-2xs font-bold"
+                : "text-[#334155] hover:text-[#0F172A]"
             }`}
           >
-            <Copy size={13} className="text-[#706C7D]" />
+            <Copy size={13} className="text-[#334155]" />
             <span>Copy Text</span>
           </button>
         </div>
@@ -223,7 +223,7 @@ export function ShareMeetingModal({
         {activeTab === "whatsapp" && (
           <div className="space-y-4 animate-in fade-in duration-100">
             <div>
-              <label className="block text-[11px] font-bold uppercase tracking-wider text-[#706C7D] mb-1.5">
+              <label className="block text-[11px] font-bold uppercase tracking-wider text-[#334155] mb-1.5">
                 Recipient Phone Number (Optional)
               </label>
               <input
@@ -231,19 +231,19 @@ export function ShareMeetingModal({
                 placeholder="e.g. +91 9876543210 (Leave blank to choose in WhatsApp)"
                 value={recipientPhone}
                 onChange={(e) => setRecipientPhone(e.target.value)}
-                className="w-full rounded-xl border border-[rgba(74,61,100,0.15)] bg-white px-3.5 py-2 text-xs sm:text-sm text-[#252331] placeholder-[#9994A5] focus:outline-none focus:ring-1 focus:ring-[#B8944E]"
+                className="w-full rounded-xl border border-[rgba(15,23,42,0.15)] bg-white px-3.5 py-2 text-xs sm:text-sm text-[#0F172A] placeholder-[#64748B] focus:outline-none focus:ring-1 focus:ring-[#CCA038]"
               />
-              <p className="mt-1 text-[11px] text-[#9994A5]">
+              <p className="mt-1 text-[11px] text-[#64748B]">
                 WhatsApp will open with the invitation pre-filled. You can review the message before sending.
               </p>
             </div>
 
             {/* Preview Box */}
-            <div className="rounded-xl border border-[rgba(74,61,100,0.10)] bg-[#faf9fc] p-3 text-xs text-[#353140] max-h-40 overflow-y-auto whitespace-pre-wrap font-mono leading-relaxed select-all">
+            <div className="rounded-xl border border-[rgba(15,23,42,0.10)] bg-[#F8F9FB] p-3 text-xs text-[#0F172A] max-h-40 overflow-y-auto whitespace-pre-wrap font-mono leading-relaxed select-all">
               {invitationPlainText}
             </div>
 
-            <div className="flex justify-end gap-2 pt-2 border-t border-[rgba(74,61,100,0.06)]">
+            <div className="flex justify-end gap-2 pt-2 border-t border-[rgba(15,23,42,0.06)]">
               <Button variant="secondary" size="md" onClick={onClose}>
                 Close
               </Button>
@@ -271,7 +271,7 @@ export function ShareMeetingModal({
             )}
 
             <div>
-              <label className="block text-[11px] font-bold uppercase tracking-wider text-[#706C7D] mb-1.5">
+              <label className="block text-[11px] font-bold uppercase tracking-wider text-[#334155] mb-1.5">
                 Recipients
               </label>
 
@@ -281,13 +281,13 @@ export function ShareMeetingModal({
                   {recipientEmails.map((email) => (
                     <span
                       key={email}
-                      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs bg-white border border-[rgba(74,61,100,0.12)] text-[#252331]"
+                      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs bg-white border border-[rgba(15,23,42,0.12)] text-[#0F172A]"
                     >
                       <span>{email}</span>
                       <button
                         type="button"
                         onClick={() => handleRemoveEmail(email)}
-                        className="text-[#9994A5] hover:text-rose-600 cursor-pointer"
+                        className="text-[#64748B] hover:text-rose-600 cursor-pointer"
                       >
                         ×
                       </button>
@@ -309,7 +309,7 @@ export function ShareMeetingModal({
                       handleAddEmail(customEmailInput);
                     }
                   }}
-                  className="flex-1 rounded-xl border border-[rgba(74,61,100,0.15)] bg-white px-3 py-1.5 text-xs sm:text-sm text-[#252331] focus:outline-none focus:ring-1 focus:ring-[#B8944E]"
+                  className="flex-1 rounded-xl border border-[rgba(15,23,42,0.15)] bg-white px-3 py-1.5 text-xs sm:text-sm text-[#0F172A] focus:outline-none focus:ring-1 focus:ring-[#CCA038]"
                 />
                 <Button
                   variant="secondary"
@@ -324,7 +324,7 @@ export function ShareMeetingModal({
               {/* Quick suggestions from team */}
               {projectTeamMembers.length > 0 && (
                 <div className="mt-2.5">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-[#9994A5]">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-[#64748B]">
                     Quick Add Team:
                   </span>
                   <div className="flex flex-wrap gap-1.5 mt-1">
@@ -339,8 +339,8 @@ export function ShareMeetingModal({
                           onClick={() => (isAdded ? handleRemoveEmail(emailCandidate) : handleAddEmail(emailCandidate))}
                           className={`text-[11px] px-2 py-0.5 rounded-md border transition-colors cursor-pointer ${
                             isAdded
-                              ? "bg-amber-50 text-[#80642F] border-amber-200"
-                              : "bg-white text-[#706C7D] border-[rgba(74,61,100,0.1)] hover:bg-[#faf9fc]"
+                              ? "bg-amber-50 text-[#785312] border-amber-200"
+                              : "bg-white text-[#334155] border-[rgba(15,23,42,0.1)] hover:bg-[#F8F9FB]"
                           }`}
                         >
                           {tm.name} {isAdded ? "✓" : "+"}
@@ -352,15 +352,15 @@ export function ShareMeetingModal({
               )}
             </div>
 
-            <div className="rounded-xl border border-[rgba(74,61,100,0.08)] bg-[#faf9fc] p-3 text-xs text-[#706C7D] space-y-1">
-              <p className="font-semibold text-[#252331]">Includes in Email:</p>
+            <div className="rounded-xl border border-[rgba(15,23,42,0.08)] bg-[#F8F9FB] p-3 text-xs text-[#334155] space-y-1">
+              <p className="font-semibold text-[#0F172A]">Includes in Email:</p>
               <p>• Meeting Title, Type, and Project</p>
               <p>• Date, Time, and Duration in local time</p>
               <p>• Direct Meeting Join Button (Teams / Meet / Zoom)</p>
               <p>• Numbered Agenda List</p>
             </div>
 
-            <div className="flex justify-end gap-2 pt-2 border-t border-[rgba(74,61,100,0.06)]">
+            <div className="flex justify-end gap-2 pt-2 border-t border-[rgba(15,23,42,0.06)]">
               <Button variant="secondary" size="md" onClick={onClose} disabled={sendingEmail}>
                 Cancel
               </Button>
@@ -381,15 +381,15 @@ export function ShareMeetingModal({
         {/* Tab 3: Copy Plain Text */}
         {activeTab === "copy" && (
           <div className="space-y-4 animate-in fade-in duration-100">
-            <div className="rounded-xl border border-[rgba(74,61,100,0.10)] bg-[#faf9fc] p-3 text-xs text-[#353140] max-h-56 overflow-y-auto whitespace-pre-wrap font-mono leading-relaxed select-all">
+            <div className="rounded-xl border border-[rgba(15,23,42,0.10)] bg-[#F8F9FB] p-3 text-xs text-[#0F172A] max-h-56 overflow-y-auto whitespace-pre-wrap font-mono leading-relaxed select-all">
               {invitationPlainText}
             </div>
 
-            <p className="text-[11px] text-[#9994A5]">
+            <p className="text-[11px] text-[#64748B]">
               Internal notes are strictly excluded from the copied invitation text.
             </p>
 
-            <div className="flex justify-end gap-2 pt-2 border-t border-[rgba(74,61,100,0.06)]">
+            <div className="flex justify-end gap-2 pt-2 border-t border-[rgba(15,23,42,0.06)]">
               <Button variant="secondary" size="md" onClick={onClose}>
                 Close
               </Button>

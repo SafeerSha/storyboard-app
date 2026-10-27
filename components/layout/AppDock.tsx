@@ -158,7 +158,7 @@ export function AppDock({
                 <div className="rounded-xl bg-zinc-900 px-3 py-1.5 text-xs font-bold text-white shadow-2xl whitespace-nowrap animate-in fade-in zoom-in-95 duration-150">
                   {brand.label}
                   {brand.badge && (
-                    <span className="ml-1.5 rounded-md bg-[#B8944E]/30 px-1.5 py-0.5 text-[10px] font-extrabold text-[#F3E8D7] border border-[#B8944E]/40">
+                    <span className="ml-1.5 rounded-md bg-[#CCA038]/30 px-1.5 py-0.5 text-[10px] font-extrabold text-[#FEF3C7] border border-[#CCA038]/40">
                       {brand.badge}
                     </span>
                   )}
@@ -199,16 +199,16 @@ export function AppDock({
                       }}
                       aria-label={item.label}
                       aria-current={item.isActive ? "page" : undefined}
-                      className={`relative grid h-10 w-10 sm:h-11 sm:w-11 shrink-0 aspect-square place-items-center rounded-xl sm:rounded-2xl transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] hover:scale-115 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B8944E] cursor-pointer ${
+                      className={`relative grid h-10 w-10 sm:h-11 sm:w-11 shrink-0 aspect-square place-items-center rounded-xl sm:rounded-2xl transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] hover:scale-115 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#CCA038] cursor-pointer ${
                         item.isActive
-                          ? "bg-[rgba(184,148,78,0.14)] border border-[rgba(184,148,78,0.28)] text-[#664914] shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.75),0_2px_8px_rgba(184,148,78,0.10)] backdrop-blur-md"
+                          ? "bg-gradient-to-b from-white/95 to-[#F9F4EB]/90 border border-[#CCA038]/50 text-[#785312] shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_3px_10px_rgba(120,80,15,0.14)] backdrop-blur-md"
                           : "text-zinc-700 hover:bg-white/30 hover:text-zinc-950 hover:shadow-[inset_0_1px_1px_rgba(255,255,255,0.7)] border border-transparent"
                       }`}
                     >
                       {/* Active Indicator Dot Underneath */}
                       {item.isActive && (
                         <span
-                          className="absolute -bottom-1 left-1/2 -translate-x-1/2 h-1.5 w-1.5 rounded-full bg-[#B8944E] shadow-[0_0_6px_#B8944E]"
+                          className="absolute -bottom-1 left-1/2 -translate-x-1/2 h-1.5 w-1.5 rounded-full bg-gradient-to-b from-[#E2BE68] to-[#996D14] shadow-[0_1px_2px_rgba(0,0,0,0.25)]"
                           aria-hidden="true"
                         />
                       )}
@@ -216,14 +216,14 @@ export function AppDock({
                       <Icon
                         size={20}
                         className={`transition-colors duration-150 ${
-                          item.isActive ? "text-[#80642F]" : "text-zinc-700 hover:text-zinc-950"
+                          item.isActive ? "text-[#785312]" : "text-zinc-700 hover:text-zinc-950"
                         }`}
                       />
 
                       {/* Notification count badge */}
                       {item.badge !== undefined && item.badge !== null && (
                         <span
-                          className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-[#B8944E] text-white text-[10px] font-extrabold flex items-center justify-center shadow-sm border-2 border-white pointer-events-none"
+                          className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-gradient-to-b from-[#D4A73B] to-[#AB7E20] text-white text-[10px] font-extrabold flex items-center justify-center shadow-[inset_0_1px_0.5px_rgba(255,255,255,0.6),0_1.5px_3px_rgba(0,0,0,0.2)] border-2 border-white pointer-events-none"
                           aria-label={`${item.badge} notifications`}
                         >
                           {item.badge}
@@ -301,7 +301,7 @@ export function AppDock({
                 aria-expanded={showAccountMenu}
                 aria-haspopup="menu"
                 aria-label={`Account menu for ${user.name}`}
-                className="grid h-10 w-10 sm:h-11 sm:w-11 shrink-0 aspect-square place-items-center rounded-xl sm:rounded-2xl bg-gradient-to-br from-[#B8944E] to-[#7A5B20] text-white font-bold text-xs tracking-wider border border-white/80 shadow-[0_3px_10px_rgba(184,148,78,0.30),inset_0_1px_1.5px_rgba(255,255,255,0.6)] transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] hover:scale-115 active:scale-95 focus-visible:outline-none cursor-pointer"
+                className="grid h-10 w-10 sm:h-11 sm:w-11 shrink-0 aspect-square place-items-center rounded-xl sm:rounded-2xl bg-gradient-to-br from-[#CCA038] to-[#7A5B20] text-white font-bold text-xs tracking-wider border border-white/80 shadow-[0_3px_10px_rgba(204,160,56,0.30),inset_0_1px_1.5px_rgba(255,255,255,0.6)] transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] hover:scale-115 active:scale-95 focus-visible:outline-none cursor-pointer"
               >
                 {user.initials}
               </button>
@@ -315,7 +315,7 @@ export function AppDock({
                   <div className="rounded-xl bg-zinc-900 px-3 py-1.5 text-xs font-bold text-white shadow-2xl whitespace-nowrap animate-in fade-in zoom-in-95 duration-150">
                     <span>{user.name}</span>
                     <span className="text-zinc-400 mx-1.5">•</span>
-                    <span className="text-[#F3E8D7]">{user.roleDisplay || user.role || "User"}</span>
+                    <span className="text-[#FEF3C7]">{user.roleDisplay || user.role || "User"}</span>
                   </div>
                   <div className="w-2 h-1 border-x-4 border-x-transparent border-t-4 border-t-zinc-900" />
                 </div>

@@ -219,8 +219,8 @@ export function PublishEstimateModal({
     >
       <div className="space-y-4">
         {/* Banner Info */}
-        <div className="flex items-start gap-3 p-3.5 rounded-xl bg-[#B8944E]/[0.08] border border-[#B8944E]/25 text-xs text-zinc-700 leading-relaxed">
-          <ShieldCheck className="w-4 h-4 text-[#80642F] shrink-0 mt-0.5" />
+        <div className="flex items-start gap-3 p-3.5 rounded-xl bg-[#CCA038]/[0.08] border border-[#CCA038]/25 text-xs text-zinc-700 leading-relaxed">
+          <ShieldCheck className="w-4 h-4 text-[#785312] shrink-0 mt-0.5" />
           <div>
             <span className="font-semibold text-zinc-900">Read-Only with Interactive Bargaining:</span>
             <p className="mt-0.5 text-zinc-600">
@@ -233,7 +233,7 @@ export function PublishEstimateModal({
         <div className="space-y-1.5">
           <div className="flex items-center justify-between">
             <label className="text-xs font-bold uppercase tracking-wider text-zinc-700 flex items-center gap-1.5">
-              <Tag className="w-3.5 h-3.5 text-[#B8944E]" />
+              <Tag className="w-3.5 h-3.5 text-[#CCA038]" />
               Milestone / Phase Label (Optional)
             </label>
             <span className="text-[10px] text-zinc-400 font-medium">Included in emails &amp; export files</span>
@@ -243,7 +243,7 @@ export function PublishEstimateModal({
             value={estimateLabel}
             onChange={(e) => setEstimateLabel(e.target.value)}
             placeholder="e.g., Phase 1, Phase 2, MVP, Sprint 1-4"
-            className="w-full rounded-xl border border-zinc-200 px-3 py-2 text-xs text-zinc-900 placeholder:text-zinc-400 focus:border-[#B8944E] focus:ring-1 focus:ring-[#B8944E]/30 focus:outline-none"
+            className="w-full rounded-xl border border-zinc-200 px-3 py-2 text-xs text-zinc-900 placeholder:text-zinc-400 focus:border-[#CCA038] focus:ring-1 focus:ring-[#CCA038]/30 focus:outline-none"
           />
           <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
             <span className="text-[10.5px] text-zinc-400 mr-1">Presets:</span>
@@ -254,7 +254,7 @@ export function PublishEstimateModal({
                 onClick={() => setEstimateLabel(preset)}
                 className={`px-2 py-0.5 rounded text-[10.5px] font-semibold transition ${
                   estimateLabel === preset
-                    ? "bg-[#B8944E] text-white"
+                    ? "bg-[#CCA038] text-white"
                     : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200"
                 }`}
               >
@@ -268,14 +268,14 @@ export function PublishEstimateModal({
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <label className="text-xs font-bold uppercase tracking-wider text-zinc-700 flex items-center gap-1.5">
-              <Users className="w-3.5 h-3.5 text-[#B8944E]" />
+              <Users className="w-3.5 h-3.5 text-[#CCA038]" />
               Select Clients for this Project ({selectedClientIds.length}/{clients.length})
             </label>
             {clients.length > 0 && (
               <button
                 type="button"
                 onClick={toggleAll}
-                className="text-xs font-semibold text-[#80642F] hover:underline"
+                className="text-xs font-semibold text-[#785312] hover:underline"
               >
                 {selectedClientIds.length === clients.length ? "Deselect All" : "Select All"}
               </button>
@@ -310,7 +310,7 @@ export function PublishEstimateModal({
                           type="checkbox"
                           checked={isChecked}
                           onChange={() => {}}
-                          className="rounded border-zinc-300 text-[#B8944E] focus:ring-[#B8944E]"
+                          className="rounded border-zinc-300 text-[#CCA038] focus:ring-[#CCA038]"
                         />
                         <div className="min-w-0">
                           <p className="text-sm font-semibold text-zinc-900 truncate">{client.name}</p>
@@ -328,7 +328,7 @@ export function PublishEstimateModal({
                     {isChecked && (
                       <div className="mt-2.5 pl-6" onClick={(e) => e.stopPropagation()}>
                         <div className="flex items-center gap-1.5 text-[11px] text-zinc-500 mb-1">
-                          <Mail className="w-3 h-3 text-[#B8944E]" />
+                          <Mail className="w-3 h-3 text-[#CCA038]" />
                           <span>Email Notification Address (optional)</span>
                         </div>
                         <input
@@ -339,7 +339,7 @@ export function PublishEstimateModal({
                             setClientEmails((prev) => ({ ...prev, [client.id]: val }));
                           }}
                           placeholder={`e.g., client@company.com`}
-                          className="w-full rounded-lg border border-zinc-200 px-2.5 py-1.5 text-xs text-zinc-900 placeholder:text-zinc-400 focus:border-[#B8944E] focus:ring-1 focus:ring-[#B8944E]/30 focus:outline-none"
+                          className="w-full rounded-lg border border-zinc-200 px-2.5 py-1.5 text-xs text-zinc-900 placeholder:text-zinc-400 focus:border-[#CCA038] focus:ring-1 focus:ring-[#CCA038]/30 focus:outline-none"
                         />
                       </div>
                     )}
@@ -354,7 +354,7 @@ export function PublishEstimateModal({
         <div className="space-y-1.5">
           <div className="flex items-center justify-between">
             <label className="text-xs font-bold uppercase tracking-wider text-zinc-700 flex items-center gap-1.5">
-              <Mail className="w-3.5 h-3.5 text-[#B8944E]" />
+              <Mail className="w-3.5 h-3.5 text-[#CCA038]" />
               From / Sender Email Address
             </label>
             <span className="text-[10px] text-zinc-400 font-medium">Customizable</span>
@@ -364,7 +364,7 @@ export function PublishEstimateModal({
             value={fromEmail}
             onChange={(e) => setFromEmail(e.target.value)}
             placeholder='e.g., Your Name <your-email@reqly.in>'
-            className="w-full rounded-xl border border-zinc-200 px-3 py-2 text-xs text-zinc-900 placeholder:text-zinc-400 focus:border-[#B8944E] focus:ring-1 focus:ring-[#B8944E]/30 focus:outline-none"
+            className="w-full rounded-xl border border-zinc-200 px-3 py-2 text-xs text-zinc-900 placeholder:text-zinc-400 focus:border-[#CCA038] focus:ring-1 focus:ring-[#CCA038]/30 focus:outline-none"
           />
           <p className="text-[11px] text-zinc-500">
             This sender address will appear in the client&apos;s email inbox.
@@ -374,7 +374,7 @@ export function PublishEstimateModal({
         {/* Message / Notes to Client */}
         <div className="space-y-1.5">
           <label className="text-xs font-bold uppercase tracking-wider text-zinc-700 flex items-center gap-1.5">
-            <MessageSquare className="w-3.5 h-3.5 text-[#B8944E]" />
+            <MessageSquare className="w-3.5 h-3.5 text-[#CCA038]" />
             Note to Client (Optional)
           </label>
           <textarea
@@ -382,7 +382,7 @@ export function PublishEstimateModal({
             value={publishNote}
             onChange={(e) => setPublishNote(e.target.value)}
             placeholder="e.g., Hi team, here is our formal scope & estimation breakdown. Feel free to review and leave comments on any item!"
-            className="w-full rounded-xl border border-zinc-200 px-3 py-2 text-xs text-zinc-900 placeholder:text-zinc-400 focus:border-[#B8944E] focus:ring-1 focus:ring-[#B8944E]/30 focus:outline-none resize-none"
+            className="w-full rounded-xl border border-zinc-200 px-3 py-2 text-xs text-zinc-900 placeholder:text-zinc-400 focus:border-[#CCA038] focus:ring-1 focus:ring-[#CCA038]/30 focus:outline-none resize-none"
           />
         </div>
       </div>

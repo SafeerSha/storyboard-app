@@ -110,7 +110,7 @@ export function ForgotPasswordModal({
     >
       <div className="space-y-4">
         {error && (
-          <div className="rounded-xl bg-rose-50/80 border border-rose-200/80 p-3 text-xs text-[#C25D72] animate-in fade-in duration-150">
+          <div className="rounded-xl bg-rose-50/80 border border-rose-200/80 p-3 text-xs text-[#E11D48] animate-in fade-in duration-150">
             {error}
           </div>
         )}
@@ -121,14 +121,14 @@ export function ForgotPasswordModal({
             <div>
               <label
                 htmlFor="forgot-pwd-email"
-                className="block text-xs font-semibold uppercase tracking-wider text-[#9994A5] mb-1.5"
+                className="block text-xs font-semibold uppercase tracking-wider text-[#64748B] mb-1.5"
               >
                 Registered Email Address
               </label>
               <div className="relative">
                 <Mail
                   size={15}
-                  className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-[#9994A5]"
+                  className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-[#64748B]"
                 />
                 <input
                   id="forgot-pwd-email"
@@ -142,12 +142,12 @@ export function ForgotPasswordModal({
                     if (error) setError("");
                   }}
                   placeholder="name@company.com"
-                  className="h-10 w-full rounded-xl border border-[rgba(74,61,100,0.11)] bg-white pl-10 pr-3.5 text-sm text-[#252331] placeholder-[#9994A5] outline-none transition focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)] disabled:opacity-60"
+                  className="h-10 w-full rounded-xl border border-[rgba(15,23,42,0.11)] bg-white pl-10 pr-3.5 text-sm text-[#0F172A] placeholder-[#64748B] outline-none transition focus:border-[#CCA038] focus:ring-1 focus:ring-[rgba(204,160,56,0.14)] disabled:opacity-60"
                 />
               </div>
             </div>
 
-            <p className="text-xs text-[#706C7D] leading-relaxed">
+            <p className="text-xs text-[#334155] leading-relaxed">
               If an account is associated with this email, you will receive a secure reset link valid for 60 minutes.
             </p>
 
@@ -166,33 +166,33 @@ export function ForgotPasswordModal({
         ) : (
           /* AC-1.3: Generic confirmation state */
           <div className="flex flex-col items-center text-center py-2 space-y-4">
-            <div className="grid h-14 w-14 place-items-center rounded-full bg-[rgba(184,148,78,0.12)] text-[#80642F] border border-[rgba(184,148,78,0.25)]">
+            <div className="grid h-14 w-14 place-items-center rounded-full bg-[rgba(204,160,56,0.12)] text-[#785312] border border-[rgba(204,160,56,0.25)]">
               <CheckCircle2 size={30} />
             </div>
 
             <div className="space-y-1.5">
-              <h3 className="text-base font-semibold text-[#252331]">
+              <h3 className="text-base font-semibold text-[#0F172A]">
                 Check Your Inbox
               </h3>
               <p className="text-xs text-[#585365] leading-relaxed max-w-xs mx-auto">
-                If an account exists for <strong className="text-[#252331]">{email}</strong>, a secure password reset link has been sent. Please check your inbox and spam folder.
+                If an account exists for <strong className="text-[#0F172A]">{email}</strong>, a secure password reset link has been sent. Please check your inbox and spam folder.
               </p>
             </div>
 
-            <div className="w-full rounded-xl bg-[#FAF9FC] border border-[rgba(74,61,100,0.08)] p-3 text-xs text-[#706C7D] text-left">
-              <span className="font-semibold text-[#252331] block mb-0.5">Didn't receive an email?</span>
+            <div className="w-full rounded-xl bg-[#F8F9FB] border border-[rgba(15,23,42,0.08)] p-3 text-xs text-[#334155] text-left">
+              <span className="font-semibold text-[#0F172A] block mb-0.5">Didn't receive an email?</span>
               Verify that the address is registered to an active account, or wait a minute before requesting another link.
             </div>
 
             <div className="flex items-center justify-between w-full pt-1 text-xs">
               {countdown > 0 ? (
-                <span className="text-[#9994A5]">Resend link in {countdown}s</span>
+                <span className="text-[#64748B]">Resend link in {countdown}s</span>
               ) : (
                 <button
                   type="button"
                   disabled={loading}
                   onClick={() => handleSendResetLink()}
-                  className="inline-flex items-center gap-1 font-medium text-[#B8944E] hover:underline disabled:opacity-50"
+                  className="inline-flex items-center gap-1 font-medium text-[#CCA038] hover:underline disabled:opacity-50"
                 >
                   <RefreshCw size={12} />
                   Resend reset link
@@ -205,7 +205,7 @@ export function ForgotPasswordModal({
                   setSubmitted(false);
                   setError("");
                 }}
-                className="font-medium text-[#706C7D] hover:text-[#252331] hover:underline"
+                className="font-medium text-[#334155] hover:text-[#0F172A] hover:underline"
               >
                 Change email
               </button>

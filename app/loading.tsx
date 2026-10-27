@@ -12,8 +12,8 @@ export default function Loading() {
 
         /* Logo icon soft glow pulse */
         @keyframes rq-glow-pulse {
-          0%, 100% { box-shadow: 0 0 0 0   rgba(184,148,78,0.00); }
-          50%       { box-shadow: 0 0 0 10px rgba(184,148,78,0.13); }
+          0%, 100% { box-shadow: 0 0 0 0   rgba(204,160,56,0.00); }
+          50%       { box-shadow: 0 0 0 10px rgba(204,160,56,0.13); }
         }
 
         /* Three-dot shimmer wave */
@@ -44,7 +44,7 @@ export default function Loading() {
         .rq-dot {
           width: 5px; height: 5px;
           border-radius: 50%;
-          background: #B8944E;
+          background: #CCA038;
           display: inline-block;
           animation: rq-dot-wave 1.4s ease-in-out infinite;
         }
@@ -57,21 +57,21 @@ export default function Loading() {
           position: fixed;
           bottom: 0; left: 0;
           width: 100%; height: 2px;
-          background: rgba(184,148,78,0.12);
+          background: rgba(204,160,56,0.12);
           overflow: hidden;
           z-index: 9999;
         }
         .rq-bar-fill {
           position: absolute;
           top: 0; height: 100%;
-          background: linear-gradient(90deg, transparent, #B8944E, #E2C17C, #B8944E, transparent);
+          background: linear-gradient(90deg, transparent, #CCA038, #E2C17C, #CCA038, transparent);
           animation: rq-bar-sweep 1.6s ease-in-out infinite;
         }
 
         /* Divider line */
         .rq-divider {
           width: 32px; height: 1px;
-          background: linear-gradient(90deg, transparent, rgba(184,148,78,0.40), transparent);
+          background: linear-gradient(90deg, transparent, rgba(204,160,56,0.40), transparent);
           margin: 0 auto;
         }
       `}</style>
@@ -87,7 +87,7 @@ export default function Loading() {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          background: "#F5F2F7",
+          background: "#F8F9FA",
           backgroundImage:
             "radial-gradient(ellipse at 20% 10%, rgba(210,193,235,0.28) 0%, transparent 50%), " +
             "radial-gradient(ellipse at 80% 90%, rgba(202,220,240,0.20) 0%, transparent 50%)",
@@ -114,10 +114,10 @@ export default function Loading() {
                 fontWeight: 700,
                 letterSpacing: "-0.04em",
                 lineHeight: 1,
-                color: "#252331",
+                color: "#0F172A",
               }}
             >
-              REQ<span style={{ color: "#B8944E" }}>ly</span>
+              REQ<span style={{ color: "#CCA038" }}>ly</span>
             </p>
 
             <div className="rq-3 rq-divider" />
@@ -130,10 +130,10 @@ export default function Loading() {
                 fontWeight: 700,
                 letterSpacing: "0.06em",
                 textTransform: "uppercase",
-                color: "#252331", // Default to black/dark for the base text
+                color: "#0F172A", // Default to black/dark for the base text
               }}
             >
-              From <span style={{ color: "#B8944E" }}>requirements</span> to <span style={{ color: "#B8944E" }}>delivery</span>
+              From <span style={{ color: "#CCA038" }}>requirements</span> to <span style={{ color: "#CCA038" }}>delivery</span>
             </p>
           </div>
 

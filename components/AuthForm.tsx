@@ -86,10 +86,10 @@ export function AuthForm() {
               fontWeight: 700,
               letterSpacing: "-0.04em",
               lineHeight: 1,
-              color: "#252331",
+              color: "#0F172A",
             }}
           >
-            REQ<span style={{ color: "#B8944E" }}>ly</span>
+            REQ<span style={{ color: "#CCA038" }}>ly</span>
           </span>
 
           {/* Thin gold divider */}
@@ -99,7 +99,7 @@ export function AuthForm() {
               width: "28px",
               height: "1px",
               background:
-                "linear-gradient(90deg, transparent, rgba(184,148,78,0.5), transparent)",
+                "linear-gradient(90deg, transparent, rgba(204,160,56,0.5), transparent)",
             }}
           />
 
@@ -109,26 +109,26 @@ export function AuthForm() {
               fontWeight: 700,
               letterSpacing: "0.08em",
               textTransform: "uppercase",
-              color: "#252331", // Default to black/dark for the base text
+              color: "#0F172A", // Default to black/dark for the base text
             }}
           >
-            From <span style={{ color: "#B8944E" }}>requirements</span> to <span style={{ color: "#B8944E" }}>delivery</span>
+            From <span style={{ color: "#CCA038" }}>requirements</span> to <span style={{ color: "#CCA038" }}>delivery</span>
           </span>
         </div>
       </div>
 
       <form
         onSubmit={submit}
-        className="rounded-2xl border border-[rgba(74,61,100,0.08)] bg-white/90 backdrop-blur-[20px] p-6 sm:p-8 shadow-[0_20px_60px_rgba(70,55,95,0.08)] space-y-4"
+        className="rounded-2xl border border-[rgba(15,23,42,0.08)] bg-white/90 backdrop-blur-[20px] p-6 sm:p-8 shadow-[0_20px_60px_rgba(15,23,42,0.08)] space-y-4"
       >
         <div>
-          <label className="block text-xs font-semibold uppercase tracking-wider text-[#9994A5] mb-1.5">
+          <label className="block text-xs font-semibold uppercase tracking-wider text-[#64748B] mb-1.5">
             Login ID
           </label>
           <div className="relative">
             <UserCircle
               size={15}
-              className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#9994A5]"
+              className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#64748B]"
             />
             <input
               type="text"
@@ -141,20 +141,20 @@ export function AuthForm() {
               value={identifier}
               onChange={(e) => setIdentifier(e.target.value)}
               placeholder="Login Id"
-              className="h-10 w-full rounded-xl border border-[rgba(74,61,100,0.11)] bg-white/85 pl-10 pr-3.5 text-sm text-[#252331] placeholder-[#9994A5] outline-none transition focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)] disabled:opacity-60 disabled:cursor-not-allowed"
+              className="h-10 w-full rounded-xl border border-[rgba(15,23,42,0.11)] bg-white/85 pl-10 pr-3.5 text-sm text-[#0F172A] placeholder-[#64748B] outline-none transition focus:border-[#CCA038] focus:ring-1 focus:ring-[rgba(204,160,56,0.14)] disabled:opacity-60 disabled:cursor-not-allowed"
             />
           </div>
         </div>
 
         <div>
           <div className="flex items-center justify-between mb-1.5">
-            <label className="block text-xs font-semibold uppercase tracking-wider text-[#9994A5]">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-[#64748B]">
               Password
             </label>
             <button
               type="button"
               onClick={() => setShowForgotPassword(true)}
-              className="text-xs font-medium text-[#B8944E] hover:underline transition"
+              className="text-xs font-medium text-[#CCA038] hover:underline transition"
             >
               Forgot password?
             </button>
@@ -171,7 +171,7 @@ export function AuthForm() {
         </div>
 
         {error && (
-          <div className="rounded-xl bg-rose-50/80 border border-rose-200/80 p-3 text-xs text-[#C25D72]">
+          <div className="rounded-xl bg-rose-50/80 border border-rose-200/80 p-3 text-xs text-[#E11D48]">
             {error}
           </div>
         )}

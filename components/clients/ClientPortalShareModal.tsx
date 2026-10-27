@@ -166,45 +166,45 @@ export function ClientPortalShareModal({
       >
         <div className="space-y-4">
           {/* Client Information Compact Header */}
-          <div className="flex items-center justify-between border-b border-[#EBE7F2] pb-3.5">
+          <div className="flex items-center justify-between border-b border-[#E2E8F0] pb-3.5">
             <div className="flex items-center gap-3 min-w-0">
-              <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[rgba(184,148,78,0.10)] border border-[rgba(184,148,78,0.15)] text-xs font-bold text-[#80642F] shadow-xs">
+              <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[rgba(204,160,56,0.10)] border border-[rgba(204,160,56,0.15)] text-xs font-bold text-[#785312] shadow-xs">
                 {initials}
               </div>
               <div className="min-w-0">
-                <h3 className="text-sm font-bold text-[#252331] truncate">
+                <h3 className="text-sm font-bold text-[#0F172A] truncate">
                   {client.name}
                 </h3>
-                <p className="text-xs font-medium text-[#706C7D] truncate">
+                <p className="text-xs font-medium text-[#334155] truncate">
                   {projectName} {client.email ? `• ${client.email}` : ""}
                 </p>
               </div>
             </div>
 
-            <span className="text-xs text-[#9994A5] hidden sm:inline">
+            <span className="text-xs text-[#64748B] hidden sm:inline">
               Client Portal Access
             </span>
           </div>
 
-          <p className="text-xs text-[#706C7D] font-medium">
+          <p className="text-xs text-[#334155] font-medium">
             Share these details with the client.
           </p>
 
           {/* Unified Credential Area with Subtle Separators */}
-          <div className="overflow-hidden rounded-xl border border-[#EBE7F2] bg-[#FAF9FC] divide-y divide-[#EBE7F2]">
+          <div className="overflow-hidden rounded-xl border border-[#E2E8F0] bg-[#F8F9FB] divide-y divide-[#E2E8F0]">
             {/* 1. Client Portal URL */}
             <div className="p-3 sm:p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <div className="min-w-0 flex-1">
-                <span className="block text-[11px] font-semibold uppercase tracking-wider text-[#9994A5] mb-0.5">
+                <span className="block text-[11px] font-semibold uppercase tracking-wider text-[#64748B] mb-0.5">
                   Client portal
                 </span>
-                <div className="flex items-center gap-1.5 font-mono text-xs text-[#80642F] font-medium truncate">
+                <div className="flex items-center gap-1.5 font-mono text-xs text-[#785312] font-medium truncate">
                   <span className="truncate">{portalUrl}</span>
                   <a
                     href={portalUrl}
                     target="_blank"
                     rel="noreferrer"
-                    className="text-[#9994A5] hover:text-[#80642F] p-0.5 transition shrink-0"
+                    className="text-[#64748B] hover:text-[#785312] p-0.5 transition shrink-0"
                     title="Open portal in new tab"
                   >
                     <ExternalLink size={12} />
@@ -215,7 +215,7 @@ export function ClientPortalShareModal({
               <button
                 type="button"
                 onClick={handleCopyPortalUrl}
-                className="inline-flex items-center justify-center gap-1 h-7 px-2.5 rounded-lg border border-[#EBE7F2] bg-white text-[11px] font-semibold text-[#353140] hover:bg-[#FAF9FC] hover:text-[#80642F] transition shrink-0 self-end sm:self-center shadow-xs"
+                className="inline-flex items-center justify-center gap-1 h-7 px-2.5 rounded-lg border border-[#E2E8F0] bg-white text-[11px] font-semibold text-[#0F172A] hover:bg-[#F8F9FB] hover:text-[#785312] transition shrink-0 self-end sm:self-center shadow-xs"
               >
                 {copiedSection === "portal" ? (
                   <>
@@ -224,7 +224,7 @@ export function ClientPortalShareModal({
                   </>
                 ) : (
                   <>
-                    <Copy size={11} className="text-[#9994A5]" />
+                    <Copy size={11} className="text-[#64748B]" />
                     <span>Copy</span>
                   </>
                 )}
@@ -234,10 +234,10 @@ export function ClientPortalShareModal({
             {/* 2. Login PIN */}
             <div className="p-3 sm:p-3.5 flex items-center justify-between gap-2">
               <div>
-                <span className="block text-[11px] font-semibold uppercase tracking-wider text-[#9994A5] mb-0.5">
+                <span className="block text-[11px] font-semibold uppercase tracking-wider text-[#64748B] mb-0.5">
                   Login PIN
                 </span>
-                <span className="font-mono text-sm font-bold tracking-widest text-[#252331]">
+                <span className="font-mono text-sm font-bold tracking-widest text-[#0F172A]">
                   {client.login_id}
                 </span>
               </div>
@@ -245,7 +245,7 @@ export function ClientPortalShareModal({
               <button
                 type="button"
                 onClick={handleCopyLoginPin}
-                className="inline-flex items-center justify-center gap-1 h-7 px-2.5 rounded-lg border border-[#EBE7F2] bg-white text-[11px] font-semibold text-[#353140] hover:bg-[#FAF9FC] hover:text-[#80642F] transition shrink-0 shadow-xs"
+                className="inline-flex items-center justify-center gap-1 h-7 px-2.5 rounded-lg border border-[#E2E8F0] bg-white text-[11px] font-semibold text-[#0F172A] hover:bg-[#F8F9FB] hover:text-[#785312] transition shrink-0 shadow-xs"
               >
                 {copiedSection === "pin" ? (
                   <>
@@ -254,7 +254,7 @@ export function ClientPortalShareModal({
                   </>
                 ) : (
                   <>
-                    <Copy size={11} className="text-[#9994A5]" />
+                    <Copy size={11} className="text-[#64748B]" />
                     <span>Copy</span>
                   </>
                 )}
@@ -264,18 +264,18 @@ export function ClientPortalShareModal({
             {/* 3. Initial Password */}
             <div className="p-3 sm:p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <div className="min-w-0 flex-1">
-                <span className="block text-[11px] font-semibold uppercase tracking-wider text-[#9994A5] mb-0.5">
+                <span className="block text-[11px] font-semibold uppercase tracking-wider text-[#64748B] mb-0.5">
                   Initial password
                 </span>
                 {initialPassword ? (
                   <div className="flex items-center gap-2">
-                    <span className="font-mono text-sm font-semibold tracking-wider text-[#252331]">
+                    <span className="font-mono text-sm font-semibold tracking-wider text-[#0F172A]">
                       {showPassword ? initialPassword : "••••••••••"}
                     </span>
                     <button
                       type="button"
                       onClick={() => setShowPassword((prev) => !prev)}
-                      className="inline-flex items-center gap-1 text-[11px] font-medium text-[#80642F] hover:underline p-0.5"
+                      className="inline-flex items-center gap-1 text-[11px] font-medium text-[#785312] hover:underline p-0.5"
                     >
                       {showPassword ? (
                         <>
@@ -292,7 +292,7 @@ export function ClientPortalShareModal({
                   </div>
                 ) : (
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-xs text-[#9994A5] italic">
+                    <span className="text-xs text-[#64748B] italic">
                       Not available (encrypted in database)
                     </span>
                     {onResetPassword && (
@@ -302,7 +302,7 @@ export function ClientPortalShareModal({
                           onClose();
                           onResetPassword();
                         }}
-                        className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#80642F] hover:text-[#9F7D3E] hover:underline"
+                        className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#785312] hover:text-[#B58422] hover:underline"
                       >
                         <RotateCw size={11} />
                         <span>Reset password & share</span>
@@ -316,7 +316,7 @@ export function ClientPortalShareModal({
                 <button
                   type="button"
                   onClick={handleCopyPassword}
-                  className="inline-flex items-center justify-center gap-1 h-7 px-2.5 rounded-lg border border-[#EBE7F2] bg-white text-[11px] font-semibold text-[#353140] hover:bg-[#FAF9FC] hover:text-[#80642F] transition shrink-0 self-end sm:self-center shadow-xs"
+                  className="inline-flex items-center justify-center gap-1 h-7 px-2.5 rounded-lg border border-[#E2E8F0] bg-white text-[11px] font-semibold text-[#0F172A] hover:bg-[#F8F9FB] hover:text-[#785312] transition shrink-0 self-end sm:self-center shadow-xs"
                 >
                   {copiedSection === "password" ? (
                     <>
@@ -325,7 +325,7 @@ export function ClientPortalShareModal({
                     </>
                   ) : (
                     <>
-                      <Copy size={11} className="text-[#9994A5]" />
+                      <Copy size={11} className="text-[#64748B]" />
                       <span>Copy</span>
                     </>
                   )}
@@ -335,10 +335,10 @@ export function ClientPortalShareModal({
           </div>
 
           {/* First-login Notice */}
-          <div className="flex items-start gap-2.5 rounded-xl border border-[#E4DDF7] bg-[#EDE7F8]/50 p-3 text-xs leading-relaxed text-[#252331]">
-            <Info size={15} className="text-[#B8944E] shrink-0 mt-0.5" />
+          <div className="flex items-start gap-2.5 rounded-xl border border-[#E4DDF7] bg-[#EDE7F8]/50 p-3 text-xs leading-relaxed text-[#0F172A]">
+            <Info size={15} className="text-[#CCA038] shrink-0 mt-0.5" />
             <div>
-              <strong className="font-semibold text-[#252331] block mb-0.5">
+              <strong className="font-semibold text-[#0F172A] block mb-0.5">
                 Important
               </strong>
               The client will be asked to create a new password after signing in for

@@ -172,7 +172,7 @@ export default function RemunerationsPage() {
           {statCards.map((card) => (
             <div key={card.label} className={`rounded-xl border p-4 ${card.bg}`}>
               <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-semibold uppercase tracking-wider text-[#9994A5]">{card.label}</span>
+                <span className="text-xs font-semibold uppercase tracking-wider text-[#64748B]">{card.label}</span>
                 <card.icon size={16} className={card.color} />
               </div>
               <p className={`text-xl sm:text-2xl font-bold ${card.color} tracking-tight`}>{loading ? "—" : card.value}</p>
@@ -183,16 +183,16 @@ export default function RemunerationsPage() {
         {/* Search & Filter */}
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="relative flex-1">
-            <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#9994A5]" />
+            <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#64748B]" />
             <input
               type="text"
               placeholder="Search by project or client…"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full rounded-lg border border-[rgba(74,61,100,0.12)] bg-white pl-9 pr-4 py-2 text-sm text-[#252331] placeholder:text-[#9994A5] focus:outline-none focus:ring-2 focus:ring-[rgba(184,148,78,0.25)]"
+              className="w-full rounded-lg border border-[rgba(15,23,42,0.12)] bg-white pl-9 pr-4 py-2 text-sm text-[#0F172A] placeholder:text-[#64748B] focus:outline-none focus:ring-2 focus:ring-[rgba(204,160,56,0.25)]"
             />
           </div>
-          <div className="flex rounded-lg border border-[rgba(74,61,100,0.12)] bg-white overflow-hidden shrink-0">
+          <div className="flex rounded-lg border border-[rgba(15,23,42,0.12)] bg-white overflow-hidden shrink-0">
             {statusFilters.map((f) => (
               <button
                 key={f.value}
@@ -200,8 +200,8 @@ export default function RemunerationsPage() {
                 onClick={() => setStatusFilter(f.value)}
                 className={`px-3 py-2 text-xs font-medium transition-colors ${
                   statusFilter === f.value
-                    ? "bg-[rgba(184,148,78,0.09)] text-[#80642F]"
-                    : "text-[#706C7D] hover:text-[#252331]"
+                    ? "bg-[rgba(204,160,56,0.09)] text-[#785312]"
+                    : "text-[#334155] hover:text-[#0F172A]"
                 }`}
               >
                 {f.label}
@@ -211,7 +211,7 @@ export default function RemunerationsPage() {
         </div>
 
         {/* Remunerations Table */}
-        <div className="rounded-xl border border-[rgba(74,61,100,0.10)] bg-white overflow-hidden shadow-sm">
+        <div className="rounded-xl border border-[rgba(15,23,42,0.10)] bg-white overflow-hidden shadow-sm">
           {loading ? (
             <div className="p-4 space-y-3">
               {Array.from({ length: 4 }).map((_, i) => (
@@ -242,41 +242,41 @@ export default function RemunerationsPage() {
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-[rgba(74,61,100,0.08)] bg-[#faf9fc]">
+                  <tr className="border-b border-[rgba(15,23,42,0.08)] bg-[#F8F9FB]">
                     {["Project", "Client", "Total", "Received", "Remaining", "Type", "Next Due", "Status", ""].map((h) => (
-                      <th key={h} className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-[#9994A5]">
+                      <th key={h} className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-[#64748B]">
                         {h}
                       </th>
                     ))}
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[rgba(74,61,100,0.06)]">
+                <tbody className="divide-y divide-[rgba(15,23,42,0.06)]">
                   {filtered.map((r) => {
                     const cfg = getStatusBadgeConfig(r.status);
                     const overdueLabel = getOverdueLabel(r);
                     return (
                       <tr
                         key={r.id}
-                        className="hover:bg-[rgba(184,148,78,0.02)] transition-colors cursor-pointer"
+                        className="hover:bg-[rgba(204,160,56,0.02)] transition-colors cursor-pointer"
                         onClick={() => router.push(`/remunerations/${r.id}`)}
                       >
                         <td className="px-4 py-3.5">
-                          <p className="font-medium text-[#252331] truncate max-w-[140px]">{r.project?.name || "—"}</p>
+                          <p className="font-medium text-[#0F172A] truncate max-w-[140px]">{r.project?.name || "—"}</p>
                         </td>
                         <td className="px-4 py-3.5">
-                          <p className="text-[#706C7D] truncate max-w-[120px]">{r.client?.name || <span className="text-[#9994A5] italic">No client</span>}</p>
+                          <p className="text-[#334155] truncate max-w-[120px]">{r.client?.name || <span className="text-[#64748B] italic">No client</span>}</p>
                         </td>
-                        <td className="px-4 py-3.5 font-semibold text-[#252331]">
+                        <td className="px-4 py-3.5 font-semibold text-[#0F172A]">
                           {formatCurrency(r.total_amount || 0, r.currency)}
                         </td>
                         <td className="px-4 py-3.5 text-emerald-700 font-medium">
                           {formatCurrency(r.received_amount || 0, r.currency)}
                         </td>
-                        <td className="px-4 py-3.5 text-[#706C7D]">
+                        <td className="px-4 py-3.5 text-[#334155]">
                           {formatCurrency(r.remaining_amount || 0, r.currency)}
                         </td>
                         <td className="px-4 py-3.5">
-                          <span className="rounded-full bg-[rgba(74,61,100,0.07)] px-2 py-0.5 text-[11px] font-medium text-[#706C7D] capitalize">
+                          <span className="rounded-full bg-[rgba(15,23,42,0.07)] px-2 py-0.5 text-[11px] font-medium text-[#334155] capitalize">
                             {r.payment_method === "single" ? "Single" : "Installments"}
                           </span>
                         </td>
@@ -287,7 +287,7 @@ export default function RemunerationsPage() {
                               <span className="text-xs font-medium text-red-600">{overdueLabel}</span>
                             </div>
                           ) : (
-                            <span className="text-[#706C7D] text-xs">{formatDate(r.next_due_date)}</span>
+                            <span className="text-[#334155] text-xs">{formatDate(r.next_due_date)}</span>
                           )}
                         </td>
                         <td className="px-4 py-3.5">
@@ -301,7 +301,7 @@ export default function RemunerationsPage() {
                             <Link
                               href={`/remunerations/${r.id}`}
                               onClick={(e) => e.stopPropagation()}
-                              className="inline-flex items-center gap-1 text-xs font-medium text-[#80642F] hover:underline"
+                              className="inline-flex items-center gap-1 text-xs font-medium text-[#785312] hover:underline"
                             >
                               View <ArrowUpRight size={12} />
                             </Link>
@@ -311,7 +311,7 @@ export default function RemunerationsPage() {
                                 e.stopPropagation();
                                 setDeletingRem(r);
                               }}
-                              className="p-1 rounded text-[#9994A5] hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+                              className="p-1 rounded text-[#64748B] hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
                               title="Delete remuneration"
                             >
                               <Trash2 size={13} />
@@ -337,14 +337,14 @@ export default function RemunerationsPage() {
                 <Trash2 size={20} />
               </div>
               <div>
-                <h2 className="font-semibold text-[#252331] text-base">Delete Remuneration?</h2>
-                <p className="text-xs text-[#9994A5]">This action cannot be undone</p>
+                <h2 className="font-semibold text-[#0F172A] text-base">Delete Remuneration?</h2>
+                <p className="text-xs text-[#64748B]">This action cannot be undone</p>
               </div>
             </div>
 
-            <p className="text-xs text-[#706C7D] leading-relaxed">
+            <p className="text-xs text-[#334155] leading-relaxed">
               Are you sure you want to permanently delete the remuneration agreement for{" "}
-              <strong className="text-[#252331]">{deletingRem.project?.name || "this project"}</strong>? All associated payment requests, logs, and splits will be deleted.
+              <strong className="text-[#0F172A]">{deletingRem.project?.name || "this project"}</strong>? All associated payment requests, logs, and splits will be deleted.
             </p>
 
             <div className="flex justify-end gap-2.5 pt-2">

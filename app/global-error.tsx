@@ -16,8 +16,8 @@ export default function GlobalError({
   return (
     <html lang="en">
       <body className="bg-[#121118] text-white flex min-h-screen items-center justify-center p-6">
-        <div className="max-w-md w-full bg-[#1A1824] border border-[#B8944E]/30 rounded-2xl p-8 text-center shadow-2xl">
-          <div className="w-14 h-14 rounded-full bg-[#B8944E]/20 text-[#D6BD88] flex items-center justify-center mx-auto mb-4 text-2xl">
+        <div className="max-w-md w-full bg-[#1A1824] border border-[#CCA038]/30 rounded-2xl p-8 text-center shadow-2xl">
+          <div className="w-14 h-14 rounded-full bg-[#CCA038]/20 text-[#E8C97E] flex items-center justify-center mx-auto mb-4 text-2xl">
             ⚡
           </div>
           <h2 className="text-xl font-bold mb-2 text-white">Something went wrong</h2>
@@ -31,7 +31,7 @@ export default function GlobalError({
           )}
           <button
             onClick={() => reset()}
-            className="rounded-xl bg-[#B8944E] hover:bg-[#A3813E] text-white px-5 py-2.5 text-sm font-semibold transition active:scale-95"
+            className="rounded-xl bg-[#CCA038] hover:bg-[#A3813E] text-white px-5 py-2.5 text-sm font-semibold transition active:scale-95"
           >
             Try again
           </button>

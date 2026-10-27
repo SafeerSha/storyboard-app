@@ -69,13 +69,13 @@ Reqly Team
       ? agendaItems
           .map(
             (item, idx) => `
-            <li style="margin-bottom: 8px; color: #353140; font-size: 14px; line-height: 1.5;">
-              <span style="font-weight: 600; color: #80642F; margin-right: 6px;">${idx + 1}.</span>
+            <li style="margin-bottom: 8px; color: #0F172A; font-size: 14px; line-height: 1.5;">
+              <span style="font-weight: 600; color: #785312; margin-right: 6px;">${idx + 1}.</span>
               ${item}
             </li>`
           )
           .join("")
-      : `<li style="color: #706C7D; font-size: 13px;">Open discussion.</li>`;
+      : `<li style="color: #334155; font-size: 13px;">Open discussion.</li>`;
 
   const html = `
 <!DOCTYPE html>
@@ -85,18 +85,18 @@ Reqly Team
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${subject}</title>
 </head>
-<body style="margin: 0; padding: 0; background-color: #FAF9FC; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #252331;">
-  <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #FAF9FC; padding: 32px 16px;">
+<body style="margin: 0; padding: 0; background-color: #F8F9FB; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #0F172A;">
+  <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #F8F9FB; padding: 32px 16px;">
     <tr>
       <td align="center">
-        <table width="100%" max-width="600" border="0" cellspacing="0" cellpadding="0" style="max-width: 600px; background-color: #ffffff; border-radius: 16px; border: 1px solid rgba(74, 61, 100, 0.08); overflow: hidden; box-shadow: 0 4px 24px rgba(70, 55, 95, 0.04);">
+        <table width="100%" max-width="600" border="0" cellspacing="0" cellpadding="0" style="max-width: 600px; background-color: #ffffff; border-radius: 16px; border: 1px solid rgba(15,23,42, 0.08); overflow: hidden; box-shadow: 0 4px 24px rgba(15,23,42, 0.04);">
           <!-- Top Header -->
           <tr>
             <td style="padding: 32px 32px 24px 32px; background: linear-gradient(135deg, #1f1b2e 0%, #2e2640 100%);">
               <table width="100%" border="0" cellspacing="0" cellpadding="0">
                 <tr>
                   <td>
-                    <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #B8944E; display: block; margin-bottom: 6px;">
+                    <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #CCA038; display: block; margin-bottom: 6px;">
                       PROJECT MEETING INVITATION
                     </span>
                     <h1 style="margin: 0; font-size: 20px; font-weight: 700; color: #ffffff; letter-spacing: -0.02em;">
@@ -107,7 +107,7 @@ Reqly Team
                     </span>
                   </td>
                   <td align="right" valign="top">
-                    <span style="display: inline-block; background-color: rgba(184, 148, 78, 0.2); border: 1px solid rgba(184, 148, 78, 0.4); border-radius: 8px; padding: 6px 12px; font-size: 11px; font-weight: 700; color: #E5C378; text-transform: uppercase;">
+                    <span style="display: inline-block; background-color: rgba(204,160,56, 0.2); border: 1px solid rgba(204,160,56, 0.4); border-radius: 8px; padding: 6px 12px; font-size: 11px; font-weight: 700; color: #E5C378; text-transform: uppercase;">
                       ${typeConfig.label}
                     </span>
                   </td>
@@ -119,7 +119,7 @@ Reqly Team
           <!-- Body Content -->
           <tr>
             <td style="padding: 28px 32px;">
-              <p style="margin: 0 0 16px 0; font-size: 15px; color: #252331; line-height: 1.5;">
+              <p style="margin: 0 0 16px 0; font-size: 15px; color: #0F172A; line-height: 1.5;">
                 Hello <strong>${recipientName || "there"}</strong>,
               </p>
               <p style="margin: 0 0 24px 0; font-size: 14px; line-height: 1.6; color: #5a5568;">
@@ -127,27 +127,27 @@ Reqly Team
               </p>
 
               <!-- Meeting Details Box -->
-              <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #faf9fc; border: 1px solid rgba(74, 61, 100, 0.08); border-radius: 12px; margin-bottom: 24px;">
+              <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #F8F9FB; border: 1px solid rgba(15,23,42, 0.08); border-radius: 12px; margin-bottom: 24px;">
                 <tr>
                   <td style="padding: 16px 20px;">
                     <table width="100%" border="0" cellspacing="0" cellpadding="0">
                       <tr>
-                        <td style="padding-bottom: 10px; font-size: 13px; color: #706C7D; width: 35%;">Date:</td>
-                        <td style="padding-bottom: 10px; font-size: 13px; font-weight: 600; color: #252331;">${formattedDate}</td>
+                        <td style="padding-bottom: 10px; font-size: 13px; color: #334155; width: 35%;">Date:</td>
+                        <td style="padding-bottom: 10px; font-size: 13px; font-weight: 600; color: #0F172A;">${formattedDate}</td>
                       </tr>
                       <tr>
-                        <td style="padding-bottom: 10px; font-size: 13px; color: #706C7D;">Time:</td>
-                        <td style="padding-bottom: 10px; font-size: 13px; font-weight: 600; color: #252331;">
-                          ${formattedTime} ${durationText ? `<span style="font-weight: 400; color: #706C7D;">(${durationText})</span>` : ""}
+                        <td style="padding-bottom: 10px; font-size: 13px; color: #334155;">Time:</td>
+                        <td style="padding-bottom: 10px; font-size: 13px; font-weight: 600; color: #0F172A;">
+                          ${formattedTime} ${durationText ? `<span style="font-weight: 400; color: #334155;">(${durationText})</span>` : ""}
                         </td>
                       </tr>
                       <tr>
-                        <td style="padding-bottom: 10px; font-size: 13px; color: #706C7D;">Platform:</td>
-                        <td style="padding-bottom: 10px; font-size: 13px; font-weight: 600; color: #252331;">${platformConfig.label}</td>
+                        <td style="padding-bottom: 10px; font-size: 13px; color: #334155;">Platform:</td>
+                        <td style="padding-bottom: 10px; font-size: 13px; font-weight: 600; color: #0F172A;">${platformConfig.label}</td>
                       </tr>
                       <tr>
-                        <td style="font-size: 13px; color: #706C7D;">Organizer:</td>
-                        <td style="font-size: 13px; font-weight: 600; color: #252331;">${organizerName}</td>
+                        <td style="font-size: 13px; color: #334155;">Organizer:</td>
+                        <td style="font-size: 13px; font-weight: 600; color: #0F172A;">${organizerName}</td>
                       </tr>
                     </table>
                   </td>
@@ -161,7 +161,7 @@ Reqly Team
               <table width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-bottom: 28px; text-align: center;">
                 <tr>
                   <td align="center">
-                    <a href="${meetingUrl}" target="_blank" style="display: inline-block; background-color: #B8944E; color: #ffffff; text-decoration: none; font-size: 14px; font-weight: 600; padding: 12px 28px; border-radius: 10px; box-shadow: 0 2px 8px rgba(184, 148, 78, 0.25);">
+                    <a href="${meetingUrl}" target="_blank" style="display: inline-block; background-color: #CCA038; color: #ffffff; text-decoration: none; font-size: 14px; font-weight: 600; padding: 12px 28px; border-radius: 10px; box-shadow: 0 2px 8px rgba(204,160,56, 0.25);">
                       Join Meeting Link
                     </a>
                   </td>
@@ -173,7 +173,7 @@ Reqly Team
 
               <!-- Agenda Section -->
               <div style="margin-bottom: 24px;">
-                <h3 style="margin: 0 0 12px 0; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #80642F;">
+                <h3 style="margin: 0 0 12px 0; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #785312;">
                   Meeting Agenda
                 </h3>
                 <ul style="margin: 0; padding-left: 0; list-style: none;">
@@ -181,17 +181,17 @@ Reqly Team
                 </ul>
               </div>
 
-              <p style="margin: 24px 0 0 0; font-size: 13px; line-height: 1.6; color: #706C7D; border-top: 1px solid rgba(74, 61, 100, 0.06); pt: 16px;">
+              <p style="margin: 24px 0 0 0; font-size: 13px; line-height: 1.6; color: #334155; border-top: 1px solid rgba(15,23,42, 0.06); pt: 16px;">
                 Looking forward to our discussion,<br>
-                <strong style="color: #252331;">${organizerName}</strong> &bull; Reqly Team
+                <strong style="color: #0F172A;">${organizerName}</strong> &bull; Reqly Team
               </p>
             </td>
           </tr>
 
           <!-- Footer -->
           <tr>
-            <td style="padding: 20px 32px; background-color: #faf9fc; border-top: 1px solid rgba(74, 61, 100, 0.06); text-align: center;">
-              <p style="margin: 0; font-size: 11px; color: #9994A5;">
+            <td style="padding: 20px 32px; background-color: #F8F9FB; border-top: 1px solid rgba(15,23,42, 0.06); text-align: center;">
+              <p style="margin: 0; font-size: 11px; color: #64748B;">
                 This invitation was sent from REQly project collaboration platform.
               </p>
             </td>

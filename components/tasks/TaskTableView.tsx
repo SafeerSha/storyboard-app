@@ -39,7 +39,7 @@ export function TaskTableView({
 }: TaskTableViewProps) {
   const statusOptions: { value: TaskStatus; label: string; color: string }[] = [
     { value: "todo", label: "To Do", color: "bg-slate-100 text-slate-700 border-slate-200" },
-    { value: "in_progress", label: "In Progress", color: "bg-[rgba(184,148,78,0.12)] text-[#80642F] border-[rgba(184,148,78,0.25)]" },
+    { value: "in_progress", label: "In Progress", color: "bg-[rgba(204,160,56,0.12)] text-[#785312] border-[rgba(204,160,56,0.25)]" },
     { value: "in_review", label: "In Review", color: "bg-purple-100 text-purple-700 border-purple-200" },
     { value: "done", label: "Completed", color: "bg-emerald-100 text-emerald-700 border-emerald-200" },
   ];
@@ -47,14 +47,14 @@ export function TaskTableView({
   const priorityBadge: Record<TaskPriority, { bg: string; text: string; label: string }> = {
     urgent: { bg: "bg-rose-50 border-rose-200", text: "text-rose-700", label: "Urgent" },
     high: { bg: "bg-orange-50 border-orange-200", text: "text-orange-700", label: "High" },
-    medium: { bg: "bg-[rgba(184,148,78,0.08)] border-[rgba(184,148,78,0.2)]", text: "text-[#80642F]", label: "Medium" },
+    medium: { bg: "bg-[rgba(204,160,56,0.08)] border-[rgba(204,160,56,0.2)]", text: "text-[#785312]", label: "Medium" },
     low: { bg: "bg-slate-50 border-slate-200", text: "text-slate-600", label: "Low" },
   };
 
   return (
-    <div className="w-full overflow-hidden rounded-2xl border border-[rgba(74,61,100,0.08)] bg-white shadow-xs">
+    <div className="w-full overflow-hidden rounded-2xl border border-[rgba(15,23,42,0.08)] bg-white shadow-xs">
       {/* Mobile Card List View (< sm screens) */}
-      <div className="block sm:hidden divide-y divide-[rgba(74,61,100,0.06)]">
+      <div className="block sm:hidden divide-y divide-[rgba(15,23,42,0.06)]">
         {tasks.map((task) => {
           const pStyle = priorityBadge[task.priority] || priorityBadge.medium;
           const catBadge = getTaskCategoryBadge(task.category);
@@ -89,7 +89,7 @@ export function TaskTableView({
             <div
               key={task.id}
               onClick={() => onTaskClick(task)}
-              className={`p-3.5 space-y-2.5 transition-colors cursor-pointer hover:bg-[#FAF9FC] ${
+              className={`p-3.5 space-y-2.5 transition-colors cursor-pointer hover:bg-[#F8F9FB] ${
                 task.status === "done" ? "bg-zinc-50/50" : ""
               }`}
             >
@@ -110,7 +110,7 @@ export function TaskTableView({
                   className={`mt-0.5 grid place-items-center h-6 w-6 rounded-md border shrink-0 transition-all ${
                     task.status === "done"
                       ? "bg-emerald-600 border-emerald-600 text-white"
-                      : "border-zinc-300 text-transparent hover:border-[#B8944E]"
+                      : "border-zinc-300 text-transparent hover:border-[#CCA038]"
                   }`}
                 >
                   <CheckCircle2 size={14} className={task.status === "done" ? "opacity-100" : "opacity-0"} />
@@ -135,14 +135,14 @@ export function TaskTableView({
                     </span>
 
                     {showProject && task.project && (
-                      <span className="rounded bg-zinc-100 px-1.5 py-0.2 text-[9px] font-medium text-[#706C7D] truncate max-w-[100px]">
+                      <span className="rounded bg-zinc-100 px-1.5 py-0.2 text-[9px] font-medium text-[#334155] truncate max-w-[100px]">
                         {task.project.name}
                       </span>
                     )}
                   </div>
 
                   <h4
-                    className={`text-xs font-semibold text-[#252331] leading-snug ${
+                    className={`text-xs font-semibold text-[#0F172A] leading-snug ${
                       task.status === "done" ? "line-through text-zinc-400" : ""
                     }`}
                   >
@@ -150,8 +150,8 @@ export function TaskTableView({
                   </h4>
 
                   {task.story && (
-                    <div className="mt-1 flex items-center gap-1 text-[11px] text-[#80642F]">
-                      <BookOpen size={10} className="shrink-0 text-[#B8944E]" />
+                    <div className="mt-1 flex items-center gap-1 text-[11px] text-[#785312]">
+                      <BookOpen size={10} className="shrink-0 text-[#CCA038]" />
                       <span className="truncate">Story: {task.story.title}</span>
                     </div>
                   )}
@@ -159,7 +159,7 @@ export function TaskTableView({
               </div>
 
               {/* Bottom Meta on Mobile */}
-              <div className="flex items-center justify-between gap-2 pt-1 border-t border-[rgba(74,61,100,0.04)] text-[11px] text-[#706C7D] pl-8">
+              <div className="flex items-center justify-between gap-2 pt-1 border-t border-[rgba(15,23,42,0.04)] text-[11px] text-[#334155] pl-8">
                 {/* Assignees */}
                 <div className="flex items-center gap-1.5 min-w-0">
                   {assigneesList.length > 0 ? (
@@ -168,13 +168,13 @@ export function TaskTableView({
                         {assigneesList.slice(0, 2).map((a, i) => (
                           <div
                             key={a.id || i}
-                            className="h-5 w-5 rounded-full ring-1 ring-white bg-[rgba(184,148,78,0.15)] text-[#80642F] text-[9px] font-bold grid place-items-center shrink-0"
+                            className="h-5 w-5 rounded-full ring-1 ring-white bg-[rgba(204,160,56,0.15)] text-[#785312] text-[9px] font-bold grid place-items-center shrink-0"
                           >
                             {a.name?.[0]?.toUpperCase() || "U"}
                           </div>
                         ))}
                       </div>
-                      <span className="truncate max-w-[90px] font-medium text-[#252331]">
+                      <span className="truncate max-w-[90px] font-medium text-[#0F172A]">
                         {assigneesList[0].name}
                       </span>
                       {assigneesList.length > 1 && (
@@ -184,7 +184,7 @@ export function TaskTableView({
                       )}
                     </div>
                   ) : (
-                    <span className="text-[#9994A5] italic text-[10px]">Unassigned</span>
+                    <span className="text-[#64748B] italic text-[10px]">Unassigned</span>
                   )}
                 </div>
 
@@ -203,14 +203,14 @@ export function TaskTableView({
 
                   {(task.notes_count ?? 0) > 0 && (
                     <span className="flex items-center gap-0.5">
-                      <MessageSquare size={11} className="text-[#9994A5]" />
+                      <MessageSquare size={11} className="text-[#64748B]" />
                       {task.notes_count}
                     </span>
                   )}
 
                   {(task.attachments_count ?? 0) > 0 && (
                     <span className="flex items-center gap-0.5">
-                      <Paperclip size={11} className="text-[#9994A5]" />
+                      <Paperclip size={11} className="text-[#64748B]" />
                       {task.attachments_count}
                     </span>
                   )}
@@ -224,7 +224,7 @@ export function TaskTableView({
       {/* Desktop Multi-Column Table View (sm+ screens) */}
       <div className="hidden sm:block overflow-x-auto">
         <table className="w-full text-left text-xs">
-          <thead className="bg-[#FAF9FC] border-b border-[rgba(74,61,100,0.08)] text-[11px] uppercase tracking-wider text-[#9994A5] font-semibold">
+          <thead className="bg-[#F8F9FB] border-b border-[rgba(15,23,42,0.08)] text-[11px] uppercase tracking-wider text-[#64748B] font-semibold">
             <tr>
               <th className="py-3 px-4 w-10 text-center">Status</th>
               <th className="py-3 px-4 min-w-[240px]">Task & Story</th>
@@ -236,7 +236,7 @@ export function TaskTableView({
               <th className="py-3 px-4 w-20 text-right">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-[rgba(74,61,100,0.06)]">
+          <tbody className="divide-y divide-[rgba(15,23,42,0.06)]">
             {tasks.map((task) => {
               const currentStatus = statusOptions.find((s) => s.value === task.status) || statusOptions[0];
               const pStyle = priorityBadge[task.priority] || priorityBadge.medium;
@@ -272,7 +272,7 @@ export function TaskTableView({
                 <tr
                   key={task.id}
                   onClick={() => onTaskClick(task)}
-                  className={`group hover:bg-[#FAF9FC] transition-colors cursor-pointer ${
+                  className={`group hover:bg-[#F8F9FB] transition-colors cursor-pointer ${
                     task.status === "done" ? "bg-zinc-50/50" : ""
                   }`}
                 >
@@ -292,7 +292,7 @@ export function TaskTableView({
                       className={`grid place-items-center h-6 w-6 rounded-md border transition-all ${
                         task.status === "done"
                           ? "bg-emerald-600 border-emerald-600 text-white"
-                          : "border-zinc-300 text-transparent hover:border-[#B8944E]"
+                          : "border-zinc-300 text-transparent hover:border-[#CCA038]"
                       }`}
                     >
                       <CheckCircle2 size={14} className={task.status === "done" ? "opacity-100" : "opacity-0 group-hover:opacity-40"} />
@@ -311,7 +311,7 @@ export function TaskTableView({
                           </span>
                         )}
                         <span
-                          className={`text-sm font-semibold text-[#252331] group-hover:text-[#80642F] transition-colors truncate ${
+                          className={`text-sm font-semibold text-[#0F172A] group-hover:text-[#785312] transition-colors truncate ${
                             task.status === "done" ? "line-through text-zinc-400" : ""
                           }`}
                         >
@@ -319,8 +319,8 @@ export function TaskTableView({
                         </span>
                       </div>
                       {task.story && (
-                        <span className="inline-flex items-center gap-1 text-[11px] font-medium text-[#80642F] truncate">
-                          <BookOpen size={11} className="shrink-0 text-[#B8944E]" />
+                        <span className="inline-flex items-center gap-1 text-[11px] font-medium text-[#785312] truncate">
+                          <BookOpen size={11} className="shrink-0 text-[#CCA038]" />
                           <span>Story: {task.story.title}</span>
                         </span>
                       )}
@@ -329,7 +329,7 @@ export function TaskTableView({
 
                   {/* Project */}
                   {showProject && (
-                    <td className="py-3.5 px-4 text-[#706C7D]">
+                    <td className="py-3.5 px-4 text-[#334155]">
                       <span className="truncate block font-medium">
                         {task.project?.name || "—"}
                       </span>
@@ -347,18 +347,18 @@ export function TaskTableView({
                           {assigneesList.slice(0, 2).map((a, i) => (
                             <div
                               key={a.id || i}
-                              className="h-6 w-6 rounded-full ring-2 ring-white bg-[rgba(184,148,78,0.12)] text-[#80642F] font-bold text-[10px] grid place-items-center shrink-0"
+                              className="h-6 w-6 rounded-full ring-2 ring-white bg-[rgba(204,160,56,0.12)] text-[#785312] font-bold text-[10px] grid place-items-center shrink-0"
                             >
                               {a.name?.[0]?.toUpperCase() || <User size={12} />}
                             </div>
                           ))}
                         </div>
                         <div className="flex flex-col min-w-0">
-                          <span className="font-semibold text-[#252331] truncate">
+                          <span className="font-semibold text-[#0F172A] truncate">
                             {assigneesList[0].name}
                             {assigneesList.length > 1 && ` (+${assigneesList.length - 1})`}
                           </span>
-                          <span className="text-[10px] text-[#9994A5] capitalize">
+                          <span className="text-[10px] text-[#64748B] capitalize">
                             {assigneesList.length > 1
                               ? `${assigneesList.length} members`
                               : assigneesList[0].type === "team_user"
@@ -370,7 +370,7 @@ export function TaskTableView({
                         </div>
                       </div>
                     ) : (
-                      <span className="text-[#9994A5] italic">Unassigned</span>
+                      <span className="text-[#64748B] italic">Unassigned</span>
                     )}
                   </td>
 
@@ -388,7 +388,7 @@ export function TaskTableView({
                     {dueDateFormatted ? (
                       <span
                         className={`inline-flex items-center gap-1 text-[11px] font-medium ${
-                          isOverdue ? "text-rose-600 font-semibold" : "text-[#706C7D]"
+                          isOverdue ? "text-rose-600 font-semibold" : "text-[#334155]"
                         }`}
                       >
                         <Calendar size={12} />
@@ -401,16 +401,16 @@ export function TaskTableView({
 
                   {/* Activity (Notes & Attachments) */}
                   <td className="py-3.5 px-4 text-center">
-                    <div className="flex items-center justify-center gap-2 text-[#706C7D]">
+                    <div className="flex items-center justify-center gap-2 text-[#334155]">
                       {(task.notes_count ?? 0) > 0 && (
                         <span className="inline-flex items-center gap-1" title={`${task.notes_count} notes`}>
-                          <MessageSquare size={12} className="text-[#9994A5]" />
+                          <MessageSquare size={12} className="text-[#64748B]" />
                           {task.notes_count}
                         </span>
                       )}
                       {(task.attachments_count ?? 0) > 0 && (
                         <span className="inline-flex items-center gap-1" title={`${task.attachments_count} attachments`}>
-                          <Paperclip size={12} className="text-[#9994A5]" />
+                          <Paperclip size={12} className="text-[#64748B]" />
                           {task.attachments_count}
                         </span>
                       )}
@@ -428,7 +428,7 @@ export function TaskTableView({
                           type="button"
                           onClick={() => onEdit(task)}
                           title="Edit Task"
-                          className="p-1 text-[#9994A5] hover:text-[#80642F] hover:bg-[rgba(184,148,78,0.08)] rounded transition-colors"
+                          className="p-1 text-[#64748B] hover:text-[#785312] hover:bg-[rgba(204,160,56,0.08)] rounded transition-colors"
                         >
                           <Edit2 size={13} />
                         </button>
@@ -438,7 +438,7 @@ export function TaskTableView({
                           type="button"
                           onClick={() => onDelete(task.id)}
                           title="Delete Task"
-                          className="p-1 text-[#9994A5] hover:text-rose-600 hover:bg-rose-50 rounded transition-colors"
+                          className="p-1 text-[#64748B] hover:text-rose-600 hover:bg-rose-50 rounded transition-colors"
                         >
                           <Trash2 size={13} />
                         </button>

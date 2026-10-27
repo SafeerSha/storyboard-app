@@ -216,13 +216,13 @@ export default function EditRemunerationPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-[#f8f7fc] flex items-center justify-center">
-        <Loader2 size={28} className="animate-spin text-[#B8944E]" />
+        <Loader2 size={28} className="animate-spin text-[#CCA038]" />
       </div>
     );
   }
 
-  const inputClass = "w-full rounded-lg border border-[rgba(74,61,100,0.15)] bg-white px-3.5 py-2.5 text-sm text-[#252331] placeholder:text-[#9994A5] focus:outline-none focus:ring-2 focus:ring-[rgba(184,148,78,0.25)] focus:border-[rgba(184,148,78,0.4)] transition-colors";
-  const labelClass = "block text-xs font-semibold text-[#706C7D] uppercase tracking-wider mb-1.5";
+  const inputClass = "w-full rounded-lg border border-[rgba(15,23,42,0.15)] bg-white px-3.5 py-2.5 text-sm text-[#0F172A] placeholder:text-[#64748B] focus:outline-none focus:ring-2 focus:ring-[rgba(204,160,56,0.25)] focus:border-[rgba(204,160,56,0.4)] transition-colors";
+  const labelClass = "block text-xs font-semibold text-[#334155] uppercase tracking-wider mb-1.5";
 
   return (
     <div className="min-h-screen bg-[#f8f7fc] pb-16">
@@ -243,23 +243,23 @@ export default function EditRemunerationPage() {
           )}
 
           {/* Project & Client (Read-Only) */}
-          <div className="rounded-2xl border border-[rgba(74,61,100,0.10)] bg-white p-6 shadow-sm space-y-5">
-            <h2 className="text-base font-semibold text-[#252331]">Project Details</h2>
+          <div className="rounded-2xl border border-[rgba(15,23,42,0.10)] bg-white p-6 shadow-sm space-y-5">
+            <h2 className="text-base font-semibold text-[#0F172A]">Project Details</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className={labelClass}>Project</label>
-                <div className={`${inputClass} bg-slate-50 text-[#706C7D]`}>{rem?.project?.name}</div>
+                <div className={`${inputClass} bg-slate-50 text-[#334155]`}>{rem?.project?.name}</div>
               </div>
               <div>
                 <label className={labelClass}>Client</label>
-                <div className={`${inputClass} bg-slate-50 text-[#706C7D]`}>{rem?.client ? rem.client.name : "None assigned"}</div>
+                <div className={`${inputClass} bg-slate-50 text-[#334155]`}>{rem?.client ? rem.client.name : "None assigned"}</div>
               </div>
             </div>
           </div>
 
           {/* Agreement Terms */}
-          <div className="rounded-2xl border border-[rgba(74,61,100,0.10)] bg-white p-6 shadow-sm space-y-5">
-            <h2 className="text-base font-semibold text-[#252331]">Agreement Terms</h2>
+          <div className="rounded-2xl border border-[rgba(15,23,42,0.10)] bg-white p-6 shadow-sm space-y-5">
+            <h2 className="text-base font-semibold text-[#0F172A]">Agreement Terms</h2>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
@@ -293,19 +293,19 @@ export default function EditRemunerationPage() {
               </div>
             </div>
 
-            <div className="rounded-xl border border-[rgba(74,61,100,0.12)] bg-[#FAF9FC] p-4 flex items-start justify-between gap-4">
+            <div className="rounded-xl border border-[rgba(15,23,42,0.12)] bg-[#F8F9FB] p-4 flex items-start justify-between gap-4">
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <Mail size={15} className={sendReceiptEmail ? "text-[#B8944E]" : "text-[#9994A5]"} />
-                  <span className="text-xs font-bold text-[#252331] uppercase tracking-wider">Send Receipt Confirmation Email</span>
+                  <Mail size={15} className={sendReceiptEmail ? "text-[#CCA038]" : "text-[#64748B]"} />
+                  <span className="text-xs font-bold text-[#0F172A] uppercase tracking-wider">Send Receipt Confirmation Email</span>
                 </div>
-                <p className="text-xs text-[#706C7D] leading-relaxed">
+                <p className="text-xs text-[#334155] leading-relaxed">
                   Automatically send confirmation receipt email to client when a payment is marked as received.
                 </p>
               </div>
               <label className="relative inline-flex items-center cursor-pointer shrink-0 mt-0.5">
                 <input type="checkbox" checked={sendReceiptEmail} onChange={(e) => setSendReceiptEmail(e.target.checked)} className="sr-only peer" />
-                <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#B8944E]" />
+                <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#CCA038]" />
               </label>
             </div>
 
@@ -316,9 +316,9 @@ export default function EditRemunerationPage() {
           </div>
 
           {/* Team Member Splits */}
-          <div className="rounded-2xl border border-[rgba(74,61,100,0.10)] bg-white p-6 shadow-sm space-y-5">
-            <div className="flex items-center justify-between pb-2 border-b border-[rgba(74,61,100,0.06)]">
-              <h2 className="text-base font-semibold text-[#252331]">Team Member Splits</h2>
+          <div className="rounded-2xl border border-[rgba(15,23,42,0.10)] bg-white p-6 shadow-sm space-y-5">
+            <div className="flex items-center justify-between pb-2 border-b border-[rgba(15,23,42,0.06)]">
+              <h2 className="text-base font-semibold text-[#0F172A]">Team Member Splits</h2>
               <label className="relative inline-flex items-center cursor-pointer shrink-0">
                 <input
                   type="checkbox"
@@ -329,7 +329,7 @@ export default function EditRemunerationPage() {
                   }}
                   className="sr-only peer"
                 />
-                <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#B8944E]" />
+                <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#CCA038]" />
               </label>
             </div>
 
@@ -337,8 +337,8 @@ export default function EditRemunerationPage() {
               <div className="space-y-4">
                 {projectTeamMembers.length > 0 && (
                   <div className="flex items-center justify-between gap-2">
-                    <span className="text-xs text-[#706C7D]">{splits.length} {splits.length === 1 ? "member split" : "member splits"} configured</span>
-                    <button type="button" onClick={handleAutoSplitEqually} className="text-xs font-semibold text-[#80642F] hover:underline inline-flex items-center gap-1 cursor-pointer">
+                    <span className="text-xs text-[#334155]">{splits.length} {splits.length === 1 ? "member split" : "member splits"} configured</span>
+                    <button type="button" onClick={handleAutoSplitEqually} className="text-xs font-semibold text-[#785312] hover:underline inline-flex items-center gap-1 cursor-pointer">
                       <Percent size={12} /> Auto Split Equally
                     </button>
                   </div>
@@ -346,12 +346,12 @@ export default function EditRemunerationPage() {
 
                 <div className="space-y-3">
                   {splits.map((split, idx) => (
-                    <div key={idx} className="rounded-xl border border-[rgba(74,61,100,0.10)] bg-[#faf9fc] p-3.5 space-y-3">
+                    <div key={idx} className="rounded-xl border border-[rgba(15,23,42,0.10)] bg-[#F8F9FB] p-3.5 space-y-3">
                       <div className="flex items-center justify-between">
-                        <span className="text-xs font-bold uppercase tracking-wider text-[#9994A5] flex items-center gap-1.5">
-                          <span className="h-1.5 w-1.5 rounded-full bg-[#B8944E]" /> Member Split #{idx + 1}
+                        <span className="text-xs font-bold uppercase tracking-wider text-[#64748B] flex items-center gap-1.5">
+                          <span className="h-1.5 w-1.5 rounded-full bg-[#CCA038]" /> Member Split #{idx + 1}
                         </span>
-                        <button type="button" onClick={() => removeSplit(idx)} className="p-1 rounded text-[#9994A5] hover:text-red-500 hover:bg-red-50 transition-colors cursor-pointer"><Trash2 size={13} /></button>
+                        <button type="button" onClick={() => removeSplit(idx)} className="p-1 rounded text-[#64748B] hover:text-red-500 hover:bg-red-50 transition-colors cursor-pointer"><Trash2 size={13} /></button>
                       </div>
 
                       <div className="grid grid-cols-1 sm:grid-cols-12 gap-2.5">
@@ -368,7 +368,7 @@ export default function EditRemunerationPage() {
                           <label className={labelClass}>Share (%)</label>
                           <div className="relative">
                             <input type="number" min="0" max="100" step="0.1" value={split.percentage || ""} onChange={(e) => updateSplit(idx, "percentage", e.target.value)} className={`${inputClass} pr-6`} />
-                            <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs text-[#9994A5] pointer-events-none">%</span>
+                            <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs text-[#64748B] pointer-events-none">%</span>
                           </div>
                         </div>
                         <div className="sm:col-span-4">
@@ -398,8 +398,8 @@ export default function EditRemunerationPage() {
                 </div>
               </div>
             ) : (
-              <div className="rounded-xl border border-dashed border-[rgba(74,61,100,0.12)] bg-[#FAF9FC] p-4 text-center">
-                <p className="text-xs text-[#706C7D]">Team member splits are disabled. Turn on the toggle to allocate shares among project team members.</p>
+              <div className="rounded-xl border border-dashed border-[rgba(15,23,42,0.12)] bg-[#F8F9FB] p-4 text-center">
+                <p className="text-xs text-[#334155]">Team member splits are disabled. Turn on the toggle to allocate shares among project team members.</p>
               </div>
             )}
           </div>

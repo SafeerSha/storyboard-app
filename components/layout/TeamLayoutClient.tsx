@@ -99,11 +99,11 @@ export function TeamLayoutClient({
         }`}
       >
         {/* Mobile Top Header */}
-        <header className="sticky top-0 z-20 flex h-[64px] sm:h-[72px] items-center justify-between border-b border-[rgba(74,61,100,0.08)] bg-white/68 backdrop-blur-[20px] px-4 md:hidden">
+        <header className="sticky top-0 z-20 flex h-[64px] sm:h-[72px] items-center justify-between border-b border-[rgba(15,23,42,0.08)] bg-white/68 backdrop-blur-[20px] px-4 md:hidden">
           <button
             type="button"
             onClick={() => setMobileOpen(true)}
-            className="grid h-10 w-10 place-items-center rounded-xl text-[#706C7D] hover:bg-[#E9E3F4]/30 hover:text-[#252331] transition cursor-pointer"
+            className="grid h-10 w-10 place-items-center rounded-xl text-[#334155] hover:bg-[#F1F5F9]/30 hover:text-[#0F172A] transition cursor-pointer"
             aria-label="Open navigation menu"
           >
             <Menu size={20} />
@@ -116,23 +116,23 @@ export function TeamLayoutClient({
                 <button
                   type="button"
                   onClick={() => setMobileDropdownOpen((prev) => !prev)}
-                  className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg hover:bg-white/80 transition cursor-pointer border border-transparent hover:border-[rgba(74,61,100,0.12)]"
+                  className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg hover:bg-white/80 transition cursor-pointer border border-transparent hover:border-[rgba(15,23,42,0.12)]"
                   title="Switch mapped project"
                 >
-                  <span className="text-sm font-semibold tracking-tight text-[#252331] truncate">
+                  <span className="text-sm font-semibold tracking-tight text-[#0F172A] truncate">
                     {displayProjectName}
                   </span>
-                  <span className="rounded-full bg-[rgba(184,148,78,0.12)] px-1.5 py-0.2 text-[9px] font-bold text-[#80642F]">
+                  <span className="rounded-full bg-[rgba(204,160,56,0.12)] px-1.5 py-0.2 text-[9px] font-bold text-[#785312]">
                     {assignedProjects.length}
                   </span>
                   <ChevronDown
                     size={14}
-                    className={`text-[#706C7D] transition-transform ${mobileDropdownOpen ? "rotate-180" : ""}`}
+                    className={`text-[#334155] transition-transform ${mobileDropdownOpen ? "rotate-180" : ""}`}
                   />
                 </button>
 
                 {mobileDropdownOpen && (
-                  <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 w-56 rounded-xl border border-[rgba(74,61,100,0.12)] bg-white/95 backdrop-blur-xl p-1.5 shadow-xl z-50 divide-y divide-zinc-100">
+                  <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 w-56 rounded-xl border border-[rgba(15,23,42,0.12)] bg-white/95 backdrop-blur-xl p-1.5 shadow-xl z-50 divide-y divide-zinc-100">
                     <div className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-zinc-400">
                       Assigned Projects
                     </div>
@@ -146,12 +146,12 @@ export function TeamLayoutClient({
                             onClick={() => handleSwitchProject(p.id)}
                             className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs font-medium text-left transition cursor-pointer ${
                               isCurrent
-                                ? "bg-[rgba(184,148,78,0.12)] text-[#80642F] font-semibold"
+                                ? "bg-[rgba(204,160,56,0.12)] text-[#785312] font-semibold"
                                 : "text-zinc-700 hover:bg-zinc-100"
                             }`}
                           >
                             <span className="truncate">{p.name}</span>
-                            {isCurrent && <Check size={12} className="text-[#80642F] shrink-0 ml-1" />}
+                            {isCurrent && <Check size={12} className="text-[#785312] shrink-0 ml-1" />}
                           </button>
                         );
                       })}
@@ -161,10 +161,10 @@ export function TeamLayoutClient({
               </>
             ) : (
               <div className="flex items-center gap-2 min-w-0">
-                <span className="text-sm font-semibold tracking-tight text-[#252331] truncate">
+                <span className="text-sm font-semibold tracking-tight text-[#0F172A] truncate">
                   {displayProjectName}
                 </span>
-                <span className="rounded-full bg-[rgba(184,148,78,0.10)] px-2 py-0.5 text-[10px] font-medium text-[#80642F] border border-[rgba(184,148,78,0.14)] shrink-0">
+                <span className="rounded-full bg-[rgba(204,160,56,0.10)] px-2 py-0.5 text-[10px] font-medium text-[#785312] border border-[rgba(204,160,56,0.14)] shrink-0">
                   Team
                 </span>
               </div>

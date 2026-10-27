@@ -243,33 +243,33 @@ export default function TeamReviewsPage() {
   return (
     <div className="min-h-screen pb-16">
       {/* Top Header */}
-      <div className="border-b border-[rgba(74,61,100,0.08)] bg-white/60 backdrop-blur-[20px] px-4 py-6 sm:px-8 sm:py-8">
+      <div className="border-b border-[rgba(15,23,42,0.08)] bg-white/60 backdrop-blur-[20px] px-4 py-6 sm:px-8 sm:py-8">
         <div className="mx-auto max-w-[1720px]">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
-              <div className="inline-flex items-center gap-1.5 rounded-full bg-[rgba(184,148,78,0.10)] px-2.5 py-0.5 text-[11px] font-semibold text-[#80642F] border border-[rgba(184,148,78,0.18)] mb-2 uppercase tracking-wider">
-                <Sparkles size={12} className="text-[#B8944E]" />
+              <div className="inline-flex items-center gap-1.5 rounded-full bg-[rgba(204,160,56,0.10)] px-2.5 py-0.5 text-[11px] font-semibold text-[#785312] border border-[rgba(204,160,56,0.18)] mb-2 uppercase tracking-wider">
+                <Sparkles size={12} className="text-[#CCA038]" />
                 <span>My Reviews</span>
               </div>
-              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#252331]">
+              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#0F172A]">
                 Review Queue
               </h1>
-              <p className="mt-1 text-sm text-[#706C7D]">
+              <p className="mt-1 text-sm text-[#334155]">
                 Stories assigned to you for review across your assigned projects.
               </p>
             </div>
 
             {/* Total Pending Pill */}
             <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2 rounded-2xl border border-[rgba(184,148,78,0.22)] bg-gradient-to-br from-white/90 to-[#FDFBF7] px-4 py-2.5 shadow-[0_4px_20px_rgba(184,148,78,0.08)]">
-                <div className="grid h-9 w-9 place-items-center rounded-xl bg-[rgba(184,148,78,0.14)] text-[#80642F]">
+              <div className="flex items-center gap-2 rounded-2xl border border-[rgba(204,160,56,0.22)] bg-gradient-to-br from-white/90 to-[#FDFBF7] px-4 py-2.5 shadow-[0_4px_20px_rgba(204,160,56,0.08)]">
+                <div className="grid h-9 w-9 place-items-center rounded-xl bg-[rgba(204,160,56,0.14)] text-[#785312]">
                   <Clock size={18} />
                 </div>
                 <div>
-                  <div className="text-[11px] font-semibold uppercase tracking-wider text-[#80642F]/80">
+                  <div className="text-[11px] font-semibold uppercase tracking-wider text-[#785312]/80">
                     Awaiting Action
                   </div>
-                  <div className="text-lg font-bold text-[#252331]">
+                  <div className="text-lg font-bold text-[#0F172A]">
                     {counts.pending} {counts.pending === 1 ? "story" : "stories"}
                   </div>
                 </div>
@@ -278,7 +278,7 @@ export default function TeamReviewsPage() {
           </div>
 
           {/* Section Tabs */}
-          <div className="mt-8 flex flex-wrap gap-2 border-b border-[rgba(74,61,100,0.08)] pb-px">
+          <div className="mt-8 flex flex-wrap gap-2 border-b border-[rgba(15,23,42,0.08)] pb-px">
             {tabOptions.map((tab) => {
               const isActive = currentTab === tab.id;
               return (
@@ -287,16 +287,16 @@ export default function TeamReviewsPage() {
                   onClick={() => updateQueryParams({ tab: tab.id })}
                   className={`group relative flex items-center gap-2.5 px-4 py-3 text-sm font-semibold transition rounded-t-xl ${
                     isActive
-                      ? "text-[#80642F] bg-[rgba(184,148,78,0.08)] border-b-2 border-[#B8944E]"
-                      : "text-[#706C7D] hover:text-[#252331] hover:bg-white/50"
+                      ? "text-[#785312] bg-[rgba(204,160,56,0.08)] border-b-2 border-[#CCA038]"
+                      : "text-[#334155] hover:text-[#0F172A] hover:bg-white/50"
                   }`}
                 >
                   <span>{tab.label}</span>
                   <span
                     className={`inline-flex items-center justify-center rounded-full px-2 py-0.5 text-xs font-bold transition ${
                       isActive
-                        ? "bg-[#B8944E] text-white shadow-sm"
-                        : "bg-[rgba(74,61,100,0.08)] text-[#706C7D] group-hover:bg-[rgba(74,61,100,0.12)]"
+                        ? "bg-[#CCA038] text-white shadow-sm"
+                        : "bg-[rgba(15,23,42,0.08)] text-[#334155] group-hover:bg-[rgba(15,23,42,0.12)]"
                     }`}
                   >
                     {tab.count}
@@ -317,7 +317,7 @@ export default function TeamReviewsPage() {
             <div className="relative flex-1 max-w-md">
               <Search
                 size={16}
-                className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#706C7D]"
+                className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#334155]"
               />
               <input
                 type="text"
@@ -330,7 +330,7 @@ export default function TeamReviewsPage() {
                     updateQueryParams({ search: searchInput });
                   }
                 }}
-                className="h-10 w-full rounded-xl border border-[rgba(74,61,100,0.12)] bg-white/80 pl-10 pr-4 text-sm text-[#252331] placeholder-[#A09CAB] backdrop-blur-[12px] transition focus:border-[#B8944E] focus:outline-none focus:ring-2 focus:ring-[#B8944E]/20 shadow-sm"
+                className="h-10 w-full rounded-xl border border-[rgba(15,23,42,0.12)] bg-white/80 pl-10 pr-4 text-sm text-[#0F172A] placeholder-[#A09CAB] backdrop-blur-[12px] transition focus:border-[#CCA038] focus:outline-none focus:ring-2 focus:ring-[#CCA038]/20 shadow-sm"
               />
               {searchInput && (
                 <button
@@ -339,7 +339,7 @@ export default function TeamReviewsPage() {
                     setSearchInput("");
                     updateQueryParams({ search: "" });
                   }}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-[#706C7D] hover:text-[#252331]"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-[#334155] hover:text-[#0F172A]"
                 >
                   Clear
                 </button>
@@ -349,13 +349,13 @@ export default function TeamReviewsPage() {
             {/* Project Filter Dropdown */}
             {projects.length > 1 && (
               <div className="relative inline-block text-left">
-                <div className="flex items-center gap-1.5 rounded-xl border border-[rgba(74,61,100,0.12)] bg-white/80 px-3 py-2 text-sm text-[#252331] shadow-sm backdrop-blur-[12px]">
-                  <Filter size={14} className="text-[#706C7D]" />
-                  <span className="text-xs font-medium text-[#706C7D]">Project:</span>
+                <div className="flex items-center gap-1.5 rounded-xl border border-[rgba(15,23,42,0.12)] bg-white/80 px-3 py-2 text-sm text-[#0F172A] shadow-sm backdrop-blur-[12px]">
+                  <Filter size={14} className="text-[#334155]" />
+                  <span className="text-xs font-medium text-[#334155]">Project:</span>
                   <select
                     value={currentProjectId}
                     onChange={(e) => updateQueryParams({ projectId: e.target.value })}
-                    className="bg-transparent text-sm font-semibold text-[#252331] focus:outline-none cursor-pointer"
+                    className="bg-transparent text-sm font-semibold text-[#0F172A] focus:outline-none cursor-pointer"
                   >
                     <option value="all">All Assigned Projects</option>
                     {projects.map((p) => (
@@ -373,7 +373,7 @@ export default function TeamReviewsPage() {
           <button
             onClick={() => fetchReviews()}
             disabled={loading}
-            className="inline-flex items-center gap-1.5 rounded-xl border border-[rgba(74,61,100,0.12)] bg-white/80 px-3 py-2 text-xs font-semibold text-[#706C7D] hover:text-[#252331] hover:bg-white transition self-end sm:self-auto"
+            className="inline-flex items-center gap-1.5 rounded-xl border border-[rgba(15,23,42,0.12)] bg-white/80 px-3 py-2 text-xs font-semibold text-[#334155] hover:text-[#0F172A] hover:bg-white transition self-end sm:self-auto"
             title="Refresh list"
           >
             <RotateCcw size={13} className={loading ? "animate-spin" : ""} />
@@ -400,7 +400,7 @@ export default function TeamReviewsPage() {
             {[1, 2, 3].map((i) => (
               <div
                 key={i}
-                className="animate-pulse rounded-[18px] border border-[rgba(74,61,100,0.08)] bg-white/70 p-5 shadow-sm"
+                className="animate-pulse rounded-[18px] border border-[rgba(15,23,42,0.08)] bg-white/70 p-5 shadow-sm"
               >
                 <div className="h-4 w-1/4 rounded bg-zinc-200 mb-3" />
                 <div className="h-6 w-3/4 rounded bg-zinc-200 mb-4" />
@@ -412,22 +412,22 @@ export default function TeamReviewsPage() {
 
         {/* Empty State */}
         {!loading && stories.length === 0 && (
-          <div className="mt-8 rounded-3xl border border-[rgba(184,148,78,0.18)] bg-gradient-to-b from-white/90 to-[#FAF7F2]/60 p-10 sm:p-16 text-center shadow-[0_12px_40px_rgba(70,55,95,0.04)] backdrop-blur-[16px]">
-            <div className="mx-auto mb-4 grid h-16 w-16 place-items-center rounded-2xl bg-[rgba(184,148,78,0.12)] text-[#B8944E] shadow-sm">
+          <div className="mt-8 rounded-3xl border border-[rgba(204,160,56,0.18)] bg-gradient-to-b from-white/90 to-[#FAF7F2]/60 p-10 sm:p-16 text-center shadow-[0_12px_40px_rgba(15,23,42,0.04)] backdrop-blur-[16px]">
+            <div className="mx-auto mb-4 grid h-16 w-16 place-items-center rounded-2xl bg-[rgba(204,160,56,0.12)] text-[#CCA038] shadow-sm">
               {currentTab === "needs_action" ? (
                 <CheckCircle2 size={32} />
               ) : (
                 <FolderOpen size={32} />
               )}
             </div>
-            <h3 className="text-xl font-bold text-[#252331]">
+            <h3 className="text-xl font-bold text-[#0F172A]">
               {currentTab === "needs_action"
                 ? "You're all caught up!"
                 : currentTab === "changes_requested"
                 ? "No revision requests pending"
                 : "No recently reviewed stories"}
             </h3>
-            <p className="mx-auto mt-2 max-w-md text-sm text-[#706C7D]">
+            <p className="mx-auto mt-2 max-w-md text-sm text-[#334155]">
               {currentTab === "needs_action"
                 ? "There are no stories currently waiting for your review. When stories are assigned to you, they'll appear here."
                 : currentTab === "changes_requested"
@@ -449,7 +449,7 @@ export default function TeamReviewsPage() {
                 <Link href="/team">
                   <Button
                     variant="primary"
-                    className="bg-[#B8944E] hover:bg-[#9F7D3E] text-white border-none shadow-[0_4px_16px_rgba(184,148,78,0.24)]"
+                    className="bg-[#CCA038] hover:bg-[#B58422] text-white border-none shadow-[0_4px_16px_rgba(204,160,56,0.24)]"
                   >
                     View Project Stories
                   </Button>
@@ -473,10 +473,10 @@ export default function TeamReviewsPage() {
                   key={story.id}
                   className={`group relative rounded-[20px] border transition-all duration-200 overflow-hidden ${
                     isTeamApproved
-                      ? "bg-[rgba(46,139,112,0.04)] border-[rgba(46,139,112,0.20)] shadow-[0_4px_20px_rgba(46,139,112,0.04)]"
+                      ? "bg-[rgba(5,150,105,0.04)] border-[rgba(5,150,105,0.20)] shadow-[0_4px_20px_rgba(5,150,105,0.04)]"
                       : isChangesRequested
                       ? "bg-[rgba(244,63,94,0.03)] border-rose-200/80 shadow-[0_4px_20px_rgba(244,63,94,0.04)]"
-                      : "bg-white/85 border-[rgba(74,61,100,0.09)] hover:border-[#B8944E]/40 hover:shadow-[0_10px_32px_rgba(184,148,78,0.08)] shadow-[0_4px_24px_rgba(70,55,95,0.04)] backdrop-blur-[16px]"
+                      : "bg-white/85 border-[rgba(15,23,42,0.09)] hover:border-[#CCA038]/40 hover:shadow-[0_10px_32px_rgba(204,160,56,0.08)] shadow-[0_4px_24px_rgba(15,23,42,0.04)] backdrop-blur-[16px]"
                   }`}
                 >
                   <div className="p-5 sm:p-6">
@@ -486,8 +486,8 @@ export default function TeamReviewsPage() {
                         {/* Meta Tags Row */}
                         <div className="flex flex-wrap items-center gap-2 mb-2 text-xs">
                           {/* Project Name */}
-                          <span className="inline-flex items-center gap-1 rounded-md bg-[rgba(184,148,78,0.10)] px-2.5 py-1 text-[11px] font-semibold text-[#80642F] border border-[rgba(184,148,78,0.16)]">
-                            <Layers size={12} className="text-[#B8944E]" />
+                          <span className="inline-flex items-center gap-1 rounded-md bg-[rgba(204,160,56,0.10)] px-2.5 py-1 text-[11px] font-semibold text-[#785312] border border-[rgba(204,160,56,0.16)]">
+                            <Layers size={12} className="text-[#CCA038]" />
                             <span className="truncate max-w-[160px]">
                               {story.project_name}
                             </span>
@@ -495,7 +495,7 @@ export default function TeamReviewsPage() {
 
                           {/* Epic Name */}
                           {story.epic_name && (
-                            <span className="inline-flex items-center gap-1 rounded-md bg-[rgba(74,61,100,0.06)] px-2.5 py-1 text-[11px] font-medium text-[#706C7D] border border-[rgba(74,61,100,0.08)]">
+                            <span className="inline-flex items-center gap-1 rounded-md bg-[rgba(15,23,42,0.06)] px-2.5 py-1 text-[11px] font-medium text-[#334155] border border-[rgba(15,23,42,0.08)]">
                               <span className="truncate max-w-[140px]">
                                 {story.epic_name}
                               </span>
@@ -503,8 +503,8 @@ export default function TeamReviewsPage() {
                           )}
 
                           {/* Criteria Count */}
-                          <span className="inline-flex items-center gap-1 text-[11px] font-medium text-[#706C7D]">
-                            <Check size={12} className="text-[#80642F]" />
+                          <span className="inline-flex items-center gap-1 text-[11px] font-medium text-[#334155]">
+                            <Check size={12} className="text-[#785312]" />
                             <span>{story.acceptance_criteria?.length ?? 0} criteria</span>
                           </span>
 
@@ -534,13 +534,13 @@ export default function TeamReviewsPage() {
                         </div>
 
                         {/* Story Title */}
-                        <h2 className="text-base sm:text-lg font-bold text-[#252331] tracking-tight group-hover:text-[#80642F] transition-colors">
+                        <h2 className="text-base sm:text-lg font-bold text-[#0F172A] tracking-tight group-hover:text-[#785312] transition-colors">
                           {story.title}
                         </h2>
 
                         {/* Description Preview */}
                         {story.description && (
-                          <p className="mt-1 text-xs sm:text-sm text-[#706C7D] leading-relaxed max-w-3xl">
+                          <p className="mt-1 text-xs sm:text-sm text-[#334155] leading-relaxed max-w-3xl">
                             {story.description}
                           </p>
                         )}
@@ -554,7 +554,7 @@ export default function TeamReviewsPage() {
                                 ? "bg-emerald-50 text-emerald-800 border border-emerald-200/80"
                                 : isChangesRequested
                                 ? "bg-rose-50 text-rose-800 border border-rose-200/80"
-                                : "bg-[rgba(184,148,78,0.12)] text-[#80642F] border border-[rgba(184,148,78,0.22)]"
+                                : "bg-[rgba(204,160,56,0.12)] text-[#785312] border border-[rgba(204,160,56,0.22)]"
                             }`}
                           >
                             {isTeamApproved ? (
@@ -622,7 +622,7 @@ export default function TeamReviewsPage() {
                         >
                           <Button
                             variant="primary"
-                            className="bg-[#B8944E] hover:bg-[#9F7D3E] text-white border-none shadow-[0_4px_14px_rgba(184,148,78,0.22)] group-hover:scale-[1.02] transition-transform"
+                            className="bg-[#CCA038] hover:bg-[#B58422] text-white border-none shadow-[0_4px_14px_rgba(204,160,56,0.22)] group-hover:scale-[1.02] transition-transform"
                             rightIcon={
                               <ArrowRight
                                 size={14}
@@ -644,18 +644,18 @@ export default function TeamReviewsPage() {
 
         {/* Pagination Controls */}
         {!loading && pagination.totalPages > 1 && (
-          <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-[rgba(74,61,100,0.08)] pt-4 text-xs text-[#706C7D]">
+          <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-[rgba(15,23,42,0.08)] pt-4 text-xs text-[#334155]">
             <div>
               Showing{" "}
-              <span className="font-semibold text-[#252331]">
+              <span className="font-semibold text-[#0F172A]">
                 {(pagination.page - 1) * pagination.limit + 1}
               </span>{" "}
               to{" "}
-              <span className="font-semibold text-[#252331]">
+              <span className="font-semibold text-[#0F172A]">
                 {Math.min(pagination.page * pagination.limit, pagination.total)}
               </span>{" "}
               of{" "}
-              <span className="font-semibold text-[#252331]">
+              <span className="font-semibold text-[#0F172A]">
                 {pagination.total}
               </span>{" "}
               stories
@@ -666,13 +666,13 @@ export default function TeamReviewsPage() {
                 type="button"
                 disabled={pagination.page <= 1}
                 onClick={() => updateQueryParams({ page: pagination.page - 1 })}
-                className="inline-flex items-center gap-1 rounded-xl border border-[rgba(74,61,100,0.12)] bg-white px-3 py-1.5 font-semibold text-[#252331] shadow-sm disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[rgba(184,148,78,0.08)] hover:border-[#B8944E] transition"
+                className="inline-flex items-center gap-1 rounded-xl border border-[rgba(15,23,42,0.12)] bg-white px-3 py-1.5 font-semibold text-[#0F172A] shadow-sm disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[rgba(204,160,56,0.08)] hover:border-[#CCA038] transition"
               >
                 <ChevronLeft size={14} />
                 <span>Previous</span>
               </button>
 
-              <span className="px-2 font-medium text-[#252331]">
+              <span className="px-2 font-medium text-[#0F172A]">
                 Page {pagination.page} of {pagination.totalPages}
               </span>
 
@@ -680,7 +680,7 @@ export default function TeamReviewsPage() {
                 type="button"
                 disabled={pagination.page >= pagination.totalPages}
                 onClick={() => updateQueryParams({ page: pagination.page + 1 })}
-                className="inline-flex items-center gap-1 rounded-xl border border-[rgba(74,61,100,0.12)] bg-white px-3 py-1.5 font-semibold text-[#252331] shadow-sm disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[rgba(184,148,78,0.08)] hover:border-[#B8944E] transition"
+                className="inline-flex items-center gap-1 rounded-xl border border-[rgba(15,23,42,0.12)] bg-white px-3 py-1.5 font-semibold text-[#0F172A] shadow-sm disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[rgba(204,160,56,0.08)] hover:border-[#CCA038] transition"
               >
                 <span>Next</span>
                 <ChevronRight size={14} />

@@ -175,19 +175,19 @@ export default async function ClientOverviewPage() {
   return (
     <div className="min-h-screen pb-16">
       {/* Top Banner / Project Summary Card */}
-      <div className="border-b border-[rgba(74,61,100,0.08)] bg-white/60 backdrop-blur-[20px] px-4 py-6 sm:px-8 sm:py-8">
+      <div className="border-b border-[rgba(15,23,42,0.08)] bg-white/60 backdrop-blur-[20px] px-4 py-6 sm:px-8 sm:py-8">
         <div className="mx-auto max-w-[1720px] space-y-6">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
-              <div className="inline-flex items-center gap-1.5 rounded-full bg-[rgba(184,148,78,0.10)] px-2.5 py-0.5 text-[11px] font-semibold text-[#80642F] border border-[rgba(184,148,78,0.18)] mb-2 uppercase tracking-wider">
-                <FolderKanban size={12} className="text-[#B8944E]" />
+              <div className="inline-flex items-center gap-1.5 rounded-full bg-[rgba(204,160,56,0.10)] px-2.5 py-0.5 text-[11px] font-semibold text-[#785312] border border-[rgba(204,160,56,0.18)] mb-2 uppercase tracking-wider">
+                <FolderKanban size={12} className="text-[#CCA038]" />
                 <span>Client Review Portal</span>
               </div>
-              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#252331]">
+              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#0F172A]">
                 {projectName}
               </h1>
               {project?.description && (
-                <p className="mt-1 text-sm text-[#706C7D] max-w-2xl leading-relaxed">
+                <p className="mt-1 text-sm text-[#334155] max-w-2xl leading-relaxed">
                   {project.description}
                 </p>
               )}
@@ -195,18 +195,18 @@ export default async function ClientOverviewPage() {
 
             {/* Overall Progress Indicator */}
             <div className="flex items-center gap-3">
-              <div className="rounded-2xl border border-[rgba(184,148,78,0.22)] bg-gradient-to-br from-white/90 to-[#FDFBF7] p-4 shadow-[0_4px_20px_rgba(184,148,78,0.08)] min-w-[200px]">
-                <div className="flex items-center justify-between text-xs font-semibold text-[#80642F] mb-1.5">
+              <div className="rounded-2xl border border-[rgba(204,160,56,0.22)] bg-gradient-to-br from-white/90 to-[#FDFBF7] p-4 shadow-[0_4px_20px_rgba(204,160,56,0.08)] min-w-[200px]">
+                <div className="flex items-center justify-between text-xs font-semibold text-[#785312] mb-1.5">
                   <span>Sign-Off Progress</span>
-                  <span className="text-sm font-bold text-[#252331]">{progressPercent}%</span>
+                  <span className="text-sm font-bold text-[#0F172A]">{progressPercent}%</span>
                 </div>
-                <div className="h-2 w-full overflow-hidden rounded-full bg-[rgba(74,61,100,0.08)]">
+                <div className="h-2 w-full overflow-hidden rounded-full bg-[rgba(15,23,42,0.08)]">
                   <div
-                    className="h-full rounded-full bg-[#B8944E] transition-all duration-500"
+                    className="h-full rounded-full bg-[#CCA038] transition-all duration-500"
                     style={{ width: `${progressPercent}%` }}
                   />
                 </div>
-                <div className="mt-2 flex items-center justify-between text-[11px] text-[#706C7D] font-medium">
+                <div className="mt-2 flex items-center justify-between text-[11px] text-[#334155] font-medium">
                   <span>{approved} of {total} stories signed off</span>
                   {changes > 0 && (
                     <span className="text-rose-600 font-semibold">{changes} changes</span>
@@ -222,14 +222,14 @@ export default async function ClientOverviewPage() {
       <div className="mx-auto max-w-[1720px] px-4 py-6 sm:px-8 space-y-8">
         {/* Project Quotation Hero Card (if published) */}
         {clientQuotation && (
-          <div className="rounded-2xl border border-[rgba(184,148,78,0.3)] bg-gradient-to-r from-amber-50/70 via-white to-amber-50/40 p-5 sm:p-6 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="rounded-2xl border border-[rgba(204,160,56,0.3)] bg-gradient-to-r from-amber-50/70 via-white to-amber-50/40 p-5 sm:p-6 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-start gap-3.5">
-              <div className="w-10 h-10 rounded-xl bg-[#B8944E]/15 text-[#80642F] flex items-center justify-center shrink-0 mt-0.5">
+              <div className="w-10 h-10 rounded-xl bg-[#CCA038]/15 text-[#785312] flex items-center justify-center shrink-0 mt-0.5">
                 <Coins className="w-5 h-5" />
               </div>
               <div>
                 <div className="flex items-center gap-2 mb-1">
-                  <span className="text-xs font-bold uppercase tracking-wider text-[#80642F] bg-[#B8944E]/15 px-2 py-0.5 rounded-full">
+                  <span className="text-xs font-bold uppercase tracking-wider text-[#785312] bg-[#CCA038]/15 px-2 py-0.5 rounded-full">
                     Official Quotation Available
                   </span>
                   <span
@@ -261,7 +261,7 @@ export default async function ClientOverviewPage() {
             </div>
             <Link
               href="/client/estimate"
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold text-white bg-[#B8944E] hover:bg-[#9f7d3a] transition shrink-0 shadow-sm"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold text-white bg-[#CCA038] hover:bg-[#9f7d3a] transition shrink-0 shadow-sm"
             >
               <span>Review Quotation</span>
               <ArrowRight className="w-3.5 h-3.5" />
@@ -271,31 +271,31 @@ export default async function ClientOverviewPage() {
 
         {/* Shared Meeting & Discussion Notes Banner */}
         {sharedNotesCount > 0 && (
-          <div className="rounded-2xl border border-[rgba(184,148,78,0.22)] bg-gradient-to-r from-amber-50/40 via-white to-amber-50/20 p-5 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="rounded-2xl border border-[rgba(204,160,56,0.22)] bg-gradient-to-r from-amber-50/40 via-white to-amber-50/20 p-5 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-start gap-3.5">
-              <div className="w-10 h-10 rounded-xl bg-[rgba(184,148,78,0.12)] text-[#80642F] flex items-center justify-center shrink-0 mt-0.5 border border-[rgba(184,148,78,0.2)]">
+              <div className="w-10 h-10 rounded-xl bg-[rgba(204,160,56,0.12)] text-[#785312] flex items-center justify-center shrink-0 mt-0.5 border border-[rgba(204,160,56,0.2)]">
                 <FileText className="w-5 h-5" />
               </div>
               <div>
                 <div className="flex items-center gap-2 mb-1">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-[#80642F] bg-[#B8944E]/15 px-2 py-0.5 rounded-full">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-[#785312] bg-[#CCA038]/15 px-2 py-0.5 rounded-full">
                     {sharedNotesCount} Shared {sharedNotesCount === 1 ? "Note" : "Notes"}
                   </span>
-                  <span className="text-[11px] font-medium text-[#706C7D]">
+                  <span className="text-[11px] font-medium text-[#334155]">
                     From discussions &amp; calls
                   </span>
                 </div>
-                <h3 className="text-sm sm:text-base font-bold text-[#252331]">
+                <h3 className="text-sm sm:text-base font-bold text-[#0F172A]">
                   Meeting &amp; Discussion Notes
                 </h3>
-                <p className="text-xs text-[#706C7D] mt-0.5 max-w-xl">
+                <p className="text-xs text-[#334155] mt-0.5 max-w-xl">
                   Your project team has published discussion notes, call summaries, and requirement decisions for your review.
                 </p>
               </div>
             </div>
             <Link
               href="/client/notes"
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold text-[#80642F] bg-white border border-[rgba(184,148,78,0.3)] hover:bg-[#FAF9FC] transition shrink-0 shadow-2xs"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold text-[#785312] bg-white border border-[rgba(204,160,56,0.3)] hover:bg-[#F8F9FB] transition shrink-0 shadow-2xs"
             >
               <span>View Meeting Notes</span>
               <ArrowRight className="w-3.5 h-3.5" />
@@ -308,40 +308,40 @@ export default async function ClientOverviewPage() {
           {/* Needs Your Action Card */}
           <Link
             href="/client/reviews"
-            className="group rounded-2xl border border-[rgba(74,61,100,0.08)] bg-white/80 p-5 shadow-xs hover:border-[#B8944E]/30 hover:shadow-md transition backdrop-blur-sm"
+            className="group rounded-2xl border border-[rgba(15,23,42,0.08)] bg-white/80 p-5 shadow-xs hover:border-[#CCA038]/30 hover:shadow-md transition backdrop-blur-sm"
           >
             <div className="flex items-center justify-between mb-3">
-              <div className="grid h-10 w-10 place-items-center rounded-xl bg-[rgba(184,148,78,0.14)] text-[#80642F]">
+              <div className="grid h-10 w-10 place-items-center rounded-xl bg-[rgba(204,160,56,0.14)] text-[#785312]">
                 <ListTodo size={20} />
               </div>
-              <span className="text-xl font-bold text-[#252331] group-hover:text-[#80642F] transition-colors">
+              <span className="text-xl font-bold text-[#0F172A] group-hover:text-[#785312] transition-colors">
                 {needsAction}
               </span>
             </div>
-            <h3 className="text-sm font-bold text-[#252331] group-hover:text-[#80642F] transition-colors">
+            <h3 className="text-sm font-bold text-[#0F172A] group-hover:text-[#785312] transition-colors">
               Needs Your Action
             </h3>
-            <p className="mt-1 text-xs text-[#706C7D] line-clamp-2">
+            <p className="mt-1 text-xs text-[#334155] line-clamp-2">
               Stories awaiting your review, feedback, or sign-off.
             </p>
           </Link>
           {/* Changes Requested Card */}
           <Link
             href="/client/changes"
-            className="group rounded-2xl border border-[rgba(74,61,100,0.08)] bg-white/80 p-5 shadow-xs hover:border-[#B8944E]/30 hover:shadow-md transition backdrop-blur-sm"
+            className="group rounded-2xl border border-[rgba(15,23,42,0.08)] bg-white/80 p-5 shadow-xs hover:border-[#CCA038]/30 hover:shadow-md transition backdrop-blur-sm"
           >
             <div className="flex items-center justify-between mb-3">
               <div className="grid h-10 w-10 place-items-center rounded-xl bg-rose-50 text-rose-600 border border-rose-100">
                 <AlertCircle size={20} />
               </div>
-              <span className="text-xl font-bold text-[#252331] group-hover:text-[#80642F] transition-colors">
+              <span className="text-xl font-bold text-[#0F172A] group-hover:text-[#785312] transition-colors">
                 {changes}
               </span>
             </div>
-            <h3 className="text-sm font-bold text-[#252331] group-hover:text-[#80642F] transition-colors">
+            <h3 className="text-sm font-bold text-[#0F172A] group-hover:text-[#785312] transition-colors">
               Changes Requested
             </h3>
-            <p className="mt-1 text-xs text-[#706C7D] line-clamp-2">
+            <p className="mt-1 text-xs text-[#334155] line-clamp-2">
               Stories where revisions were requested and team updates need sign-off.
             </p>
           </Link>
@@ -349,20 +349,20 @@ export default async function ClientOverviewPage() {
           {/* Approved Stories Card */}
           <Link
             href="/client/approved"
-            className="group rounded-2xl border border-[rgba(74,61,100,0.08)] bg-white/80 p-5 shadow-xs hover:border-[#B8944E]/30 hover:shadow-md transition backdrop-blur-sm"
+            className="group rounded-2xl border border-[rgba(15,23,42,0.08)] bg-white/80 p-5 shadow-xs hover:border-[#CCA038]/30 hover:shadow-md transition backdrop-blur-sm"
           >
             <div className="flex items-center justify-between mb-3">
               <div className="grid h-10 w-10 place-items-center rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-100">
                 <CheckCircle2 size={20} />
               </div>
-              <span className="text-xl font-bold text-[#252331] group-hover:text-[#80642F] transition-colors">
+              <span className="text-xl font-bold text-[#0F172A] group-hover:text-[#785312] transition-colors">
                 {approved}
               </span>
             </div>
-            <h3 className="text-sm font-bold text-[#252331] group-hover:text-[#80642F] transition-colors">
+            <h3 className="text-sm font-bold text-[#0F172A] group-hover:text-[#785312] transition-colors">
               Approved Stories
             </h3>
-            <p className="mt-1 text-xs text-[#706C7D] line-clamp-2">
+            <p className="mt-1 text-xs text-[#334155] line-clamp-2">
               Complete catalog of signed-off features and acceptance criteria.
             </p>
           </Link>
@@ -370,20 +370,20 @@ export default async function ClientOverviewPage() {
           {/* All Stories Card */}
           <Link
             href="/client/stories"
-            className="group rounded-2xl border border-[rgba(74,61,100,0.08)] bg-white/80 p-5 shadow-xs hover:border-[#B8944E]/30 hover:shadow-md transition backdrop-blur-sm"
+            className="group rounded-2xl border border-[rgba(15,23,42,0.08)] bg-white/80 p-5 shadow-xs hover:border-[#CCA038]/30 hover:shadow-md transition backdrop-blur-sm"
           >
             <div className="flex items-center justify-between mb-3">
-              <div className="grid h-10 w-10 place-items-center rounded-xl bg-[rgba(184,148,78,0.12)] text-[#80642F] border border-[rgba(184,148,78,0.18)]">
+              <div className="grid h-10 w-10 place-items-center rounded-xl bg-[rgba(204,160,56,0.12)] text-[#785312] border border-[rgba(204,160,56,0.18)]">
                 <Layers size={20} />
               </div>
-              <span className="text-xl font-bold text-[#252331] group-hover:text-[#80642F] transition-colors">
+              <span className="text-xl font-bold text-[#0F172A] group-hover:text-[#785312] transition-colors">
                 {total}
               </span>
             </div>
-            <h3 className="text-sm font-bold text-[#252331] group-hover:text-[#80642F] transition-colors">
+            <h3 className="text-sm font-bold text-[#0F172A] group-hover:text-[#785312] transition-colors">
               All Stories Directory
             </h3>
-            <p className="mt-1 text-xs text-[#706C7D] line-clamp-2">
+            <p className="mt-1 text-xs text-[#334155] line-clamp-2">
               Full requirements catalog grouped by Epics with search and filters.
             </p>
           </Link>
@@ -392,12 +392,12 @@ export default async function ClientOverviewPage() {
         {/* Project Epics Overview Grid */}
         {epics.length > 0 && (
           <section className="space-y-4">
-            <div className="flex items-center justify-between border-b border-[rgba(74,61,100,0.08)] pb-3">
+            <div className="flex items-center justify-between border-b border-[rgba(15,23,42,0.08)] pb-3">
               <div>
-                <h2 className="text-lg font-bold text-[#252331] tracking-tight">
+                <h2 className="text-lg font-bold text-[#0F172A] tracking-tight">
                   Project Epics
                 </h2>
-                <p className="text-xs text-[#706C7D]">
+                <p className="text-xs text-[#334155]">
                   High-level functional modules and their sign-off progress.
                 </p>
               </div>
@@ -405,7 +405,7 @@ export default async function ClientOverviewPage() {
                 <Button
                   variant="secondary"
                   size="sm"
-                  className="text-xs font-semibold text-[#80642F]"
+                  className="text-xs font-semibold text-[#785312]"
                 >
                   View by Epic
                 </Button>
@@ -421,31 +421,31 @@ export default async function ClientOverviewPage() {
                   <Link
                     key={epic.id}
                     href={`/client/stories?epicId=${epic.id}`}
-                    className="group rounded-2xl border border-[rgba(74,61,100,0.08)] bg-white/80 p-5 shadow-xs hover:border-[#B8944E]/30 hover:shadow-md transition backdrop-blur-sm flex flex-col justify-between"
+                    className="group rounded-2xl border border-[rgba(15,23,42,0.08)] bg-white/80 p-5 shadow-xs hover:border-[#CCA038]/30 hover:shadow-md transition backdrop-blur-sm flex flex-col justify-between"
                   >
                     <div>
-                      <div className="flex items-center gap-1.5 text-xs font-semibold text-[#80642F] mb-1.5">
-                        <Bookmark size={13} className="text-[#B8944E]" />
+                      <div className="flex items-center gap-1.5 text-xs font-semibold text-[#785312] mb-1.5">
+                        <Bookmark size={13} className="text-[#CCA038]" />
                         <span className="uppercase tracking-wider text-[10px]">Epic</span>
                       </div>
-                      <h3 className="text-sm font-bold text-[#252331] group-hover:text-[#80642F] transition-colors truncate">
+                      <h3 className="text-sm font-bold text-[#0F172A] group-hover:text-[#785312] transition-colors truncate">
                         {epic.name}
                       </h3>
                       {epic.description && (
-                        <p className="mt-1 text-xs text-[#706C7D] line-clamp-2">
+                        <p className="mt-1 text-xs text-[#334155] line-clamp-2">
                           {epic.description}
                         </p>
                       )}
                     </div>
 
-                    <div className="mt-4 pt-3 border-t border-[rgba(74,61,100,0.06)]">
-                      <div className="flex items-center justify-between text-xs font-medium text-[#706C7D] mb-1">
+                    <div className="mt-4 pt-3 border-t border-[rgba(15,23,42,0.06)]">
+                      <div className="flex items-center justify-between text-xs font-medium text-[#334155] mb-1">
                         <span>{stats.approved} of {stats.total} approved</span>
-                        <span className="font-semibold text-[#252331]">{pct}%</span>
+                        <span className="font-semibold text-[#0F172A]">{pct}%</span>
                       </div>
                       <div className="h-1.5 w-full overflow-hidden rounded-full bg-zinc-100">
                         <div
-                          className="h-full rounded-full bg-[#B8944E] transition-all duration-300"
+                          className="h-full rounded-full bg-[#CCA038] transition-all duration-300"
                           style={{ width: `${pct}%` }}
                         />
                       </div>

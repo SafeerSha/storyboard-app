@@ -108,12 +108,12 @@ export function EpicKanbanBoard({
 
   if (epics.length === 0) {
     return (
-      <div className="rounded-[20px] border border-dashed border-[rgba(74,61,100,0.14)] bg-white/80 backdrop-blur-md p-10 sm:p-14 text-center shadow-[0_8px_30px_rgba(70,55,95,0.04)]">
-        <div className="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-[rgba(184,148,78,0.10)] text-[#B8944E] mb-4 shadow-sm border border-[rgba(184,148,78,0.18)]">
+      <div className="rounded-[20px] border border-dashed border-[rgba(15,23,42,0.14)] bg-white/80 backdrop-blur-md p-10 sm:p-14 text-center shadow-[0_8px_30px_rgba(15,23,42,0.04)]">
+        <div className="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-[rgba(204,160,56,0.10)] text-[#CCA038] mb-4 shadow-sm border border-[rgba(204,160,56,0.18)]">
           <Layers size={22} />
         </div>
-        <h3 className="text-base font-bold text-[#252331]">No Epics in this project yet</h3>
-        <p className="mt-1.5 text-xs text-[#706C7D] max-w-md mx-auto">
+        <h3 className="text-base font-bold text-[#0F172A]">No Epics in this project yet</h3>
+        <p className="mt-1.5 text-xs text-[#334155] max-w-md mx-auto">
           Epics organize feature stories into structured product areas. Create your first epic to populate the Kanban board.
         </p>
         <div className="mt-5">
@@ -144,8 +144,8 @@ export function EpicKanbanBoard({
               onClick={() => scrollToColumn(col.id)}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold shrink-0 transition-all cursor-pointer ${
                 isActive
-                  ? "bg-[#252331] text-white shadow-xs"
-                  : "bg-white text-[#706C7D] border border-[rgba(74,61,100,0.1)] hover:bg-[#FAF9FC]"
+                  ? "bg-[#0F172A] text-white shadow-xs"
+                  : "bg-white text-[#334155] border border-[rgba(15,23,42,0.1)] hover:bg-[#F8F9FB]"
               }`}
             >
               <span className={`h-2 w-2 rounded-full ${col.dotColor}`} />
@@ -179,16 +179,16 @@ export function EpicKanbanBoard({
               onDrop={(e) => handleDrop(e, col.id)}
               className={`w-[85vw] max-w-[340px] lg:max-w-none lg:w-auto shrink-0 lg:shrink flex flex-col rounded-[20px] border transition-all duration-200 p-3 sm:p-3.5 h-[480px] sm:h-[500px] snap-center ${
                 isOver
-                  ? "border-[#B8944E] bg-[rgba(184,148,78,0.06)] ring-2 ring-[#B8944E]/30"
-                  : "border-[rgba(74,61,100,0.08)] bg-[#FBFAFD]/85"
+                  ? "border-[#CCA038] bg-[rgba(204,160,56,0.06)] ring-2 ring-[#CCA038]/30"
+                  : "border-[rgba(15,23,42,0.08)] bg-[#FBFAFD]/85"
               }`}
             >
               {/* Column Header */}
-              <div className="flex items-center justify-between pb-3 mb-3 border-b border-[rgba(74,61,100,0.06)]">
+              <div className="flex items-center justify-between pb-3 mb-3 border-b border-[rgba(15,23,42,0.06)]">
                 <div className="flex items-center gap-2 min-w-0">
                   <span className={`h-2.5 w-2.5 rounded-full shrink-0 ${col.dotColor}`} />
                   <h3
-                    className="text-xs font-bold uppercase tracking-wider text-[#252331] truncate"
+                    className="text-xs font-bold uppercase tracking-wider text-[#0F172A] truncate"
                     title={col.label}
                   >
                     {col.label}
@@ -205,19 +205,19 @@ export function EpicKanbanBoard({
                   type="button"
                   onClick={() => onCreateEpicInStatus(col.id)}
                   title={`Add Epic to ${col.label}`}
-                  className="rounded-lg p-1 text-[#706C7D] hover:text-[#80642F] hover:bg-[rgba(184,148,78,0.1)] transition-colors cursor-pointer"
+                  className="rounded-lg p-1 text-[#334155] hover:text-[#785312] hover:bg-[rgba(204,160,56,0.1)] transition-colors cursor-pointer"
                 >
                   <Plus size={15} />
                 </button>
               </div>
 
               {/* Column Subtitle / Scope Hint */}
-              <p className="text-[10px] text-[#9994A5] mb-3 px-0.5 line-clamp-1">
+              <p className="text-[10px] text-[#64748B] mb-3 px-0.5 line-clamp-1">
                 {col.description}
               </p>
 
               {/* Epic Cards Container */}
-              <div className="space-y-3 flex-1 min-h-0 overflow-y-auto pr-1 pb-1 [scrollbar-width:thin] [scrollbar-color:rgba(74,61,100,0.2)_transparent]">
+              <div className="space-y-3 flex-1 min-h-0 overflow-y-auto pr-1 pb-1 [scrollbar-width:thin] [scrollbar-color:rgba(15,23,42,0.2)_transparent]">
                 {columnEpics.length > 0 ? (
                   columnEpics.map((epic) => (
                     <EpicKanbanCard
@@ -235,12 +235,12 @@ export function EpicKanbanBoard({
                 ) : (
                   <div
                     onClick={() => onCreateEpicInStatus(col.id)}
-                    className="h-36 flex flex-col items-center justify-center text-center px-4 rounded-xl border border-dashed border-[rgba(74,61,100,0.1)] bg-white/40 hover:bg-white/70 hover:border-[#B8944E]/40 transition cursor-pointer group"
+                    className="h-36 flex flex-col items-center justify-center text-center px-4 rounded-xl border border-dashed border-[rgba(15,23,42,0.1)] bg-white/40 hover:bg-white/70 hover:border-[#CCA038]/40 transition cursor-pointer group"
                   >
-                    <p className="text-xs text-[#9994A5] font-medium group-hover:text-[#706C7D]">
+                    <p className="text-xs text-[#64748B] font-medium group-hover:text-[#334155]">
                       No epics in {col.badgeLabel}
                     </p>
-                    <span className="mt-1.5 inline-flex items-center gap-1 text-[11px] font-bold text-[#80642F] group-hover:underline">
+                    <span className="mt-1.5 inline-flex items-center gap-1 text-[11px] font-bold text-[#785312] group-hover:underline">
                       <Plus size={12} /> Add Epic
                     </span>
                   </div>

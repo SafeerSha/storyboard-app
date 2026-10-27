@@ -162,8 +162,8 @@ export function AiEpicAgentPromptModal({
       maxWidth="xl"
       footer={
         <div className="flex w-full flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-          <div className="flex items-center gap-2 text-xs text-[#706C7D]">
-            <span className="inline-flex items-center gap-1 font-mono font-semibold text-[#80642F] bg-[rgba(184,148,78,0.10)] px-2 py-0.5 rounded border border-[rgba(184,148,78,0.18)]">
+          <div className="flex items-center gap-2 text-xs text-[#334155]">
+            <span className="inline-flex items-center gap-1 font-mono font-semibold text-[#785312] bg-[rgba(204,160,56,0.10)] px-2 py-0.5 rounded border border-[rgba(204,160,56,0.18)]">
               {stories.length} {stories.length === 1 ? "story" : "stories"}
             </span>
             <span>•</span>
@@ -203,10 +203,10 @@ export function AiEpicAgentPromptModal({
     >
       <div className="space-y-4">
         {/* Controls Toolbar */}
-        <div className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-xl bg-[#FAF9FC] border border-[rgba(74,61,100,0.08)]">
+        <div className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-xl bg-[#F8F9FB] border border-[rgba(15,23,42,0.08)]">
           {/* Preset Buttons */}
           <div className="flex flex-wrap items-center gap-1.5">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-[#9994A5] mr-1">
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-[#64748B] mr-1">
               Preset:
             </span>
             {presetsList.map((p) => (
@@ -216,8 +216,8 @@ export function AiEpicAgentPromptModal({
                 onClick={() => setPreset(p.id)}
                 className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-lg transition cursor-pointer ${
                   preset === p.id
-                    ? "bg-[#80642F] text-white shadow-2xs font-semibold"
-                    : "bg-white text-[#252331] hover:bg-slate-100 border border-[rgba(74,61,100,0.12)]"
+                    ? "bg-[#785312] text-white shadow-2xs font-semibold"
+                    : "bg-white text-[#0F172A] hover:bg-slate-100 border border-[rgba(15,23,42,0.12)]"
                 }`}
               >
                 <span>{p.icon}</span>
@@ -231,24 +231,24 @@ export function AiEpicAgentPromptModal({
             <Button
               variant="outline"
               size="sm"
-              leftIcon={<Sparkles size={13} className={isEnhancing ? "animate-spin text-[#80642F]" : "text-[#80642F]"} />}
+              leftIcon={<Sparkles size={13} className={isEnhancing ? "animate-spin text-[#785312]" : "text-[#785312]"} />}
               isLoading={isEnhancing}
               onClick={handleEnhanceWithAi}
-              className="text-xs text-[#80642F] hover:bg-[rgba(184,148,78,0.08)]"
+              className="text-xs text-[#785312] hover:bg-[rgba(204,160,56,0.08)]"
               title="Enrich with Gemini AI to generate tailored file structures, code patterns, and edge cases"
             >
               {enhancedPrompt ? "Regenerate with AI" : "Deepen with Gemini AI"}
             </Button>
 
             {/* View Mode Toggle */}
-            <div className="inline-flex rounded-lg border border-[rgba(74,61,100,0.12)] bg-white p-0.5 text-xs">
+            <div className="inline-flex rounded-lg border border-[rgba(15,23,42,0.12)] bg-white p-0.5 text-xs">
               <button
                 type="button"
                 onClick={() => setViewMode("preview")}
                 className={`inline-flex items-center gap-1 rounded-md px-2 py-1 text-[11px] font-medium transition cursor-pointer ${
                   viewMode === "preview"
-                    ? "bg-[#80642F] text-white shadow-2xs"
-                    : "text-[#706C7D] hover:text-[#252331]"
+                    ? "bg-[#785312] text-white shadow-2xs"
+                    : "text-[#334155] hover:text-[#0F172A]"
                 }`}
                 title="Structured view"
               >
@@ -260,8 +260,8 @@ export function AiEpicAgentPromptModal({
                 onClick={() => setViewMode("raw")}
                 className={`inline-flex items-center gap-1 rounded-md px-2 py-1 text-[11px] font-medium transition cursor-pointer ${
                   viewMode === "raw"
-                    ? "bg-[#80642F] text-white shadow-2xs"
-                    : "text-[#706C7D] hover:text-[#252331]"
+                    ? "bg-[#785312] text-white shadow-2xs"
+                    : "text-[#334155] hover:text-[#0F172A]"
                 }`}
                 title="Raw markdown code"
               >
@@ -276,8 +276,8 @@ export function AiEpicAgentPromptModal({
               onClick={() => setShowTechSettings((prev) => !prev)}
               className={`grid h-7 w-7 place-items-center rounded-lg border transition cursor-pointer ${
                 showTechSettings
-                  ? "bg-[#80642F]/10 border-[#80642F] text-[#80642F]"
-                  : "bg-white border-[rgba(74,61,100,0.12)] text-[#706C7D] hover:text-[#252331]"
+                  ? "bg-[#785312]/10 border-[#785312] text-[#785312]"
+                  : "bg-white border-[rgba(15,23,42,0.12)] text-[#334155] hover:text-[#0F172A]"
               }`}
               title="Customize tech stack"
             >
@@ -298,7 +298,7 @@ export function AiEpicAgentPromptModal({
               value={techStackHint}
               onChange={(e) => setTechStackHint(e.target.value)}
               placeholder="e.g. Next.js 15, TypeScript, Tailwind CSS, Supabase, Prisma"
-              className="w-full rounded-lg border border-amber-200 bg-white px-3 py-1.5 text-xs text-amber-950 outline-none focus:border-[#80642F] focus:ring-1 focus:ring-[#80642F]"
+              className="w-full rounded-lg border border-amber-200 bg-white px-3 py-1.5 text-xs text-amber-950 outline-none focus:border-[#785312] focus:ring-1 focus:ring-[#785312]"
             />
           </div>
         )}
@@ -348,7 +348,7 @@ export function AiEpicAgentPromptModal({
             {/* Stories Box */}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <h4 className="font-semibold text-slate-900 uppercase text-[11px] tracking-wider text-[#80642F]">
+                <h4 className="font-semibold text-slate-900 uppercase text-[11px] tracking-wider text-[#785312]">
                   Feature Stories ({stories.length})
                 </h4>
                 <span className="text-[11px] text-slate-400">Strict verification requirements</span>
@@ -360,7 +360,7 @@ export function AiEpicAgentPromptModal({
                     className="flex flex-col gap-2.5 p-2.5 rounded-lg bg-slate-50 border border-slate-200/80"
                   >
                     <div className="flex items-start gap-2">
-                      <span className="font-mono text-[10px] font-bold text-[#80642F] bg-[rgba(184,148,78,0.12)] px-1.5 py-0.5 rounded shrink-0">
+                      <span className="font-mono text-[10px] font-bold text-[#785312] bg-[rgba(204,160,56,0.12)] px-1.5 py-0.5 rounded shrink-0">
                         Story {idx + 1}
                       </span>
                       <span className="text-slate-800 font-semibold">{story.title}</span>

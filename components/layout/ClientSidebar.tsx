@@ -127,7 +127,7 @@ export function ClientSidebar({
       onClick: closeMobile,
       badge:
         counts.needsAction > 0 ? (
-          <span className="rounded-full bg-[#B8944E] px-1.5 py-0.2 text-[9px] font-bold text-white shadow-2xs">
+          <span className="rounded-full bg-[#CCA038] px-1.5 py-0.2 text-[9px] font-bold text-white shadow-2xs">
             {counts.needsAction}
           </span>
         ) : undefined,
@@ -141,7 +141,7 @@ export function ClientSidebar({
       onClick: closeMobile,
       badge:
         counts.feedback > 0 ? (
-          <span className="rounded-full bg-[#B8944E] px-1.5 py-0.2 text-[9px] font-bold text-white shadow-2xs">
+          <span className="rounded-full bg-[#CCA038] px-1.5 py-0.2 text-[9px] font-bold text-white shadow-2xs">
             {counts.feedback}
           </span>
         ) : undefined,
@@ -180,7 +180,7 @@ export function ClientSidebar({
       isActive: pathname === "/client/reviews",
       badge:
         counts.needsAction > 0 ? (
-          <span className="rounded-full bg-[#B8944E] px-1.5 py-0.2 text-[10px] font-bold text-white shadow-2xs">
+          <span className="rounded-full bg-[#CCA038] px-1.5 py-0.2 text-[10px] font-bold text-white shadow-2xs">
             {counts.needsAction}
           </span>
         ) : undefined,
@@ -193,7 +193,7 @@ export function ClientSidebar({
       isActive: pathname === "/client/feedback",
       badge:
         counts.feedback > 0 ? (
-          <span className="rounded-full bg-[#B8944E] px-1.5 py-0.2 text-[10px] font-bold text-white shadow-2xs">
+          <span className="rounded-full bg-[#CCA038] px-1.5 py-0.2 text-[10px] font-bold text-white shadow-2xs">
             {counts.feedback}
           </span>
         ) : undefined,
@@ -354,7 +354,7 @@ export function ClientSidebar({
   const renderNavContent = () => (
     <div className="flex h-full flex-col bg-transparent">
       {/* Brand Header */}
-      <div className="flex h-[76px] items-center border-b border-[rgba(74,61,100,0.08)] px-5 bg-transparent">
+      <div className="flex h-[76px] items-center border-b border-[rgba(15,23,42,0.08)] px-5 bg-transparent">
         <StoryBoardLogo size="md" variant="full" badge="Client Portal" />
       </div>
 
@@ -362,8 +362,8 @@ export function ClientSidebar({
       <div className="flex-1 overflow-y-auto px-3 py-4 space-y-6">
         {/* Project Section */}
         <div>
-          <div className="px-3 text-[11px] font-semibold uppercase tracking-wider text-[#80642F]/90 mb-1 flex items-center gap-1.5">
-            <FolderKanban size={13} className="text-[#B8944E]" />
+          <div className="px-3 text-[11px] font-semibold uppercase tracking-wider text-[#785312]/90 mb-1 flex items-center gap-1.5">
+            <FolderKanban size={13} className="text-[#CCA038]" />
             <span className="truncate">{projectName}</span>
           </div>
           <div className="space-y-0.5 mt-2">
@@ -371,13 +371,13 @@ export function ClientSidebar({
               href="/client"
               className={`flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-medium transition ${
                 pathname === "/client"
-                  ? "bg-[rgba(184,148,78,0.12)] text-[#80642F] font-semibold shadow-xs"
-                  : "text-[#706C7D] hover:bg-white/60 hover:text-[#252331]"
+                  ? "bg-[rgba(204,160,56,0.12)] text-[#785312] font-semibold shadow-xs"
+                  : "text-[#334155] hover:bg-white/60 hover:text-[#0F172A]"
               }`}
             >
               <LayoutDashboard
                 size={16}
-                className={pathname === "/client" ? "text-[#B8944E]" : "text-[#9994A5]"}
+                className={pathname === "/client" ? "text-[#CCA038]" : "text-[#64748B]"}
               />
               <span>Overview</span>
             </Link>
@@ -386,13 +386,13 @@ export function ClientSidebar({
               href="/client/estimate"
               className={`flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-medium transition ${
                 pathname === "/client/estimate"
-                  ? "bg-[rgba(184,148,78,0.12)] text-[#80642F] font-semibold shadow-xs"
-                  : "text-[#706C7D] hover:bg-white/60 hover:text-[#252331]"
+                  ? "bg-[rgba(204,160,56,0.12)] text-[#785312] font-semibold shadow-xs"
+                  : "text-[#334155] hover:bg-white/60 hover:text-[#0F172A]"
               }`}
             >
               <Coins
                 size={16}
-                className={pathname === "/client/estimate" ? "text-[#B8944E]" : "text-[#9994A5]"}
+                className={pathname === "/client/estimate" ? "text-[#CCA038]" : "text-[#64748B]"}
               />
               <span>Quotation & Scope</span>
             </Link>
@@ -401,13 +401,13 @@ export function ClientSidebar({
               href="/client/notes"
               className={`flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-medium transition ${
                 pathname === "/client/notes"
-                  ? "bg-[rgba(184,148,78,0.12)] text-[#80642F] font-semibold shadow-xs"
-                  : "text-[#706C7D] hover:bg-white/60 hover:text-[#252331]"
+                  ? "bg-[rgba(204,160,56,0.12)] text-[#785312] font-semibold shadow-xs"
+                  : "text-[#334155] hover:bg-white/60 hover:text-[#0F172A]"
               }`}
             >
               <FileText
                 size={16}
-                className={pathname === "/client/notes" ? "text-[#B8944E]" : "text-[#9994A5]"}
+                className={pathname === "/client/notes" ? "text-[#CCA038]" : "text-[#64748B]"}
               />
               <span>Meeting Notes</span>
             </Link>
@@ -416,7 +416,7 @@ export function ClientSidebar({
 
         {/* Review Section */}
         <div>
-          <div className="px-3 text-[10px] font-semibold uppercase tracking-wider text-[#9994A5] mb-2">
+          <div className="px-3 text-[10px] font-semibold uppercase tracking-wider text-[#64748B] mb-2">
             Review
           </div>
           <div className="space-y-0.5">
@@ -425,19 +425,19 @@ export function ClientSidebar({
               href="/client/reviews"
               className={`flex items-center justify-between rounded-xl px-3 py-2 text-sm font-medium transition ${
                 pathname === "/client/reviews"
-                  ? "bg-[rgba(184,148,78,0.12)] text-[#80642F] font-semibold shadow-xs"
-                  : "text-[#706C7D] hover:bg-white/60 hover:text-[#252331]"
+                  ? "bg-[rgba(204,160,56,0.12)] text-[#785312] font-semibold shadow-xs"
+                  : "text-[#334155] hover:bg-white/60 hover:text-[#0F172A]"
               }`}
             >
               <div className="flex items-center gap-2.5 min-w-0">
                 <Clock
                   size={16}
-                  className={pathname === "/client/reviews" ? "text-[#B8944E]" : "text-[#9994A5]"}
+                  className={pathname === "/client/reviews" ? "text-[#CCA038]" : "text-[#64748B]"}
                 />
                 <span className="truncate">Needs Your Action</span>
               </div>
               {counts.needsAction > 0 && (
-                <span className="rounded-full bg-[#B8944E] px-2 py-0.5 text-[10px] font-bold text-white shadow-xs">
+                <span className="rounded-full bg-[#CCA038] px-2 py-0.5 text-[10px] font-bold text-white shadow-xs">
                   {counts.needsAction}
                 </span>
               )}
@@ -448,14 +448,14 @@ export function ClientSidebar({
               href="/client/changes"
               className={`flex items-center justify-between rounded-xl px-3 py-2 text-sm font-medium transition ${
                 pathname === "/client/changes"
-                  ? "bg-[rgba(184,148,78,0.12)] text-[#80642F] font-semibold shadow-xs"
-                  : "text-[#706C7D] hover:bg-white/60 hover:text-[#252331]"
+                  ? "bg-[rgba(204,160,56,0.12)] text-[#785312] font-semibold shadow-xs"
+                  : "text-[#334155] hover:bg-white/60 hover:text-[#0F172A]"
               }`}
             >
               <div className="flex items-center gap-2.5 min-w-0">
                 <AlertCircle
                   size={16}
-                  className={pathname === "/client/changes" ? "text-[#B8944E]" : "text-[#9994A5]"}
+                  className={pathname === "/client/changes" ? "text-[#CCA038]" : "text-[#64748B]"}
                 />
                 <span className="truncate">Changes Requested</span>
               </div>
@@ -471,14 +471,14 @@ export function ClientSidebar({
               href="/client/approved"
               className={`flex items-center justify-between rounded-xl px-3 py-2 text-sm font-medium transition ${
                 pathname === "/client/approved"
-                  ? "bg-[rgba(184,148,78,0.12)] text-[#80642F] font-semibold shadow-xs"
-                  : "text-[#706C7D] hover:bg-white/60 hover:text-[#252331]"
+                  ? "bg-[rgba(204,160,56,0.12)] text-[#785312] font-semibold shadow-xs"
+                  : "text-[#334155] hover:bg-white/60 hover:text-[#0F172A]"
               }`}
             >
               <div className="flex items-center gap-2.5 min-w-0">
                 <CheckCircle2
                   size={16}
-                  className={pathname === "/client/approved" ? "text-emerald-600" : "text-[#9994A5]"}
+                  className={pathname === "/client/approved" ? "text-emerald-600" : "text-[#64748B]"}
                 />
                 <span className="truncate">Approved</span>
               </div>
@@ -494,14 +494,14 @@ export function ClientSidebar({
               href="/client/stories"
               className={`flex items-center justify-between rounded-xl px-3 py-2 text-sm font-medium transition ${
                 pathname === "/client/stories"
-                  ? "bg-[rgba(184,148,78,0.12)] text-[#80642F] font-semibold shadow-xs"
-                  : "text-[#706C7D] hover:bg-white/60 hover:text-[#252331]"
+                  ? "bg-[rgba(204,160,56,0.12)] text-[#785312] font-semibold shadow-xs"
+                  : "text-[#334155] hover:bg-white/60 hover:text-[#0F172A]"
               }`}
             >
               <div className="flex items-center gap-2.5 min-w-0">
                 <Layers
                   size={16}
-                  className={pathname === "/client/stories" ? "text-[#B8944E]" : "text-[#9994A5]"}
+                  className={pathname === "/client/stories" ? "text-[#CCA038]" : "text-[#64748B]"}
                 />
                 <span className="truncate">All Stories</span>
               </div>
@@ -515,7 +515,7 @@ export function ClientSidebar({
         {/* Epics Navigation Section */}
         {epics.length > 0 && (
           <div>
-            <div className="px-3 text-[10px] font-semibold uppercase tracking-wider text-[#9994A5] mb-2 flex items-center justify-between">
+            <div className="px-3 text-[10px] font-semibold uppercase tracking-wider text-[#64748B] mb-2 flex items-center justify-between">
               <span>Epics</span>
               <span className="text-[10px] font-normal text-zinc-400">{epics.length}</span>
             </div>
@@ -524,14 +524,14 @@ export function ClientSidebar({
                 <a
                   key={epic.id}
                   href={`/client#epic-folder-${epic.id}`}
-                  className="flex items-center justify-between rounded-xl px-3 py-2 text-xs text-[#706C7D] hover:bg-white/60 hover:text-[#252331] transition group"
+                  className="flex items-center justify-between rounded-xl px-3 py-2 text-xs text-[#334155] hover:bg-white/60 hover:text-[#0F172A] transition group"
                   title={epic.name}
                 >
                   <div className="flex items-center gap-2 min-w-0">
-                    <Bookmark size={13} className="text-[#9994A5] group-hover:text-[#B8944E] shrink-0" />
+                    <Bookmark size={13} className="text-[#64748B] group-hover:text-[#CCA038] shrink-0" />
                     <span className="truncate">{epic.name}</span>
                   </div>
-                  <span className="rounded-full bg-zinc-100 px-1.5 py-0.2 text-[10px] font-medium text-zinc-500 group-hover:bg-[#B8944E]/10 group-hover:text-[#80642F]">
+                  <span className="rounded-full bg-zinc-100 px-1.5 py-0.2 text-[10px] font-medium text-zinc-500 group-hover:bg-[#CCA038]/10 group-hover:text-[#785312]">
                     {epic.storyCount}
                   </span>
                 </a>
@@ -542,7 +542,7 @@ export function ClientSidebar({
 
         {/* Discussion / Feedback */}
         <div>
-          <div className="px-3 text-[10px] font-semibold uppercase tracking-wider text-[#9994A5] mb-2">
+          <div className="px-3 text-[10px] font-semibold uppercase tracking-wider text-[#64748B] mb-2">
             Collaboration
           </div>
           <div className="space-y-0.5">
@@ -550,19 +550,19 @@ export function ClientSidebar({
               href="/client/feedback"
               className={`flex items-center justify-between rounded-xl px-3 py-2 text-sm font-medium transition ${
                 pathname === "/client/feedback"
-                  ? "bg-[rgba(184,148,78,0.12)] text-[#80642F] font-semibold shadow-xs"
-                  : "text-[#706C7D] hover:bg-white/60 hover:text-[#252331]"
+                  ? "bg-[rgba(204,160,56,0.12)] text-[#785312] font-semibold shadow-xs"
+                  : "text-[#334155] hover:bg-white/60 hover:text-[#0F172A]"
               }`}
             >
               <div className="flex items-center gap-2.5 min-w-0">
                 <MessageSquare
                   size={16}
-                  className={pathname === "/client/feedback" ? "text-[#B8944E]" : "text-[#9994A5]"}
+                  className={pathname === "/client/feedback" ? "text-[#CCA038]" : "text-[#64748B]"}
                 />
                 <span className="truncate">Feedback</span>
               </div>
               {counts.feedback > 0 && (
-                <span className="rounded-full bg-[#B8944E] px-2 py-0.5 text-[10px] font-bold text-white shadow-xs">
+                <span className="rounded-full bg-[#CCA038] px-2 py-0.5 text-[10px] font-bold text-white shadow-xs">
                   {counts.feedback}
                 </span>
               )}
@@ -572,39 +572,39 @@ export function ClientSidebar({
       </div>
 
       {/* User Profile & Sign Out Footer */}
-      <div className="border-t border-[rgba(74,61,100,0.08)] p-3 bg-white/40 space-y-2">
+      <div className="border-t border-[rgba(15,23,42,0.08)] p-3 bg-white/40 space-y-2">
         {onToggleLayout && (
           <button
             type="button"
             onClick={onToggleLayout}
             title="Switch to macOS Bottom Dock"
             aria-label="Switch to macOS Bottom Dock"
-            className="flex w-full items-center justify-between gap-2 rounded-xl px-2.5 py-2 text-xs font-semibold text-zinc-600 hover:text-zinc-950 bg-white/70 hover:bg-[rgba(184,148,78,0.08)] border border-zinc-200/80 hover:border-[#B8944E]/40 transition-all cursor-pointer group shadow-2xs"
+            className="flex w-full items-center justify-between gap-2 rounded-xl px-2.5 py-2 text-xs font-semibold text-zinc-600 hover:text-zinc-950 bg-white/70 hover:bg-[rgba(204,160,56,0.08)] border border-zinc-200/80 hover:border-[#CCA038]/40 transition-all cursor-pointer group shadow-2xs"
           >
             <div className="flex items-center gap-2 min-w-0">
-              <PanelBottom size={15} className="text-zinc-500 group-hover:text-[#B8944E] transition-colors shrink-0" />
+              <PanelBottom size={15} className="text-zinc-500 group-hover:text-[#CCA038] transition-colors shrink-0" />
               <span className="truncate">Dock Layout</span>
             </div>
-            <span className="text-[10px] font-bold text-zinc-400 group-hover:text-[#80642F] uppercase tracking-wider shrink-0">Switch</span>
+            <span className="text-[10px] font-bold text-zinc-400 group-hover:text-[#785312] uppercase tracking-wider shrink-0">Switch</span>
           </button>
         )}
 
-        <div className="flex items-center justify-between gap-2 rounded-xl p-2 bg-white/70 border border-[rgba(74,61,100,0.06)] shadow-2xs">
+        <div className="flex items-center justify-between gap-2 rounded-xl p-2 bg-white/70 border border-[rgba(15,23,42,0.06)] shadow-2xs">
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-[rgba(184,148,78,0.14)] text-xs font-bold text-[#80642F] border border-[rgba(184,148,78,0.22)]">
+            <div className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-[rgba(204,160,56,0.14)] text-xs font-bold text-[#785312] border border-[rgba(204,160,56,0.22)]">
               {initials}
             </div>
             <div className="min-w-0">
-              <p className="truncate text-xs font-semibold text-[#252331]">
+              <p className="truncate text-xs font-semibold text-[#0F172A]">
                 {clientName}
               </p>
-              <p className="text-[10px] text-[#80642F] font-medium">Client Reviewer</p>
+              <p className="text-[10px] text-[#785312] font-medium">Client Reviewer</p>
             </div>
           </div>
           <button
             type="button"
             onClick={handleSignOut}
-            className="grid h-8 w-8 shrink-0 place-items-center rounded-lg text-[#9994A5] hover:bg-rose-50 hover:text-rose-600 transition cursor-pointer"
+            className="grid h-8 w-8 shrink-0 place-items-center rounded-lg text-[#64748B] hover:bg-rose-50 hover:text-rose-600 transition cursor-pointer"
             title="Sign out"
             aria-label="Sign out"
           >
@@ -635,7 +635,7 @@ export function ClientSidebar({
 
       {/* Desktop Persistent Sidebar */}
       {desktopNavMode === "sidebar" && (
-        <aside className="fixed inset-y-0 left-0 z-30 hidden w-60 border-r border-[rgba(74,61,100,0.08)] bg-white/68 backdrop-blur-[20px] md:block">
+        <aside className="fixed inset-y-0 left-0 z-30 hidden w-60 border-r border-[rgba(15,23,42,0.08)] bg-white/68 backdrop-blur-[20px] md:block">
           {renderNavContent()}
         </aside>
       )}

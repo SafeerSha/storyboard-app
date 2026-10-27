@@ -27,7 +27,7 @@ export function renderEmailBase({
   badgeText = "Formal Quotation",
   secondaryHtml,
 }: EmailBaseProps): string {
-  const brandGold = "#B8944E";
+  const brandGold = "#CCA038";
   const brandDark = "#09090b";
 
   const safeTitle = escapeHtml(title);

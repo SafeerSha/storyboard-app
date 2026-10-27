@@ -277,26 +277,26 @@ function formatEpicDisplayName(name: string): string {
       />
 
       {/* Modal Dialog Card */}
-      <div className="relative w-full max-w-5xl rounded-2xl bg-white border border-[rgba(74,61,100,0.12)] shadow-2xl overflow-hidden flex flex-col max-h-[92vh] z-10 animate-in fade-in-50 zoom-in-95 duration-200">
+      <div className="relative w-full max-w-5xl rounded-2xl bg-white border border-[rgba(15,23,42,0.12)] shadow-2xl overflow-hidden flex flex-col max-h-[92vh] z-10 animate-in fade-in-50 zoom-in-95 duration-200">
         {/* Top Header */}
-        <div className="flex items-center justify-between px-5 sm:px-6 py-3.5 sm:py-4 border-b border-[rgba(74,61,100,0.08)] bg-gradient-to-r from-amber-50/60 via-white to-amber-50/30">
+        <div className="flex items-center justify-between px-5 sm:px-6 py-3.5 sm:py-4 border-b border-[rgba(15,23,42,0.08)] bg-gradient-to-r from-amber-50/60 via-white to-amber-50/30">
           <div className="flex items-center gap-3 min-w-0 flex-1 mr-3">
-            <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[rgba(184,148,78,0.12)] text-[#80642F] border border-[rgba(184,148,78,0.22)]">
+            <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[rgba(204,160,56,0.12)] text-[#785312] border border-[rgba(204,160,56,0.22)]">
               <FileText size={18} />
             </div>
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2 mb-0.5">
-                <span className="inline-flex items-center gap-1 rounded-full bg-[rgba(184,148,78,0.12)] px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#80642F] border border-[rgba(184,148,78,0.20)] shrink-0">
+                <span className="inline-flex items-center gap-1 rounded-full bg-[rgba(204,160,56,0.12)] px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#785312] border border-[rgba(204,160,56,0.20)] shrink-0">
                   <Layers size={10} />
                   <span>Epic Notes</span>
                 </span>
-                <span className="text-[rgba(74,61,100,0.25)] text-xs">•</span>
-                <span className="text-[11px] font-semibold text-[#706C7D] shrink-0">
+                <span className="text-[rgba(15,23,42,0.25)] text-xs">•</span>
+                <span className="text-[11px] font-semibold text-[#334155] shrink-0">
                   {epicNotes.length} {epicNotes.length === 1 ? "note" : "notes"}
                 </span>
               </div>
               <h2
-                className="text-base sm:text-lg font-bold text-[#252331] tracking-tight line-clamp-1 leading-snug"
+                className="text-base sm:text-lg font-bold text-[#0F172A] tracking-tight line-clamp-1 leading-snug"
                 title={formattedEpicName}
               >
                 {formattedEpicName}
@@ -318,7 +318,7 @@ function formatEpicDisplayName(name: string): string {
             <button
               type="button"
               onClick={onClose}
-              className="grid h-8 w-8 place-items-center rounded-lg text-[#9994A5] hover:bg-neutral-100 hover:text-[#252331] transition"
+              className="grid h-8 w-8 place-items-center rounded-lg text-[#64748B] hover:bg-neutral-100 hover:text-[#0F172A] transition"
               aria-label="Close modal"
             >
               <X size={18} />
@@ -329,17 +329,17 @@ function formatEpicDisplayName(name: string): string {
         {/* Split View: List on left, Editor on right */}
         <div className="grid grid-cols-1 md:grid-cols-[280px_1fr] flex-1 overflow-hidden min-h-[500px]">
           {/* Left Column: Note List */}
-          <div className="border-r border-[rgba(74,61,100,0.08)] bg-[#FAF9FC]/70 flex flex-col h-full overflow-hidden">
+          <div className="border-r border-[rgba(15,23,42,0.08)] bg-[#F8F9FB]/70 flex flex-col h-full overflow-hidden">
             {/* Search */}
-            <div className="p-3 border-b border-[rgba(74,61,100,0.06)]">
+            <div className="p-3 border-b border-[rgba(15,23,42,0.06)]">
               <div className="relative">
-                <Search size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[#9994A5]" />
+                <Search size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[#64748B]" />
                 <input
                   type="text"
                   placeholder="Search epic notes..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full h-8 pl-8 pr-2.5 rounded-xl border border-[rgba(74,61,100,0.10)] bg-white text-xs text-[#252331] outline-none transition focus:border-[#B8944E]"
+                  className="w-full h-8 pl-8 pr-2.5 rounded-xl border border-[rgba(15,23,42,0.10)] bg-white text-xs text-[#0F172A] outline-none transition focus:border-[#CCA038]"
                 />
               </div>
             </div>
@@ -348,10 +348,10 @@ function formatEpicDisplayName(name: string): string {
             <div className="flex-1 overflow-y-auto p-2.5 space-y-2">
               {filteredEpicNotes.length === 0 ? (
                 <div className="py-8 px-4 text-center space-y-2">
-                  <div className="grid h-9 w-9 place-items-center rounded-xl bg-[rgba(184,148,78,0.10)] text-[#80642F] mx-auto border border-[rgba(184,148,78,0.16)]">
+                  <div className="grid h-9 w-9 place-items-center rounded-xl bg-[rgba(204,160,56,0.10)] text-[#785312] mx-auto border border-[rgba(204,160,56,0.16)]">
                     <FileText size={16} />
                   </div>
-                  <p className="text-xs text-[#706C7D]">
+                  <p className="text-xs text-[#334155]">
                     {searchQuery ? "No matching notes found." : "No notes for this epic yet."}
                   </p>
                   {!searchQuery && (
@@ -379,12 +379,12 @@ function formatEpicDisplayName(name: string): string {
                       onClick={() => setActiveNoteId(note.id)}
                       className={`w-full text-left p-3 rounded-xl transition border cursor-pointer ${
                         isSelected
-                          ? "bg-white border-[#B8944E] shadow-sm ring-1 ring-[#B8944E]/20"
-                          : "bg-white/70 border-[rgba(74,61,100,0.08)] hover:bg-white hover:border-[rgba(184,148,78,0.3)]"
+                          ? "bg-white border-[#CCA038] shadow-sm ring-1 ring-[#CCA038]/20"
+                          : "bg-white/70 border-[rgba(15,23,42,0.08)] hover:bg-white hover:border-[rgba(204,160,56,0.3)]"
                       }`}
                     >
                       <div className="flex items-center justify-between gap-1.5 mb-1">
-                        <span className="text-xs font-bold text-[#252331] truncate flex-1">
+                        <span className="text-xs font-bold text-[#0F172A] truncate flex-1">
                           {note.title || "Untitled Note"}
                         </span>
                         {note.is_client_visible ? (
@@ -392,17 +392,17 @@ function formatEpicDisplayName(name: string): string {
                             Client
                           </span>
                         ) : (
-                          <span className="shrink-0 text-[9px] font-medium text-[#9994A5]">
+                          <span className="shrink-0 text-[9px] font-medium text-[#64748B]">
                             Internal
                           </span>
                         )}
                       </div>
 
-                      <p className="text-[11px] text-[#706C7D] line-clamp-2 leading-relaxed">
+                      <p className="text-[11px] text-[#334155] line-clamp-2 leading-relaxed">
                         {note.content || "Empty note content..."}
                       </p>
 
-                      <div className="mt-2 flex items-center justify-between text-[10px] text-[#9994A5]">
+                      <div className="mt-2 flex items-center justify-between text-[10px] text-[#64748B]">
                         <span className="flex items-center gap-1">
                           <Calendar size={10} />
                           {new Date(note.updated_at || note.created_at).toLocaleDateString(undefined, {
@@ -412,7 +412,7 @@ function formatEpicDisplayName(name: string): string {
                         </span>
 
                         {imgCount > 0 && (
-                          <span className="inline-flex items-center gap-0.5 text-[#80642F] font-semibold">
+                          <span className="inline-flex items-center gap-0.5 text-[#785312] font-semibold">
                             <ImageIcon size={10} />
                             {imgCount}
                           </span>
@@ -429,11 +429,11 @@ function formatEpicDisplayName(name: string): string {
           {activeNote ? (
             <div className="flex flex-col h-full overflow-y-auto p-4 sm:p-6 space-y-4">
               {/* Action Toolbar */}
-              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[rgba(74,61,100,0.06)] pb-3">
+              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[rgba(15,23,42,0.06)] pb-3">
                 <div className="flex items-center gap-2">
-                  <span className="text-xs text-[#9994A5] font-medium">
+                  <span className="text-xs text-[#64748B] font-medium">
                     {saveStatus === "saving" ? (
-                      <span className="flex items-center gap-1 text-[#80642F]">
+                      <span className="flex items-center gap-1 text-[#785312]">
                         <Loader2 size={12} className="animate-spin" /> Saving...
                       </span>
                     ) : saveStatus === "unsaved" ? (
@@ -498,17 +498,17 @@ function formatEpicDisplayName(name: string): string {
                     triggerAutoSave(e.target.value, content, tags);
                   }}
                   placeholder="Note Title..."
-                  className="w-full text-lg sm:text-xl font-bold text-[#252331] outline-none placeholder:text-neutral-300 border-b border-transparent focus:border-[rgba(184,148,78,0.3)] pb-1 transition"
+                  className="w-full text-lg sm:text-xl font-bold text-[#0F172A] outline-none placeholder:text-neutral-300 border-b border-transparent focus:border-[rgba(204,160,56,0.3)] pb-1 transition"
                 />
               </div>
 
               {/* Tags Editor */}
               <div className="flex items-center gap-1.5 flex-wrap">
-                <Tag size={12} className="text-[#9994A5]" />
+                <Tag size={12} className="text-[#64748B]" />
                 {tags.map((tag) => (
                   <span
                     key={tag}
-                    className="inline-flex items-center gap-1 rounded-md bg-[rgba(74,61,100,0.06)] px-2 py-0.5 text-[11px] font-medium text-[#706C7D]"
+                    className="inline-flex items-center gap-1 rounded-md bg-[rgba(15,23,42,0.06)] px-2 py-0.5 text-[11px] font-medium text-[#334155]"
                   >
                     #{tag}
                     <button
@@ -542,7 +542,7 @@ function formatEpicDisplayName(name: string): string {
                       }
                     }
                   }}
-                  className="h-6 w-24 text-[11px] bg-transparent outline-none placeholder:text-[#9994A5] text-[#252331]"
+                  className="h-6 w-24 text-[11px] bg-transparent outline-none placeholder:text-[#64748B] text-[#0F172A]"
                 />
               </div>
 
@@ -556,12 +556,12 @@ function formatEpicDisplayName(name: string): string {
                   }}
                   rows={8}
                   placeholder={`Write discussion notes, meeting decisions, or requirements specific to ${formattedEpicName}...`}
-                  className="w-full h-full rounded-xl border border-[rgba(74,61,100,0.10)] p-3.5 text-xs sm:text-sm text-[#252331] outline-none transition focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.15)] leading-relaxed resize-y bg-[#FAF9FC]/40"
+                  className="w-full h-full rounded-xl border border-[rgba(15,23,42,0.10)] p-3.5 text-xs sm:text-sm text-[#0F172A] outline-none transition focus:border-[#CCA038] focus:ring-1 focus:ring-[rgba(204,160,56,0.15)] leading-relaxed resize-y bg-[#F8F9FB]/40"
                 />
               </div>
 
               {/* Note Image Attachments Gallery */}
-              <div className="border-t border-[rgba(74,61,100,0.06)] pt-4">
+              <div className="border-t border-[rgba(15,23,42,0.06)] pt-4">
                 <NoteImageGallery
                   projectId={projectId}
                   noteId={activeNote.id}
@@ -580,11 +580,11 @@ function formatEpicDisplayName(name: string): string {
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center p-8 text-center space-y-3">
-              <div className="grid h-12 w-12 place-items-center rounded-2xl bg-[rgba(184,148,78,0.10)] text-[#80642F] border border-[rgba(184,148,78,0.2)]">
+              <div className="grid h-12 w-12 place-items-center rounded-2xl bg-[rgba(204,160,56,0.10)] text-[#785312] border border-[rgba(204,160,56,0.2)]">
                 <FileText size={22} />
               </div>
-              <h3 className="text-base font-bold text-[#252331]">No Note Selected</h3>
-              <p className="text-xs text-[#706C7D] max-w-sm">
+              <h3 className="text-base font-bold text-[#0F172A]">No Note Selected</h3>
+              <p className="text-xs text-[#334155] max-w-sm">
                 Select a note on the left or create a new note for this epic to record call notes, specs, or attach visual screenshots.
               </p>
               <Button

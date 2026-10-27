@@ -163,7 +163,7 @@ export function TeamSidebar({
       onClick: closeMobile,
       badge:
         assignedProjects.length > 1 ? (
-          <span className="rounded-full bg-[rgba(184,148,78,0.2)] px-1.5 py-0.2 text-[9px] font-bold text-[#80642F]">
+          <span className="rounded-full bg-[rgba(204,160,56,0.2)] px-1.5 py-0.2 text-[9px] font-bold text-[#785312]">
             {assignedProjects.length}
           </span>
         ) : undefined,
@@ -185,7 +185,7 @@ export function TeamSidebar({
       onClick: closeMobile,
       badge:
         pendingReviewsCount > 0 ? (
-          <span className="rounded-full bg-[#80642F] px-1.5 py-0.2 text-[9px] font-bold text-white shadow-2xs">
+          <span className="rounded-full bg-[#785312] px-1.5 py-0.2 text-[9px] font-bold text-white shadow-2xs">
             {pendingReviewsCount}
           </span>
         ) : undefined,
@@ -214,7 +214,7 @@ export function TeamSidebar({
       isActive: pathname === "/team/projects",
       badge:
         assignedProjects.length > 0 ? (
-          <span className="rounded-full bg-[rgba(184,148,78,0.12)] px-1.5 py-0.2 text-[10px] font-bold text-[#80642F]">
+          <span className="rounded-full bg-[rgba(204,160,56,0.12)] px-1.5 py-0.2 text-[10px] font-bold text-[#785312]">
             {assignedProjects.length}
           </span>
         ) : undefined,
@@ -234,7 +234,7 @@ export function TeamSidebar({
       isActive: pathname === "/team/reviews",
       badge:
         pendingReviewsCount > 0 ? (
-          <span className="rounded-full bg-[#80642F] px-1.5 py-0.2 text-[10px] font-bold text-white shadow-2xs">
+          <span className="rounded-full bg-[#785312] px-1.5 py-0.2 text-[10px] font-bold text-white shadow-2xs">
             {pendingReviewsCount}
           </span>
         ) : undefined,
@@ -259,7 +259,7 @@ export function TeamSidebar({
       items: [
         {
           id: "sheet-meetings",
-          label: "Meetings & Calls",
+          label: "Meetings",
           href: meetingsHref,
           icon: Calendar,
           isActive: pathname === "/team" && activeTabParam === "meetings",
@@ -305,7 +305,7 @@ export function TeamSidebar({
             <Link
               href="/team/projects"
               onClick={closeMobile}
-              className="text-[11px] font-semibold text-[#80642F] hover:underline"
+              className="text-[11px] font-semibold text-[#785312] hover:underline"
             >
               View All →
             </Link>
@@ -323,7 +323,7 @@ export function TeamSidebar({
                   onClick={closeMobile}
                   className={`flex items-center justify-between px-2.5 py-2 rounded-xl text-xs font-semibold transition ${
                     isCurrent
-                      ? "bg-[#80642F] text-white shadow-2xs"
+                      ? "bg-[#785312] text-white shadow-2xs"
                       : "text-zinc-800 hover:bg-zinc-100"
                   }`}
                 >
@@ -457,14 +457,14 @@ export function TeamSidebar({
   const renderNavContent = () => (
     <div className="flex h-full flex-col bg-transparent">
       {/* Brand Header */}
-      <div className="flex h-[76px] items-center border-b border-[rgba(74,61,100,0.08)] px-5 bg-transparent">
+      <div className="flex h-[76px] items-center border-b border-[rgba(15,23,42,0.08)] px-5 bg-transparent">
         <StoryBoardLogo size="md" variant="full" badge="Team" />
       </div>
 
       {/* Assigned Project Scope Indicator & Switcher */}
       <div className="px-3 pt-4 pb-2 relative" ref={switcherRef}>
         {assignedProjects.length > 1 ? (
-          <div className="rounded-xl border border-[rgba(74,61,100,0.08)] bg-white/80 p-2.5 shadow-glass backdrop-blur-md transition-all hover:border-[#B8944E]/40">
+          <div className="rounded-xl border border-[rgba(15,23,42,0.08)] bg-white/80 p-2.5 shadow-glass backdrop-blur-md transition-all hover:border-[#CCA038]/40">
             <button
               type="button"
               onClick={() => setProjectSwitcherOpen((prev) => !prev)}
@@ -472,26 +472,26 @@ export function TeamSidebar({
               title="Click to switch project"
             >
               <div className="flex items-center gap-2.5 min-w-0 flex-1">
-                <div className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-[rgba(184,148,78,0.12)] text-[11px] font-bold text-[#80642F]">
+                <div className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-[rgba(204,160,56,0.12)] text-[11px] font-bold text-[#785312]">
                   {projectName.slice(0, 1).toUpperCase()}
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center justify-between">
-                    <p className="text-[10px] font-semibold uppercase tracking-wider text-[#9994A5]">
+                    <p className="text-[10px] font-semibold uppercase tracking-wider text-[#64748B]">
                       Project ({assignedProjects.length})
                     </p>
                   </div>
-                  <p className="truncate text-xs font-semibold text-[#252331] group-hover:text-[#80642F] transition-colors">
+                  <p className="truncate text-xs font-semibold text-[#0F172A] group-hover:text-[#785312] transition-colors">
                     {projectName}
                   </p>
                 </div>
               </div>
-              <ChevronsUpDown size={14} className="text-[#9994A5] group-hover:text-[#80642F] shrink-0 ml-1" />
+              <ChevronsUpDown size={14} className="text-[#64748B] group-hover:text-[#785312] shrink-0 ml-1" />
             </button>
 
             {/* Switcher Dropdown Popover */}
             {projectSwitcherOpen && (
-              <div className="absolute left-3 right-3 top-full mt-1.5 rounded-xl border border-[rgba(74,61,100,0.12)] bg-white/95 backdrop-blur-xl p-2 shadow-xl z-50 divide-y divide-zinc-100">
+              <div className="absolute left-3 right-3 top-full mt-1.5 rounded-xl border border-[rgba(15,23,42,0.12)] bg-white/95 backdrop-blur-xl p-2 shadow-xl z-50 divide-y divide-zinc-100">
                 {assignedProjects.length > 4 && (
                   <div className="pb-1.5">
                     <div className="relative">
@@ -501,7 +501,7 @@ export function TeamSidebar({
                         placeholder="Search projects..."
                         value={projectSearch}
                         onChange={(e) => setProjectSearch(e.target.value)}
-                        className="w-full pl-6 pr-2 py-1 text-xs rounded-md bg-zinc-100 border-none focus:outline-none focus:ring-1 focus:ring-[#B8944E]"
+                        className="w-full pl-6 pr-2 py-1 text-xs rounded-md bg-zinc-100 border-none focus:outline-none focus:ring-1 focus:ring-[#CCA038]"
                       />
                     </div>
                   </div>
@@ -520,12 +520,12 @@ export function TeamSidebar({
                         onClick={() => handleSelectProject(p.id)}
                         className={`w-full flex items-center justify-between px-2 py-1.5 rounded-lg text-xs font-medium text-left transition cursor-pointer ${
                           isCurrent
-                            ? "bg-[rgba(184,148,78,0.12)] text-[#80642F] font-semibold"
-                            : "text-[#252331] hover:bg-zinc-100"
+                            ? "bg-[rgba(204,160,56,0.12)] text-[#785312] font-semibold"
+                            : "text-[#0F172A] hover:bg-zinc-100"
                         }`}
                       >
                         <span className="truncate">{p.name}</span>
-                        {isCurrent && <Check size={12} className="text-[#80642F] shrink-0 ml-1" />}
+                        {isCurrent && <Check size={12} className="text-[#785312] shrink-0 ml-1" />}
                       </button>
                     );
                   })}
@@ -538,7 +538,7 @@ export function TeamSidebar({
                   <Link
                     href="/team/projects"
                     onClick={() => setProjectSwitcherOpen(false)}
-                    className="flex items-center justify-between px-2 py-1 rounded-md text-[11px] font-semibold text-[#80642F] hover:bg-[rgba(184,148,78,0.08)] transition"
+                    className="flex items-center justify-between px-2 py-1 rounded-md text-[11px] font-semibold text-[#785312] hover:bg-[rgba(204,160,56,0.08)] transition"
                   >
                     <span>View all projects cards</span>
                     <span>→</span>
@@ -548,16 +548,16 @@ export function TeamSidebar({
             )}
           </div>
         ) : (
-          <div className="rounded-xl border border-[rgba(74,61,100,0.08)] bg-white/80 p-3 shadow-glass backdrop-blur-md">
+          <div className="rounded-xl border border-[rgba(15,23,42,0.08)] bg-white/80 p-3 shadow-glass backdrop-blur-md">
             <div className="flex items-center gap-2.5">
-              <div className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-[rgba(46,139,112,0.12)] text-[11px] font-bold text-[#2E8B70]">
+              <div className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-[rgba(5,150,105,0.12)] text-[11px] font-bold text-[#059669]">
                 {projectName.slice(0, 1).toUpperCase()}
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-[10px] font-semibold uppercase tracking-wider text-[#9994A5]">
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-[#64748B]">
                   Assigned Project
                 </p>
-                <p className="truncate text-xs sm:text-sm font-semibold text-[#252331]">
+                <p className="truncate text-xs sm:text-sm font-semibold text-[#0F172A]">
                   {projectName}
                 </p>
               </div>
@@ -570,7 +570,7 @@ export function TeamSidebar({
       <div className="flex-1 overflow-y-auto px-2.5 py-3 space-y-4">
         {/* TEAM group */}
         <div>
-          <p className="px-2.5 pb-1.5 text-[11px] font-semibold uppercase tracking-wider text-[#9994A5]">
+          <p className="px-2.5 pb-1.5 text-[11px] font-semibold uppercase tracking-wider text-[#64748B]">
             NAVIGATION
           </p>
           <nav className="space-y-0.5">
@@ -579,19 +579,19 @@ export function TeamSidebar({
               href="/team/projects"
               className={`flex items-center justify-between rounded-lg px-2.5 py-1.5 text-xs sm:text-sm transition-colors ${
                 pathname === "/team/projects"
-                  ? "bg-[rgba(184,148,78,0.09)] text-[#80642F] font-medium border border-[rgba(184,148,78,0.12)]"
-                  : "text-[#706C7D] font-medium hover:bg-[rgba(184,148,78,0.04)] hover:text-[#80642F] border border-transparent"
+                  ? "bg-[rgba(204,160,56,0.09)] text-[#785312] font-medium border border-[rgba(204,160,56,0.12)]"
+                  : "text-[#334155] font-medium hover:bg-[rgba(204,160,56,0.04)] hover:text-[#785312] border border-transparent"
               }`}
             >
               <div className="flex items-center gap-2.5 min-w-0">
                 <FolderKanban
                   size={16}
-                  className={pathname === "/team/projects" ? "text-[#B8944E]" : "text-[#9994A5]"}
+                  className={pathname === "/team/projects" ? "text-[#CCA038]" : "text-[#64748B]"}
                 />
                 <span className="truncate">All Projects</span>
               </div>
               {assignedProjects.length > 0 && (
-                <span className="rounded-full bg-[rgba(184,148,78,0.12)] px-1.5 py-0.2 text-[10px] font-bold text-[#80642F]">
+                <span className="rounded-full bg-[rgba(204,160,56,0.12)] px-1.5 py-0.2 text-[10px] font-bold text-[#785312]">
                   {assignedProjects.length}
                 </span>
               )}
@@ -602,31 +602,31 @@ export function TeamSidebar({
               href={workspaceHref}
               className={`flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-xs sm:text-sm transition-colors ${
                 pathname === "/team" && (!activeTabParam || activeTabParam === "hierarchy")
-                  ? "bg-[rgba(184,148,78,0.09)] text-[#80642F] font-medium border border-[rgba(184,148,78,0.12)]"
-                  : "text-[#706C7D] font-medium hover:bg-[rgba(184,148,78,0.04)] hover:text-[#80642F] border border-transparent"
+                  ? "bg-[rgba(204,160,56,0.09)] text-[#785312] font-medium border border-[rgba(204,160,56,0.12)]"
+                  : "text-[#334155] font-medium hover:bg-[rgba(204,160,56,0.04)] hover:text-[#785312] border border-transparent"
               }`}
             >
               <Layers
                 size={16}
-                className={pathname === "/team" && (!activeTabParam || activeTabParam === "hierarchy") ? "text-[#B8944E]" : "text-[#9994A5]"}
+                className={pathname === "/team" && (!activeTabParam || activeTabParam === "hierarchy") ? "text-[#CCA038]" : "text-[#64748B]"}
               />
               <span className="truncate">Workspace</span>
             </Link>
 
-            {/* Meetings & Calls */}
+            {/* Meetings */}
             <Link
               href={meetingsHref}
               className={`flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-xs sm:text-sm transition-colors ${
                 pathname === "/team" && activeTabParam === "meetings"
-                  ? "bg-[rgba(184,148,78,0.09)] text-[#80642F] font-medium border border-[rgba(184,148,78,0.12)]"
-                  : "text-[#706C7D] font-medium hover:bg-[rgba(184,148,78,0.04)] hover:text-[#80642F] border border-transparent"
+                  ? "bg-[rgba(204,160,56,0.09)] text-[#785312] font-medium border border-[rgba(204,160,56,0.12)]"
+                  : "text-[#334155] font-medium hover:bg-[rgba(204,160,56,0.04)] hover:text-[#785312] border border-transparent"
               }`}
             >
               <Calendar
                 size={16}
-                className={pathname === "/team" && activeTabParam === "meetings" ? "text-[#B8944E]" : "text-[#9994A5]"}
+                className={pathname === "/team" && activeTabParam === "meetings" ? "text-[#CCA038]" : "text-[#64748B]"}
               />
-              <span className="truncate">Meetings & Calls</span>
+              <span className="truncate">Meetings</span>
             </Link>
 
             {/* My Remuneration & Payouts */}
@@ -634,13 +634,13 @@ export function TeamSidebar({
               href={remunerationHref}
               className={`flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-xs sm:text-sm transition-colors ${
                 pathname === "/team" && activeTabParam === "remuneration"
-                  ? "bg-[rgba(184,148,78,0.09)] text-[#80642F] font-medium border border-[rgba(184,148,78,0.12)]"
-                  : "text-[#706C7D] font-medium hover:bg-[rgba(184,148,78,0.04)] hover:text-[#80642F] border border-transparent"
+                  ? "bg-[rgba(204,160,56,0.09)] text-[#785312] font-medium border border-[rgba(204,160,56,0.12)]"
+                  : "text-[#334155] font-medium hover:bg-[rgba(204,160,56,0.04)] hover:text-[#785312] border border-transparent"
               }`}
             >
               <Receipt
                 size={16}
-                className={pathname === "/team" && activeTabParam === "remuneration" ? "text-[#B8944E]" : "text-[#9994A5]"}
+                className={pathname === "/team" && activeTabParam === "remuneration" ? "text-[#CCA038]" : "text-[#64748B]"}
               />
               <span className="truncate">My Remuneration</span>
             </Link>
@@ -650,19 +650,19 @@ export function TeamSidebar({
               href="/team/reviews"
               className={`flex items-center justify-between rounded-lg px-2.5 py-1.5 text-xs sm:text-sm transition-colors ${
                 pathname === "/team/reviews"
-                  ? "bg-[rgba(184,148,78,0.09)] text-[#80642F] font-medium border border-[rgba(184,148,78,0.12)]"
-                  : "text-[#706C7D] font-medium hover:bg-[rgba(184,148,78,0.04)] hover:text-[#80642F] border border-transparent"
+                  ? "bg-[rgba(204,160,56,0.09)] text-[#785312] font-medium border border-[rgba(204,160,56,0.12)]"
+                  : "text-[#334155] font-medium hover:bg-[rgba(204,160,56,0.04)] hover:text-[#785312] border border-transparent"
               }`}
             >
               <div className="flex items-center gap-2.5 min-w-0">
                 <ClipboardCheck
                   size={16}
-                  className={pathname === "/team/reviews" ? "text-[#B8944E]" : "text-[#9994A5]"}
+                  className={pathname === "/team/reviews" ? "text-[#CCA038]" : "text-[#64748B]"}
                 />
                 <span className="truncate">My Reviews</span>
               </div>
               {pendingReviewsCount > 0 && (
-                <span className="rounded-full bg-[#80642F] px-1.5 py-0.2 text-[10px] font-bold text-white shadow-2xs">
+                <span className="rounded-full bg-[#785312] px-1.5 py-0.2 text-[10px] font-bold text-white shadow-2xs">
                   {pendingReviewsCount}
                 </span>
               )}
@@ -673,13 +673,13 @@ export function TeamSidebar({
                 href="/inbox"
                 className={`flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-xs sm:text-sm transition-colors ${
                   pathname.startsWith("/inbox")
-                    ? "bg-[rgba(184,148,78,0.09)] text-[#80642F] font-medium border border-[rgba(184,148,78,0.12)]"
-                    : "text-[#706C7D] font-medium hover:bg-[rgba(184,148,78,0.04)] hover:text-[#80642F] border border-transparent"
+                    ? "bg-[rgba(204,160,56,0.09)] text-[#785312] font-medium border border-[rgba(204,160,56,0.12)]"
+                    : "text-[#334155] font-medium hover:bg-[rgba(204,160,56,0.04)] hover:text-[#785312] border border-transparent"
                 }`}
               >
                 <Layers
                   size={16}
-                  className={pathname.startsWith("/inbox") ? "text-[#B8944E]" : "text-[#9994A5]"}
+                  className={pathname.startsWith("/inbox") ? "text-[#CCA038]" : "text-[#64748B]"}
                 />
                 <span className="truncate">Idea Inbox</span>
               </Link>
@@ -690,7 +690,7 @@ export function TeamSidebar({
         {/* EPICS group for Active Project */}
         {epics.length > 0 && (
           <div>
-            <div className="px-2.5 pb-1.5 text-[11px] font-semibold uppercase tracking-wider text-[#9994A5] flex items-center justify-between">
+            <div className="px-2.5 pb-1.5 text-[11px] font-semibold uppercase tracking-wider text-[#64748B] flex items-center justify-between">
               <span>EPICS</span>
               <span className="text-[10px] text-zinc-400 font-normal">{epics.length}</span>
             </div>
@@ -699,11 +699,11 @@ export function TeamSidebar({
                 <a
                   key={epic.id}
                   href={`/team?projectId=${activeProjectId}#epic-folder-${epic.id}`}
-                  className="flex items-center justify-between rounded-lg px-2.5 py-1.5 text-xs text-[#706C7D] font-medium hover:bg-[rgba(184,148,78,0.04)] hover:text-[#80642F] border border-transparent transition-colors group"
+                  className="flex items-center justify-between rounded-lg px-2.5 py-1.5 text-xs text-[#334155] font-medium hover:bg-[rgba(204,160,56,0.04)] hover:text-[#785312] border border-transparent transition-colors group"
                   title={epic.name}
                 >
                   <span className="truncate">{epic.name}</span>
-                  <span className="rounded-full bg-zinc-100 px-1.5 py-0.2 text-[10px] font-semibold text-zinc-500 group-hover:bg-[rgba(184,148,78,0.12)] group-hover:text-[#80642F]">
+                  <span className="rounded-full bg-zinc-100 px-1.5 py-0.2 text-[10px] font-semibold text-zinc-500 group-hover:bg-[rgba(204,160,56,0.12)] group-hover:text-[#785312]">
                     {epic.storyCount}
                   </span>
                 </a>
@@ -714,15 +714,15 @@ export function TeamSidebar({
 
         {/* DISCUSSION group */}
         <div>
-          <p className="px-2.5 pb-1.5 text-[11px] font-semibold uppercase tracking-wider text-[#9994A5]">
+          <p className="px-2.5 pb-1.5 text-[11px] font-semibold uppercase tracking-wider text-[#64748B]">
             DISCUSSION
           </p>
           <nav className="space-y-0.5">
             <a
               href="#feedback-section"
-              className="flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-xs sm:text-sm text-[#706C7D] font-medium hover:bg-[rgba(184,148,78,0.04)] hover:text-[#80642F] border border-transparent transition-colors"
+              className="flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-xs sm:text-sm text-[#334155] font-medium hover:bg-[rgba(204,160,56,0.04)] hover:text-[#785312] border border-transparent transition-colors"
             >
-              <MessageSquare size={16} className="text-[#9994A5]" />
+              <MessageSquare size={16} className="text-[#64748B]" />
               <span>Feedback</span>
             </a>
           </nav>
@@ -730,31 +730,31 @@ export function TeamSidebar({
       </div>
 
       {/* User Footer */}
-      <div className="mt-auto border-t border-[rgba(74,61,100,0.08)] p-3 space-y-2">
+      <div className="mt-auto border-t border-[rgba(15,23,42,0.08)] p-3 space-y-2">
         {onToggleLayout && (
           <button
             type="button"
             onClick={onToggleLayout}
             title="Switch to macOS Bottom Dock"
             aria-label="Switch to macOS Bottom Dock"
-            className="flex w-full items-center justify-between gap-2 rounded-xl px-2.5 py-2 text-xs font-semibold text-zinc-600 hover:text-zinc-950 bg-white/60 hover:bg-[rgba(184,148,78,0.08)] border border-zinc-200/80 hover:border-[#B8944E]/40 transition-all cursor-pointer group shadow-2xs"
+            className="flex w-full items-center justify-between gap-2 rounded-xl px-2.5 py-2 text-xs font-semibold text-zinc-600 hover:text-zinc-950 bg-white/60 hover:bg-[rgba(204,160,56,0.08)] border border-zinc-200/80 hover:border-[#CCA038]/40 transition-all cursor-pointer group shadow-2xs"
           >
             <div className="flex items-center gap-2 min-w-0">
-              <PanelBottom size={15} className="text-zinc-500 group-hover:text-[#B8944E] transition-colors shrink-0" />
+              <PanelBottom size={15} className="text-zinc-500 group-hover:text-[#CCA038] transition-colors shrink-0" />
               <span className="truncate">Dock Layout</span>
             </div>
-            <span className="text-[10px] font-bold text-zinc-400 group-hover:text-[#80642F] uppercase tracking-wider shrink-0">Switch</span>
+            <span className="text-[10px] font-bold text-zinc-400 group-hover:text-[#785312] uppercase tracking-wider shrink-0">Switch</span>
           </button>
         )}
 
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2 min-w-0">
-            <div className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-[#B8944E] text-[11px] font-semibold text-white">
+            <div className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-[#CCA038] text-[11px] font-semibold text-white">
               {initials}
             </div>
             <div className="min-w-0">
-              <p className="truncate text-xs font-semibold text-[#252331]">{userName}</p>
-              <p className="text-[10px] text-[#2E8B70] font-medium bg-[rgba(46,139,112,0.08)] px-1.5 py-0.2 rounded border border-[rgba(46,139,112,0.14)] inline-block">Team Member</p>
+              <p className="truncate text-xs font-semibold text-[#0F172A]">{userName}</p>
+              <p className="text-[10px] text-[#059669] font-medium bg-[rgba(5,150,105,0.08)] px-1.5 py-0.2 rounded border border-[rgba(5,150,105,0.14)] inline-block">Team Member</p>
             </div>
           </div>
           <button
@@ -762,7 +762,7 @@ export function TeamSidebar({
             onClick={handleSignOut}
             title="Sign out"
             aria-label="Sign out"
-            className="grid h-7 w-7 shrink-0 place-items-center rounded-lg text-[#9994A5] hover:bg-rose-50/80 hover:text-[#C25D72] transition cursor-pointer"
+            className="grid h-7 w-7 shrink-0 place-items-center rounded-lg text-[#64748B] hover:bg-rose-50/80 hover:text-[#E11D48] transition cursor-pointer"
           >
             <LogOut size={14} />
           </button>
@@ -791,7 +791,7 @@ export function TeamSidebar({
 
       {/* Desktop Classic Sidebar Mode */}
       {desktopNavMode === "sidebar" && (
-        <aside className="hidden md:flex md:w-56 md:flex-col fixed inset-y-0 left-0 z-30 border-r border-[rgba(74,61,100,0.08)] bg-[rgba(250,249,252,0.80)] backdrop-blur-[20px]">
+        <aside className="hidden md:flex md:w-56 md:flex-col fixed inset-y-0 left-0 z-30 border-r border-[rgba(15,23,42,0.08)] bg-[rgba(250,249,252,0.80)] backdrop-blur-[20px]">
           {renderNavContent()}
         </aside>
       )}

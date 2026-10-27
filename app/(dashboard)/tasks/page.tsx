@@ -92,7 +92,7 @@ export default async function TasksPage() {
         title="To-Do Tasks"
         description="Manage and assign project tasks across teams, clients, and user stories."
         badge={
-          <span className="rounded-full bg-[rgba(184,148,78,0.1)] px-2.5 py-0.5 text-xs font-semibold text-[#80642F] border border-[rgba(184,148,78,0.18)]">
+          <span className="rounded-full bg-[rgba(204,160,56,0.1)] px-2.5 py-0.5 text-xs font-semibold text-[#785312] border border-[rgba(204,160,56,0.18)]">
             Workspace Tasks
           </span>
         }

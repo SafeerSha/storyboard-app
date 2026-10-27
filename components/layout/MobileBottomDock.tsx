@@ -73,14 +73,14 @@ export function MobileBottomDock({
               aria-current={item.isActive ? "page" : undefined}
               className={`relative flex items-center gap-1 px-2 sm:px-2.5 py-1.5 rounded-full text-[11px] sm:text-xs font-semibold transition-all duration-150 active:scale-95 cursor-pointer whitespace-nowrap ${
                 item.isActive
-                  ? "bg-[rgba(184,148,78,0.14)] border border-[rgba(184,148,78,0.28)] text-[#664914] shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.75),0_2px_8px_rgba(184,148,78,0.10)] backdrop-blur-md"
+                  ? "bg-gradient-to-b from-white/95 to-[#F9F4EB]/90 border border-[#CCA038]/50 text-[#785312] shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_2px_8px_rgba(120,80,15,0.12)] backdrop-blur-md"
                   : "text-zinc-700 hover:bg-white/30 hover:text-zinc-950 hover:shadow-[inset_0_1px_1px_rgba(255,255,255,0.7)] border border-transparent"
               }`}
             >
               <div className="relative">
                 <Icon
                   size={15}
-                  className={item.isActive ? "text-[#80642F]" : "text-zinc-600"}
+                  className={item.isActive ? "text-[#785312]" : "text-zinc-600"}
                 />
                 {item.badge && (
                   <span className="absolute -top-1.5 -right-2 flex items-center justify-center">
@@ -93,7 +93,7 @@ export function MobileBottomDock({
               </span>
               {item.isActive && (
                 <span
-                  className="h-1.5 w-1.5 rounded-full bg-[#B8944E]"
+                  className="h-1.5 w-1.5 rounded-full bg-gradient-to-b from-[#E2BE68] to-[#996D14] shadow-[0_1px_2px_rgba(0,0,0,0.25)]"
                   aria-hidden="true"
                 />
               )}
@@ -112,19 +112,19 @@ export function MobileBottomDock({
           aria-label="Open full menu"
           className={`relative flex items-center gap-1 px-2 sm:px-2.5 py-1.5 rounded-full text-[11px] sm:text-xs font-semibold transition-all duration-150 active:scale-95 cursor-pointer whitespace-nowrap ${
             menuIsActive
-              ? "bg-[rgba(184,148,78,0.14)] border border-[rgba(184,148,78,0.28)] text-[#664914] shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.75),0_2px_8px_rgba(184,148,78,0.10)] backdrop-blur-md"
+              ? "bg-gradient-to-b from-white/95 to-[#F9F4EB]/90 border border-[#CCA038]/50 text-[#785312] shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_2px_8px_rgba(120,80,15,0.12)] backdrop-blur-md"
               : "text-zinc-700 hover:bg-white/30 hover:text-zinc-950 hover:shadow-[inset_0_1px_1px_rgba(255,255,255,0.7)] border border-transparent"
           }`}
         >
           <MoreHorizontal
             size={17}
-            className={menuIsActive ? "text-[#80642F]" : "text-zinc-600"}
+            className={menuIsActive ? "text-[#785312]" : "text-zinc-600"}
           />
           <span className="sm:hidden">Menu</span>
           <span className="hidden sm:inline">Menu</span>
           {menuIsActive && (
             <span
-              className="h-1.5 w-1.5 rounded-full bg-[#B8944E]"
+              className="h-1.5 w-1.5 rounded-full bg-[#CCA038]"
               aria-hidden="true"
             />
           )}

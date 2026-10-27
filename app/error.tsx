@@ -20,7 +20,7 @@ export default function GlobalError({
     <div
       style={{
         minHeight: "100vh",
-        background: "#F5F2F7",
+        background: "#F8F9FA",
         backgroundImage:
           "radial-gradient(circle at 15% 10%, rgba(210,193,235,0.30), transparent 35%), radial-gradient(circle at 85% 85%, rgba(202,220,240,0.22), transparent 35%)",
         display: "flex",
@@ -39,8 +39,8 @@ export default function GlobalError({
           maxWidth: "480px",
           width: "100%",
           textAlign: "center",
-          boxShadow: "0 4px 32px rgba(74,61,100,0.10)",
-          border: "1px solid rgba(74,61,100,0.10)",
+          boxShadow: "0 4px 32px rgba(15,23,42,0.10)",
+          border: "1px solid rgba(15,23,42,0.10)",
         }}
       >
         {/* Icon */}
@@ -49,7 +49,7 @@ export default function GlobalError({
             width: "56px",
             height: "56px",
             borderRadius: "50%",
-            background: "rgba(184,148,78,0.10)",
+            background: "rgba(204,160,56,0.10)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -65,7 +65,7 @@ export default function GlobalError({
             margin: "0 0 0.5rem",
             fontSize: "1.25rem",
             fontWeight: 700,
-            color: "#252331",
+            color: "#0F172A",
             letterSpacing: "-0.02em",
           }}
         >
@@ -76,7 +76,7 @@ export default function GlobalError({
           style={{
             margin: "0 0 1.75rem",
             fontSize: "0.9rem",
-            color: "#706C7D",
+            color: "#334155",
             lineHeight: 1.6,
           }}
         >
@@ -89,7 +89,7 @@ export default function GlobalError({
             style={{
               margin: "-0.75rem 0 1.25rem",
               fontSize: "0.75rem",
-              color: "#9994A5",
+              color: "#64748B",
               fontFamily: "monospace",
             }}
           >
@@ -103,7 +103,7 @@ export default function GlobalError({
             style={{
               padding: "0.625rem 1.25rem",
               borderRadius: "0.625rem",
-              background: "#B8944E",
+              background: "#CCA038",
               color: "#fff",
               border: "none",
               cursor: "pointer",
@@ -120,8 +120,8 @@ export default function GlobalError({
               padding: "0.625rem 1.25rem",
               borderRadius: "0.625rem",
               background: "transparent",
-              color: "#706C7D",
-              border: "1px solid rgba(74,61,100,0.15)",
+              color: "#334155",
+              border: "1px solid rgba(15,23,42,0.15)",
               cursor: "pointer",
               fontSize: "0.875rem",
               fontWeight: 500,

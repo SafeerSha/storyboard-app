@@ -110,21 +110,21 @@ export default async function Home() {
             return (
               <div
                 key={i}
-                className="rounded-[18px] border border-[rgba(74,61,100,0.08)] bg-white/82 p-4 sm:p-5 shadow-[0_8px_30px_rgba(70,55,95,0.055)] backdrop-blur-[16px] flex flex-col justify-between transition hover:border-[rgba(74,61,100,0.15)]"
+                className="rounded-[18px] border border-[rgba(15,23,42,0.08)] bg-white/82 p-4 sm:p-5 shadow-[0_8px_30px_rgba(15,23,42,0.055)] backdrop-blur-[16px] flex flex-col justify-between transition hover:border-[rgba(15,23,42,0.15)]"
               >
                 <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-semibold uppercase tracking-wider text-[#9994A5]">
+                  <span className="text-[11px] font-semibold uppercase tracking-wider text-[#64748B]">
                     {stat.label}
                   </span>
-                  <div className="grid h-7 w-7 place-items-center rounded-lg bg-[rgba(184,148,78,0.10)] text-[#B8944E]">
+                  <div className="grid h-7 w-7 place-items-center rounded-lg bg-[rgba(204,160,56,0.10)] text-[#CCA038]">
                     <Icon size={14} />
                   </div>
                 </div>
                 <div className="mt-3">
-                  <p className="text-2xl font-bold tracking-tight text-[#252331] truncate">
+                  <p className="text-2xl font-bold tracking-tight text-[#0F172A] truncate">
                     {stat.value}
                   </p>
-                  <p className="text-[11px] text-[#706C7D] truncate mt-0.5">{stat.note}</p>
+                  <p className="text-[11px] text-[#334155] truncate mt-0.5">{stat.note}</p>
                 </div>
               </div>
             );
@@ -132,7 +132,7 @@ export default async function Home() {
         </section>
 
         {error && (
-          <div className="rounded-xl border border-rose-200/80 bg-rose-50/80 p-4 text-xs sm:text-sm text-[#C25D72]">
+          <div className="rounded-xl border border-rose-200/80 bg-rose-50/80 p-4 text-xs sm:text-sm text-[#E11D48]">
             {error.message}
           </div>
         )}
@@ -140,17 +140,17 @@ export default async function Home() {
         {/* Workspace Split Layout: Recent Projects on Left, AI Helper on Right */}
         <div className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr] items-start">
           {/* Recent Projects Card */}
-          <div className="rounded-[18px] border border-[rgba(74,61,100,0.08)] bg-white/82 shadow-[0_8px_30px_rgba(70,55,95,0.055)] backdrop-blur-[16px] overflow-hidden">
-            <div className="flex items-center justify-between border-b border-[rgba(74,61,100,0.06)] px-5 py-4">
+          <div className="rounded-[18px] border border-[rgba(15,23,42,0.08)] bg-white/82 shadow-[0_8px_30px_rgba(15,23,42,0.055)] backdrop-blur-[16px] overflow-hidden">
+            <div className="flex items-center justify-between border-b border-[rgba(15,23,42,0.06)] px-5 py-4">
               <div>
-                <h3 className="text-sm sm:text-base font-semibold text-[#252331] tracking-tight">
+                <h3 className="text-sm sm:text-base font-semibold text-[#0F172A] tracking-tight">
                   Recent Projects
                 </h3>
-                <p className="text-xs text-[#706C7D]">Your active requirements workspaces</p>
+                <p className="text-xs text-[#334155]">Your active requirements workspaces</p>
               </div>
               <Link
                 href="/projects"
-                className="text-xs font-medium text-[#80642F] hover:text-[#9F7D3E] transition"
+                className="text-xs font-medium text-[#785312] hover:text-[#B58422] transition"
               >
                 View all
               </Link>
@@ -171,7 +171,7 @@ export default async function Home() {
                 className="border-none rounded-none py-10"
               />
             ) : (
-              <div className="divide-y divide-[rgba(74,61,100,0.06)]">
+              <div className="divide-y divide-[rgba(15,23,42,0.06)]">
                 {projects.slice(0, 5).map((project) => {
                   const progress = project.total
                     ? Math.round((project.approved / project.total) * 100)
@@ -181,17 +181,17 @@ export default async function Home() {
                     <Link
                       href={`/project/${project.id}`}
                       key={project.id}
-                      className="group flex items-center justify-between gap-4 px-5 py-4 transition hover:bg-[#FAF9FC]/80"
+                      className="group flex items-center justify-between gap-4 px-5 py-4 transition hover:bg-[#F8F9FB]/80"
                     >
                       <div className="flex items-center gap-3.5 min-w-0 flex-1">
-                        <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-[#B8944E] text-xs font-semibold text-white">
+                        <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-[#CCA038] text-xs font-semibold text-white">
                           {project.name.slice(0, 1).toUpperCase()}
                         </div>
                         <div className="min-w-0 flex-1">
-                          <h4 className="text-sm font-semibold text-[#252331] group-hover:text-[#80642F] transition truncate">
+                          <h4 className="text-sm font-semibold text-[#0F172A] group-hover:text-[#785312] transition truncate">
                             {project.name}
                           </h4>
-                          <p className="text-xs text-[#706C7D] truncate mt-0.5">
+                          <p className="text-xs text-[#334155] truncate mt-0.5">
                             {project.total || 0} stories · {project.approved || 0} approved
                           </p>
                         </div>
@@ -199,19 +199,19 @@ export default async function Home() {
 
                       <div className="hidden sm:flex items-center gap-3 shrink-0">
                         <div className="w-24 text-right">
-                          <div className="text-[11px] font-medium text-[#706C7D] mb-1">
+                          <div className="text-[11px] font-medium text-[#334155] mb-1">
                             {progress}%
                           </div>
-                          <div className="h-1.5 w-full bg-[rgba(74,61,100,0.06)] rounded-full overflow-hidden">
+                          <div className="h-1.5 w-full bg-[rgba(15,23,42,0.06)] rounded-full overflow-hidden">
                             <div
-                              className="h-full bg-[#B8944E] rounded-full transition-all duration-300"
+                              className="h-full bg-[#CCA038] rounded-full transition-all duration-300"
                               style={{ width: `${progress}%` }}
                             />
                           </div>
                         </div>
                         <ArrowRight
                           size={15}
-                          className="text-[#9994A5] transition group-hover:text-[#80642F] group-hover:translate-x-0.5"
+                          className="text-[#64748B] transition group-hover:text-[#785312] group-hover:translate-x-0.5"
                         />
                       </div>
                     </Link>
@@ -223,23 +223,23 @@ export default async function Home() {
 
           {/* AI Story Generation Highlight */}
           <div 
-            className="rounded-[18px] border border-[rgba(74,61,100,0.08)] p-6 shadow-[0_8px_30px_rgba(70,55,95,0.055)] backdrop-blur-[16px] space-y-4"
+            className="rounded-[18px] border border-[rgba(15,23,42,0.08)] p-6 shadow-[0_8px_30px_rgba(15,23,42,0.055)] backdrop-blur-[16px] space-y-4"
             style={{ background: "linear-gradient(135deg, rgba(233, 227, 244, 0.90), rgba(241, 221, 232, 0.78))" }}
           >
             <div className="flex items-center gap-2">
-              <div className="grid h-8 w-8 place-items-center rounded-lg bg-white/80 text-[#B8944E] shadow-xs">
+              <div className="grid h-8 w-8 place-items-center rounded-lg bg-white/80 text-[#CCA038] shadow-xs">
                 <Sparkles size={16} />
               </div>
-              <span className="text-[10px] font-semibold uppercase tracking-wider text-[#80642F]">
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-[#785312]">
                 AI Requirements Breakdown
               </span>
             </div>
 
             <div className="space-y-1.5">
-              <h3 className="text-base sm:text-lg font-semibold tracking-tight text-[#252331]">
+              <h3 className="text-base sm:text-lg font-semibold tracking-tight text-[#0F172A]">
                 Turn rough requirements into structured stories.
               </h3>
-              <p className="text-xs text-[#706C7D] leading-relaxed">
+              <p className="text-xs text-[#334155] leading-relaxed">
                 Gemini GenAI breaks client scope into atomic user stories with acceptance criteria, technical assumptions, and open clarification questions.
               </p>
             </div>

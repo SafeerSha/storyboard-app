@@ -975,10 +975,10 @@ export function RemunerationClient({
 
   if (isLoadingData) {
     return (
-      <div className="flex flex-col items-center justify-center py-20 text-zinc-500 rounded-2xl border border-[#EBE7F2] bg-[#FAF9FC]/88 backdrop-blur-xl">
+      <div className="flex flex-col items-center justify-center py-20 text-zinc-500 rounded-2xl border border-[#E2E8F0] bg-[#F8F9FB]/88 backdrop-blur-xl">
         <div className="flex items-center gap-3">
-          <div className="h-5 w-5 animate-spin rounded-full border-2 border-[#B8944E] border-t-transparent" />
-          <span className="text-sm font-medium text-[#706C7D]">Loading projects & remuneration history...</span>
+          <div className="h-5 w-5 animate-spin rounded-full border-2 border-[#CCA038] border-t-transparent" />
+          <span className="text-sm font-medium text-[#334155]">Loading projects & remuneration history...</span>
         </div>
       </div>
     );
@@ -1002,7 +1002,7 @@ export function RemunerationClient({
                   placeholder="Search by project, phase label, or client email..."
                   value={quotationSearch}
                   onChange={(e) => setQuotationSearch(e.target.value)}
-                  className="w-full rounded-xl border border-zinc-200 pl-9 pr-8 py-2 text-xs sm:text-sm text-zinc-900 focus:border-[#B8944E] focus:ring-1 focus:ring-[#B8944E]/20"
+                  className="w-full rounded-xl border border-zinc-200 pl-9 pr-8 py-2 text-xs sm:text-sm text-zinc-900 focus:border-[#CCA038] focus:ring-1 focus:ring-[#CCA038]/20"
                 />
                 {quotationSearch && (
                   <button
@@ -1029,7 +1029,7 @@ export function RemunerationClient({
             {/* Filter Pills */}
             <div className="flex flex-wrap items-center gap-1.5 pt-2 border-t border-zinc-100">
               <span className="text-xs font-semibold text-zinc-500 mr-1 flex items-center gap-1">
-                <Filter className="w-3 h-3 text-[#B8944E]" />
+                <Filter className="w-3 h-3 text-[#CCA038]" />
                 Filter:
               </span>
               {[
@@ -1067,14 +1067,14 @@ export function RemunerationClient({
 
           {/* Quotations List */}
           {isLoadingSavedEstimate && (
-            <div className="p-3 bg-[#B8944E]/10 border border-[#B8944E]/20 rounded-xl text-center text-xs font-semibold text-[#80642F] animate-pulse">
+            <div className="p-3 bg-[#CCA038]/10 border border-[#CCA038]/20 rounded-xl text-center text-xs font-semibold text-[#785312] animate-pulse">
               Loading quotation into editor...
             </div>
           )}
 
           {filteredEstimates.length === 0 ? (
             <div className="rounded-2xl border border-zinc-200 bg-white p-12 text-center space-y-3">
-              <div className="w-12 h-12 rounded-full bg-[rgba(184,148,78,0.10)] border border-[rgba(184,148,78,0.20)] text-[#80642F] flex items-center justify-center mx-auto">
+              <div className="w-12 h-12 rounded-full bg-[rgba(204,160,56,0.10)] border border-[rgba(204,160,56,0.20)] text-[#785312] flex items-center justify-center mx-auto">
                 <Send className="w-6 h-6" />
               </div>
               <h3 className="text-base font-bold text-zinc-900">
@@ -1082,7 +1082,7 @@ export function RemunerationClient({
               </h3>
               <p className="text-xs text-zinc-500 max-w-md mx-auto">
                 {savedEstimates.length === 0
-                  ? "Create and publish your first project estimation using the Remuneration Calculator."
+                  ? "Create and publish your first project estimation using the Invoice Generator."
                   : "Try clearing your search query or selecting another filter pill above."}
               </p>
               <div className="pt-2">
@@ -1092,7 +1092,7 @@ export function RemunerationClient({
                     onClick={() => handleSwitchView("calculator")}
                     className="text-xs"
                   >
-                    Go to Remuneration Calculator →
+                    Go to Invoice Generator →
                   </Button>
                 ) : (
                   <Button
@@ -1135,7 +1135,7 @@ export function RemunerationClient({
                     key={est.id}
                     className={`rounded-2xl border bg-white p-5 sm:p-6 transition-all duration-200 shadow-sm hover:shadow-md ${
                       isSelected
-                        ? "border-[#B8944E] ring-2 ring-[#B8944E]/20"
+                        ? "border-[#CCA038] ring-2 ring-[#CCA038]/20"
                         : "border-zinc-200 hover:border-zinc-300"
                     }`}
                   >
@@ -1152,7 +1152,7 @@ export function RemunerationClient({
                           </span>
                         )}
                         {estScope && (
-                          <span className="inline-flex px-2 py-0.5 rounded text-[10px] font-bold bg-[#B8944E]/10 text-[#80642F]">
+                          <span className="inline-flex px-2 py-0.5 rounded text-[10px] font-bold bg-[#CCA038]/10 text-[#785312]">
                             {estScope === "frontend" ? "Frontend" : estScope === "backend" ? "Backend" : "Full Stack"}
                           </span>
                         )}
@@ -1226,7 +1226,7 @@ export function RemunerationClient({
                         <span className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
                           Proposal Fee
                         </span>
-                        <p className="text-lg font-extrabold text-[#80642F] mt-0.5">
+                        <p className="text-lg font-extrabold text-[#785312] mt-0.5">
                           {estFormatter.format(est.final_amount)}
                         </p>
                       </div>
@@ -1261,13 +1261,13 @@ export function RemunerationClient({
                       {recipients.length > 0 && (
                         <div className="flex flex-wrap items-center gap-1.5">
                           <span className="text-xs font-semibold text-zinc-500 flex items-center gap-1">
-                            <Mail className="w-3.5 h-3.5 text-[#B8944E]" />
+                            <Mail className="w-3.5 h-3.5 text-[#CCA038]" />
                             {pubStatus === "recalled" ? "Previously Sent to:" : "Sent to:"}
                           </span>
                           {recipients.map((rec, i) => (
                             <span
                               key={rec.id || i}
-                              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#B8944E]/[0.08] border border-[#B8944E]/25 text-xs text-zinc-800"
+                              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#CCA038]/[0.08] border border-[#CCA038]/25 text-xs text-zinc-800"
                             >
                               <span className="font-semibold text-zinc-900">{rec.name}</span>
                               {rec.email ? (
@@ -1348,7 +1348,7 @@ export function RemunerationClient({
                                 setSelectedProjectId(est.project_id);
                                 setIsPublishModalOpen(true);
                               }}
-                              className="flex items-center gap-1.5 text-xs py-1.5 px-3 border-[#B8944E]/40 text-[#80642F] hover:bg-[#B8944E]/10 font-semibold"
+                              className="flex items-center gap-1.5 text-xs py-1.5 px-3 border-[#CCA038]/40 text-[#785312] hover:bg-[#CCA038]/10 font-semibold"
                             >
                               <Send className="w-3.5 h-3.5" />
                               Manage Client Access
@@ -1426,7 +1426,7 @@ export function RemunerationClient({
                 <select
                   value={selectedProjectId}
                   onChange={(e) => setSelectedProjectId(e.target.value)}
-                  className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm text-zinc-900 focus:border-[#B8944E] focus:ring-1 focus:ring-[#B8944E]/20"
+                  className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm text-zinc-900 focus:border-[#CCA038] focus:ring-1 focus:ring-[#CCA038]/20"
                 >
                   <option value="">Select Project</option>
                   {projects.map(p => (
@@ -1444,7 +1444,7 @@ export function RemunerationClient({
               min="0"
               value={hourlyRate}
               onChange={(e) => handleBaseRateChange(parseFloat(e.target.value) || 0)}
-              className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm text-zinc-900 focus:border-[#B8944E] focus:ring-1 focus:ring-[#B8944E]/20"
+              className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm text-zinc-900 focus:border-[#CCA038] focus:ring-1 focus:ring-[#CCA038]/20"
             />
           </div>
           
@@ -1453,7 +1453,7 @@ export function RemunerationClient({
             <select
               value={currency}
               onChange={(e) => setCurrency(e.target.value)}
-              className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm text-zinc-900 focus:border-[#B8944E] focus:ring-1 focus:ring-[#B8944E]/20"
+              className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm text-zinc-900 focus:border-[#CCA038] focus:ring-1 focus:ring-[#CCA038]/20"
             >
               <option value="INR">INR (₹)</option>
               <option value="USD">USD ($)</option>
@@ -1469,7 +1469,7 @@ export function RemunerationClient({
         <div className="pt-2 border-t border-zinc-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="space-y-0.5">
             <div className="flex items-center gap-1.5">
-              <Tag className="w-3.5 h-3.5 text-[#B8944E]" />
+              <Tag className="w-3.5 h-3.5 text-[#CCA038]" />
               <label className="text-xs font-bold uppercase tracking-wider text-zinc-700">
                 Milestone / Phase Label
               </label>
@@ -1486,7 +1486,7 @@ export function RemunerationClient({
                 placeholder="e.g. Phase 1, MVP, Phase 2..."
                 value={estimateLabel}
                 onChange={(e) => setEstimateLabel(e.target.value)}
-                className="w-full rounded-lg border border-zinc-200 px-3 py-1.5 text-xs text-zinc-900 focus:border-[#B8944E] focus:ring-1 focus:ring-[#B8944E]/20"
+                className="w-full rounded-lg border border-zinc-200 px-3 py-1.5 text-xs text-zinc-900 focus:border-[#CCA038] focus:ring-1 focus:ring-[#CCA038]/20"
               />
               {estimateLabel && (
                 <button
@@ -1507,7 +1507,7 @@ export function RemunerationClient({
                   onClick={() => setEstimateLabel(chip)}
                   className={`text-[11px] font-medium px-2 py-1 rounded-md border transition-colors ${
                     estimateLabel === chip
-                      ? "border-[#B8944E] bg-[#B8944E]/10 text-[#8c6b2d] font-semibold"
+                      ? "border-[#CCA038] bg-[#CCA038]/10 text-[#8c6b2d] font-semibold"
                       : "border-zinc-200 hover:border-zinc-300 bg-zinc-50 text-zinc-600"
                   }`}
                 >
@@ -1522,7 +1522,7 @@ export function RemunerationClient({
         <div className="pt-4 border-t border-zinc-100 flex flex-col sm:flex-row sm:items-start justify-between gap-3">
           <div className="space-y-0.5 sm:max-w-[240px]">
             <div className="flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5 text-[#B8944E]" />
+              <Sparkles className="w-3.5 h-3.5 text-[#CCA038]" />
               <label className="text-xs font-bold uppercase tracking-wider text-zinc-700">
                 Custom AI Instructions
               </label>
@@ -1537,7 +1537,7 @@ export function RemunerationClient({
               placeholder="Enter custom instructions to inject into the AI prompt..."
               value={customPrompt}
               onChange={(e) => setCustomPrompt(e.target.value)}
-              className="w-full rounded-xl border border-zinc-200 px-3 py-2.5 text-xs sm:text-sm text-zinc-900 focus:border-[#B8944E] focus:ring-1 focus:ring-[#B8944E]/20 min-h-[64px] resize-y"
+              className="w-full rounded-xl border border-zinc-200 px-3 py-2.5 text-xs sm:text-sm text-zinc-900 focus:border-[#CCA038] focus:ring-1 focus:ring-[#CCA038]/20 min-h-[64px] resize-y"
             />
           </div>
         </div>
@@ -1560,14 +1560,14 @@ export function RemunerationClient({
               onClick={() => handleScopeChange("frontend")}
               className={`relative flex items-start gap-3 p-3.5 rounded-xl border text-left transition-all ${
                 workScope === "frontend"
-                  ? "border-[#B8944E] bg-[#B8944E]/[0.06] ring-1 ring-[#B8944E] shadow-sm"
+                  ? "border-[#CCA038] bg-[#CCA038]/[0.06] ring-1 ring-[#CCA038] shadow-sm"
                   : "border-zinc-200 hover:border-zinc-300 bg-white"
               }`}
             >
               <div
                 className={`p-2 rounded-lg shrink-0 ${
                   workScope === "frontend"
-                    ? "bg-[#B8944E] text-white"
+                    ? "bg-[#CCA038] text-white"
                     : "bg-zinc-100 text-zinc-500"
                 }`}
               >
@@ -1577,7 +1577,7 @@ export function RemunerationClient({
                 <div className="flex items-center justify-between">
                   <p className="text-sm font-semibold text-zinc-900">Frontend Only</p>
                   {workScope === "frontend" && (
-                    <span className="h-2 w-2 rounded-full bg-[#B8944E]" />
+                    <span className="h-2 w-2 rounded-full bg-[#CCA038]" />
                   )}
                 </div>
                 <p className="text-xs text-zinc-500 mt-0.5 leading-snug">
@@ -1592,14 +1592,14 @@ export function RemunerationClient({
               onClick={() => handleScopeChange("backend")}
               className={`relative flex items-start gap-3 p-3.5 rounded-xl border text-left transition-all ${
                 workScope === "backend"
-                  ? "border-[#B8944E] bg-[#B8944E]/[0.06] ring-1 ring-[#B8944E] shadow-sm"
+                  ? "border-[#CCA038] bg-[#CCA038]/[0.06] ring-1 ring-[#CCA038] shadow-sm"
                   : "border-zinc-200 hover:border-zinc-300 bg-white"
               }`}
             >
               <div
                 className={`p-2 rounded-lg shrink-0 ${
                   workScope === "backend"
-                    ? "bg-[#B8944E] text-white"
+                    ? "bg-[#CCA038] text-white"
                     : "bg-zinc-100 text-zinc-500"
                 }`}
               >
@@ -1609,7 +1609,7 @@ export function RemunerationClient({
                 <div className="flex items-center justify-between">
                   <p className="text-sm font-semibold text-zinc-900">Backend Only</p>
                   {workScope === "backend" && (
-                    <span className="h-2 w-2 rounded-full bg-[#B8944E]" />
+                    <span className="h-2 w-2 rounded-full bg-[#CCA038]" />
                   )}
                 </div>
                 <p className="text-xs text-zinc-500 mt-0.5 leading-snug">
@@ -1624,14 +1624,14 @@ export function RemunerationClient({
               onClick={() => handleScopeChange("both")}
               className={`relative flex items-start gap-3 p-3.5 rounded-xl border text-left transition-all ${
                 workScope === "both"
-                  ? "border-[#B8944E] bg-[#B8944E]/[0.06] ring-1 ring-[#B8944E] shadow-sm"
+                  ? "border-[#CCA038] bg-[#CCA038]/[0.06] ring-1 ring-[#CCA038] shadow-sm"
                   : "border-zinc-200 hover:border-zinc-300 bg-white"
               }`}
             >
               <div
                 className={`p-2 rounded-lg shrink-0 ${
                   workScope === "both"
-                    ? "bg-[#B8944E] text-white"
+                    ? "bg-[#CCA038] text-white"
                     : "bg-zinc-100 text-zinc-500"
                 }`}
               >
@@ -1641,7 +1641,7 @@ export function RemunerationClient({
                 <div className="flex items-center justify-between">
                   <p className="text-sm font-semibold text-zinc-900">Full Stack (Both)</p>
                   {workScope === "both" && (
-                    <span className="h-2 w-2 rounded-full bg-[#B8944E]" />
+                    <span className="h-2 w-2 rounded-full bg-[#CCA038]" />
                   )}
                 </div>
                 <p className="text-xs text-zinc-500 mt-0.5 leading-snug">
@@ -1664,7 +1664,7 @@ export function RemunerationClient({
               onClick={() => handleDbDesignToggle(!includeDbDesign)}
               className={`flex items-start gap-3 p-3.5 rounded-xl border cursor-pointer transition-all ${
                 includeDbDesign
-                  ? "border-[#B8944E] bg-[#B8944E]/[0.04] ring-1 ring-[#B8944E]/40"
+                  ? "border-[#CCA038] bg-[#CCA038]/[0.04] ring-1 ring-[#CCA038]/40"
                   : "border-zinc-200 bg-white hover:border-zinc-300 opacity-80"
               }`}
             >
@@ -1673,11 +1673,11 @@ export function RemunerationClient({
                 checked={includeDbDesign}
                 onChange={(e) => handleDbDesignToggle(e.target.checked)}
                 onClick={(e) => e.stopPropagation()}
-                className="mt-1 rounded border-zinc-300 text-[#B8944E] focus:ring-[#B8944E]"
+                className="mt-1 rounded border-zinc-300 text-[#CCA038] focus:ring-[#CCA038]"
               />
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-1.5">
-                  <Database className="w-4 h-4 text-[#B8944E]" />
+                  <Database className="w-4 h-4 text-[#CCA038]" />
                   <p className="text-sm font-semibold text-zinc-900">Database Design</p>
                 </div>
                 <p className="text-xs text-zinc-500 mt-0.5 leading-snug">
@@ -1691,7 +1691,7 @@ export function RemunerationClient({
               onClick={() => handleUnitTestingToggle(!includeUnitTesting)}
               className={`flex items-start gap-3 p-3.5 rounded-xl border cursor-pointer transition-all ${
                 includeUnitTesting
-                  ? "border-[#B8944E] bg-[#B8944E]/[0.04] ring-1 ring-[#B8944E]/40"
+                  ? "border-[#CCA038] bg-[#CCA038]/[0.04] ring-1 ring-[#CCA038]/40"
                   : "border-zinc-200 bg-white hover:border-zinc-300 opacity-80"
               }`}
             >
@@ -1700,12 +1700,12 @@ export function RemunerationClient({
                 checked={includeUnitTesting}
                 onChange={(e) => handleUnitTestingToggle(e.target.checked)}
                 onClick={(e) => e.stopPropagation()}
-                className="mt-1 rounded border-zinc-300 text-[#B8944E] focus:ring-[#B8944E]"
+                className="mt-1 rounded border-zinc-300 text-[#CCA038] focus:ring-[#CCA038]"
               />
               <div className="min-w-0 flex-1">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1.5">
-                    <TestTubes className="w-4 h-4 text-[#B8944E]" />
+                    <TestTubes className="w-4 h-4 text-[#CCA038]" />
                     <p className="text-sm font-semibold text-zinc-900">Unit Testing</p>
                   </div>
                   {includeUnitTesting && (
@@ -1716,7 +1716,7 @@ export function RemunerationClient({
                       <select
                         value={unitTestIntensity}
                         onChange={(e) => handleUnitTestIntensityChange(e.target.value as UnitTestIntensity)}
-                        className="rounded border border-zinc-200 bg-white px-2 py-0.5 text-xs font-semibold text-zinc-800 focus:border-[#B8944E] focus:outline-none cursor-pointer"
+                        className="rounded border border-zinc-200 bg-white px-2 py-0.5 text-xs font-semibold text-zinc-800 focus:border-[#CCA038] focus:outline-none cursor-pointer"
                         title="Select test coverage intensity (Lean is recommended for realistic minimum hours)"
                       >
                         <option value="lean">Lean (12%)</option>
@@ -1741,7 +1741,7 @@ export function RemunerationClient({
               onClick={() => setIncludeDeployment(!includeDeployment)}
               className={`flex items-start gap-3 p-3.5 rounded-xl border cursor-pointer transition-all ${
                 includeDeployment
-                  ? "border-[#B8944E] bg-[#B8944E]/[0.04] ring-1 ring-[#B8944E]/40"
+                  ? "border-[#CCA038] bg-[#CCA038]/[0.04] ring-1 ring-[#CCA038]/40"
                   : "border-zinc-200 bg-white hover:border-zinc-300 opacity-80"
               }`}
             >
@@ -1750,12 +1750,12 @@ export function RemunerationClient({
                 checked={includeDeployment}
                 onChange={(e) => setIncludeDeployment(e.target.checked)}
                 onClick={(e) => e.stopPropagation()}
-                className="mt-1 rounded border-zinc-300 text-[#B8944E] focus:ring-[#B8944E]"
+                className="mt-1 rounded border-zinc-300 text-[#CCA038] focus:ring-[#CCA038]"
               />
               <div className="min-w-0 flex-1">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1.5">
-                    <Rocket className="w-4 h-4 text-[#B8944E]" />
+                    <Rocket className="w-4 h-4 text-[#CCA038]" />
                     <p className="text-sm font-semibold text-zinc-900">Deployment & DevOps</p>
                   </div>
                   {includeDeployment && (
@@ -1769,7 +1769,7 @@ export function RemunerationClient({
                         max="100"
                         value={deploymentHours}
                         onChange={(e) => setDeploymentHours(parseFloat(e.target.value) || 0)}
-                        className="w-14 rounded border border-zinc-200 px-1.5 py-0.5 text-xs text-right font-semibold text-zinc-900 focus:border-[#B8944E]"
+                        className="w-14 rounded border border-zinc-200 px-1.5 py-0.5 text-xs text-right font-semibold text-zinc-900 focus:border-[#CCA038]"
                       />
                       <span className="text-[11px] text-zinc-500 font-medium">hrs</span>
                     </div>
@@ -1792,16 +1792,16 @@ export function RemunerationClient({
                 id="customRates"
                 checked={customRatesEnabled}
                 onChange={(e) => handleCustomRatesToggle(e.target.checked)}
-                className="rounded border-zinc-300 text-[#B8944E] focus:ring-[#B8944E]"
+                className="rounded border-zinc-300 text-[#CCA038] focus:ring-[#CCA038]"
               />
               <label htmlFor="customRates" className="text-xs font-semibold text-zinc-700 cursor-pointer flex items-center gap-1.5">
-                <SlidersHorizontal className="w-3.5 h-3.5 text-[#B8944E]" />
+                <SlidersHorizontal className="w-3.5 h-3.5 text-[#CCA038]" />
                 Customize hourly rates per discipline
               </label>
             </div>
 
             {customRatesEnabled && (
-              <span className="text-xs font-medium text-[#80642F] bg-[#B8944E]/10 px-2.5 py-0.5 rounded-full">
+              <span className="text-xs font-medium text-[#785312] bg-[#CCA038]/10 px-2.5 py-0.5 rounded-full">
                 Blended Effective Rate: {formatter.format(effectiveHourlyRate)}/hr
               </span>
             )}
@@ -1813,7 +1813,7 @@ export function RemunerationClient({
               {workScope !== "backend" && (
                 <div className="space-y-1">
                   <label className="text-[11px] font-semibold text-zinc-600 flex items-center gap-1">
-                    <Code2 className="w-3 h-3 text-[#B8944E]" />
+                    <Code2 className="w-3 h-3 text-[#CCA038]" />
                     Frontend Rate ({currency})
                   </label>
                   <input
@@ -1821,7 +1821,7 @@ export function RemunerationClient({
                     min="0"
                     value={frontendRate}
                     onChange={(e) => setFrontendRate(parseFloat(e.target.value) || 0)}
-                    className="w-full rounded-lg border border-zinc-200 px-2.5 py-1.5 text-xs text-zinc-900 font-semibold focus:border-[#B8944E]"
+                    className="w-full rounded-lg border border-zinc-200 px-2.5 py-1.5 text-xs text-zinc-900 font-semibold focus:border-[#CCA038]"
                   />
                 </div>
               )}
@@ -1830,7 +1830,7 @@ export function RemunerationClient({
               {workScope !== "frontend" && (
                 <div className="space-y-1">
                   <label className="text-[11px] font-semibold text-zinc-600 flex items-center gap-1">
-                    <Server className="w-3 h-3 text-[#B8944E]" />
+                    <Server className="w-3 h-3 text-[#CCA038]" />
                     Backend Rate ({currency})
                   </label>
                   <input
@@ -1838,7 +1838,7 @@ export function RemunerationClient({
                     min="0"
                     value={backendRate}
                     onChange={(e) => setBackendRate(parseFloat(e.target.value) || 0)}
-                    className="w-full rounded-lg border border-zinc-200 px-2.5 py-1.5 text-xs text-zinc-900 font-semibold focus:border-[#B8944E]"
+                    className="w-full rounded-lg border border-zinc-200 px-2.5 py-1.5 text-xs text-zinc-900 font-semibold focus:border-[#CCA038]"
                   />
                 </div>
               )}
@@ -1847,7 +1847,7 @@ export function RemunerationClient({
               {includeDbDesign && (
                 <div className="space-y-1">
                   <label className="text-[11px] font-semibold text-zinc-600 flex items-center gap-1">
-                    <Database className="w-3 h-3 text-[#B8944E]" />
+                    <Database className="w-3 h-3 text-[#CCA038]" />
                     DB Design Rate ({currency})
                   </label>
                   <input
@@ -1855,7 +1855,7 @@ export function RemunerationClient({
                     min="0"
                     value={dbDesignRate}
                     onChange={(e) => setDbDesignRate(parseFloat(e.target.value) || 0)}
-                    className="w-full rounded-lg border border-zinc-200 px-2.5 py-1.5 text-xs text-zinc-900 font-semibold focus:border-[#B8944E]"
+                    className="w-full rounded-lg border border-zinc-200 px-2.5 py-1.5 text-xs text-zinc-900 font-semibold focus:border-[#CCA038]"
                   />
                 </div>
               )}
@@ -1864,7 +1864,7 @@ export function RemunerationClient({
               {includeUnitTesting && (
                 <div className="space-y-1">
                   <label className="text-[11px] font-semibold text-zinc-600 flex items-center gap-1">
-                    <TestTubes className="w-3 h-3 text-[#B8944E]" />
+                    <TestTubes className="w-3 h-3 text-[#CCA038]" />
                     Unit Testing Rate ({currency})
                   </label>
                   <input
@@ -1872,7 +1872,7 @@ export function RemunerationClient({
                     min="0"
                     value={unitTestingRate}
                     onChange={(e) => setUnitTestingRate(parseFloat(e.target.value) || 0)}
-                    className="w-full rounded-lg border border-zinc-200 px-2.5 py-1.5 text-xs text-zinc-900 font-semibold focus:border-[#B8944E]"
+                    className="w-full rounded-lg border border-zinc-200 px-2.5 py-1.5 text-xs text-zinc-900 font-semibold focus:border-[#CCA038]"
                   />
                 </div>
               )}
@@ -1881,7 +1881,7 @@ export function RemunerationClient({
               {includeDeployment && (
                 <div className="space-y-1">
                   <label className="text-[11px] font-semibold text-zinc-600 flex items-center gap-1">
-                    <Rocket className="w-3 h-3 text-[#B8944E]" />
+                    <Rocket className="w-3 h-3 text-[#CCA038]" />
                     Deployment Rate ({currency})
                   </label>
                   <input
@@ -1889,7 +1889,7 @@ export function RemunerationClient({
                     min="0"
                     value={deploymentRate}
                     onChange={(e) => setDeploymentRate(parseFloat(e.target.value) || 0)}
-                    className="w-full rounded-lg border border-zinc-200 px-2.5 py-1.5 text-xs text-zinc-900 font-semibold focus:border-[#B8944E]"
+                    className="w-full rounded-lg border border-zinc-200 px-2.5 py-1.5 text-xs text-zinc-900 font-semibold focus:border-[#CCA038]"
                   />
                 </div>
               )}
@@ -1905,7 +1905,7 @@ export function RemunerationClient({
               id="contingency" 
               checked={contingencyPercentage > 0}
               onChange={(e) => setContingencyPercentage(e.target.checked ? 10 : 0)}
-              className="rounded border-zinc-300 text-[#B8944E] focus:ring-[#B8944E]"
+              className="rounded border-zinc-300 text-[#CCA038] focus:ring-[#CCA038]"
             />
             <label htmlFor="contingency" className="text-sm text-zinc-700">Include contingency</label>
             {contingencyPercentage > 0 && (
@@ -1936,7 +1936,7 @@ export function RemunerationClient({
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
           
           {/* Summary Card */}
-          <div className="rounded-2xl border border-[rgba(184,148,78,0.25)] bg-gradient-to-br from-[#FCFBFC] to-white p-6 shadow-sm">
+          <div className="rounded-2xl border border-[rgba(204,160,56,0.25)] bg-gradient-to-br from-[#FCFBFC] to-white p-6 shadow-sm">
             <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
               <div>
                 <h2 className="text-lg font-bold text-slate-900">Project Remuneration Summary</h2>
@@ -1953,7 +1953,7 @@ export function RemunerationClient({
                     {estimateLabel}
                   </span>
                 )}
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-[#B8944E]/10 text-[#80642F] border border-[#B8944E]/30">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-[#CCA038]/10 text-[#785312] border border-[#CCA038]/30">
                   {workScope === "frontend" && <Code2 className="w-3.5 h-3.5" />}
                   {workScope === "backend" && <Server className="w-3.5 h-3.5" />}
                   {workScope === "both" && <Layers className="w-3.5 h-3.5" />}
@@ -2081,7 +2081,7 @@ export function RemunerationClient({
                 <p className="text-xs text-slate-500 uppercase tracking-wider font-semibold">Effective Rate</p>
                 <p className="text-2xl font-bold text-slate-900 mt-1">{formatter.format(effectiveHourlyRate)}/h</p>
                 {customRatesEnabled && (
-                  <p className="text-[11px] text-[#80642F] mt-0.5">Discipline-weighted</p>
+                  <p className="text-[11px] text-[#785312] mt-0.5">Discipline-weighted</p>
                 )}
               </div>
               <div>
@@ -2090,10 +2090,10 @@ export function RemunerationClient({
               </div>
             </div>
             
-            <div className="flex flex-col md:flex-row md:items-center justify-between p-4 bg-[rgba(184,148,78,0.06)] rounded-xl border border-[rgba(184,148,78,0.18)]">
+            <div className="flex flex-col md:flex-row md:items-center justify-between p-4 bg-[rgba(204,160,56,0.06)] rounded-xl border border-[rgba(204,160,56,0.18)]">
               <div>
-                <p className="text-sm font-semibold text-[#80642F]">Contingency Buffer ({contingencyPercentage}%)</p>
-                <p className="text-lg font-bold text-[#80642F]">{formatter.format(contingencyAmount)}</p>
+                <p className="text-sm font-semibold text-[#785312]">Contingency Buffer ({contingencyPercentage}%)</p>
+                <p className="text-lg font-bold text-[#785312]">{formatter.format(contingencyAmount)}</p>
               </div>
               <div className="mt-4 md:mt-0 text-left md:text-right">
                 <p className="text-xs font-semibold text-slate-600 uppercase tracking-wider">Final Expected Remuneration</p>
@@ -2102,7 +2102,7 @@ export function RemunerationClient({
             </div>
 
             {/* Overall Package Discussion Trigger */}
-            <div className="mt-3 pt-3 border-t border-[rgba(184,148,78,0.18)] flex items-center justify-between">
+            <div className="mt-3 pt-3 border-t border-[rgba(204,160,56,0.18)] flex items-center justify-between">
               <p className="text-xs text-zinc-500">
                 {currentPublishing?.status ? `Publication Status: ${currentPublishing.status.toUpperCase()}` : "Quotation not yet published to client."}
               </p>
@@ -2114,12 +2114,12 @@ export function RemunerationClient({
                     sectionTitle: "Overall Package & Commercial Terms",
                   })
                 }
-                className="text-xs font-semibold text-[#80642F] hover:underline flex items-center gap-1.5"
+                className="text-xs font-semibold text-[#785312] hover:underline flex items-center gap-1.5"
               >
-                <MessageSquare className="w-3.5 h-3.5 text-[#B8944E]" />
+                <MessageSquare className="w-3.5 h-3.5 text-[#CCA038]" />
                 Discuss Commercial Terms
                 {Number(currentPublishing?.discussions?.["summary"]?.messages?.length || 0) > 0 && (
-                  <span className="rounded-full bg-[#B8944E] px-1.5 py-0.2 text-[9px] font-bold text-white">
+                  <span className="rounded-full bg-[#CCA038] px-1.5 py-0.2 text-[9px] font-bold text-white">
                     {currentPublishing?.discussions?.["summary"]?.messages?.length}
                   </span>
                 )}
@@ -2179,7 +2179,7 @@ export function RemunerationClient({
                         step="0.5"
                         value={deploymentHours}
                         onChange={(e) => setDeploymentHours(parseFloat(e.target.value) || 0)}
-                        className="w-20 rounded border border-zinc-300 px-2 py-1 text-right focus:border-[#B8944E] focus:ring-1 focus:ring-[#B8944E]/20 font-bold"
+                        className="w-20 rounded border border-zinc-300 px-2 py-1 text-right focus:border-[#CCA038] focus:ring-1 focus:ring-[#CCA038]/20 font-bold"
                       />
                     </div>
                     <div className="flex items-center justify-between text-sm mt-1 pt-2 border-t border-emerald-200/60">
@@ -2227,7 +2227,7 @@ export function RemunerationClient({
                                     handleUpdateStoryEffort(idx, "frontendHours", val === "" ? 0 : parseFloat(val) || 0);
                                   }}
                                   onClick={(e) => e.stopPropagation()}
-                                  className="w-12 h-5 rounded border border-zinc-300 bg-white px-1 text-center font-bold text-zinc-900 focus:border-[#B8944E] focus:ring-1 focus:ring-[#B8944E]/40 focus:outline-none transition"
+                                  className="w-12 h-5 rounded border border-zinc-300 bg-white px-1 text-center font-bold text-zinc-900 focus:border-[#CCA038] focus:ring-1 focus:ring-[#CCA038]/40 focus:outline-none transition"
                                 />
                                 <span>h</span>
                               </span>
@@ -2245,7 +2245,7 @@ export function RemunerationClient({
                                     handleUpdateStoryEffort(idx, "backendHours", val === "" ? 0 : parseFloat(val) || 0);
                                   }}
                                   onClick={(e) => e.stopPropagation()}
-                                  className="w-12 h-5 rounded border border-zinc-300 bg-white px-1 text-center font-bold text-zinc-900 focus:border-[#B8944E] focus:ring-1 focus:ring-[#B8944E]/40 focus:outline-none transition"
+                                  className="w-12 h-5 rounded border border-zinc-300 bg-white px-1 text-center font-bold text-zinc-900 focus:border-[#CCA038] focus:ring-1 focus:ring-[#CCA038]/40 focus:outline-none transition"
                                 />
                                 <span>h</span>
                               </span>
@@ -2296,13 +2296,13 @@ export function RemunerationClient({
                             href={`/project/${selectedProjectId}?story=${story.storyId}`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="group/story inline-flex items-center gap-1.5 font-semibold text-slate-900 hover:text-[#80642F] transition-colors"
+                            className="group/story inline-flex items-center gap-1.5 font-semibold text-slate-900 hover:text-[#785312] transition-colors"
                             title="Click to open and inspect this story in Project Workspace"
                           >
                             <span className="group-hover/story:underline underline-offset-2">
                               {story.title || projectStoriesMap[story.storyId]?.title || `Story ${story.storyId.slice(0, 8)}`}
                             </span>
-                            <ExternalLink className="w-3.5 h-3.5 text-slate-400 group-hover/story:text-[#80642F] transition-colors shrink-0" />
+                            <ExternalLink className="w-3.5 h-3.5 text-slate-400 group-hover/story:text-[#785312] transition-colors shrink-0" />
                           </a>
                         </div>
                         <p className="text-xs text-slate-500 mt-1">{story.reasoning}</p>
@@ -2316,12 +2316,12 @@ export function RemunerationClient({
                                 sectionTitle: story.title || projectStoriesMap[story.storyId]?.title || `Story ${story.storyId.slice(0, 8)}`,
                               })
                             }
-                            className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-[#80642F] hover:text-[#5e4922] bg-[#B8944E]/[0.08] hover:bg-[#B8944E]/[0.15] px-2.5 py-1 rounded-lg border border-[#B8944E]/20 transition"
+                            className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-[#785312] hover:text-[#5e4922] bg-[#CCA038]/[0.08] hover:bg-[#CCA038]/[0.15] px-2.5 py-1 rounded-lg border border-[#CCA038]/20 transition"
                           >
                             <MessageSquare className="w-3 h-3" />
                             Client Discussions
                             {Number(currentPublishing?.discussions?.[`story_${story.storyId}`]?.messages?.length || 0) > 0 && (
-                              <span className="rounded-full bg-[#B8944E] px-1.5 py-0.2 text-[9px] font-bold text-white">
+                              <span className="rounded-full bg-[#CCA038] px-1.5 py-0.2 text-[9px] font-bold text-white">
                                 {currentPublishing?.discussions?.[`story_${story.storyId}`]?.messages?.length}
                               </span>
                             )}
@@ -2368,7 +2368,7 @@ export function RemunerationClient({
                             step="0.5"
                             value={story.final_hours}
                             onChange={(e) => handleUpdateStoryHours(idx, parseFloat(e.target.value) || 0)}
-                            className="w-20 rounded border border-zinc-300 px-2 py-1 text-right focus:border-[#B8944E] focus:ring-1 focus:ring-[#B8944E]/20 font-bold"
+                            className="w-20 rounded border border-zinc-300 px-2 py-1 text-right focus:border-[#CCA038] focus:ring-1 focus:ring-[#CCA038]/20 font-bold"
                           />
                         </div>
                         <div className="flex items-center justify-between text-sm mt-1 pt-2 border-t border-zinc-100">
@@ -2389,7 +2389,7 @@ export function RemunerationClient({
               <Button
                 variant="outline"
                 onClick={() => setIsPublishModalOpen(true)}
-                className="flex items-center gap-1.5 border-[#B8944E]/40 text-[#80642F] hover:bg-[#B8944E]/10 font-semibold"
+                className="flex items-center gap-1.5 border-[#CCA038]/40 text-[#785312] hover:bg-[#CCA038]/10 font-semibold"
               >
                 <Send className="w-3.5 h-3.5" />
                 {currentPublishing?.status === "published" || currentPublishing?.status === "negotiating" || currentPublishing?.status === "approved"
@@ -2437,9 +2437,9 @@ export function RemunerationClient({
 
           {/* Quick link to Sent Quotations tab */}
           {savedEstimates.length > 0 && (
-            <div className="rounded-2xl border border-[rgba(184,148,78,0.25)] bg-gradient-to-r from-[#FCFBFC] via-white to-[#FCFBFC] p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
+            <div className="rounded-2xl border border-[rgba(204,160,56,0.25)] bg-gradient-to-r from-[#FCFBFC] via-white to-[#FCFBFC] p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-[#B8944E]/10 border border-[#B8944E]/20 flex items-center justify-center text-[#80642F] shrink-0">
+                <div className="w-8 h-8 rounded-lg bg-[#CCA038]/10 border border-[#CCA038]/20 flex items-center justify-center text-[#785312] shrink-0">
                   <Send className="w-4 h-4" />
                 </div>
                 <div>
@@ -2454,7 +2454,7 @@ export function RemunerationClient({
               <Button
                 variant="outline"
                 onClick={() => handleSwitchView("quotations")}
-                className="text-xs font-semibold text-[#80642F] border-[#B8944E]/40 hover:bg-[#B8944E]/10 shrink-0"
+                className="text-xs font-semibold text-[#785312] border-[#CCA038]/40 hover:bg-[#CCA038]/10 shrink-0"
               >
                 View Sent Quotations Tab →
               </Button>

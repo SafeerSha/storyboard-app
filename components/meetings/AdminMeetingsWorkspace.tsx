@@ -27,6 +27,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { SearchableSelect, SearchableSelectOption } from "@/components/ui/SearchableSelect";
 import { toast } from "@/lib/toast";
 import {
   MEETING_PLATFORM_CONFIG,
@@ -101,6 +102,52 @@ export function AdminMeetingsWorkspace({
 
   // Team members cache per project for sharing modal
   const [projectTeamMembersMap, setProjectTeamMembersMap] = useState<Record<string, any[]>>({});
+
+  // Options for modern searchable project select
+  const projectSelectOptions: SearchableSelectOption[] = useMemo(
+    () => [
+      {
+        value: "all",
+        label: `All Projects (${projects.length})`,
+        count: projects.length,
+        icon: <FolderKanban size={13} className="text-[#64748B]" />,
+      },
+      ...projects.map((p) => ({
+        value: p.id,
+        label: p.name,
+        description: p.description || undefined,
+        icon: <FolderKanban size={13} className="text-[#CCA038]" />,
+      })),
+    ],
+    [projects]
+  );
+
+  // Options for meeting type filter
+  const meetingTypeOptions: SearchableSelectOption[] = useMemo(
+    () => [
+      {
+        value: "all",
+        label: "All Types",
+        icon: <Layers size={13} className="text-[#64748B]" />,
+      },
+      {
+        value: "demo",
+        label: "Demo",
+        icon: <span className="h-2 w-2 rounded-full bg-purple-500 shrink-0" />,
+      },
+      {
+        value: "planning",
+        label: "Planning",
+        icon: <span className="h-2 w-2 rounded-full bg-blue-500 shrink-0" />,
+      },
+      {
+        value: "discussion",
+        label: "Discussion",
+        icon: <span className="h-2 w-2 rounded-full bg-amber-500 shrink-0" />,
+      },
+    ],
+    []
+  );
 
   // Fetch meetings from API
   const loadMeetings = useCallback(async (showIndicator = false) => {
@@ -264,17 +311,17 @@ export function AdminMeetingsWorkspace({
   return (
     <div className="space-y-6 max-w-7xl mx-auto px-4 sm:px-6 py-6 pb-24">
       {/* 1. Header Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[rgba(74,61,100,0.08)] pb-5">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[rgba(15,23,42,0.08)] pb-5">
         <div>
           <div className="flex items-center gap-2.5">
-            <div className="grid h-10 w-10 place-items-center rounded-2xl bg-[rgba(184,148,78,0.12)] text-[#80642F] border border-[rgba(184,148,78,0.20)]">
+            <div className="grid h-10 w-10 place-items-center rounded-2xl bg-[rgba(204,160,56,0.12)] text-[#785312] border border-[rgba(204,160,56,0.20)]">
               <Calendar size={20} />
             </div>
             <div>
-              <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-[#252331]">
+              <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-[#0F172A]">
                 Meetings & Schedule Center
               </h1>
-              <p className="text-xs sm:text-sm text-[#706C7D]">
+              <p className="text-xs sm:text-sm text-[#334155]">
                 Schedule, track, and coordinate review sessions, demos, and calls across all projects.
               </p>
             </div>
@@ -307,62 +354,56 @@ export function AdminMeetingsWorkspace({
 
       {/* 2. Top KPI Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
-        <div className="rounded-2xl border border-[rgba(74,61,100,0.08)] bg-white p-4 sm:p-5 shadow-2xs space-y-1">
+        <div className="rounded-2xl border border-[rgba(15,23,42,0.08)] bg-white p-4 sm:p-5 shadow-2xs space-y-1">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[#9994A5]">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-[#64748B]">
               Upcoming Calls
             </span>
             <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
           </div>
-          <p className="text-2xl sm:text-3xl font-extrabold text-[#252331]">{upcomingCount}</p>
+          <p className="text-2xl sm:text-3xl font-extrabold text-[#0F172A]">{upcomingCount}</p>
           <p className="text-[11px] text-emerald-700 font-medium">Scheduled & Active</p>
         </div>
 
-        <div className="rounded-2xl border border-[rgba(74,61,100,0.08)] bg-white p-4 sm:p-5 shadow-2xs space-y-1">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-[#9994A5]">
+        <div className="rounded-2xl border border-[rgba(15,23,42,0.08)] bg-white p-4 sm:p-5 shadow-2xs space-y-1">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-[#64748B]">
             Completed
           </span>
-          <p className="text-2xl sm:text-3xl font-extrabold text-[#252331]">{completedCount}</p>
+          <p className="text-2xl sm:text-3xl font-extrabold text-[#0F172A]">{completedCount}</p>
           <p className="text-[11px] text-zinc-500 font-medium">Recorded in archive</p>
         </div>
 
-        <div className="rounded-2xl border border-[rgba(74,61,100,0.08)] bg-white p-4 sm:p-5 shadow-2xs space-y-1">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-[#9994A5]">
+        <div className="rounded-2xl border border-[rgba(15,23,42,0.08)] bg-white p-4 sm:p-5 shadow-2xs space-y-1">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-[#64748B]">
             Cancelled
           </span>
-          <p className="text-2xl sm:text-3xl font-extrabold text-[#252331]">{cancelledCount}</p>
+          <p className="text-2xl sm:text-3xl font-extrabold text-[#0F172A]">{cancelledCount}</p>
           <p className="text-[11px] text-rose-600 font-medium">Preserved history</p>
         </div>
 
-        <div className="rounded-2xl border border-[rgba(74,61,100,0.08)] bg-white p-4 sm:p-5 shadow-2xs space-y-1">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-[#9994A5]">
+        <div className="rounded-2xl border border-[rgba(15,23,42,0.08)] bg-white p-4 sm:p-5 shadow-2xs space-y-1">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-[#64748B]">
             Projects with Calls
           </span>
-          <p className="text-2xl sm:text-3xl font-extrabold text-[#252331]">{uniqueProjectsCount}</p>
-          <p className="text-[11px] text-[#80642F] font-medium">Across active clients</p>
+          <p className="text-2xl sm:text-3xl font-extrabold text-[#0F172A]">{uniqueProjectsCount}</p>
+          <p className="text-[11px] text-[#785312] font-medium">Across active clients</p>
         </div>
       </div>
 
       {/* 3. Controls & Filter Bar */}
-      <div className="rounded-2xl border border-[rgba(74,61,100,0.08)] bg-white p-3.5 sm:p-4 shadow-2xs flex flex-col lg:flex-row lg:items-center justify-between gap-3.5">
+      <div className="rounded-2xl border border-[rgba(15,23,42,0.08)] bg-white p-3.5 sm:p-4 shadow-2xs flex flex-col lg:flex-row lg:items-center justify-between gap-3.5">
         {/* Left: Project Selector & Sub-Tabs */}
         <div className="flex flex-wrap items-center gap-2.5">
-          {/* Project Filter Dropdown */}
-          <div className="flex items-center gap-1.5 bg-[#FAF9FC] border border-[rgba(74,61,100,0.12)] rounded-xl px-2.5 py-1 text-xs">
-            <FolderKanban size={13} className="text-[#9994A5] shrink-0" />
-            <select
-              value={selectedProjectId}
-              onChange={(e) => setSelectedProjectId(e.target.value)}
-              className="bg-transparent text-xs font-semibold text-[#252331] focus:outline-none cursor-pointer pr-1"
-            >
-              <option value="all">All Projects ({projects.length})</option>
-              {projects.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.name}
-                </option>
-              ))}
-            </select>
-          </div>
+          {/* Modern Searchable Project Filter */}
+          <SearchableSelect
+            options={projectSelectOptions}
+            value={selectedProjectId}
+            onChange={setSelectedProjectId}
+            icon={<FolderKanban size={13} className="text-[#64748B]" />}
+            placeholder="Select a project..."
+            searchPlaceholder="Search projects..."
+            ariaLabel="Filter meetings by project"
+          />
 
           {/* Sub-Tabs: Upcoming, Past, Cancelled, All */}
           <div className="flex items-center gap-1 p-1 bg-[#F4F2F8] rounded-xl overflow-x-auto no-scrollbar">
@@ -371,8 +412,8 @@ export function AdminMeetingsWorkspace({
               onClick={() => setActiveSubTab("upcoming")}
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition cursor-pointer ${
                 activeSubTab === "upcoming"
-                  ? "bg-white text-[#252331] shadow-2xs"
-                  : "text-[#706C7D] hover:text-[#252331]"
+                  ? "bg-white text-[#0F172A] shadow-2xs"
+                  : "text-[#334155] hover:text-[#0F172A]"
               }`}
             >
               Upcoming ({upcomingCount})
@@ -382,8 +423,8 @@ export function AdminMeetingsWorkspace({
               onClick={() => setActiveSubTab("past")}
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition cursor-pointer ${
                 activeSubTab === "past"
-                  ? "bg-white text-[#252331] shadow-2xs"
-                  : "text-[#706C7D] hover:text-[#252331]"
+                  ? "bg-white text-[#0F172A] shadow-2xs"
+                  : "text-[#334155] hover:text-[#0F172A]"
               }`}
             >
               Past ({completedCount})
@@ -393,8 +434,8 @@ export function AdminMeetingsWorkspace({
               onClick={() => setActiveSubTab("cancelled")}
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition cursor-pointer ${
                 activeSubTab === "cancelled"
-                  ? "bg-white text-[#252331] shadow-2xs"
-                  : "text-[#706C7D] hover:text-[#252331]"
+                  ? "bg-white text-[#0F172A] shadow-2xs"
+                  : "text-[#334155] hover:text-[#0F172A]"
               }`}
             >
               Cancelled ({cancelledCount})
@@ -404,8 +445,8 @@ export function AdminMeetingsWorkspace({
               onClick={() => setActiveSubTab("all")}
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition cursor-pointer ${
                 activeSubTab === "all"
-                  ? "bg-white text-[#252331] shadow-2xs"
-                  : "text-[#706C7D] hover:text-[#252331]"
+                  ? "bg-white text-[#0F172A] shadow-2xs"
+                  : "text-[#334155] hover:text-[#0F172A]"
               }`}
             >
               All ({meetings.length})
@@ -416,34 +457,33 @@ export function AdminMeetingsWorkspace({
         {/* Right: Search & Type Filter */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
           <div className="relative w-full sm:w-64">
-            <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#9994A5]" />
+            <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#64748B]" />
             <input
               type="text"
               placeholder="Search by title, agenda, project..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full rounded-xl border border-[rgba(74,61,100,0.12)] bg-[#FAF9FC] pl-8 pr-3 py-1.5 text-xs text-[#252331] placeholder:text-[#9994A5] focus:outline-none focus:ring-1 focus:ring-[#B8944E]"
+              className="w-full rounded-xl border border-[rgba(15,23,42,0.12)] bg-[#F8F9FB] pl-8 pr-3 py-1.5 text-xs text-[#0F172A] placeholder:text-[#64748B] focus:outline-none focus:ring-1 focus:ring-[#CCA038]"
             />
           </div>
 
-          <select
+          <SearchableSelect
+            options={meetingTypeOptions}
             value={typeFilter}
-            onChange={(e) => setTypeFilter(e.target.value)}
-            className="rounded-xl border border-[rgba(74,61,100,0.12)] bg-[#FAF9FC] px-2.5 py-1.5 text-xs font-semibold text-[#252331] focus:outline-none focus:ring-1 focus:ring-[#B8944E] cursor-pointer"
-          >
-            <option value="all">All Types</option>
-            <option value="demo">Demo</option>
-            <option value="planning">Planning</option>
-            <option value="discussion">Discussion</option>
-          </select>
+            onChange={setTypeFilter}
+            searchable={false}
+            menuWidthClass="w-44 sm:w-48"
+            align="right"
+            ariaLabel="Filter meetings by type"
+          />
         </div>
       </div>
 
       {/* 4. Meetings Cards Grid */}
       {loading ? (
-        <div className="rounded-2xl border border-[rgba(74,61,100,0.08)] bg-white p-12 text-center space-y-3">
-          <Loader2 size={24} className="animate-spin text-[#B8944E] mx-auto" />
-          <p className="text-xs text-[#706C7D]">Loading meetings across projects...</p>
+        <div className="rounded-2xl border border-[rgba(15,23,42,0.08)] bg-white p-12 text-center space-y-3">
+          <Loader2 size={24} className="animate-spin text-[#CCA038] mx-auto" />
+          <p className="text-xs text-[#334155]">Loading meetings across projects...</p>
         </div>
       ) : filteredMeetings.length === 0 ? (
         <EmptyState
@@ -487,14 +527,14 @@ export function AdminMeetingsWorkspace({
             return (
               <div
                 key={m.id}
-                className="group relative rounded-2xl border border-[rgba(74,61,100,0.08)] bg-white p-4 shadow-2xs hover:shadow-md hover:border-[#B8944E]/30 transition-all flex flex-col justify-between"
+                className="group relative rounded-2xl border border-[rgba(15,23,42,0.08)] bg-white p-4 shadow-2xs hover:shadow-md hover:border-[#CCA038]/30 transition-all flex flex-col justify-between"
               >
                 {/* Header: Project Badge + Status & Menu */}
                 <div>
                   <div className="flex items-center justify-between gap-2 mb-2.5">
                     <Link
                       href={`/project/${m.project_id}?tab=meetings`}
-                      className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-[rgba(184,148,78,0.08)] text-[11px] font-bold text-[#80642F] hover:bg-[rgba(184,148,78,0.16)] transition truncate max-w-[200px]"
+                      className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-[rgba(204,160,56,0.08)] text-[11px] font-bold text-[#785312] hover:bg-[rgba(204,160,56,0.16)] transition truncate max-w-[200px]"
                       title={`Go to ${m.projectName || "Project"}`}
                     >
                       <FolderKanban size={11} className="shrink-0" />
@@ -547,7 +587,7 @@ export function AdminMeetingsWorkspace({
                               }}
                               className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg hover:bg-zinc-100 text-zinc-700 font-medium text-left cursor-pointer"
                             >
-                              <Share2 size={13} className="text-[#80642F]" />
+                              <Share2 size={13} className="text-[#785312]" />
                               Share Invitation
                             </button>
 
@@ -627,7 +667,7 @@ export function AdminMeetingsWorkspace({
                         setSelectedMeeting(m);
                         setDetailsModalOpen(true);
                       }}
-                      className="text-sm font-bold text-[#252331] group-hover:text-[#80642F] transition-colors cursor-pointer line-clamp-1"
+                      className="text-sm font-bold text-[#0F172A] group-hover:text-[#785312] transition-colors cursor-pointer line-clamp-1"
                       title={m.title}
                     >
                       {m.title}
@@ -635,10 +675,10 @@ export function AdminMeetingsWorkspace({
                   </div>
 
                   {/* Date, Time & Duration */}
-                  <div className="rounded-xl bg-[#FAF9FC] p-2.5 border border-[rgba(74,61,100,0.06)] space-y-1 text-xs mb-3">
+                  <div className="rounded-xl bg-[#F8F9FB] p-2.5 border border-[rgba(15,23,42,0.06)] space-y-1 text-xs mb-3">
                     <div className="flex items-center justify-between text-zinc-700 font-semibold">
                       <span>{dateStr}</span>
-                      <span className="text-[11px] font-mono text-[#80642F]">{durationStr}</span>
+                      <span className="text-[11px] font-mono text-[#785312]">{durationStr}</span>
                     </div>
                     <div className="text-[11px] text-zinc-500 font-mono">
                       {timeRangeStr}
@@ -654,7 +694,7 @@ export function AdminMeetingsWorkspace({
                 </div>
 
                 {/* Footer Buttons */}
-                <div className="pt-3 border-t border-[rgba(74,61,100,0.06)] flex items-center justify-between gap-2 mt-auto">
+                <div className="pt-3 border-t border-[rgba(15,23,42,0.06)] flex items-center justify-between gap-2 mt-auto">
                   <div className="flex items-center gap-1.5">
                     <Button
                       variant="outline"
@@ -688,7 +728,7 @@ export function AdminMeetingsWorkspace({
                       href={m.meeting_url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#B8944E] hover:bg-[#A3803C] text-white text-xs font-bold shadow-2xs transition"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#CCA038] hover:bg-[#A3803C] text-white text-xs font-bold shadow-2xs transition"
                     >
                       <span>Join</span>
                       <ExternalLink size={11} />
@@ -709,7 +749,7 @@ export function AdminMeetingsWorkspace({
         maxWidth="md"
       >
         <div className="space-y-4">
-          <p className="text-xs text-[#706C7D]">
+          <p className="text-xs text-[#334155]">
             Choose which project this call or review session belongs to:
           </p>
 
@@ -724,10 +764,10 @@ export function AdminMeetingsWorkspace({
                   setMeetingToEdit(null);
                   setScheduleModalOpen(true);
                 }}
-                className="w-full flex items-center justify-between p-3 rounded-xl border border-zinc-200 hover:border-[#B8944E] hover:bg-[rgba(184,148,78,0.04)] text-left transition group cursor-pointer"
+                className="w-full flex items-center justify-between p-3 rounded-xl border border-zinc-200 hover:border-[#CCA038] hover:bg-[rgba(204,160,56,0.04)] text-left transition group cursor-pointer"
               >
                 <div className="min-w-0">
-                  <p className="text-xs font-bold text-zinc-900 group-hover:text-[#80642F] truncate">
+                  <p className="text-xs font-bold text-zinc-900 group-hover:text-[#785312] truncate">
                     {p.name}
                   </p>
                   {p.description && (
@@ -736,7 +776,7 @@ export function AdminMeetingsWorkspace({
                     </p>
                   )}
                 </div>
-                <span className="text-xs font-semibold text-[#80642F] opacity-0 group-hover:opacity-100 transition shrink-0 ml-2">
+                <span className="text-xs font-semibold text-[#785312] opacity-0 group-hover:opacity-100 transition shrink-0 ml-2">
                   Select →
                 </span>
               </button>

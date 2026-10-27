@@ -231,8 +231,8 @@ export function MeetingScheduleModal({
   };
 
   const inputClass =
-    "w-full rounded-xl border border-[rgba(74,61,100,0.15)] bg-white px-3.5 py-2 text-xs sm:text-sm text-[#252331] placeholder-[#9994A5] focus:outline-none focus:ring-2 focus:ring-[#B8944E]/30 focus:border-[#B8944E] transition-all";
-  const labelClass = "block text-[11px] font-bold uppercase tracking-wider text-[#706C7D] mb-1.5";
+    "w-full rounded-xl border border-[rgba(15,23,42,0.15)] bg-white px-3.5 py-2 text-xs sm:text-sm text-[#0F172A] placeholder-[#64748B] focus:outline-none focus:ring-2 focus:ring-[#CCA038]/30 focus:border-[#CCA038] transition-all";
+  const labelClass = "block text-[11px] font-bold uppercase tracking-wider text-[#334155] mb-1.5";
 
   return (
     <Modal
@@ -285,8 +285,8 @@ export function MeetingScheduleModal({
                     onClick={() => setMeetingType(type)}
                     className={`py-2 px-2.5 rounded-xl border text-xs font-semibold text-center transition-all cursor-pointer ${
                       isSelected
-                        ? "border-[#B8944E] bg-[rgba(184,148,78,0.12)] text-[#80642F] shadow-2xs"
-                        : "border-[rgba(74,61,100,0.12)] bg-white text-[#706C7D] hover:bg-[#faf9fc]"
+                        ? "border-[#CCA038] bg-[rgba(204,160,56,0.12)] text-[#785312] shadow-2xs"
+                        : "border-[rgba(15,23,42,0.12)] bg-white text-[#334155] hover:bg-[#F8F9FB]"
                     }`}
                   >
                     {conf.label}
@@ -318,14 +318,14 @@ export function MeetingScheduleModal({
                     }}
                     className={`py-2 px-2.5 rounded-xl border text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
                       isSelected
-                        ? "border-[#B8944E] bg-[rgba(184,148,78,0.12)] text-[#80642F] shadow-2xs"
-                        : "border-[rgba(74,61,100,0.12)] bg-white text-[#706C7D] hover:bg-[#faf9fc]"
+                        ? "border-[#CCA038] bg-[rgba(204,160,56,0.12)] text-[#785312] shadow-2xs"
+                        : "border-[rgba(15,23,42,0.12)] bg-white text-[#334155] hover:bg-[#F8F9FB]"
                     }`}
                   >
                     {plat === "whatsapp_call" ? (
                       <PhoneCall size={12} className="text-emerald-600 shrink-0" />
                     ) : (
-                      <Video size={12} className="text-[#80642F] shrink-0" />
+                      <Video size={12} className="text-[#785312] shrink-0" />
                     )}
                     <span className="truncate">{conf.label}</span>
                   </button>
@@ -339,10 +339,10 @@ export function MeetingScheduleModal({
         {platform !== "whatsapp_call" && (
           <div>
             <div className="flex items-center justify-between mb-1.5">
-              <label className="text-[11px] font-bold uppercase tracking-wider text-[#706C7D]">
+              <label className="text-[11px] font-bold uppercase tracking-wider text-[#334155]">
                 {MEETING_PLATFORM_CONFIG[platform].label} Link <span className="text-rose-500">*</span>
               </label>
-              <span className="text-[10px] text-[#9994A5]">Must begin with http:// or https://</span>
+              <span className="text-[10px] text-[#64748B]">Must begin with http:// or https://</span>
             </div>
             <div className="relative">
               <input
@@ -357,7 +357,7 @@ export function MeetingScheduleModal({
                   errors.meetingUrl ? "border-rose-400 focus:ring-rose-200" : ""
                 }`}
               />
-              <Link2 size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[#9994A5]" />
+              <Link2 size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[#64748B]" />
             </div>
             {errors.meetingUrl && (
               <p className="mt-1 text-[11px] text-rose-600">{errors.meetingUrl}</p>
@@ -366,7 +366,7 @@ export function MeetingScheduleModal({
         )}
 
         {/* 4. Date, Start Time, End Time & Duration Presets */}
-        <div className="rounded-xl border border-[rgba(74,61,100,0.10)] bg-[#faf9fc] p-3.5 space-y-3">
+        <div className="rounded-xl border border-[rgba(15,23,42,0.10)] bg-[#F8F9FB] p-3.5 space-y-3">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
               <label className={labelClass}>
@@ -416,7 +416,7 @@ export function MeetingScheduleModal({
 
           {/* Quick Duration Buttons */}
           <div className="flex items-center gap-2 pt-1 flex-wrap">
-            <span className="text-[10px] font-bold text-[#706C7D] uppercase tracking-wider">
+            <span className="text-[10px] font-bold text-[#334155] uppercase tracking-wider">
               Quick Duration:
             </span>
             {[15, 30, 45, 60, 90].map((mins) => (
@@ -426,8 +426,8 @@ export function MeetingScheduleModal({
                 onClick={() => handleDurationPresetChange(mins)}
                 className={`px-2.5 py-0.5 rounded-lg text-xs font-medium border transition-colors cursor-pointer ${
                   durationPreset === mins
-                    ? "bg-[#B8944E] text-white border-[#B8944E]"
-                    : "bg-white text-[#706C7D] border-[rgba(74,61,100,0.12)] hover:bg-[#f1eff7]"
+                    ? "bg-[#CCA038] text-white border-[#CCA038]"
+                    : "bg-white text-[#334155] border-[rgba(15,23,42,0.12)] hover:bg-[#f1eff7]"
                 }`}
               >
                 {mins < 60 ? `${mins}m` : mins === 60 ? "1 hr" : "1.5 hr"}
@@ -439,10 +439,10 @@ export function MeetingScheduleModal({
         {/* 5. Agenda */}
         <div>
           <div className="flex items-center justify-between mb-1.5">
-            <label className="text-[11px] font-bold uppercase tracking-wider text-[#706C7D]">
+            <label className="text-[11px] font-bold uppercase tracking-wider text-[#334155]">
               Agenda Items <span className="text-rose-500">*</span>
             </label>
-            <span className="text-[10px] text-[#9994A5]">Numbered list or separate by line</span>
+            <span className="text-[10px] text-[#64748B]">Numbered list or separate by line</span>
           </div>
           <textarea
             rows={3}
@@ -487,12 +487,12 @@ export function MeetingScheduleModal({
             placeholder="Add internal discussion points, sensitive prep notes, or follow-up items..."
             value={internalNote}
             onChange={(e) => setInternalNote(e.target.value)}
-            className="w-full rounded-lg border border-amber-200 bg-white px-3 py-1.5 text-xs text-[#252331] placeholder-[#9994A5] focus:outline-none focus:ring-1 focus:ring-[#B8944E]"
+            className="w-full rounded-lg border border-amber-200 bg-white px-3 py-1.5 text-xs text-[#0F172A] placeholder-[#64748B] focus:outline-none focus:ring-1 focus:ring-[#CCA038]"
           />
         </div>
 
         {/* Actions Footer */}
-        <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-[rgba(74,61,100,0.08)]">
+        <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-[rgba(15,23,42,0.08)]">
           <Button variant="secondary" size="md" onClick={onClose} disabled={submitting}>
             Cancel
           </Button>

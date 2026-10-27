@@ -14,6 +14,7 @@ export interface DropdownItem {
 interface DropdownMenuProps {
   items: DropdownItem[];
   trigger?: React.ReactNode;
+  triggerClassName?: string;
   align?: "left" | "right";
   ariaLabel?: string;
 }
@@ -21,6 +22,7 @@ interface DropdownMenuProps {
 export function DropdownMenu({
   items,
   trigger,
+  triggerClassName,
   align = "right",
   ariaLabel = "More actions",
 }: DropdownMenuProps) {
@@ -151,13 +153,19 @@ export function DropdownMenu({
           aria-label={ariaLabel}
           aria-haspopup="true"
           aria-expanded={open}
-          className={`grid h-8 w-8 place-items-center rounded-lg transition ${
-            open
-              ? "bg-zinc-100 text-zinc-900 ring-1 ring-zinc-300"
-              : "text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700"
-          }`}
+          className={
+            triggerClassName ||
+            `grid h-8 w-8 place-items-center rounded-lg transition ${
+              open
+                ? "bg-zinc-100 text-zinc-900 ring-1 ring-zinc-300"
+                : "text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700"
+            }`
+          }
         >
-          <MoreHorizontal size={16} />
+          <MoreHorizontal
+            size={triggerClassName ? 13 : 16}
+            className={triggerClassName ? "sm:w-3.5 sm:h-3.5" : undefined}
+          />
         </button>
       )}
 
@@ -172,7 +180,7 @@ export function DropdownMenu({
             openUpward
               ? "bottom-full mb-1.5 origin-bottom-right"
               : "top-full mt-1.5 origin-top-right"
-          } z-50 min-w-[165px] max-w-[calc(100vw-2rem)] rounded-xl border border-[rgba(74,61,100,0.10)] bg-white/94 backdrop-blur-[20px] p-1 shadow-[0_15px_40px_rgba(70,55,95,0.12)] animate-in fade-in zoom-in-95 duration-100`}
+          } z-50 min-w-[165px] max-w-[calc(100vw-2rem)] rounded-xl border border-[rgba(15,23,42,0.10)] bg-white/94 backdrop-blur-[20px] p-1 shadow-[0_15px_40px_rgba(15,23,42,0.12)] animate-in fade-in zoom-in-95 duration-100`}
         >
           <div className="space-y-0.5">
             {items.map((item, idx) => (
@@ -191,11 +199,11 @@ export function DropdownMenu({
                 }}
                 className={`flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-xs sm:text-sm font-medium transition text-left disabled:opacity-40 disabled:cursor-not-allowed focus:outline-none ${
                   item.variant === "danger"
-                    ? "text-[#C25D72] hover:bg-rose-50/80 focus:bg-rose-50/80"
-                    : "text-[#252331] hover:bg-[rgba(184,148,78,0.06)] hover:text-[#80642F] focus:bg-[rgba(184,148,78,0.06)] focus:text-[#80642F]"
+                    ? "text-[#E11D48] hover:bg-rose-50/80 focus:bg-rose-50/80"
+                    : "text-[#0F172A] hover:bg-[rgba(204,160,56,0.06)] hover:text-[#785312] focus:bg-[rgba(204,160,56,0.06)] focus:text-[#785312]"
                 }`}
               >
-                {item.icon && <span className="shrink-0 text-[#9994A5]">{item.icon}</span>}
+                {item.icon && <span className="shrink-0 text-[#64748B]">{item.icon}</span>}
                 <span className="truncate">{item.label}</span>
               </button>
             ))}

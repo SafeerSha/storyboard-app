@@ -271,8 +271,8 @@ export default function NewRemunerationPage() {
     }
   };
 
-  const inputClass = "w-full rounded-lg border border-[rgba(74,61,100,0.15)] bg-white px-3.5 py-2.5 text-sm text-[#252331] placeholder:text-[#9994A5] focus:outline-none focus:ring-2 focus:ring-[rgba(184,148,78,0.25)] focus:border-[rgba(184,148,78,0.4)] transition-colors";
-  const labelClass = "block text-xs font-semibold text-[#706C7D] uppercase tracking-wider mb-1.5";
+  const inputClass = "w-full rounded-lg border border-[rgba(15,23,42,0.15)] bg-white px-3.5 py-2.5 text-sm text-[#0F172A] placeholder:text-[#64748B] focus:outline-none focus:ring-2 focus:ring-[rgba(204,160,56,0.25)] focus:border-[rgba(204,160,56,0.4)] transition-colors";
+  const labelClass = "block text-xs font-semibold text-[#334155] uppercase tracking-wider mb-1.5";
 
   return (
     <div className="min-h-screen bg-[#f8f7fc] pb-16">
@@ -297,14 +297,14 @@ export default function NewRemunerationPage() {
             {/* Left Column: Project, Client & Remuneration Terms */}
             <div className="space-y-6">
               {/* Card 1: Project & Client */}
-              <div className="rounded-2xl border border-[rgba(74,61,100,0.10)] bg-white p-6 shadow-sm space-y-5">
-                <div className="flex items-center gap-2.5 pb-2 border-b border-[rgba(74,61,100,0.06)]">
-                  <div className="grid h-8 w-8 place-items-center rounded-lg bg-[rgba(184,148,78,0.12)] text-[#80642F]">
+              <div className="rounded-2xl border border-[rgba(15,23,42,0.10)] bg-white p-6 shadow-sm space-y-5">
+                <div className="flex items-center gap-2.5 pb-2 border-b border-[rgba(15,23,42,0.06)]">
+                  <div className="grid h-8 w-8 place-items-center rounded-lg bg-[rgba(204,160,56,0.12)] text-[#785312]">
                     <FolderKanban size={16} />
                   </div>
                   <div>
-                    <h2 className="text-base font-semibold text-[#252331]">Project & Client</h2>
-                    <p className="text-xs text-[#9994A5]">Select target project (client assignment is optional)</p>
+                    <h2 className="text-base font-semibold text-[#0F172A]">Project & Client</h2>
+                    <p className="text-xs text-[#64748B]">Select target project (client assignment is optional)</p>
                   </div>
                 </div>
 
@@ -328,26 +328,26 @@ export default function NewRemunerationPage() {
                   <div>
                     <label className={labelClass}>
                       <span>Client</span>
-                      <span className="ml-1 text-[#9994A5] font-normal normal-case">(optional)</span>
+                      <span className="ml-1 text-[#64748B] font-normal normal-case">(optional)</span>
                     </label>
-                    <div className={`${inputClass} flex items-center gap-2 bg-[#faf9fc] min-h-[42px]`}>
-                      <Lock size={14} className="shrink-0 text-[#9994A5]" />
+                    <div className={`${inputClass} flex items-center gap-2 bg-[#F8F9FB] min-h-[42px]`}>
+                      <Lock size={14} className="shrink-0 text-[#64748B]" />
                       {loadingClient ? (
-                        <span className="text-[#9994A5] flex items-center gap-1.5 text-xs">
+                        <span className="text-[#64748B] flex items-center gap-1.5 text-xs">
                           <Loader2 size={13} className="animate-spin" /> Checking client…
                         </span>
                       ) : client ? (
                         <div className="flex items-center justify-between w-full min-w-0">
-                          <span className="font-medium text-[#252331] text-xs sm:text-sm truncate">
+                          <span className="font-medium text-[#0F172A] text-xs sm:text-sm truncate">
                             {client.name}
-                            {client.email && <span className="text-[#9994A5] font-normal ml-1">({client.email})</span>}
+                            {client.email && <span className="text-[#64748B] font-normal ml-1">({client.email})</span>}
                           </span>
                           <span className="text-[10px] bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full font-semibold shrink-0">
                             Linked
                           </span>
                         </div>
                       ) : (
-                        <span className="text-[#9994A5] text-xs">
+                        <span className="text-[#64748B] text-xs">
                           {selectedProjectId ? "No client assigned (Optional)" : "Select project to link client"}
                         </span>
                       )}
@@ -356,8 +356,8 @@ export default function NewRemunerationPage() {
                 </div>
 
                 {selectedProjectId && !client && !loadingClient && (
-                  <div className="flex items-start gap-2 rounded-lg border border-[rgba(74,61,100,0.1)] bg-[#faf9fc] p-3 text-xs text-[#706C7D]">
-                    <Info size={14} className="shrink-0 mt-0.5 text-[#B8944E]" />
+                  <div className="flex items-start gap-2 rounded-lg border border-[rgba(15,23,42,0.1)] bg-[#F8F9FB] p-3 text-xs text-[#334155]">
+                    <Info size={14} className="shrink-0 mt-0.5 text-[#CCA038]" />
                     <span>
                       This project currently has no assigned client. You can still create and manage this remuneration agreement now, and link a client later.
                     </span>
@@ -366,14 +366,14 @@ export default function NewRemunerationPage() {
               </div>
 
               {/* Card 2: Remuneration Details & Email Controller */}
-              <div className="rounded-2xl border border-[rgba(74,61,100,0.10)] bg-white p-6 shadow-sm space-y-5">
-                <div className="flex items-center gap-2.5 pb-2 border-b border-[rgba(74,61,100,0.06)]">
-                  <div className="grid h-8 w-8 place-items-center rounded-lg bg-[rgba(184,148,78,0.12)] text-[#80642F]">
+              <div className="rounded-2xl border border-[rgba(15,23,42,0.10)] bg-white p-6 shadow-sm space-y-5">
+                <div className="flex items-center gap-2.5 pb-2 border-b border-[rgba(15,23,42,0.06)]">
+                  <div className="grid h-8 w-8 place-items-center rounded-lg bg-[rgba(204,160,56,0.12)] text-[#785312]">
                     <Receipt size={16} />
                   </div>
                   <div>
-                    <h2 className="text-base font-semibold text-[#252331]">Remuneration Details</h2>
-                    <p className="text-xs text-[#9994A5]">Specify currency, total remuneration value, and payment terms</p>
+                    <h2 className="text-base font-semibold text-[#0F172A]">Remuneration Details</h2>
+                    <p className="text-xs text-[#64748B]">Specify currency, total remuneration value, and payment terms</p>
                   </div>
                 </div>
 
@@ -402,7 +402,7 @@ export default function NewRemunerationPage() {
 
                 <div>
                   <label className={labelClass}>Payment Method</label>
-                  <div className="grid grid-cols-2 rounded-xl border border-[rgba(74,61,100,0.15)] bg-[#faf9fc] p-1 gap-1">
+                  <div className="grid grid-cols-2 rounded-xl border border-[rgba(15,23,42,0.15)] bg-[#F8F9FB] p-1 gap-1">
                     {(["single", "installments"] as const).map((m) => (
                       <button
                         key={m}
@@ -410,8 +410,8 @@ export default function NewRemunerationPage() {
                         onClick={() => handleMethodChange(m)}
                         className={`py-2 text-xs sm:text-sm font-semibold rounded-lg transition-all cursor-pointer ${
                           paymentMethod === m
-                            ? "bg-white text-[#252331] shadow-xs border border-[rgba(74,61,100,0.12)]"
-                            : "text-[#706C7D] hover:text-[#252331]"
+                            ? "bg-white text-[#0F172A] shadow-xs border border-[rgba(15,23,42,0.12)]"
+                            : "text-[#334155] hover:text-[#0F172A]"
                         }`}
                       >
                         {m === "single" ? "Single Payment" : "Installments"}
@@ -431,16 +431,16 @@ export default function NewRemunerationPage() {
                 </div>
 
                 {/* Controller / Toggle: Confirmation Email upon Agreement */}
-                <div className="rounded-xl border border-[rgba(74,61,100,0.12)] bg-[#FAF9FC] p-4 space-y-4">
+                <div className="rounded-xl border border-[rgba(15,23,42,0.12)] bg-[#F8F9FB] p-4 space-y-4">
                   <div className="flex items-start justify-between gap-4">
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
-                        <Mail size={15} className={sendAgreementEmail ? "text-[#B8944E]" : "text-[#9994A5]"} />
-                        <span className="text-xs font-bold text-[#252331] uppercase tracking-wider">
+                        <Mail size={15} className={sendAgreementEmail ? "text-[#CCA038]" : "text-[#64748B]"} />
+                        <span className="text-xs font-bold text-[#0F172A] uppercase tracking-wider">
                           Send Agreement Confirmation Email
                         </span>
                       </div>
-                      <p className="text-xs text-[#706C7D] leading-relaxed">
+                      <p className="text-xs text-[#334155] leading-relaxed">
                         {sendAgreementEmail
                           ? "Send an agreement confirmation email to the client containing remuneration details."
                           : "Client will not receive an agreement email."}
@@ -453,11 +453,11 @@ export default function NewRemunerationPage() {
                         onChange={(e) => setSendAgreementEmail(e.target.checked)}
                         className="sr-only peer"
                       />
-                      <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#B8944E]" />
+                      <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#CCA038]" />
                     </label>
                   </div>
                   {sendAgreementEmail && (
-                    <div className="pt-2 border-t border-[rgba(74,61,100,0.06)]">
+                    <div className="pt-2 border-t border-[rgba(15,23,42,0.06)]">
                       <label className={labelClass}>Client Email Address</label>
                       <input
                         type="email"
@@ -485,15 +485,15 @@ export default function NewRemunerationPage() {
             {/* Right Column: Team Member Splits & Action */}
             <div className="space-y-6">
               {/* Card 3: Team Member Splits */}
-              <div className="rounded-2xl border border-[rgba(74,61,100,0.10)] bg-white p-6 shadow-sm space-y-5">
-                <div className="flex items-center justify-between pb-2 border-b border-[rgba(74,61,100,0.06)]">
+              <div className="rounded-2xl border border-[rgba(15,23,42,0.10)] bg-white p-6 shadow-sm space-y-5">
+                <div className="flex items-center justify-between pb-2 border-b border-[rgba(15,23,42,0.06)]">
                   <div className="flex items-center gap-2.5">
-                    <div className="grid h-8 w-8 place-items-center rounded-lg bg-[rgba(184,148,78,0.12)] text-[#80642F]">
+                    <div className="grid h-8 w-8 place-items-center rounded-lg bg-[rgba(204,160,56,0.12)] text-[#785312]">
                       <Users size={16} />
                     </div>
                     <div>
-                      <h2 className="text-base font-semibold text-[#252331]">Team Remuneration</h2>
-                      <p className="text-xs text-[#9994A5]">Allocate remuneration shares among project collaborators</p>
+                      <h2 className="text-base font-semibold text-[#0F172A]">Team Remuneration</h2>
+                      <p className="text-xs text-[#64748B]">Allocate remuneration shares among project collaborators</p>
                     </div>
                   </div>
 
@@ -509,7 +509,7 @@ export default function NewRemunerationPage() {
                       }}
                       className="sr-only peer"
                     />
-                    <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#B8944E]" />
+                    <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#CCA038]" />
                   </label>
                 </div>
 
@@ -517,13 +517,13 @@ export default function NewRemunerationPage() {
                   <div className="space-y-4">
                     {projectTeamMembers.length > 0 && (
                       <div className="flex items-center justify-between gap-2">
-                        <span className="text-xs text-[#706C7D]">
+                        <span className="text-xs text-[#334155]">
                           {splits.length} {splits.length === 1 ? "member allocation" : "member allocations"} configured
                         </span>
                         <button
                           type="button"
                           onClick={handleAutoSplitEqually}
-                          className="text-xs font-semibold text-[#80642F] hover:underline inline-flex items-center gap-1 cursor-pointer"
+                          className="text-xs font-semibold text-[#785312] hover:underline inline-flex items-center gap-1 cursor-pointer"
                         >
                           <Percent size={12} /> Auto Split Equally
                         </button>
@@ -533,16 +533,16 @@ export default function NewRemunerationPage() {
                     {/* Split Rows */}
                     <div className="space-y-3">
                       {splits.map((split, idx) => (
-                        <div key={idx} className="rounded-xl border border-[rgba(74,61,100,0.10)] bg-[#faf9fc] p-3.5 space-y-3">
+                        <div key={idx} className="rounded-xl border border-[rgba(15,23,42,0.10)] bg-[#F8F9FB] p-3.5 space-y-3">
                           <div className="flex items-center justify-between">
-                            <span className="text-xs font-bold uppercase tracking-wider text-[#9994A5] flex items-center gap-1.5">
-                              <span className="h-1.5 w-1.5 rounded-full bg-[#B8944E]" />
+                            <span className="text-xs font-bold uppercase tracking-wider text-[#64748B] flex items-center gap-1.5">
+                              <span className="h-1.5 w-1.5 rounded-full bg-[#CCA038]" />
                               Member Allocation #{idx + 1}
                             </span>
                             <button
                               type="button"
                               onClick={() => removeSplit(idx)}
-                              className="p-1 rounded text-[#9994A5] hover:text-red-500 hover:bg-red-50 transition-colors cursor-pointer"
+                              className="p-1 rounded text-[#64748B] hover:text-red-500 hover:bg-red-50 transition-colors cursor-pointer"
                               title="Remove split"
                             >
                               <Trash2 size={13} />
@@ -581,7 +581,7 @@ export default function NewRemunerationPage() {
                                   onChange={(e) => updateSplit(idx, "percentage", e.target.value)}
                                   className={`${inputClass} pr-6`}
                                 />
-                                <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs text-[#9994A5] pointer-events-none">
+                                <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs text-[#64748B] pointer-events-none">
                                   %
                                 </span>
                               </div>
@@ -646,8 +646,8 @@ export default function NewRemunerationPage() {
                     </div>
                   </div>
                 ) : (
-                  <div className="rounded-xl border border-dashed border-[rgba(74,61,100,0.12)] bg-[#FAF9FC] p-4 text-center">
-                    <p className="text-xs text-[#706C7D]">
+                  <div className="rounded-xl border border-dashed border-[rgba(15,23,42,0.12)] bg-[#F8F9FB] p-4 text-center">
+                    <p className="text-xs text-[#334155]">
                       Team member splits are disabled. Turn on the toggle to allocate shares among project team members.
                     </p>
                   </div>
@@ -655,19 +655,19 @@ export default function NewRemunerationPage() {
               </div>
               
               {/* Card 4: Agreement Summary & Action Buttons */}
-              <div className="rounded-2xl border border-[rgba(74,61,100,0.10)] bg-white p-5 shadow-sm flex flex-col justify-between gap-6">
-                <div className="text-xs text-[#706C7D]">
+              <div className="rounded-2xl border border-[rgba(15,23,42,0.10)] bg-white p-5 shadow-sm flex flex-col justify-between gap-6">
+                <div className="text-xs text-[#334155]">
                   {totalNum > 0 ? (
                     <div className="space-y-1">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="font-semibold text-[#252331]">Total Agreement:</span>
-                        <span className="font-bold text-[#80642F] font-mono text-sm">
+                        <span className="font-semibold text-[#0F172A]">Total Agreement:</span>
+                        <span className="font-bold text-[#785312] font-mono text-sm">
                           {formatCurrency(totalNum, currency)}
                         </span>
-                        <span className="text-[#9994A5]">•</span>
+                        <span className="text-[#64748B]">•</span>
                         <span>{paymentMethod === "single" ? "1 Single Payment" : "Installments"}</span>
                       </div>
-                      <div className="text-[11px] text-[#9994A5] flex flex-col gap-1 mt-2">
+                      <div className="text-[11px] text-[#64748B] flex flex-col gap-1 mt-2">
                         <span>Client: {client ? client.name : "None assigned (Optional)"}</span>
                         <span>Agreement Email: {sendAgreementEmail ? "Enabled" : "Disabled"}</span>
                         {enableSplits && splits.length > 0 && (

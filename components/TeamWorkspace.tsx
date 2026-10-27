@@ -746,20 +746,20 @@ export function TeamWorkspace({
   return (
     <div className="w-full min-w-0 pb-32">
       {/* Top Workspace Header */}
-      <header className="w-full border-b border-[rgba(74,61,100,0.08)] bg-white/68 backdrop-blur-[20px]">
+      <header className="w-full border-b border-[rgba(15,23,42,0.08)] bg-white/68 backdrop-blur-[20px]">
         <div className="w-full mx-auto max-w-[1720px] px-4 py-4 sm:py-6 lg:px-8">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
             <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-2 text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-[#B8944E] mb-1">
+              <div className="flex items-center gap-2 text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-[#CCA038] mb-1">
                 <span>Team Workspace</span>
-                <span className="text-[rgba(74,61,100,0.25)]">•</span>
-                <span className="text-[#706C7D] font-normal lowercase tracking-normal">
+                <span className="text-[rgba(15,23,42,0.25)]">•</span>
+                <span className="text-[#334155] font-normal lowercase tracking-normal">
                   @{teamUser.username}
                 </span>
               </div>
               <div className="flex items-center justify-between sm:justify-start gap-2.5 sm:gap-3 flex-wrap">
                 <div className="flex items-center gap-2.5 min-w-0 flex-wrap">
-                  <h1 className="text-lg sm:text-2xl font-bold tracking-tight text-[#252331] truncate">
+                  <h1 className="text-lg sm:text-2xl font-bold tracking-tight text-[#0F172A] truncate">
                     {project.name}
                   </h1>
                   <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2 sm:px-2.5 py-0.5 text-[10px] sm:text-xs font-medium text-emerald-700 border border-emerald-200 shrink-0">
@@ -773,7 +773,7 @@ export function TeamWorkspace({
                       trigger={
                         <button
                           type="button"
-                          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold text-[#80642F] bg-[rgba(184,148,78,0.12)] hover:bg-[rgba(184,148,78,0.20)] border border-[rgba(184,148,78,0.25)] transition cursor-pointer shrink-0"
+                          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold text-[#785312] bg-[rgba(204,160,56,0.12)] hover:bg-[rgba(204,160,56,0.20)] border border-[rgba(204,160,56,0.25)] transition cursor-pointer shrink-0"
                           title="Switch project"
                         >
                           <span>{assignedProjects.length} Projects</span>
@@ -784,7 +784,7 @@ export function TeamWorkspace({
                         label: p.id === project.id ? `${p.name} (Current)` : p.name,
                         icon:
                           p.id === project.id ? (
-                            <Check size={14} className="text-[#80642F]" />
+                            <Check size={14} className="text-[#785312]" />
                           ) : (
                             <FolderKanban size={14} />
                           ),
@@ -796,16 +796,16 @@ export function TeamWorkspace({
                   )}
                 </div>
               </div>
-              <p className="mt-1 text-xs sm:text-sm text-[#706C7D] max-w-2xl font-normal leading-relaxed truncate">
+              <p className="mt-1 text-xs sm:text-sm text-[#334155] max-w-2xl font-normal leading-relaxed truncate">
                 {project.description ||
                   "Epics group focused product areas. Stories contain criteria and discussions."}
               </p>
 
               {/* Mapped Projects Pill Bar */}
               {assignedProjects.length > 1 && (
-                <div className="mt-3 pt-3 border-t border-[rgba(74,61,100,0.06)] flex flex-wrap items-center gap-2">
-                  <span className="text-[11px] font-semibold uppercase tracking-wider text-[#9994A5] flex items-center gap-1.5 mr-1">
-                    <FolderKanban size={13} className="text-[#80642F]" />
+                <div className="mt-3 pt-3 border-t border-[rgba(15,23,42,0.06)] flex flex-wrap items-center gap-2">
+                  <span className="text-[11px] font-semibold uppercase tracking-wider text-[#64748B] flex items-center gap-1.5 mr-1">
+                    <FolderKanban size={13} className="text-[#785312]" />
                     Mapped Projects ({assignedProjects.length}):
                   </span>
                   {assignedProjects.map((p) => {
@@ -816,8 +816,8 @@ export function TeamWorkspace({
                         href={`/team?projectId=${p.id}`}
                         className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold transition-all ${
                           isActive
-                            ? "bg-[#80642F] text-white shadow-2xs ring-2 ring-[#80642F]/20"
-                            : "bg-white/80 hover:bg-white text-[#706C7D] hover:text-[#252331] border border-[rgba(74,61,100,0.12)] hover:border-[#80642F]/40"
+                            ? "bg-[#785312] text-white shadow-2xs ring-2 ring-[#785312]/20"
+                            : "bg-white/80 hover:bg-white text-[#334155] hover:text-[#0F172A] border border-[rgba(15,23,42,0.12)] hover:border-[#785312]/40"
                         }`}
                       >
                         <span
@@ -834,7 +834,7 @@ export function TeamWorkspace({
                   })}
                   <Link
                     href="/team/projects"
-                    className="text-xs font-semibold text-[#80642F] hover:underline ml-1 inline-flex items-center gap-1"
+                    className="text-xs font-semibold text-[#785312] hover:underline ml-1 inline-flex items-center gap-1"
                   >
                     <span>View all cards</span>
                     <span>→</span>
@@ -860,20 +860,20 @@ export function TeamWorkspace({
 
       <main className="w-full min-w-0 mx-auto max-w-[1720px] px-4 py-4 sm:px-6 sm:py-8 lg:px-8 space-y-4 sm:space-y-6">
         {/* View Switcher Tabs between Requirements Hierarchy and Discussion Notes */}
-        <div className="flex items-center gap-1.5 sm:gap-2 border-b border-[rgba(74,61,100,0.08)] pb-2 overflow-x-auto no-scrollbar">
+        <div className="flex items-center gap-1.5 sm:gap-2 border-b border-[rgba(15,23,42,0.08)] pb-2 overflow-x-auto no-scrollbar">
           <button
             type="button"
             onClick={() => setActiveTab("hierarchy")}
             className={`inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-3.5 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold rounded-xl transition cursor-pointer whitespace-nowrap ${
               activeTab === "hierarchy"
-                ? "bg-white text-[#252331] shadow-2xs border border-[rgba(74,61,100,0.12)]"
-                : "text-[#706C7D] hover:text-[#252331] hover:bg-white/60"
+                ? "bg-white text-[#0F172A] shadow-2xs border border-[rgba(15,23,42,0.12)]"
+                : "text-[#334155] hover:text-[#0F172A] hover:bg-white/60"
             }`}
           >
-            <Layers size={14} className={activeTab === "hierarchy" ? "text-[#B8944E]" : "text-[#9994A5]"} />
+            <Layers size={14} className={activeTab === "hierarchy" ? "text-[#CCA038]" : "text-[#64748B]"} />
             <span className="hidden sm:inline">Requirements Hierarchy</span>
             <span className="sm:hidden">Hierarchy</span>
-            <span className="rounded-full bg-[rgba(184,148,78,0.10)] px-1.5 sm:px-2 py-0.5 text-[10px] font-bold text-[#80642F]">
+            <span className="rounded-full bg-[rgba(204,160,56,0.10)] px-1.5 sm:px-2 py-0.5 text-[10px] font-bold text-[#785312]">
               <span className="hidden sm:inline">{epics.length} Epics • {stories.length} Stories</span>
               <span className="sm:hidden">{epics.length}E • {stories.length}S</span>
             </span>
@@ -884,14 +884,14 @@ export function TeamWorkspace({
             onClick={() => setActiveTab("notes")}
             className={`inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-3.5 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold rounded-xl transition cursor-pointer whitespace-nowrap ${
               activeTab === "notes"
-                ? "bg-white text-[#252331] shadow-2xs border border-[rgba(74,61,100,0.12)]"
-                : "text-[#706C7D] hover:text-[#252331] hover:bg-white/60"
+                ? "bg-white text-[#0F172A] shadow-2xs border border-[rgba(15,23,42,0.12)]"
+                : "text-[#334155] hover:text-[#0F172A] hover:bg-white/60"
             }`}
           >
-            <FileText size={14} className={activeTab === "notes" ? "text-[#B8944E]" : "text-[#9994A5]"} />
+            <FileText size={14} className={activeTab === "notes" ? "text-[#CCA038]" : "text-[#64748B]"} />
             <span className="hidden sm:inline">Discussion Notes</span>
             <span className="sm:hidden">Notes</span>
-            <span className="rounded-full bg-[rgba(74,61,100,0.08)] px-1.5 sm:px-2 py-0.5 text-[10px] font-bold text-[#252331]">
+            <span className="rounded-full bg-[rgba(15,23,42,0.08)] px-1.5 sm:px-2 py-0.5 text-[10px] font-bold text-[#0F172A]">
               {notes.length}
             </span>
           </button>
@@ -901,14 +901,14 @@ export function TeamWorkspace({
             onClick={() => setActiveTab("meetings")}
             className={`inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-3.5 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold rounded-xl transition cursor-pointer whitespace-nowrap ${
               activeTab === "meetings"
-                ? "bg-white text-[#252331] shadow-2xs border border-[rgba(74,61,100,0.12)]"
-                : "text-[#706C7D] hover:text-[#252331] hover:bg-white/60"
+                ? "bg-white text-[#0F172A] shadow-2xs border border-[rgba(15,23,42,0.12)]"
+                : "text-[#334155] hover:text-[#0F172A] hover:bg-white/60"
             }`}
           >
-            <Calendar size={14} className={activeTab === "meetings" ? "text-[#B8944E]" : "text-[#9994A5]"} />
-            <span className="hidden sm:inline">Meetings & Calls</span>
+            <Calendar size={14} className={activeTab === "meetings" ? "text-[#CCA038]" : "text-[#64748B]"} />
+            <span className="hidden sm:inline">Meetings</span>
             <span className="sm:hidden">Meetings</span>
-            <span className="rounded-full bg-[rgba(184,148,78,0.10)] px-1.5 sm:px-2 py-0.5 text-[10px] font-bold text-[#80642F]">
+            <span className="rounded-full bg-[rgba(204,160,56,0.10)] px-1.5 sm:px-2 py-0.5 text-[10px] font-bold text-[#785312]">
               Schedule
             </span>
           </button>
@@ -918,14 +918,14 @@ export function TeamWorkspace({
             onClick={() => setActiveTab("remuneration")}
             className={`inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-3.5 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold rounded-xl transition cursor-pointer whitespace-nowrap ${
               activeTab === "remuneration"
-                ? "bg-white text-[#252331] shadow-2xs border border-[rgba(74,61,100,0.12)]"
-                : "text-[#706C7D] hover:text-[#252331] hover:bg-white/60"
+                ? "bg-white text-[#0F172A] shadow-2xs border border-[rgba(15,23,42,0.12)]"
+                : "text-[#334155] hover:text-[#0F172A] hover:bg-white/60"
             }`}
           >
-            <Receipt size={14} className={activeTab === "remuneration" ? "text-[#B8944E]" : "text-[#9994A5]"} />
+            <Receipt size={14} className={activeTab === "remuneration" ? "text-[#CCA038]" : "text-[#64748B]"} />
             <span className="hidden sm:inline">My Remuneration & Payouts</span>
             <span className="sm:hidden">Remuneration</span>
-            <span className="rounded-full bg-[rgba(184,148,78,0.10)] px-1.5 sm:px-2 py-0.5 text-[10px] font-bold text-[#80642F]">
+            <span className="rounded-full bg-[rgba(204,160,56,0.10)] px-1.5 sm:px-2 py-0.5 text-[10px] font-bold text-[#785312]">
               Payouts
             </span>
           </button>
@@ -962,7 +962,7 @@ export function TeamWorkspace({
         ) : (
           <>
         {error && (
-          <div className="rounded-xl border border-rose-200/80 bg-rose-50/80 p-4 text-xs sm:text-sm text-[#C25D72]">
+          <div className="rounded-xl border border-rose-200/80 bg-rose-50/80 p-4 text-xs sm:text-sm text-[#E11D48]">
             {error}
           </div>
         )}
@@ -973,14 +973,14 @@ export function TeamWorkspace({
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 flex-1 min-w-0">
             {/* 2-column equal dropdowns on mobile */}
             <div className="grid grid-cols-2 gap-2 flex-1 sm:flex-none">
-              <div className="flex items-center gap-1.5 sm:gap-2 min-w-0 bg-white/85 border border-[rgba(74,61,100,0.11)] rounded-xl px-2.5 h-8.5 shadow-2xs">
-                <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-[#9994A5] shrink-0">
+              <div className="flex items-center gap-1.5 sm:gap-2 min-w-0 bg-white/85 border border-[rgba(15,23,42,0.11)] rounded-xl px-2.5 h-8.5 shadow-2xs">
+                <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-[#64748B] shrink-0">
                   Epic:
                 </span>
                 <select
                   value={epicFilter}
                   onChange={(e) => setEpicFilter(e.target.value)}
-                  className="w-full bg-transparent text-xs font-medium text-[#252331] outline-none transition focus:border-[#B8944E] cursor-pointer truncate"
+                  className="w-full bg-transparent text-xs font-medium text-[#0F172A] outline-none transition focus:border-[#CCA038] cursor-pointer truncate"
                 >
                   <option value="all">All Epics ({epics.length})</option>
                   {epics.map((e) => (
@@ -991,14 +991,14 @@ export function TeamWorkspace({
                 </select>
               </div>
 
-              <div className="flex items-center gap-1.5 sm:gap-2 min-w-0 bg-white/85 border border-[rgba(74,61,100,0.11)] rounded-xl px-2.5 h-8.5 shadow-2xs">
-                <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-[#9994A5] shrink-0">
+              <div className="flex items-center gap-1.5 sm:gap-2 min-w-0 bg-white/85 border border-[rgba(15,23,42,0.11)] rounded-xl px-2.5 h-8.5 shadow-2xs">
+                <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-[#64748B] shrink-0">
                   Status:
                 </span>
                 <select
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value as any)}
-                  className="w-full bg-transparent text-xs font-medium text-[#252331] outline-none transition focus:border-[#B8944E] cursor-pointer truncate"
+                  className="w-full bg-transparent text-xs font-medium text-[#0F172A] outline-none transition focus:border-[#CCA038] cursor-pointer truncate"
                 >
                   <option value="all">All Statuses ({totalStoriesCount})</option>
                   <option value="new">New ({newStoriesCount})</option>
@@ -1009,14 +1009,14 @@ export function TeamWorkspace({
             </div>
 
             {/* Quick Status Pills */}
-            <div className="hidden md:inline-flex items-center rounded-xl border border-[rgba(74,61,100,0.11)] bg-white/80 p-0.5 text-xs shadow-2xs gap-0.5">
+            <div className="hidden md:inline-flex items-center rounded-xl border border-[rgba(15,23,42,0.11)] bg-white/80 p-0.5 text-xs shadow-2xs gap-0.5">
               <button
                 type="button"
                 onClick={() => setStatusFilter("all")}
                 className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition cursor-pointer ${
                   statusFilter === "all"
-                    ? "bg-[#252331] text-white shadow-2xs"
-                    : "text-[#706C7D] hover:text-[#252331] hover:bg-[#FAF9FC]"
+                    ? "bg-[#0F172A] text-white shadow-2xs"
+                    : "text-[#334155] hover:text-[#0F172A] hover:bg-[#F8F9FB]"
                 }`}
               >
                 All ({totalStoriesCount})
@@ -1027,7 +1027,7 @@ export function TeamWorkspace({
                 className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition cursor-pointer ${
                   statusFilter === "new"
                     ? "bg-sky-100 text-sky-800 border-2 border-sky-500/70 ring-2 ring-sky-500/20"
-                    : "text-[#706C7D] hover:text-[#252331] hover:bg-[#FAF9FC]"
+                    : "text-[#334155] hover:text-[#0F172A] hover:bg-[#F8F9FB]"
                 }`}
               >
                 New ({newStoriesCount})
@@ -1037,8 +1037,8 @@ export function TeamWorkspace({
                 onClick={() => setStatusFilter(statusFilter === "active" ? "all" : "active")}
                 className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition cursor-pointer ${
                   statusFilter === "active"
-                    ? "bg-[rgba(184,148,78,0.22)] text-[#80642F] border-2 border-[#B8944E] ring-2 ring-[#B8944E]/20"
-                    : "text-[#706C7D] hover:text-[#252331] hover:bg-[#FAF9FC]"
+                    ? "bg-[rgba(204,160,56,0.22)] text-[#785312] border-2 border-[#CCA038] ring-2 ring-[#CCA038]/20"
+                    : "text-[#334155] hover:text-[#0F172A] hover:bg-[#F8F9FB]"
                 }`}
               >
                 Active ({activeStoriesCount})
@@ -1049,7 +1049,7 @@ export function TeamWorkspace({
                 className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition cursor-pointer ${
                   statusFilter === "done"
                     ? "bg-emerald-100 text-emerald-800 border-2 border-emerald-500/70 ring-2 ring-emerald-500/20"
-                    : "text-[#706C7D] hover:text-[#252331] hover:bg-[#FAF9FC]"
+                    : "text-[#334155] hover:text-[#0F172A] hover:bg-[#F8F9FB]"
                 }`}
               >
                 Done ({doneStoriesCount})
@@ -1057,11 +1057,11 @@ export function TeamWorkspace({
             </div>
 
             {/* Segmented Quick Fold / Expand Controls - 50/50 balanced grid on mobile */}
-            <div className="grid grid-cols-2 sm:inline-flex items-center rounded-xl border border-[rgba(74,61,100,0.11)] bg-white/80 p-0.5 text-xs shrink-0 shadow-2xs w-full sm:w-auto">
+            <div className="grid grid-cols-2 sm:inline-flex items-center rounded-xl border border-[rgba(15,23,42,0.11)] bg-white/80 p-0.5 text-xs shrink-0 shadow-2xs w-full sm:w-auto">
               <button
                 type="button"
                 onClick={foldAllEpics}
-                className="flex items-center justify-center gap-1 rounded-lg py-1.5 sm:px-2.5 sm:py-1 text-xs sm:text-[11px] font-medium text-[#706C7D] hover:text-[#252331] hover:bg-[#FAF9FC] transition cursor-pointer whitespace-nowrap"
+                className="flex items-center justify-center gap-1 rounded-lg py-1.5 sm:px-2.5 sm:py-1 text-xs sm:text-[11px] font-medium text-[#334155] hover:text-[#0F172A] hover:bg-[#F8F9FB] transition cursor-pointer whitespace-nowrap"
                 title="Collapse all epics"
               >
                 <ChevronUp size={13} className="shrink-0" />
@@ -1070,7 +1070,7 @@ export function TeamWorkspace({
               <button
                 type="button"
                 onClick={expandAllEpics}
-                className="flex items-center justify-center gap-1 rounded-lg py-1.5 sm:px-2.5 sm:py-1 text-xs sm:text-[11px] font-medium text-[#706C7D] hover:text-[#252331] hover:bg-[#FAF9FC] transition cursor-pointer whitespace-nowrap"
+                className="flex items-center justify-center gap-1 rounded-lg py-1.5 sm:px-2.5 sm:py-1 text-xs sm:text-[11px] font-medium text-[#334155] hover:text-[#0F172A] hover:bg-[#F8F9FB] transition cursor-pointer whitespace-nowrap"
                 title="Expand all epics"
               >
                 <ChevronDown size={13} className="shrink-0" />
@@ -1080,19 +1080,19 @@ export function TeamWorkspace({
             {/* Requirements View Toggle (Hierarchy vs Kanban Board) */}
             <div
               id="team-requirements-view-toggle"
-              className="relative z-10 inline-flex items-center rounded-xl border border-[rgba(74,61,100,0.11)] bg-white/80 p-0.5 text-xs shadow-2xs shrink-0"
+              className="relative z-10 inline-flex items-center rounded-xl border border-[rgba(15,23,42,0.11)] bg-white/80 p-0.5 text-xs shadow-2xs shrink-0"
             >
               <button
                 type="button"
                 onClick={() => setRequirementsView("hierarchy")}
                 className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-bold transition-all cursor-pointer ${
                   requirementsView === "hierarchy"
-                    ? "bg-[#252331] text-white shadow-xs"
-                    : "text-[#706C7D] hover:text-[#252331] hover:bg-[#FAF9FC]"
+                    ? "bg-[#0F172A] text-white shadow-xs"
+                    : "text-[#334155] hover:text-[#0F172A] hover:bg-[#F8F9FB]"
                 }`}
                 title="Standard Hierarchy View"
               >
-                <Layers size={13} className={requirementsView === "hierarchy" ? "text-[#B8944E]" : "text-[#9994A5]"} />
+                <Layers size={13} className={requirementsView === "hierarchy" ? "text-[#CCA038]" : "text-[#64748B]"} />
                 <span>Hierarchy</span>
               </button>
               <button
@@ -1100,18 +1100,18 @@ export function TeamWorkspace({
                 onClick={() => setRequirementsView("kanban")}
                 className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-bold transition-all cursor-pointer ${
                   requirementsView === "kanban"
-                    ? "bg-[#252331] text-white shadow-xs"
-                    : "text-[#706C7D] hover:text-[#252331] hover:bg-[#FAF9FC]"
+                    ? "bg-[#0F172A] text-white shadow-xs"
+                    : "text-[#334155] hover:text-[#0F172A] hover:bg-[#F8F9FB]"
                 }`}
                 title="Kanban Board View"
               >
-                <LayoutGrid size={13} className={requirementsView === "kanban" ? "text-[#B8944E]" : "text-[#9994A5]"} />
+                <LayoutGrid size={13} className={requirementsView === "kanban" ? "text-[#CCA038]" : "text-[#64748B]"} />
                 <span>Kanban</span>
               </button>
             </div>
           </div>
 
-          <span className="text-[11px] sm:text-xs text-[#706C7D] shrink-0">
+          <span className="text-[11px] sm:text-xs text-[#334155] shrink-0">
             {stories.length} {stories.length === 1 ? "story" : "stories"} total
           </span>
         </div>
@@ -1145,7 +1145,7 @@ export function TeamWorkspace({
         /* Super Admin Split View: Epics/Stories on Left, Story Document Inspector on Right */
         <div className="grid gap-6 lg:grid-cols-[1.1fr_1.9fr] items-start w-full min-w-0 transition-opacity duration-200 animate-in fade-in">
           {/* Left Column: Epics and Stories List */}
-          <div className="space-y-6 w-full min-w-0">
+          <div className="space-y-3 sm:space-y-6 w-full min-w-0">
             {epics.length === 0 && stories.length === 0 ? (
               <EmptyState
                 icon={Layers}
@@ -1163,14 +1163,14 @@ export function TeamWorkspace({
                 }
               />
             ) : filteredStories.length === 0 && statusFilter !== "all" ? (
-              <div className="rounded-[18px] border border-dashed border-[rgba(74,61,100,0.12)] bg-white/80 backdrop-blur-[16px] p-8 sm:p-12 text-center shadow-[0_8px_30px_rgba(70,55,95,0.04)]">
-                <div className="mx-auto grid h-10 w-10 place-items-center rounded-xl bg-[rgba(184,148,78,0.10)] text-[#B8944E] mb-3 shadow-sm border border-[rgba(184,148,78,0.15)]">
+              <div className="rounded-[18px] border border-dashed border-[rgba(15,23,42,0.12)] bg-white/80 backdrop-blur-[16px] p-8 sm:p-12 text-center shadow-[0_8px_30px_rgba(15,23,42,0.04)]">
+                <div className="mx-auto grid h-10 w-10 place-items-center rounded-xl bg-[rgba(204,160,56,0.10)] text-[#CCA038] mb-3 shadow-sm border border-[rgba(204,160,56,0.15)]">
                   <Filter size={18} />
                 </div>
-                <h4 className="text-sm font-semibold text-[#252331]">
+                <h4 className="text-sm font-semibold text-[#0F172A]">
                   No {getStoryStatusLabel(statusFilter)} stories found
                 </h4>
-                <p className="mt-1 text-xs text-[#706C7D] max-w-xs mx-auto leading-relaxed">
+                <p className="mt-1 text-xs text-[#334155] max-w-xs mx-auto leading-relaxed">
                   There are currently no stories matching the &ldquo;{getStoryStatusLabel(statusFilter)}&rdquo; status in this project.
                 </p>
                 <div className="mt-4">
@@ -1209,18 +1209,18 @@ export function TeamWorkspace({
                       onPriorityChange={(newPriority) => handleEpicPriorityChange(epic.id, newPriority)}
                       headerExtra={
                         <span className="flex items-center gap-1.5 text-[10px] sm:text-[11px] font-medium flex-wrap">
-                          <span className="text-[rgba(74,61,100,0.2)]">•</span>
-                          <span className="text-[#2E8B70]">{approvedCount} approved</span>
+                          <span className="text-[rgba(15,23,42,0.2)]">•</span>
+                          <span className="text-[#059669]">{approvedCount} approved</span>
                           {changesCount > 0 && (
                             <>
-                              <span className="text-[rgba(74,61,100,0.2)]">•</span>
-                              <span className="text-[#C25D72]">{changesCount} changes</span>
+                              <span className="text-[rgba(15,23,42,0.2)]">•</span>
+                              <span className="text-[#E11D48]">{changesCount} changes</span>
                             </>
                           )}
                           {epicNotes.length > 0 && (
                             <>
-                              <span className="text-[rgba(74,61,100,0.2)]">•</span>
-                              <span className="text-[#80642F] font-semibold">
+                              <span className="text-[rgba(15,23,42,0.2)]">•</span>
+                              <span className="text-[#785312] font-semibold">
                                 {epicNotes.length} {epicNotes.length === 1 ? "note" : "notes"}
                               </span>
                             </>
@@ -1228,72 +1228,79 @@ export function TeamWorkspace({
                         </span>
                       }
                       actions={
-                        <div className="flex flex-col items-end gap-1.5 shrink-0">
-                          <div className="flex items-center gap-1 sm:gap-1.5">
-                            <Button
-                              variant="secondary"
-                              size="sm"
-                              leftIcon={<FileText size={12} className="text-[#80642F]" />}
-                              onClick={() => setActiveEpicForNotes(epic)}
-                              className="text-xs px-2 sm:px-3 h-7 sm:h-8"
-                              title={`Discussion and meeting notes for ${epic.name}`}
-                            >
-                              <span>Notes</span>
-                              {epicNotes.length > 0 && (
-                                <span className="ml-1 rounded-full bg-[rgba(184,148,78,0.18)] px-1.5 py-0.2 text-[10px] font-bold text-[#80642F]">
-                                  {epicNotes.length}
-                                </span>
-                              )}
-                            </Button>
+                        <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            leftIcon={<FileText size={12} className="text-[#785312] sm:w-3.5 sm:h-3.5" />}
+                            onClick={() => setActiveEpicForNotes(epic)}
+                            className={`text-xs h-6 sm:h-7 !rounded-lg border border-[rgba(15,23,42,0.12)] shadow-2xs ${
+                              epicNotes.length > 0 ? "px-1.5 sm:px-2.5" : "w-6 sm:w-auto p-0 sm:px-2.5"
+                            }`}
+                            title={`Discussion and meeting notes for ${epic.name}`}
+                          >
+                            <span className="hidden sm:inline">Notes</span>
+                            {epicNotes.length > 0 && (
+                              <span className="sm:ml-1 rounded-full bg-[rgba(204,160,56,0.18)] px-1 py-0.2 text-[9px] sm:text-[10px] font-bold text-[#785312]">
+                                {epicNotes.length}
+                              </span>
+                            )}
+                          </Button>
 
-                            <Button
-                              variant="secondary"
-                              size="sm"
-                              leftIcon={<Sparkles size={12} className="text-[#B8944E]" />}
-                              onClick={() => setGeneratingEpicId(epic.id)}
-                              className="text-xs px-2 sm:px-2.5 h-7 sm:h-8"
-                              title="Generate stories with AI"
-                            >
-                              <span className="hidden sm:inline">Generate</span>
-                            </Button>
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            leftIcon={<Sparkles size={12} className="text-[#CCA038] sm:w-3.5 sm:h-3.5" />}
+                            onClick={() => setGeneratingEpicId(epic.id)}
+                            className="text-xs w-6 sm:w-auto p-0 sm:px-2.5 h-6 sm:h-7 !rounded-lg border border-[rgba(15,23,42,0.12)] shadow-2xs"
+                            title="Generate stories with AI"
+                          >
+                            <span className="hidden sm:inline">Generate</span>
+                          </Button>
 
-                            <DropdownMenu
-                              ariaLabel={`Actions for ${epic.name}`}
-                              items={[
-                                {
-                                  label: "Epic Notes",
-                                  icon: <FileText size={14} />,
-                                  onClick: () => setActiveEpicForNotes(epic),
-                                },
-                                {
-                                  label: "Generate AI Prompt",
-                                  icon: <Code2 size={14} />,
-                                  onClick: () => setEpicPromptTarget(epic),
-                                },
-                                {
-                                  label: "Add Story manually",
-                                  icon: <Plus size={14} />,
-                                  onClick: () => openAddStoryManually(epic),
-                                },
-                                {
-                                  label: "Edit Epic",
-                                  icon: <Edit2 size={14} />,
-                                  onClick: () => openEditEpic(epic),
-                                },
-                                {
-                                  label: "Delete Epic",
-                                  icon: <Trash2 size={14} />,
-                                  variant: "danger",
-                                  onClick: () => deleteEpic(epic.id),
-                                },
-                              ]}
-                            />
-                          </div>
+                          <DropdownMenu
+                            ariaLabel={`Actions for ${epic.name}`}
+                            triggerClassName="grid h-6 w-6 sm:h-7 sm:w-7 place-items-center !rounded-lg border border-[rgba(15,23,42,0.12)] bg-white text-[#334155] hover:text-[#0F172A] hover:border-[rgba(204,160,56,0.3)] shadow-2xs transition-all cursor-pointer"
+                            items={[
+                              {
+                                label: "Epic Discussion",
+                                icon: <MessageSquare size={14} />,
+                                onClick: () => { window.location.href = `/team/epics/${epic.id}/discussion`; },
+                              },
+                              {
+                                label: "Epic Notes",
+                                icon: <FileText size={14} />,
+                                onClick: () => setActiveEpicForNotes(epic),
+                              },
+                              {
+                                label: "Generate AI Prompt",
+                                icon: <Code2 size={14} />,
+                                onClick: () => setEpicPromptTarget(epic),
+                              },
+                              {
+                                label: "Add Story manually",
+                                icon: <Plus size={14} />,
+                                onClick: () => openAddStoryManually(epic),
+                              },
+                              {
+                                label: "Edit Epic",
+                                icon: <Edit2 size={14} />,
+                                onClick: () => openEditEpic(epic),
+                              },
+                              {
+                                label: "Delete Epic",
+                                icon: <Trash2 size={14} />,
+                                variant: "danger" as const,
+                                onClick: () => deleteEpic(epic.id),
+                              },
+                            ]}
+                          />
+
                           <Link
                             href={`/team/epics/${epic.id}/discussion`}
-                            className="inline-flex items-center gap-1.5 rounded-lg bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700 shadow-sm border border-slate-200 hover:bg-slate-50 transition"
+                            className="hidden sm:inline-flex items-center gap-1.5 rounded-lg bg-white px-2.5 py-1 text-xs font-semibold text-slate-700 shadow-sm border border-slate-200 hover:bg-slate-50 transition"
                           >
-                            <MessageSquare size={13} className="text-[#80642F]" />
+                            <MessageSquare size={13} className="text-[#785312]" />
                             <span>Discussion</span>
                           </Link>
                         </div>
@@ -1303,7 +1310,7 @@ export function TeamWorkspace({
                         <Button
                           variant="ghost"
                           size="sm"
-                          className="text-[#80642F]"
+                          className="text-[#785312]"
                           leftIcon={<Sparkles size={13} />}
                           onClick={() => setGeneratingEpicId(epic.id)}
                         >
@@ -1359,23 +1366,23 @@ export function TeamWorkspace({
             id="story-editor-section"
             className={
               editingStory
-                ? "max-lg:fixed max-lg:inset-0 max-lg:z-40 max-lg:overflow-y-auto max-lg:bg-[#FAF9FC] max-lg:p-3.5 sm:max-lg:p-6 max-lg:pb-20 lg:sticky lg:top-[5.25rem] lg:self-start lg:max-h-[calc(100vh-6.75rem)] lg:overflow-y-auto lg:overscroll-contain pr-1 z-10 animate-in fade-in max-lg:slide-in-from-bottom-4 duration-200"
+                ? "max-lg:fixed max-lg:inset-0 max-lg:z-40 max-lg:overflow-y-auto max-lg:bg-[#F8F9FB] max-lg:p-3.5 sm:max-lg:p-6 max-lg:pb-20 lg:sticky lg:top-[5.25rem] lg:self-start lg:max-h-[calc(100vh-6.75rem)] lg:overflow-y-auto lg:overscroll-contain pr-1 z-10 animate-in fade-in max-lg:slide-in-from-bottom-4 duration-200"
                 : "hidden lg:block lg:sticky lg:top-[5.25rem] lg:self-start z-10"
             }
           >
             {editingStory ? (
               <div className="space-y-3 pb-16 lg:pb-24">
                 {/* Mobile Back to Stories Bar */}
-                <div className="lg:hidden sticky top-0 z-20 -mx-3.5 -mt-3.5 sm:-mx-6 sm:-mt-6 px-4 py-3 bg-white/95 backdrop-blur-md border-b border-[rgba(74,61,100,0.08)] flex items-center justify-between shadow-2xs">
+                <div className="lg:hidden sticky top-0 z-20 -mx-3.5 -mt-3.5 sm:-mx-6 sm:-mt-6 px-4 py-3 bg-white/95 backdrop-blur-md border-b border-[rgba(15,23,42,0.08)] flex items-center justify-between shadow-2xs">
                   <button
                     type="button"
                     onClick={() => setEditingStory(null)}
-                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#80642F] bg-[rgba(184,148,78,0.08)] hover:bg-[rgba(184,148,78,0.14)] px-3 py-1.5 rounded-xl border border-[rgba(184,148,78,0.18)] transition active:scale-95 cursor-pointer"
+                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#785312] bg-[rgba(204,160,56,0.08)] hover:bg-[rgba(204,160,56,0.14)] px-3 py-1.5 rounded-xl border border-[rgba(204,160,56,0.18)] transition active:scale-95 cursor-pointer"
                   >
                     <ArrowLeft size={14} />
                     <span>Back to Stories</span>
                   </button>
-                  <span className="text-xs font-semibold uppercase tracking-wider text-[#706C7D]">
+                  <span className="text-xs font-semibold uppercase tracking-wider text-[#334155]">
                     Story Inspector
                   </span>
                 </div>
@@ -1403,14 +1410,14 @@ export function TeamWorkspace({
                 />
               </div>
             ) : (
-              <div className="rounded-[18px] border border-dashed border-[rgba(74,61,100,0.12)] bg-white/80 backdrop-blur-[16px] p-8 sm:p-12 text-center shadow-[0_8px_30px_rgba(70,55,95,0.04)]">
-                <div className="mx-auto grid h-10 w-10 place-items-center rounded-xl bg-[rgba(184,148,78,0.10)] text-[#B8944E] mb-3 shadow-sm border border-[rgba(184,148,78,0.15)]">
+              <div className="rounded-[18px] border border-dashed border-[rgba(15,23,42,0.12)] bg-white/80 backdrop-blur-[16px] p-8 sm:p-12 text-center shadow-[0_8px_30px_rgba(15,23,42,0.04)]">
+                <div className="mx-auto grid h-10 w-10 place-items-center rounded-xl bg-[rgba(204,160,56,0.10)] text-[#CCA038] mb-3 shadow-sm border border-[rgba(204,160,56,0.15)]">
                   <Layers size={18} />
                 </div>
-                <h4 className="text-sm font-semibold text-[#252331]">
+                <h4 className="text-sm font-semibold text-[#0F172A]">
                   Select a feature story
                 </h4>
-                <p className="mt-1 text-xs text-[#706C7D] max-w-xs mx-auto">
+                <p className="mt-1 text-xs text-[#334155] max-w-xs mx-auto">
                   Click any story on the left to review criteria, inspect assumptions, and participate in discussion threads.
                 </p>
               </div>
@@ -1462,14 +1469,14 @@ export function TeamWorkspace({
         >
           <div>
             <div className="flex items-center justify-between mb-1.5">
-              <label className="text-xs font-semibold uppercase tracking-wider text-[#9994A5]">
-                Epic Name <span className="text-[#C25D72]">*</span>
+              <label className="text-xs font-semibold uppercase tracking-wider text-[#64748B]">
+                Epic Name <span className="text-[#E11D48]">*</span>
               </label>
               <button
                 type="button"
                 disabled={aiCorrecting || !epicForm.name.trim()}
                 onClick={handleAiCorrectEpicName}
-                className="inline-flex items-center gap-1 text-xs font-medium text-[#80642F] hover:text-[#9F7D3E] disabled:opacity-40 transition cursor-pointer"
+                className="inline-flex items-center gap-1 text-xs font-medium text-[#785312] hover:text-[#B58422] disabled:opacity-40 transition cursor-pointer"
               >
                 <Sparkles size={12} />
                 <span>{aiCorrecting ? "Enhancing..." : "Auto-format name"}</span>
@@ -1484,12 +1491,12 @@ export function TeamWorkspace({
                 setEpicForm((prev) => ({ ...prev, name: e.target.value }))
               }
               placeholder="e.g. User Authentication & Security"
-              className="h-10 w-full rounded-xl border border-[#EBE7F2] px-3.5 text-sm text-[#252331] outline-none transition focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)]"
+              className="h-10 w-full rounded-xl border border-[#E2E8F0] px-3.5 text-sm text-[#0F172A] outline-none transition focus:border-[#CCA038] focus:ring-1 focus:ring-[rgba(204,160,56,0.14)]"
             />
 
             {aiSuggestions && aiSuggestions.length > 1 && (
               <div className="mt-2 flex flex-wrap gap-1.5 items-center">
-                <span className="text-[10px] text-[#9994A5]">Suggestions:</span>
+                <span className="text-[10px] text-[#64748B]">Suggestions:</span>
                 {aiSuggestions.map((sug) => (
                   <button
                     key={sug}
@@ -1497,18 +1504,18 @@ export function TeamWorkspace({
                     onClick={() =>
                       setEpicForm((prev) => ({ ...prev, name: sug }))
                     }
-                    className="text-[11px] rounded-md bg-[rgba(184,148,78,0.08)] px-2 py-0.5 text-[#80642F] hover:bg-[rgba(184,148,78,0.15)] transition cursor-pointer"
+                    className="text-[11px] rounded-md bg-[rgba(204,160,56,0.08)] px-2 py-0.5 text-[#785312] hover:bg-[rgba(204,160,56,0.15)] transition cursor-pointer"
                   >
                     {sug}
                   </button>
                 ))}
               </div>
             )}
-            {aiError && <p className="text-xs text-[#C25D72] mt-1">{aiError}</p>}
+            {aiError && <p className="text-xs text-[#E11D48] mt-1">{aiError}</p>}
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-[#9994A5] mb-1.5">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-[#64748B] mb-1.5">
               Description
             </label>
             <Textarea
@@ -1518,13 +1525,13 @@ export function TeamWorkspace({
                 setEpicForm((prev) => ({ ...prev, description: e.target.value }))
               }
               placeholder="Describe the scope and purpose of this Epic..."
-              className="w-full rounded-xl border border-[#EBE7F2] p-3 text-sm text-[#252331] outline-none transition focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)] resize-none"
+              className="w-full rounded-xl border border-[#E2E8F0] p-3 text-sm text-[#0F172A] outline-none transition focus:border-[#CCA038] focus:ring-1 focus:ring-[rgba(204,160,56,0.14)] resize-none"
             />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-[#9994A5] mb-1.5">
+              <label className="block text-xs font-semibold uppercase tracking-wider text-[#64748B] mb-1.5">
                 Status
               </label>
               <select
@@ -1532,7 +1539,7 @@ export function TeamWorkspace({
                 onChange={(e) =>
                   setEpicForm((prev) => ({ ...prev, status: e.target.value as EpicStatus }))
                 }
-                className="h-10 w-full rounded-xl border border-[#EBE7F2] bg-white px-3.5 text-sm text-[#252331] outline-none transition focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)] cursor-pointer"
+                className="h-10 w-full rounded-xl border border-[#E2E8F0] bg-white px-3.5 text-sm text-[#0F172A] outline-none transition focus:border-[#CCA038] focus:ring-1 focus:ring-[rgba(204,160,56,0.14)] cursor-pointer"
               >
                 <option value="backlog">Backlog / Pending</option>
                 <option value="todo">To Do</option>
@@ -1543,7 +1550,7 @@ export function TeamWorkspace({
             </div>
 
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-[#9994A5] mb-1.5">
+              <label className="block text-xs font-semibold uppercase tracking-wider text-[#64748B] mb-1.5">
                 Priority
               </label>
               <select
@@ -1551,7 +1558,7 @@ export function TeamWorkspace({
                 onChange={(e) =>
                   setEpicForm((prev) => ({ ...prev, priority: e.target.value as EpicPriority }))
                 }
-                className="h-10 w-full rounded-xl border border-[#EBE7F2] bg-white px-3.5 text-sm text-[#252331] outline-none transition focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)] cursor-pointer"
+                className="h-10 w-full rounded-xl border border-[#E2E8F0] bg-white px-3.5 text-sm text-[#0F172A] outline-none transition focus:border-[#CCA038] focus:ring-1 focus:ring-[rgba(204,160,56,0.14)] cursor-pointer"
               >
                 <option value="low">Low Priority</option>
                 <option value="medium">Medium Priority</option>
@@ -1631,17 +1638,17 @@ export function TeamWorkspace({
         >
           {/* Assigned Epic (Locked) */}
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-[#9994A5] mb-1.5">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-[#64748B] mb-1.5">
               Assigned Epic
             </label>
-            <div className="flex items-center justify-between h-10 w-full rounded-xl border border-[#EBE7F2] bg-[#FAF9FC] px-3.5 text-sm">
+            <div className="flex items-center justify-between h-10 w-full rounded-xl border border-[#E2E8F0] bg-[#F8F9FB] px-3.5 text-sm">
               <div className="flex items-center gap-2 truncate">
-                <Layers size={15} className="text-[#B8944E] shrink-0" />
-                <span className="font-semibold text-[#252331] truncate">
+                <Layers size={15} className="text-[#CCA038] shrink-0" />
+                <span className="font-semibold text-[#0F172A] truncate">
                   {manualStoryEpic?.name || "No Epic selected"}
                 </span>
               </div>
-              <span className="shrink-0 text-[10px] font-semibold text-[#706C7D] uppercase tracking-wider bg-[rgba(74,61,100,0.06)] px-2 py-0.5 rounded">
+              <span className="shrink-0 text-[10px] font-semibold text-[#334155] uppercase tracking-wider bg-[rgba(15,23,42,0.06)] px-2 py-0.5 rounded">
                 Locked
               </span>
             </div>
@@ -1649,8 +1656,8 @@ export function TeamWorkspace({
 
           {/* Story Title */}
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-[#9994A5] mb-1.5">
-              Story Title <span className="text-[#C25D72]">*</span>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-[#64748B] mb-1.5">
+              Story Title <span className="text-[#E11D48]">*</span>
             </label>
             <input
               type="text"
@@ -1659,13 +1666,13 @@ export function TeamWorkspace({
               value={manualStoryTitle}
               onChange={(e) => setManualStoryTitle(e.target.value)}
               placeholder="e.g. User Profile Avatar Upload"
-              className="h-10 w-full rounded-xl border border-[#EBE7F2] px-3.5 text-sm text-[#252331] outline-none transition focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)]"
+              className="h-10 w-full rounded-xl border border-slate-300/90 bg-white px-3.5 text-sm font-medium text-[#0F172A] shadow-2xs outline-none transition focus:border-[#CCA038] focus:ring-2 focus:ring-[#CCA038]/20 focus:shadow-xs"
             />
           </div>
 
           {/* Story Status */}
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-[#9994A5] mb-1.5">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-[#64748B] mb-1.5">
               Status
             </label>
             <div className="flex gap-2">
@@ -1679,9 +1686,9 @@ export function TeamWorkspace({
                       ? st === "new"
                         ? "border-sky-200 bg-sky-50 text-sky-800 ring-1 ring-sky-500/20"
                         : st === "active"
-                        ? "border-[rgba(184,148,78,0.30)] bg-[rgba(184,148,78,0.10)] text-[#80642F] ring-1 ring-[#B8944E]/20"
-                        : "border-[rgba(46,139,112,0.30)] bg-[rgba(46,139,112,0.10)] text-[#2E8B70] ring-1 ring-[#2E8B70]/20"
-                      : "border-[#EBE7F2] bg-white text-[#706C7D] hover:bg-[#FAF9FC]"
+                        ? "border-[rgba(204,160,56,0.30)] bg-[rgba(204,160,56,0.10)] text-[#785312] ring-1 ring-[#CCA038]/20"
+                        : "border-[rgba(5,150,105,0.30)] bg-[rgba(5,150,105,0.10)] text-[#059669] ring-1 ring-[#059669]/20"
+                      : "border-[#E2E8F0] bg-white text-[#334155] hover:bg-[#F8F9FB]"
                   }`}
                 >
                   {st === "new" ? "New" : st === "active" ? "Active" : "Done"}
@@ -1692,28 +1699,28 @@ export function TeamWorkspace({
 
           {/* Story Description */}
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-[#9994A5] mb-1.5">
-              Description <span className="text-[#9994A5] font-normal normal-case">(optional)</span>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-[#64748B] mb-1.5">
+              Description <span className="text-[#64748B] font-normal normal-case">(optional)</span>
             </label>
             <Textarea
               rows={3}
               value={manualStoryDesc}
               onChange={(e) => setManualStoryDesc(e.target.value)}
               placeholder="Describe user capability, context, or business value..."
-              className="w-full rounded-xl border border-[#EBE7F2] p-3 text-sm text-[#252331] outline-none transition focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)]"
+              className="w-full rounded-xl border border-slate-300/90 bg-white p-3 text-sm text-[#0F172A] shadow-2xs outline-none transition focus:border-[#CCA038] focus:ring-2 focus:ring-[#CCA038]/20 focus:shadow-xs"
             />
           </div>
 
           {/* Acceptance Criteria */}
-          <div className="space-y-2 pt-1 border-t border-[rgba(74,61,100,0.06)]">
+          <div className="space-y-2 pt-1 border-t border-[rgba(15,23,42,0.06)]">
             <div className="flex items-center justify-between">
-              <label className="block text-xs font-semibold uppercase tracking-wider text-[#9994A5]">
+              <label className="block text-xs font-semibold uppercase tracking-wider text-[#64748B]">
                 Acceptance Criteria {manualStoryCriteria.length > 0 && `(${manualStoryCriteria.length})`}
               </label>
               <button
                 type="button"
                 onClick={() => setManualStoryCriteria((prev) => [...prev, ""])}
-                className="text-xs font-medium text-[#80642F] hover:text-[#9F7D3E] flex items-center gap-1 cursor-pointer"
+                className="text-xs font-medium text-[#785312] hover:text-[#B58422] flex items-center gap-1 cursor-pointer"
               >
                 <Plus size={12} />
                 <span>Add criterion</span>
@@ -1724,7 +1731,7 @@ export function TeamWorkspace({
               <div className="space-y-2">
                 {manualStoryCriteria.map((crit, idx) => (
                   <div key={idx} className="flex items-start gap-2">
-                    <span className="text-[11px] font-mono text-[#9994A5] shrink-0 w-4 text-right mt-1.5">
+                    <span className="text-[11px] font-mono text-[#64748B] shrink-0 w-4 text-right mt-1.5">
                       {idx + 1}.
                     </span>
                     <Textarea
@@ -1737,13 +1744,13 @@ export function TeamWorkspace({
                       }}
                       placeholder="e.g. User can upload JPEG or PNG images up to 5MB"
                       containerClassName="flex-1 min-w-0"
-                      className="w-full rounded-lg border border-[#EBE7F2] px-3 py-1.5 text-xs text-[#252331] outline-none focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)] leading-relaxed"
+                      className="w-full rounded-lg border border-[#E2E8F0] px-3 py-1.5 text-xs text-[#0F172A] outline-none focus:border-[#CCA038] focus:ring-1 focus:ring-[rgba(204,160,56,0.14)] leading-relaxed"
                       actionSize="sm"
                       actionSlot={
                         <button
                           type="button"
                           onClick={() => setManualStoryCriteria((prev) => prev.filter((_, i) => i !== idx))}
-                          className="grid h-6 w-6 place-items-center text-[#9994A5] hover:text-[#C25D72] cursor-pointer"
+                          className="grid h-6 w-6 place-items-center text-[#64748B] hover:text-[#E11D48] cursor-pointer"
                           aria-label="Remove criterion"
                         >
                           <X size={14} />
@@ -1754,7 +1761,7 @@ export function TeamWorkspace({
                 ))}
               </div>
             ) : (
-              <p className="text-xs text-[#9994A5] italic">
+              <p className="text-xs text-[#64748B] italic">
                 No criteria added yet. Click &ldquo;Add criterion&rdquo; to define acceptance rules.
               </p>
             )}
@@ -1762,16 +1769,16 @@ export function TeamWorkspace({
 
           {/* Reviewer Assignment Selection (Shows Super Admin / Project Creator pinned at top) */}
           {projectTeamMembers.length > 0 && (
-            <div className="space-y-2 pt-2 border-t border-[rgba(74,61,100,0.06)]">
+            <div className="space-y-2 pt-2 border-t border-[rgba(15,23,42,0.06)]">
               <div className="flex items-center justify-between">
-                <label className="block text-xs font-semibold uppercase tracking-wider text-[#9994A5]">
+                <label className="block text-xs font-semibold uppercase tracking-wider text-[#64748B]">
                   Assign Story Reviewers
                 </label>
-                <span className="text-[11px] text-[#706C7D]">
+                <span className="text-[11px] text-[#334155]">
                   {manualStoryReviewerIds.length} selected
                 </span>
               </div>
-              <p className="text-[11px] text-[#706C7D]">
+              <p className="text-[11px] text-[#334155]">
                 Select team members and project leaders who will review and approve this story.
               </p>
               <div className="flex flex-wrap gap-2 pt-1">
@@ -1792,13 +1799,13 @@ export function TeamWorkspace({
                       }}
                       className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium transition cursor-pointer ${
                         isSelected
-                          ? "bg-[#80642F] text-white shadow-2xs"
-                          : "border border-[#EBE7F2] bg-white text-[#252331] hover:bg-[#FAF9FC]"
+                          ? "bg-[#785312] text-white shadow-2xs"
+                          : "border border-[#E2E8F0] bg-white text-[#0F172A] hover:bg-[#F8F9FB]"
                       }`}
                     >
                       <span
                         className={`h-2 w-2 rounded-full ${
-                          isSelected ? "bg-emerald-300" : "bg-[#9994A5]"
+                          isSelected ? "bg-emerald-300" : "bg-[#64748B]"
                         }`}
                       />
                       <span>{tm.name}</span>
@@ -1808,7 +1815,7 @@ export function TeamWorkspace({
                           className={`rounded px-1.5 py-0.5 text-[9px] uppercase tracking-wider font-semibold ${
                             isSelected
                               ? "bg-white/20 text-white"
-                              : "bg-[rgba(184,148,78,0.12)] text-[#80642F]"
+                              : "bg-[rgba(204,160,56,0.12)] text-[#785312]"
                           }`}
                         >
                           {tm.role}
@@ -1822,7 +1829,7 @@ export function TeamWorkspace({
           )}
 
           {manualStoryError && (
-            <p className="text-xs text-[#C25D72] bg-rose-50 p-2.5 rounded-lg">
+            <p className="text-xs text-[#E11D48] bg-rose-50 p-2.5 rounded-lg">
               {manualStoryError}
             </p>
           )}
@@ -1880,7 +1887,7 @@ export function TeamWorkspace({
           </>
         }
       >
-        <p className="text-xs text-[#706C7D]">
+        <p className="text-xs text-[#334155]">
           The open discussions will remain visible for client review.
         </p>
       </Modal>

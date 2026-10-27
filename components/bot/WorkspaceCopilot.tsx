@@ -81,7 +81,7 @@ function renderInlineMarkdown(text: string, onLinkClick?: () => void): React.Rea
             key={match.index}
             href={linkUrl}
             onClick={onLinkClick}
-            className="text-[#D6BD88] hover:text-[#F3E5C8] underline font-medium inline-flex items-center gap-0.5"
+            className="text-[#E8C97E] hover:text-[#F3E5C8] underline font-medium inline-flex items-center gap-0.5"
           >
             {linkText}
           </Link>
@@ -99,7 +99,7 @@ function renderInlineMarkdown(text: string, onLinkClick?: () => void): React.Rea
       tokens.push(
         <code
           key={match.index}
-          className="rounded bg-slate-900/90 px-1.5 py-0.5 font-mono text-[11px] text-[#D6BD88] border border-slate-700/60"
+          className="rounded bg-slate-900/90 px-1.5 py-0.5 font-mono text-[11px] text-[#E8C97E] border border-slate-700/60"
         >
           {token.slice(1, -1)}
         </code>
@@ -212,9 +212,9 @@ function SmartVisualTable({
         {/* Header Bar with View Switcher */}
         <div className="flex items-center justify-between px-1">
           <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-200">
-            <FolderGit2 size={15} className="text-[#D6BD88]" />
+            <FolderGit2 size={15} className="text-[#E8C97E]" />
             <span>Workspace Projects</span>
-            <span className="rounded-full bg-[#B8944E]/20 text-[#D6BD88] px-1.5 py-0.2 text-[10px] font-bold border border-[#B8944E]/30">
+            <span className="rounded-full bg-[#CCA038]/20 text-[#E8C97E] px-1.5 py-0.2 text-[10px] font-bold border border-[#CCA038]/30">
               {projects.length}
             </span>
           </div>
@@ -224,7 +224,7 @@ function SmartVisualTable({
               type="button"
               onClick={() => setViewMode("cards")}
               className={`flex items-center gap-1 px-2 py-0.5 rounded-md transition cursor-pointer ${viewMode === "cards"
-                  ? "bg-[#B8944E] text-white font-semibold shadow-xs"
+                  ? "bg-[#CCA038] text-white font-semibold shadow-xs"
                   : "text-slate-400 hover:text-white"
                 }`}
               title="Cards View"
@@ -236,7 +236,7 @@ function SmartVisualTable({
               type="button"
               onClick={() => setViewMode("table")}
               className={`flex items-center gap-1 px-2 py-0.5 rounded-md transition cursor-pointer ${viewMode === "table"
-                  ? "bg-[#B8944E] text-white font-semibold shadow-xs"
+                  ? "bg-[#CCA038] text-white font-semibold shadow-xs"
                   : "text-slate-400 hover:text-white"
                 }`}
               title="Table View"
@@ -257,10 +257,10 @@ function SmartVisualTable({
               return (
                 <div
                   key={pIdx}
-                  className="group relative flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 rounded-xl border border-slate-800/90 bg-gradient-to-br from-[#161423] to-[#110F1B] hover:border-[#B8944E]/50 hover:bg-[#1A1729] transition-all duration-200 shadow-sm"
+                  className="group relative flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 rounded-xl border border-slate-800/90 bg-gradient-to-br from-[#161423] to-[#110F1B] hover:border-[#CCA038]/50 hover:bg-[#1A1729] transition-all duration-200 shadow-sm"
                 >
                   <div className="flex items-start gap-2.5 min-w-0">
-                    <div className="h-8 w-8 rounded-lg bg-[#B8944E]/15 border border-[#B8944E]/30 flex items-center justify-center text-[#D6BD88] shrink-0 mt-0.5 group-hover:scale-105 transition-transform">
+                    <div className="h-8 w-8 rounded-lg bg-[#CCA038]/15 border border-[#CCA038]/30 flex items-center justify-center text-[#E8C97E] shrink-0 mt-0.5 group-hover:scale-105 transition-transform">
                       <FolderGit2 size={16} />
                     </div>
 
@@ -273,7 +273,7 @@ function SmartVisualTable({
                           <button
                             type="button"
                             onClick={(e) => handleCopyId(e, proj.id)}
-                            className="inline-flex items-center gap-1 font-mono text-[10px] text-slate-400 bg-slate-900/90 hover:text-[#D6BD88] px-1.5 py-0.5 rounded border border-slate-800 transition cursor-pointer"
+                            className="inline-flex items-center gap-1 font-mono text-[10px] text-slate-400 bg-slate-900/90 hover:text-[#E8C97E] px-1.5 py-0.5 rounded border border-slate-800 transition cursor-pointer"
                             title={`Click to copy full ID: ${proj.id}`}
                           >
                             <span>#{shortId}</span>
@@ -308,7 +308,7 @@ function SmartVisualTable({
                     <Link
                       href={projectUrl}
                       onClick={onLinkClick}
-                      className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-[#B8944E]/20 hover:bg-[#B8944E] text-[#F3E5C8] hover:text-white border border-[#B8944E]/40 px-3 py-1.5 text-xs font-semibold transition shrink-0 active:scale-95 shadow-xs self-end sm:self-center cursor-pointer"
+                      className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-[#CCA038]/20 hover:bg-[#CCA038] text-[#F3E5C8] hover:text-white border border-[#CCA038]/40 px-3 py-1.5 text-xs font-semibold transition shrink-0 active:scale-95 shadow-xs self-end sm:self-center cursor-pointer"
                     >
                       <span>Open Project</span>
                       <ArrowUpRight size={13} />
@@ -323,8 +323,8 @@ function SmartVisualTable({
           <div className="overflow-x-auto rounded-xl border border-slate-800 bg-[#12101B]/90 shadow-inner">
             <table className="w-full text-xs text-left border-collapse">
               <thead>
-                <tr className="border-b border-[#B8944E]/20 bg-[#181525]">
-                  <th className="px-3 py-2 font-semibold text-[#D6BD88]">Project</th>
+                <tr className="border-b border-[#CCA038]/20 bg-[#181525]">
+                  <th className="px-3 py-2 font-semibold text-[#E8C97E]">Project</th>
                   <th className="px-3 py-2 font-semibold text-slate-300">Description</th>
                   <th className="px-3 py-2 font-semibold text-slate-300">ID</th>
                   <th className="px-3 py-2 font-semibold text-slate-300 text-right">Action</th>
@@ -344,7 +344,7 @@ function SmartVisualTable({
                         <button
                           type="button"
                           onClick={(e) => handleCopyId(e, proj.id)}
-                          className="hover:text-[#D6BD88] underline inline-flex items-center gap-1 cursor-pointer"
+                          className="hover:text-[#E8C97E] underline inline-flex items-center gap-1 cursor-pointer"
                           title="Copy UUID"
                         >
                           #{proj.id.slice(0, 8)}
@@ -358,7 +358,7 @@ function SmartVisualTable({
                         <Link
                           href={`/project/${proj.id}`}
                           onClick={onLinkClick}
-                          className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#D6BD88] hover:text-[#F3E5C8]"
+                          className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#E8C97E] hover:text-[#F3E5C8]"
                         >
                           <span>Open</span>
                           <ArrowUpRight size={12} />
@@ -380,9 +380,9 @@ function SmartVisualTable({
     <div className="my-3 overflow-x-auto rounded-xl border border-slate-800 bg-[#12101B]/90 shadow-inner">
       <table className="w-full text-xs text-left border-collapse">
         <thead>
-          <tr className="border-b border-[#B8944E]/20 bg-[#181525]">
+          <tr className="border-b border-[#CCA038]/20 bg-[#181525]">
             {headers.map((h, hIdx) => (
-              <th key={hIdx} className="px-3 py-2 font-semibold text-[#D6BD88]">
+              <th key={hIdx} className="px-3 py-2 font-semibold text-[#E8C97E]">
                 {renderInlineMarkdown(h, onLinkClick)}
               </th>
             ))}
@@ -402,7 +402,7 @@ function SmartVisualTable({
                       <button
                         type="button"
                         onClick={(e) => handleCopyId(e, uuid)}
-                        className="font-mono text-[10px] text-slate-400 hover:text-[#D6BD88] bg-slate-900 px-1.5 py-0.5 rounded border border-slate-800 inline-flex items-center gap-1 cursor-pointer"
+                        className="font-mono text-[10px] text-slate-400 hover:text-[#E8C97E] bg-slate-900 px-1.5 py-0.5 rounded border border-slate-800 inline-flex items-center gap-1 cursor-pointer"
                         title={`Click to copy: ${uuid}`}
                       >
                         <span>#{uuid.slice(0, 8)}</span>
@@ -534,8 +534,8 @@ function FormattedMessageContent({
       const [_, pCount, sCount, tCount] = kpiMatch;
       elements.push(
         <div key={`kpi-${i}`} className="grid grid-cols-1 sm:grid-cols-3 gap-2 my-2.5">
-          <div className="p-2.5 rounded-xl bg-gradient-to-br from-[#1C182B] to-[#13111F] border border-[#B8944E]/30 flex items-center gap-2.5 shadow-sm">
-            <div className="h-8 w-8 rounded-lg bg-[#B8944E]/20 text-[#D6BD88] flex items-center justify-center shrink-0">
+          <div className="p-2.5 rounded-xl bg-gradient-to-br from-[#1C182B] to-[#13111F] border border-[#CCA038]/30 flex items-center gap-2.5 shadow-sm">
+            <div className="h-8 w-8 rounded-lg bg-[#CCA038]/20 text-[#E8C97E] flex items-center justify-center shrink-0">
               <FolderGit2 size={16} />
             </div>
             <div>
@@ -545,8 +545,8 @@ function FormattedMessageContent({
               <p className="text-sm font-bold text-white font-mono">{pCount}</p>
             </div>
           </div>
-          <div className="p-2.5 rounded-xl bg-gradient-to-br from-[#1C182B] to-[#13111F] border border-[#B8944E]/30 flex items-center gap-2.5 shadow-sm">
-            <div className="h-8 w-8 rounded-lg bg-[#B8944E]/20 text-[#D6BD88] flex items-center justify-center shrink-0">
+          <div className="p-2.5 rounded-xl bg-gradient-to-br from-[#1C182B] to-[#13111F] border border-[#CCA038]/30 flex items-center gap-2.5 shadow-sm">
+            <div className="h-8 w-8 rounded-lg bg-[#CCA038]/20 text-[#E8C97E] flex items-center justify-center shrink-0">
               <Layers size={16} />
             </div>
             <div>
@@ -556,8 +556,8 @@ function FormattedMessageContent({
               <p className="text-sm font-bold text-white font-mono">{sCount}</p>
             </div>
           </div>
-          <div className="p-2.5 rounded-xl bg-gradient-to-br from-[#1C182B] to-[#13111F] border border-[#B8944E]/30 flex items-center gap-2.5 shadow-sm">
-            <div className="h-8 w-8 rounded-lg bg-[#B8944E]/20 text-[#D6BD88] flex items-center justify-center shrink-0">
+          <div className="p-2.5 rounded-xl bg-gradient-to-br from-[#1C182B] to-[#13111F] border border-[#CCA038]/30 flex items-center gap-2.5 shadow-sm">
+            <div className="h-8 w-8 rounded-lg bg-[#CCA038]/20 text-[#E8C97E] flex items-center justify-center shrink-0">
               <CheckCircle2 size={16} />
             </div>
             <div>
@@ -590,7 +590,7 @@ function FormattedMessageContent({
       elements.push(
         <h5
           key={`h5-${i}`}
-          className="text-xs font-bold text-[#D6BD88] mt-2 mb-1 uppercase tracking-wider"
+          className="text-xs font-bold text-[#E8C97E] mt-2 mb-1 uppercase tracking-wider"
         >
           {renderInlineMarkdown(line.slice(5), onLinkClick)}
         </h5>
@@ -639,7 +639,7 @@ function FormattedMessageContent({
       const bulletText = line.replace(/^\s*[-*]\s+/, "");
       elements.push(
         <div key={`li-${i}`} className="flex items-start gap-2 my-1 pl-1">
-          <span className="text-[#D6BD88] text-xs leading-5 shrink-0">•</span>
+          <span className="text-[#E8C97E] text-xs leading-5 shrink-0">•</span>
           <div className="leading-relaxed text-slate-300 text-xs sm:text-sm">
             {renderInlineMarkdown(bulletText, onLinkClick)}
           </div>
@@ -655,7 +655,7 @@ function FormattedMessageContent({
       elements.push(
         <div
           key={`quote-${i}`}
-          className="my-2 rounded-r-xl border-l-2 border-[#B8944E] bg-[#B8944E]/5 p-2.5 text-xs text-slate-300 italic"
+          className="my-2 rounded-r-xl border-l-2 border-[#CCA038] bg-[#CCA038]/5 p-2.5 text-xs text-slate-300 italic"
         >
           {renderInlineMarkdown(quoteText, onLinkClick)}
         </div>
@@ -703,7 +703,7 @@ function AssistantMessageBubble({
   };
 
   return (
-    <div className="rounded-2xl rounded-tl-xs bg-gradient-to-b from-[#181526]/95 to-[#12101C]/98 border border-[#B8944E]/25 hover:border-[#B8944E]/45 p-3.5 sm:p-4 text-slate-200 shadow-[0_8px_30px_rgba(0,0,0,0.35)] transition-all space-y-2.5">
+    <div className="rounded-2xl rounded-tl-xs bg-gradient-to-b from-[#181526]/95 to-[#12101C]/98 border border-[#CCA038]/25 hover:border-[#CCA038]/45 p-3.5 sm:p-4 text-slate-200 shadow-[0_8px_30px_rgba(0,0,0,0.35)] transition-all space-y-2.5">
       {/* Top Header inside Bubble */}
       <div className="flex items-center justify-between pb-2 border-b border-slate-800/80 text-[11px]">
         <div className="flex items-center gap-1.5">
@@ -767,7 +767,7 @@ function AssistantMessageBubble({
       {/* Bubble Footer */}
       <div className="flex items-center justify-between pt-1 text-[10px] text-slate-500 font-mono border-t border-slate-850/60">
         <span>{message.timestamp}</span>
-        <span className="text-[#D6BD88]/70">Autonomous Execution</span>
+        <span className="text-[#E8C97E]/70">Autonomous Execution</span>
       </div>
     </div>
   );
@@ -1037,7 +1037,7 @@ export function WorkspaceCopilot({ initialUser }: WorkspaceCopilotProps) {
           }}
           onFocus={() => setLauncherExpanded(true)}
           onBlur={() => setLauncherExpanded(false)}
-          className={`group relative flex items-center justify-center rounded-full bg-[#121118] border border-[#B8944E]/40 hover:border-[#B8944E]/85 text-white shadow-[0_12px_32px_rgba(0,0,0,0.40),0_0_20px_rgba(184,148,78,0.16)] transition-all duration-300 hover:scale-105 hover:shadow-[0_16px_40px_rgba(0,0,0,0.50),0_0_25px_rgba(184,148,78,0.28)] focus:outline-none focus:ring-2 focus:ring-[#B8944E]/60 focus:ring-offset-2 focus:ring-offset-[#121118] active:scale-95 cursor-pointer ${
+          className={`group relative flex items-center justify-center rounded-full bg-[#121118] border border-[#CCA038]/40 hover:border-[#CCA038]/85 text-white shadow-[0_12px_32px_rgba(0,0,0,0.40),0_0_20px_rgba(204,160,56,0.16)] transition-all duration-300 hover:scale-105 hover:shadow-[0_16px_40px_rgba(0,0,0,0.50),0_0_25px_rgba(204,160,56,0.28)] focus:outline-none focus:ring-2 focus:ring-[#CCA038]/60 focus:ring-offset-2 focus:ring-offset-[#121118] active:scale-95 cursor-pointer ${
             isLauncherExpanded ? "gap-2.5 px-4 py-2.5 sm:px-4 sm:py-2.5" : "p-3 sm:p-3.5"
           }`}
           aria-label="Open REQly AI Copilot"
@@ -1045,7 +1045,7 @@ export function WorkspaceCopilot({ initialUser }: WorkspaceCopilotProps) {
           title="Open REQly AI Copilot"
         >
           <div className="relative flex items-center justify-center">
-            <BotMessageSquare size={19} className="text-[#D6BD88] transition-transform group-hover:scale-110" />
+            <BotMessageSquare size={19} className="text-[#E8C97E] transition-transform group-hover:scale-110" />
             <span className="absolute -top-1 -right-1 flex h-2 w-2">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
               <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500"></span>
@@ -1068,7 +1068,7 @@ export function WorkspaceCopilot({ initialUser }: WorkspaceCopilotProps) {
 
       {/* 3. Copilot Slide-Over Drawer Container (Full viewport height 100dvh on mobile) */}
       <aside
-        className={`fixed inset-y-0 right-0 z-[95] flex flex-col h-[100dvh] max-h-[100dvh] bg-[#100E17] border-l border-[#B8944E]/20 text-slate-100 shadow-2xl transition-all duration-300 ease-out ${isOpen
+        className={`fixed inset-y-0 right-0 z-[95] flex flex-col h-[100dvh] max-h-[100dvh] bg-[#100E17] border-l border-[#CCA038]/20 text-slate-100 shadow-2xl transition-all duration-300 ease-out ${isOpen
             ? "translate-x-0 opacity-100 visible pointer-events-auto"
             : "translate-x-full opacity-0 invisible pointer-events-none"
           } ${isExpanded ? "w-full md:w-[760px]" : "w-full sm:w-[480px] md:w-[520px]"
@@ -1077,13 +1077,13 @@ export function WorkspaceCopilot({ initialUser }: WorkspaceCopilotProps) {
       >
         {/* Mobile Pull Indicator */}
         <div className="sm:hidden pt-2 pb-0.5 flex justify-center bg-[#161420]">
-          <div className="h-1 w-10 rounded-full bg-[#B8944E]/40" />
+          <div className="h-1 w-10 rounded-full bg-[#CCA038]/40" />
         </div>
 
         {/* Top Header */}
-        <div className="flex items-center justify-between border-b border-[#B8944E]/15 px-3 sm:px-4 py-2.5 sm:py-3 bg-[#161420]/80 backdrop-blur-md">
+        <div className="flex items-center justify-between border-b border-[#CCA038]/15 px-3 sm:px-4 py-2.5 sm:py-3 bg-[#161420]/80 backdrop-blur-md">
           <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
-            <div className="flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-tr from-[#80642F] to-[#B8944E] text-white shadow-md shadow-[#B8944E]/25">
+            <div className="flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-tr from-[#785312] to-[#CCA038] text-white shadow-md shadow-[#CCA038]/25">
               <BotMessageSquare size={17} />
             </div>
             <div className="min-w-0">
@@ -1092,7 +1092,7 @@ export function WorkspaceCopilot({ initialUser }: WorkspaceCopilotProps) {
               </div>
               <p className="text-[10px] sm:text-[11px] text-slate-400 truncate">
                 {activeProjectId ? (
-                  <span className="text-[#D6BD88]">Scoped to Project</span>
+                  <span className="text-[#E8C97E]">Scoped to Project</span>
                 ) : (
                   "Workspace Mode · Autonomous"
                 )}
@@ -1105,10 +1105,10 @@ export function WorkspaceCopilot({ initialUser }: WorkspaceCopilotProps) {
             <button
               type="button"
               onClick={handleStartNewChat}
-              className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-[#B8944E]/30 to-[#80642F]/30 hover:from-[#B8944E]/45 hover:to-[#80642F]/45 text-[#F5E8C8] border border-[#B8944E]/50 px-2.5 py-1 text-xs font-semibold shadow-xs transition active:scale-95 cursor-pointer"
+              className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-[#CCA038]/30 to-[#785312]/30 hover:from-[#CCA038]/45 hover:to-[#785312]/45 text-[#F5E8C8] border border-[#CCA038]/50 px-2.5 py-1 text-xs font-semibold shadow-xs transition active:scale-95 cursor-pointer"
               title="Start a new recorded conversation"
             >
-              <Plus size={13} className="text-[#D6BD88]" />
+              <Plus size={13} className="text-[#E8C97E]" />
               <span>New Chat</span>
             </button>
 
@@ -1120,7 +1120,7 @@ export function WorkspaceCopilot({ initialUser }: WorkspaceCopilotProps) {
                 if (!showHistory) fetchConversations();
               }}
               className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-medium border transition cursor-pointer ${showHistory
-                  ? "bg-[#B8944E] text-white border-[#B8944E]"
+                  ? "bg-[#CCA038] text-white border-[#CCA038]"
                   : "bg-slate-900 text-slate-300 hover:bg-slate-850 hover:text-white border-slate-800"
                 }`}
               title="View recorded chat history"
@@ -1128,7 +1128,7 @@ export function WorkspaceCopilot({ initialUser }: WorkspaceCopilotProps) {
               <History size={13} />
               <span className="hidden sm:inline">History</span>
               {conversations.length > 0 && (
-                <span className="ml-0.5 rounded-full bg-black/30 px-1.5 py-0.2 text-[10px] font-bold text-[#D6BD88]">
+                <span className="ml-0.5 rounded-full bg-black/30 px-1.5 py-0.2 text-[10px] font-bold text-[#E8C97E]">
                   {conversations.length}
                 </span>
               )}
@@ -1158,13 +1158,13 @@ export function WorkspaceCopilot({ initialUser }: WorkspaceCopilotProps) {
         </div>
 
         {/* Sync Status Banner */}
-        <div className="bg-[#14121C] border-b border-[#B8944E]/10 px-4 py-1.5 flex items-center justify-between text-[10px] text-slate-400">
+        <div className="bg-[#14121C] border-b border-[#CCA038]/10 px-4 py-1.5 flex items-center justify-between text-[10px] text-slate-400">
           <div className="flex items-center gap-1.5">
             <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
             <span className="text-slate-300">Every chat is automatically recorded & saved to database</span>
           </div>
           {conversationId ? (
-            <span className="font-mono text-[#D6BD88]/90 truncate max-w-[140px]">
+            <span className="font-mono text-[#E8C97E]/90 truncate max-w-[140px]">
               Thread: #{conversationId.slice(0, 8)}
             </span>
           ) : (
@@ -1186,7 +1186,7 @@ export function WorkspaceCopilot({ initialUser }: WorkspaceCopilotProps) {
               <button
                 type="button"
                 onClick={handleStartNewChat}
-                className="flex items-center gap-1.5 rounded-lg bg-[#B8944E] text-white px-2.5 py-1 text-xs font-semibold hover:bg-[#9F7D3E] transition active:scale-95 shadow-sm shadow-[#B8944E]/25"
+                className="flex items-center gap-1.5 rounded-lg bg-[#CCA038] text-white px-2.5 py-1 text-xs font-semibold hover:bg-[#B58422] transition active:scale-95 shadow-sm shadow-[#CCA038]/25"
               >
                 <Plus size={13} />
                 <span>New Chat</span>
@@ -1195,7 +1195,7 @@ export function WorkspaceCopilot({ initialUser }: WorkspaceCopilotProps) {
 
             {loadingHistory ? (
               <div className="py-12 flex flex-col items-center justify-center gap-2 text-xs text-slate-400">
-                <Loader2 size={18} className="animate-spin text-[#B8944E]" />
+                <Loader2 size={18} className="animate-spin text-[#CCA038]" />
                 <span>Loading recorded conversations...</span>
               </div>
             ) : conversations.length === 0 ? (
@@ -1217,14 +1217,14 @@ export function WorkspaceCopilot({ initialUser }: WorkspaceCopilotProps) {
                       key={conv.id}
                       onClick={() => handleSelectConversation(conv)}
                       className={`group flex items-center justify-between rounded-xl p-3 border text-left transition cursor-pointer ${isActive
-                          ? "bg-[#1C1828] border-[#B8944E]/60 text-white shadow-sm"
-                          : "bg-[#14121D] border-slate-800/80 text-slate-300 hover:border-[#B8944E]/40 hover:bg-[#181524] hover:text-white"
+                          ? "bg-[#1C1828] border-[#CCA038]/60 text-white shadow-sm"
+                          : "bg-[#14121D] border-slate-800/80 text-slate-300 hover:border-[#CCA038]/40 hover:bg-[#181524] hover:text-white"
                         }`}
                     >
                       <div className="flex items-start gap-2.5 min-w-0">
                         <MessageSquare
                           size={15}
-                          className={`mt-0.5 shrink-0 ${isActive ? "text-[#D6BD88]" : "text-slate-500 group-hover:text-[#D6BD88]"
+                          className={`mt-0.5 shrink-0 ${isActive ? "text-[#E8C97E]" : "text-slate-500 group-hover:text-[#E8C97E]"
                             }`}
                         />
                         <div className="min-w-0">
@@ -1240,7 +1240,7 @@ export function WorkspaceCopilot({ initialUser }: WorkspaceCopilotProps) {
                               })}
                             </span>
                             {isActive && (
-                              <span className="text-[#D6BD88] font-sans font-medium">· Active Session</span>
+                              <span className="text-[#E8C97E] font-sans font-medium">· Active Session</span>
                             )}
                           </div>
                         </div>
@@ -1267,7 +1267,7 @@ export function WorkspaceCopilot({ initialUser }: WorkspaceCopilotProps) {
           <div className="flex-1 overflow-y-auto overscroll-contain p-4 sm:p-5 space-y-4 text-xs sm:text-sm">
             {messages.length === 0 ? (
               <div className="flex flex-col items-center justify-center text-center pt-2 sm:pt-4 pb-4">
-                <div className="flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-2xl bg-[#1E1B28] border border-[#B8944E]/30 text-[#D6BD88] mb-3 sm:mb-4 shadow-inner">
+                <div className="flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-2xl bg-[#1E1B28] border border-[#CCA038]/30 text-[#E8C97E] mb-3 sm:mb-4 shadow-inner">
                   <Bot size={26} />
                 </div>
                 <h4 className="text-sm font-semibold text-white mb-1">
@@ -1282,9 +1282,9 @@ export function WorkspaceCopilot({ initialUser }: WorkspaceCopilotProps) {
                   <button
                     type="button"
                     onClick={handleStartNewChat}
-                    className="inline-flex items-center gap-1.5 rounded-full bg-[#B8944E]/20 hover:bg-[#B8944E]/30 text-[#F5E8C8] border border-[#B8944E]/40 px-3 py-1.5 text-xs font-semibold transition active:scale-95"
+                    className="inline-flex items-center gap-1.5 rounded-full bg-[#CCA038]/20 hover:bg-[#CCA038]/30 text-[#F5E8C8] border border-[#CCA038]/40 px-3 py-1.5 text-xs font-semibold transition active:scale-95"
                   >
-                    <Plus size={13} className="text-[#D6BD88]" />
+                    <Plus size={13} className="text-[#E8C97E]" />
                     <span>Start Fresh Chat Session</span>
                   </button>
                 </div>
@@ -1294,13 +1294,13 @@ export function WorkspaceCopilot({ initialUser }: WorkspaceCopilotProps) {
                   <div className="w-full space-y-2 text-left mb-5">
                     <div className="flex items-center justify-between px-1">
                       <p className="text-[11px] font-semibold tracking-wider text-slate-400 uppercase flex items-center gap-1.5">
-                        <History size={12} className="text-[#D6BD88]" />
+                        <History size={12} className="text-[#E8C97E]" />
                         <span>Recent Recorded Chats</span>
                       </p>
                       <button
                         type="button"
                         onClick={() => setShowHistory(true)}
-                        className="text-[11px] text-[#D6BD88] hover:text-[#F3E5C8] font-medium transition cursor-pointer"
+                        className="text-[11px] text-[#E8C97E] hover:text-[#F3E5C8] font-medium transition cursor-pointer"
                       >
                         View All ({conversations.length})
                       </button>
@@ -1312,10 +1312,10 @@ export function WorkspaceCopilot({ initialUser }: WorkspaceCopilotProps) {
                           key={conv.id}
                           type="button"
                           onClick={() => handleSelectConversation(conv)}
-                          className="flex w-full items-center justify-between rounded-xl border border-slate-800/90 bg-[#151321] p-2.5 text-xs text-slate-300 hover:border-[#B8944E]/60 hover:bg-[#1C182B] hover:text-white transition group cursor-pointer text-left"
+                          className="flex w-full items-center justify-between rounded-xl border border-slate-800/90 bg-[#151321] p-2.5 text-xs text-slate-300 hover:border-[#CCA038]/60 hover:bg-[#1C182B] hover:text-white transition group cursor-pointer text-left"
                         >
                           <div className="flex items-center gap-2 min-w-0">
-                            <MessageSquare size={13} className="text-[#D6BD88] shrink-0" />
+                            <MessageSquare size={13} className="text-[#E8C97E] shrink-0" />
                             <span className="truncate font-medium">{conv.title}</span>
                           </div>
                           <span className="text-[10px] text-slate-500 font-mono shrink-0 ml-2">
@@ -1341,10 +1341,10 @@ export function WorkspaceCopilot({ initialUser }: WorkspaceCopilotProps) {
                       type="button"
                       onClick={() => handleSendMessage(prompt)}
                       disabled={loading}
-                      className="flex w-full items-center justify-between rounded-xl border border-slate-800/90 bg-slate-900/60 p-3 min-h-[44px] text-xs text-slate-300 hover:border-[#B8944E]/60 hover:bg-slate-850 hover:text-white transition active:bg-slate-800 group"
+                      className="flex w-full items-center justify-between rounded-xl border border-slate-800/90 bg-slate-900/60 p-3 min-h-[44px] text-xs text-slate-300 hover:border-[#CCA038]/60 hover:bg-slate-850 hover:text-white transition active:bg-slate-800 group"
                     >
                       <span className="line-clamp-2 text-left">{prompt}</span>
-                      <ChevronRight size={14} className="text-slate-500 group-hover:text-[#D6BD88] transition shrink-0 ml-2" />
+                      <ChevronRight size={14} className="text-slate-500 group-hover:text-[#E8C97E] transition shrink-0 ml-2" />
                     </button>
                   ))}
                 </div>
@@ -1355,14 +1355,14 @@ export function WorkspaceCopilot({ initialUser }: WorkspaceCopilotProps) {
                 return (
                   <div key={m.id} className={`flex gap-2.5 sm:gap-3 ${isUser ? "justify-end" : "justify-start"}`}>
                     {!isUser && (
-                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[#181622] border border-[#B8944E]/30 text-[#D6BD88] mt-1 shadow-sm">
+                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[#181622] border border-[#CCA038]/30 text-[#E8C97E] mt-1 shadow-sm">
                         <BotMessageSquare size={14} />
                       </div>
                     )}
 
                     <div className="max-w-[92%] sm:max-w-[88%] space-y-2">
                       {isUser ? (
-                        <div className="rounded-2xl rounded-tr-xs bg-[#B8944E] text-white px-3.5 sm:px-4 py-2.5 sm:py-3 leading-relaxed shadow-md shadow-[#B8944E]/20 font-medium">
+                        <div className="rounded-2xl rounded-tr-xs bg-[#CCA038] text-white px-3.5 sm:px-4 py-2.5 sm:py-3 leading-relaxed shadow-md shadow-[#CCA038]/20 font-medium">
                           <div className="whitespace-pre-wrap font-sans text-xs sm:text-sm break-words">
                             {m.content}
                           </div>
@@ -1391,11 +1391,11 @@ export function WorkspaceCopilot({ initialUser }: WorkspaceCopilotProps) {
             {/* Loading Indicator */}
             {loading && (
               <div className="flex gap-2.5 sm:gap-3 items-center">
-                <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[#181622] border border-[#B8944E]/35 text-[#D6BD88] animate-pulse">
+                <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[#181622] border border-[#CCA038]/35 text-[#E8C97E] animate-pulse">
                   <BotMessageSquare size={14} />
                 </div>
                 <div className="flex items-center gap-2 rounded-2xl border border-slate-800 bg-[#161420] px-3.5 py-2 text-xs text-slate-300">
-                  <Loader2 size={14} className="animate-spin text-[#B8944E]" />
+                  <Loader2 size={14} className="animate-spin text-[#CCA038]" />
                   <span>Copilot is reasoning & executing...</span>
                 </div>
               </div>
@@ -1413,7 +1413,7 @@ export function WorkspaceCopilot({ initialUser }: WorkspaceCopilotProps) {
                 e.preventDefault();
                 handleSendMessage();
               }}
-              className="relative flex items-center rounded-2xl border border-slate-700/80 bg-slate-950 p-1 sm:p-1.5 focus-within:border-[#B8944E] focus-within:ring-1 focus-within:ring-[#B8944E]/40 transition shadow-inner"
+              className="relative flex items-center rounded-2xl border border-slate-700/80 bg-slate-950 p-1 sm:p-1.5 focus-within:border-[#CCA038] focus-within:ring-1 focus-within:ring-[#CCA038]/40 transition shadow-inner"
             >
               <textarea
                 ref={textareaRef}
@@ -1438,7 +1438,7 @@ export function WorkspaceCopilot({ initialUser }: WorkspaceCopilotProps) {
               <button
                 type="submit"
                 disabled={!inputValue.trim() || loading}
-                className="flex h-9 w-9 sm:h-8 sm:w-8 items-center justify-center rounded-xl bg-[#B8944E] text-white transition hover:bg-[#9F7D3E] active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed shrink-0 shadow-sm shadow-[#B8944E]/30"
+                className="flex h-9 w-9 sm:h-8 sm:w-8 items-center justify-center rounded-xl bg-[#CCA038] text-white transition hover:bg-[#B58422] active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed shrink-0 shadow-sm shadow-[#CCA038]/30"
                 aria-label="Send message"
               >
                 <Send size={15} />

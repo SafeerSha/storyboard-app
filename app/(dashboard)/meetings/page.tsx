@@ -4,7 +4,7 @@ import { AdminMeetingsWorkspace } from "@/components/meetings/AdminMeetingsWorks
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Meetings & Calls | REQly",
+  title: "Meetings | REQly",
   description: "Schedule, coordinate, and review meetings across all projects.",
 };
 
@@ -34,7 +34,7 @@ export default async function MeetingsPage() {
   }));
 
   return (
-    <main className="min-h-screen bg-[#faf9fc]">
+    <main className="min-h-screen bg-[#F8F9FB]">
       <AdminMeetingsWorkspace
         initialProjects={projects}
         initialMeetings={initialMeetings}

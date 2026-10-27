@@ -57,10 +57,10 @@ export function TaskCard({
     },
     medium: {
       label: "Medium",
-      bg: "bg-[rgba(184,148,78,0.08)]",
-      text: "text-[#80642F]",
-      border: "border-[rgba(184,148,78,0.2)]",
-      dot: "bg-[#B8944E]",
+      bg: "bg-[rgba(204,160,56,0.08)]",
+      text: "text-[#785312]",
+      border: "border-[rgba(204,160,56,0.2)]",
+      dot: "bg-[#CCA038]",
     },
     low: {
       label: "Low",
@@ -130,8 +130,8 @@ export function TaskCard({
   return (
     <div
       onClick={onClick}
-      className={`group relative rounded-xl border border-[rgba(74,61,100,0.08)] bg-white p-3.5 shadow-xs hover:border-[#B8944E]/30 hover:shadow-[0_4px_20px_rgba(70,55,95,0.06)] transition-all duration-150 cursor-pointer ${
-        task.status === "done" ? "opacity-75 bg-[#FAF9FC]" : ""
+      className={`group relative rounded-xl border border-[rgba(15,23,42,0.08)] bg-white p-3.5 shadow-xs hover:border-[#CCA038]/30 hover:shadow-[0_4px_20px_rgba(15,23,42,0.06)] transition-all duration-150 cursor-pointer ${
+        task.status === "done" ? "opacity-75 bg-[#F8F9FB]" : ""
       }`}
     >
       {/* Top Meta: Priority + Category + Project + Status action */}
@@ -154,7 +154,7 @@ export function TaskCard({
           )}
 
           {showProject && task.project && (
-            <span className="rounded bg-zinc-100 px-1.5 py-0.5 text-[9.5px] sm:text-[10px] font-medium text-[#706C7D] truncate max-w-[80px] sm:max-w-[120px]">
+            <span className="rounded bg-zinc-100 px-1.5 py-0.5 text-[9.5px] sm:text-[10px] font-medium text-[#334155] truncate max-w-[80px] sm:max-w-[120px]">
               {task.project.name}
             </span>
           )}
@@ -178,7 +178,7 @@ export function TaskCard({
             className={`rounded-full p-1 transition-colors ${
               task.status === "done"
                 ? "text-emerald-600 bg-emerald-50 hover:bg-emerald-100"
-                : "text-zinc-400 hover:text-[#B8944E] hover:bg-[rgba(184,148,78,0.08)]"
+                : "text-zinc-400 hover:text-[#CCA038] hover:bg-[rgba(204,160,56,0.08)]"
             }`}
           >
             <CheckCircle2 size={16} className={task.status === "done" ? "fill-emerald-100" : ""} />
@@ -188,7 +188,7 @@ export function TaskCard({
 
       {/* Task Title */}
       <h4
-        className={`text-sm font-semibold tracking-tight text-[#252331] group-hover:text-[#80642F] transition-colors leading-snug line-clamp-2 ${
+        className={`text-sm font-semibold tracking-tight text-[#0F172A] group-hover:text-[#785312] transition-colors leading-snug line-clamp-2 ${
           task.status === "done" ? "line-through text-zinc-400" : ""
         }`}
       >
@@ -197,7 +197,7 @@ export function TaskCard({
 
       {/* Description excerpt */}
       {task.description && (
-        <p className="mt-1 text-xs text-[#706C7D] line-clamp-2 leading-relaxed">
+        <p className="mt-1 text-xs text-[#334155] line-clamp-2 leading-relaxed">
           {task.description}
         </p>
       )}
@@ -205,15 +205,15 @@ export function TaskCard({
       {/* Linked Story Badge */}
       {task.story && (
         <div className="mt-2.5 flex items-center gap-1.5">
-          <span className="inline-flex items-center gap-1 rounded-md bg-[rgba(184,148,78,0.06)] px-2 py-0.5 text-[11px] font-medium text-[#80642F] border border-[rgba(184,148,78,0.15)] truncate max-w-full">
-            <BookOpen size={11} className="shrink-0 text-[#B8944E]" />
+          <span className="inline-flex items-center gap-1 rounded-md bg-[rgba(204,160,56,0.06)] px-2 py-0.5 text-[11px] font-medium text-[#785312] border border-[rgba(204,160,56,0.15)] truncate max-w-full">
+            <BookOpen size={11} className="shrink-0 text-[#CCA038]" />
             <span className="truncate">Story: {task.story.title}</span>
           </span>
         </div>
       )}
 
       {/* Bottom Footer: Multi-Assignees & Meta Counts */}
-      <div className="mt-3 pt-2.5 border-t border-[rgba(74,61,100,0.06)] flex items-center justify-between gap-2 text-[11px]">
+      <div className="mt-3 pt-2.5 border-t border-[rgba(15,23,42,0.06)] flex items-center justify-between gap-2 text-[11px]">
         {/* Multi-Assignees */}
         <div className="flex items-center gap-1 min-w-0">
           {assigneesList.length > 0 ? (
@@ -235,7 +235,7 @@ export function TaskCard({
                   return (
                     <div
                       key={a.id || i}
-                      className="inline-flex h-5 w-5 rounded-full ring-2 ring-white bg-[rgba(184,148,78,0.15)] text-[#80642F] text-[9px] font-bold items-center justify-center"
+                      className="inline-flex h-5 w-5 rounded-full ring-2 ring-white bg-[rgba(204,160,56,0.15)] text-[#785312] text-[9px] font-bold items-center justify-center"
                       title={a.name}
                     >
                       {inits}
@@ -244,7 +244,7 @@ export function TaskCard({
                 })}
               </div>
 
-              <span className="text-[#252331] font-medium truncate max-w-[75px] sm:max-w-[110px]">
+              <span className="text-[#0F172A] font-medium truncate max-w-[75px] sm:max-w-[110px]">
                 {assigneesList[0].name}
               </span>
 
@@ -257,14 +257,14 @@ export function TaskCard({
               {assigneesList.length === 1 && getRoleBadge(assigneesList[0].type)}
             </div>
           ) : (
-            <span className="text-[#9994A5] italic text-[11px] flex items-center gap-1 shrink-0">
+            <span className="text-[#64748B] italic text-[11px] flex items-center gap-1 shrink-0">
               <User size={11} /> Unassigned
             </span>
           )}
         </div>
 
         {/* Counts & Due Date */}
-        <div className="flex items-center gap-2.5 shrink-0 text-[#706C7D]">
+        <div className="flex items-center gap-2.5 shrink-0 text-[#334155]">
           {dueDateText && (
             <span
               className={`flex items-center gap-1 font-medium ${
@@ -279,14 +279,14 @@ export function TaskCard({
 
           {(task.notes_count ?? 0) > 0 && (
             <span className="flex items-center gap-1" title={`${task.notes_count} notes`}>
-              <MessageSquare size={11} className="text-[#9994A5]" />
+              <MessageSquare size={11} className="text-[#64748B]" />
               {task.notes_count}
             </span>
           )}
 
           {(task.attachments_count ?? 0) > 0 && (
             <span className="flex items-center gap-1" title={`${task.attachments_count} attachments`}>
-              <Paperclip size={11} className="text-[#9994A5]" />
+              <Paperclip size={11} className="text-[#64748B]" />
               {task.attachments_count}
             </span>
           )}

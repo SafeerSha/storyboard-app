@@ -110,7 +110,7 @@ export function ClientEstimateView({ clientName }: ClientEstimateViewProps) {
     return (
       <div className="p-6 md:p-10 max-w-5xl mx-auto">
         <div className="h-48 rounded-2xl border border-zinc-200 bg-white p-8 flex flex-col items-center justify-center text-center">
-          <div className="w-8 h-8 rounded-full border-2 border-[#B8944E] border-t-transparent animate-spin mb-3" />
+          <div className="w-8 h-8 rounded-full border-2 border-[#CCA038] border-t-transparent animate-spin mb-3" />
           <p className="text-sm font-semibold text-zinc-800">Loading your project quotation...</p>
           <p className="text-xs text-zinc-400 mt-0.5">Retrieving scope deliverables and fee structure</p>
         </div>
@@ -122,7 +122,7 @@ export function ClientEstimateView({ clientName }: ClientEstimateViewProps) {
     return (
       <div className="p-6 md:p-10 max-w-5xl mx-auto">
         <div className="rounded-2xl border border-dashed border-zinc-200 bg-white p-12 text-center">
-          <div className="w-12 h-12 rounded-2xl bg-[#B8944E]/10 text-[#80642F] flex items-center justify-center mx-auto mb-4">
+          <div className="w-12 h-12 rounded-2xl bg-[#CCA038]/10 text-[#785312] flex items-center justify-center mx-auto mb-4">
             <Calculator className="w-6 h-6" />
           </div>
           <h2 className="text-base font-bold text-zinc-900">No Quotation Published Yet</h2>
@@ -180,11 +180,11 @@ export function ClientEstimateView({ clientName }: ClientEstimateViewProps) {
   return (
     <div className="p-4 sm:p-6 md:p-10 max-w-5xl mx-auto space-y-6">
       {/* Header Banner */}
-      <div className="rounded-2xl border border-[rgba(184,148,78,0.25)] bg-gradient-to-br from-[#FCFBFC] to-white p-6 shadow-sm">
+      <div className="rounded-2xl border border-[rgba(204,160,56,0.25)] bg-gradient-to-br from-[#FCFBFC] to-white p-6 shadow-sm">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-zinc-100 pb-5">
           <div>
             <div className="flex items-center gap-2 mb-1.5">
-              <span className="text-xs font-bold uppercase tracking-wider text-[#80642F] bg-[#B8944E]/10 px-2.5 py-0.5 rounded-full border border-[#B8944E]/20">
+              <span className="text-xs font-bold uppercase tracking-wider text-[#785312] bg-[#CCA038]/10 px-2.5 py-0.5 rounded-full border border-[#CCA038]/20">
                 Official Project Quotation
               </span>
               {(summary.estimate_label || publishing.estimate_label) && (
@@ -259,8 +259,8 @@ export function ClientEstimateView({ clientName }: ClientEstimateViewProps) {
               </span>
             </div>
           ) : (
-            <div className="flex items-center gap-2.5 p-3 rounded-xl bg-[#B8944E]/[0.07] border border-[#B8944E]/20 text-zinc-700 text-xs">
-              <ShieldCheck className="w-4 h-4 text-[#80642F] shrink-0" />
+            <div className="flex items-center gap-2.5 p-3 rounded-xl bg-[#CCA038]/[0.07] border border-[#CCA038]/20 text-zinc-700 text-xs">
+              <ShieldCheck className="w-4 h-4 text-[#785312] shrink-0" />
               <span>
                 Please inspect the scope of deliverables and fee structure below. You can click <strong>"Discuss / Bargain"</strong> on any section to ask questions or suggest adjusted hours.
               </span>
@@ -271,7 +271,7 @@ export function ClientEstimateView({ clientName }: ClientEstimateViewProps) {
         {/* Scope Disciplines Badges */}
         <div className="flex flex-wrap items-center gap-2 mt-4 pt-4 border-t border-zinc-100">
           <span className="text-xs font-semibold text-zinc-500 mr-1">Disciplines:</span>
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-[#B8944E]/10 text-[#80642F] border border-[#B8944E]/30">
+          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-[#CCA038]/10 text-[#785312] border border-[#CCA038]/30">
             {workScope === "frontend" && <Code2 className="w-3.5 h-3.5" />}
             {workScope === "backend" && <Server className="w-3.5 h-3.5" />}
             {workScope === "both" && <Layers className="w-3.5 h-3.5" />}
@@ -313,12 +313,12 @@ export function ClientEstimateView({ clientName }: ClientEstimateViewProps) {
 
         <div className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
           <p className="text-xs text-zinc-500 font-semibold uppercase tracking-wider">Contingency Buffer</p>
-          <p className="text-2xl font-bold text-[#80642F] mt-1">{formatter.format(estimate.contingency_amount)}</p>
+          <p className="text-2xl font-bold text-[#785312] mt-1">{formatter.format(estimate.contingency_amount)}</p>
           <p className="text-[11px] text-zinc-400 mt-0.5">{estimate.contingency_percentage}% unforeseen margin</p>
         </div>
 
-        <div className="rounded-2xl border border-[rgba(184,148,78,0.3)] bg-[#B8944E]/[0.05] p-5 shadow-sm">
-          <p className="text-xs font-semibold uppercase tracking-wider text-[#80642F]">Total Quotation</p>
+        <div className="rounded-2xl border border-[rgba(204,160,56,0.3)] bg-[#CCA038]/[0.05] p-5 shadow-sm">
+          <p className="text-xs font-semibold uppercase tracking-wider text-[#785312]">Total Quotation</p>
           <p className="text-2xl font-black text-zinc-900 mt-1">{formatter.format(estimate.final_amount)}</p>
           <p className="text-[11px] text-zinc-500 mt-0.5">Base + Contingency</p>
         </div>
@@ -341,12 +341,12 @@ export function ClientEstimateView({ clientName }: ClientEstimateViewProps) {
                 sectionTitle: "Overall Package & Commercial Terms",
               })
             }
-            className="text-xs flex items-center gap-1.5 self-start sm:self-auto border-zinc-200 hover:border-[#B8944E]"
+            className="text-xs flex items-center gap-1.5 self-start sm:self-auto border-zinc-200 hover:border-[#CCA038]"
           >
-            <MessageSquare className="w-3.5 h-3.5 text-[#B8944E]" />
+            <MessageSquare className="w-3.5 h-3.5 text-[#CCA038]" />
             Discuss / Bargain
             {getDiscussionCount("summary") > 0 && (
-              <span className="ml-1 rounded-full bg-[#B8944E] px-1.5 py-0.2 text-[10px] font-bold text-white">
+              <span className="ml-1 rounded-full bg-[#CCA038] px-1.5 py-0.2 text-[10px] font-bold text-white">
                 {getDiscussionCount("summary")}
               </span>
             )}
@@ -363,7 +363,7 @@ export function ClientEstimateView({ clientName }: ClientEstimateViewProps) {
           <div className="p-3.5 rounded-xl border border-zinc-200 bg-zinc-50/50 flex flex-col justify-between gap-3">
             <div>
               <div className="flex items-center gap-1.5">
-                <Database className="w-4 h-4 text-[#B8944E]" />
+                <Database className="w-4 h-4 text-[#CCA038]" />
                 <p className="text-sm font-semibold text-zinc-900">Database Design</p>
               </div>
               <p className="text-xs text-zinc-500 mt-1 leading-snug">
@@ -381,12 +381,12 @@ export function ClientEstimateView({ clientName }: ClientEstimateViewProps) {
                     sectionTitle: "Database Design & Architecture",
                   })
                 }
-                className="text-[11px] font-semibold text-[#80642F] hover:underline flex items-center gap-1 self-start"
+                className="text-[11px] font-semibold text-[#785312] hover:underline flex items-center gap-1 self-start"
               >
                 <MessageSquare className="w-3 h-3" />
                 Discuss Database Scope
                 {getDiscussionCount("database_design") > 0 && (
-                  <span className="rounded-full bg-[#B8944E] px-1.5 py-0.2 text-[9px] font-bold text-white">
+                  <span className="rounded-full bg-[#CCA038] px-1.5 py-0.2 text-[9px] font-bold text-white">
                     {getDiscussionCount("database_design")}
                   </span>
                 )}
@@ -398,7 +398,7 @@ export function ClientEstimateView({ clientName }: ClientEstimateViewProps) {
           <div className="p-3.5 rounded-xl border border-zinc-200 bg-zinc-50/50 flex flex-col justify-between gap-3">
             <div>
               <div className="flex items-center gap-1.5">
-                <TestTubes className="w-4 h-4 text-[#B8944E]" />
+                <TestTubes className="w-4 h-4 text-[#CCA038]" />
                 <p className="text-sm font-semibold text-zinc-900">Unit Testing</p>
               </div>
               <p className="text-xs text-zinc-500 mt-1 leading-snug">
@@ -416,12 +416,12 @@ export function ClientEstimateView({ clientName }: ClientEstimateViewProps) {
                     sectionTitle: "Unit Testing & Code Verification",
                   })
                 }
-                className="text-[11px] font-semibold text-[#80642F] hover:underline flex items-center gap-1 self-start"
+                className="text-[11px] font-semibold text-[#785312] hover:underline flex items-center gap-1 self-start"
               >
                 <MessageSquare className="w-3 h-3" />
                 Discuss Testing Hours
                 {getDiscussionCount("unit_testing") > 0 && (
-                  <span className="rounded-full bg-[#B8944E] px-1.5 py-0.2 text-[9px] font-bold text-white">
+                  <span className="rounded-full bg-[#CCA038] px-1.5 py-0.2 text-[9px] font-bold text-white">
                     {getDiscussionCount("unit_testing")}
                   </span>
                 )}
@@ -434,7 +434,7 @@ export function ClientEstimateView({ clientName }: ClientEstimateViewProps) {
             <div>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-1.5">
-                  <Rocket className="w-4 h-4 text-[#B8944E]" />
+                  <Rocket className="w-4 h-4 text-[#CCA038]" />
                   <p className="text-sm font-semibold text-zinc-900">Deployment & DevOps</p>
                 </div>
                 {includeDeploy && (
@@ -456,12 +456,12 @@ export function ClientEstimateView({ clientName }: ClientEstimateViewProps) {
                     sectionTitle: "Deployment & DevOps Deliverable",
                   })
                 }
-                className="text-[11px] font-semibold text-[#80642F] hover:underline flex items-center gap-1 self-start"
+                className="text-[11px] font-semibold text-[#785312] hover:underline flex items-center gap-1 self-start"
               >
                 <MessageSquare className="w-3 h-3" />
                 Discuss DevOps Scope
                 {getDiscussionCount("deployment") > 0 && (
-                  <span className="rounded-full bg-[#B8944E] px-1.5 py-0.2 text-[9px] font-bold text-white">
+                  <span className="rounded-full bg-[#CCA038] px-1.5 py-0.2 text-[9px] font-bold text-white">
                     {getDiscussionCount("deployment")}
                   </span>
                 )}
@@ -498,7 +498,7 @@ export function ClientEstimateView({ clientName }: ClientEstimateViewProps) {
                         {story.complexity || "Medium"}
                       </span>
                       {story.epic_name && (
-                        <span className="inline-flex px-2 py-0.5 rounded text-[10px] font-semibold bg-amber-50 text-[#80642F] border border-amber-200">
+                        <span className="inline-flex px-2 py-0.5 rounded text-[10px] font-semibold bg-amber-50 text-[#785312] border border-amber-200">
                           {story.epic_name}
                         </span>
                       )}
@@ -545,12 +545,12 @@ export function ClientEstimateView({ clientName }: ClientEstimateViewProps) {
                             sectionTitle: story.story_title || story.title || "Story Deliverable",
                           })
                         }
-                        className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#80642F] hover:text-[#5e4922] bg-[#B8944E]/[0.08] hover:bg-[#B8944E]/[0.15] px-2.5 py-1 rounded-lg border border-[#B8944E]/20 transition"
+                        className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#785312] hover:text-[#5e4922] bg-[#CCA038]/[0.08] hover:bg-[#CCA038]/[0.15] px-2.5 py-1 rounded-lg border border-[#CCA038]/20 transition"
                       >
                         <MessageSquare className="w-3.5 h-3.5" />
                         Discuss / Bargain this Story
                         {commentsCount > 0 && (
-                          <span className="rounded-full bg-[#B8944E] px-1.5 py-0.2 text-[9px] font-bold text-white">
+                          <span className="rounded-full bg-[#CCA038] px-1.5 py-0.2 text-[9px] font-bold text-white">
                             {commentsCount}
                           </span>
                         )}
@@ -608,7 +608,7 @@ export function ClientEstimateView({ clientName }: ClientEstimateViewProps) {
                 className={
                   actionModalType === "approve"
                     ? "bg-emerald-600 hover:bg-emerald-700 text-white"
-                    : "bg-[#B8944E] hover:bg-[#a3803d] text-white"
+                    : "bg-[#CCA038] hover:bg-[#a3803d] text-white"
                 }
               >
                 {actionModalType === "approve" ? "Confirm Approval" : "Submit Request"}
@@ -629,7 +629,7 @@ export function ClientEstimateView({ clientName }: ClientEstimateViewProps) {
                   ? "e.g. Approved. Looking forward to kicking off development!"
                   : "e.g. We would like to adjust the testing scope and target a budget of $5,000..."
               }
-              className="w-full rounded-xl border border-zinc-200 px-3 py-2 text-xs text-zinc-900 placeholder:text-zinc-400 focus:border-[#B8944E] focus:outline-none resize-none"
+              className="w-full rounded-xl border border-zinc-200 px-3 py-2 text-xs text-zinc-900 placeholder:text-zinc-400 focus:border-[#CCA038] focus:outline-none resize-none"
             />
           </div>
         </Modal>

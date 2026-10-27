@@ -211,7 +211,7 @@ export function MediaUploadZone({
     <div className={`space-y-3 ${className}`}>
       {label && (
         <div className="flex items-center justify-between">
-          <label className="block text-xs font-semibold uppercase tracking-wider text-[#9994A5]">
+          <label className="block text-xs font-semibold uppercase tracking-wider text-[#64748B]">
             {label}
           </label>
           {previewResult && (
@@ -225,7 +225,7 @@ export function MediaUploadZone({
 
       {/* Error alert with retry option (AC-2.2, AC-2.4) */}
       {error && (
-        <div className="rounded-xl bg-rose-50/90 border border-rose-200 p-3 text-xs text-[#C25D72] flex items-start justify-between gap-3 animate-in fade-in duration-150">
+        <div className="rounded-xl bg-rose-50/90 border border-rose-200 p-3 text-xs text-[#E11D48] flex items-start justify-between gap-3 animate-in fade-in duration-150">
           <div className="flex items-start gap-2 min-w-0">
             <AlertCircle size={15} className="shrink-0 mt-0.5 text-rose-600" />
             <span className="leading-relaxed">{error}</span>
@@ -246,23 +246,23 @@ export function MediaUploadZone({
 
       {/* PREVIEW CARD (AC-2.3) */}
       {previewResult && (
-        <div className="relative rounded-2xl border border-[rgba(74,61,100,0.12)] bg-white/90 p-3 shadow-sm backdrop-blur-md space-y-3 animate-in fade-in zoom-in-95 duration-150">
-          <div className="flex items-center justify-between gap-2 border-b border-[rgba(74,61,100,0.06)] pb-2.5">
+        <div className="relative rounded-2xl border border-[rgba(15,23,42,0.12)] bg-white/90 p-3 shadow-sm backdrop-blur-md space-y-3 animate-in fade-in zoom-in-95 duration-150">
+          <div className="flex items-center justify-between gap-2 border-b border-[rgba(15,23,42,0.06)] pb-2.5">
             <div className="flex items-center gap-2 min-w-0">
               {previewResult.mediaType === "video" ? (
                 <div className="grid h-7 w-7 place-items-center rounded-lg bg-purple-50 text-purple-700 border border-purple-200 shrink-0">
                   <Film size={14} />
                 </div>
               ) : (
-                <div className="grid h-7 w-7 place-items-center rounded-lg bg-[rgba(184,148,78,0.12)] text-[#80642F] border border-[rgba(184,148,78,0.25)] shrink-0">
+                <div className="grid h-7 w-7 place-items-center rounded-lg bg-[rgba(204,160,56,0.12)] text-[#785312] border border-[rgba(204,160,56,0.25)] shrink-0">
                   <FileImage size={14} />
                 </div>
               )}
               <div className="min-w-0">
-                <span className="block text-xs font-bold text-[#252331] truncate" title={previewResult.fileName}>
+                <span className="block text-xs font-bold text-[#0F172A] truncate" title={previewResult.fileName}>
                   {previewResult.fileName}
                 </span>
-                <span className="block text-[10px] text-[#9994A5]">
+                <span className="block text-[10px] text-[#64748B]">
                   {previewResult.mediaType.toUpperCase()}
                   {previewResult.size > 0 && ` • ${(previewResult.size / (1024 * 1024)).toFixed(2)} MB`}
                 </span>
@@ -274,7 +274,7 @@ export function MediaUploadZone({
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
                 title="Replace file"
-                className="rounded-lg p-1.5 text-[#706C7D] hover:text-[#80642F] hover:bg-[rgba(184,148,78,0.08)] transition text-xs font-medium"
+                className="rounded-lg p-1.5 text-[#334155] hover:text-[#785312] hover:bg-[rgba(204,160,56,0.08)] transition text-xs font-medium"
               >
                 Replace
               </button>
@@ -290,7 +290,7 @@ export function MediaUploadZone({
           </div>
 
           {/* Media preview element (AC-2.3) */}
-          <div className="relative rounded-xl overflow-hidden bg-slate-900/5 max-h-72 flex items-center justify-center border border-[rgba(74,61,100,0.06)]">
+          <div className="relative rounded-xl overflow-hidden bg-slate-900/5 max-h-72 flex items-center justify-center border border-[rgba(15,23,42,0.06)]">
             {previewResult.mediaType === "video" ? (
               <video
                 src={previewResult.url}
@@ -317,8 +317,8 @@ export function MediaUploadZone({
           onClick={() => !uploading && fileInputRef.current?.click()}
           className={`relative rounded-2xl border-2 border-dashed p-6 text-center cursor-pointer transition-all duration-200 ${
             isDragging
-              ? "border-[#B8944E] bg-[rgba(184,148,78,0.06)] scale-[0.99]"
-              : "border-[rgba(74,61,100,0.15)] bg-white/70 hover:border-[#B8944E]/60 hover:bg-[rgba(184,148,78,0.02)]"
+              ? "border-[#CCA038] bg-[rgba(204,160,56,0.06)] scale-[0.99]"
+              : "border-[rgba(15,23,42,0.15)] bg-white/70 hover:border-[#CCA038]/60 hover:bg-[rgba(204,160,56,0.02)]"
           } ${uploading ? "pointer-events-none opacity-60" : ""}`}
         >
           <input
@@ -334,33 +334,33 @@ export function MediaUploadZone({
             <div
               className={`grid h-12 w-12 place-items-center rounded-2xl transition-transform ${
                 isDragging
-                  ? "bg-[#B8944E] text-white scale-110 shadow-md"
-                  : "bg-[rgba(184,148,78,0.1)] text-[#80642F]"
+                  ? "bg-[#CCA038] text-white scale-110 shadow-md"
+                  : "bg-[rgba(204,160,56,0.1)] text-[#785312]"
               }`}
             >
               {uploading ? (
-                <div className="h-5 w-5 animate-spin rounded-full border-2 border-[#B8944E] border-t-transparent" />
+                <div className="h-5 w-5 animate-spin rounded-full border-2 border-[#CCA038] border-t-transparent" />
               ) : (
                 <UploadCloud size={24} />
               )}
             </div>
 
             <div className="space-y-1">
-              <p className="text-sm font-bold text-[#252331]">
+              <p className="text-sm font-bold text-[#0F172A]">
                 {uploading
                   ? "Uploading media..."
                   : isDragging
                   ? "Drop your media file here"
                   : "Click to upload or drag & drop"}
               </p>
-              <p className="text-[11px] text-[#706C7D] max-w-sm mx-auto leading-relaxed">
+              <p className="text-[11px] text-[#334155] max-w-sm mx-auto leading-relaxed">
                 {description}
               </p>
             </div>
 
-            <div className="pt-1 flex items-center gap-2 text-[10px] font-semibold text-[#9994A5]">
+            <div className="pt-1 flex items-center gap-2 text-[10px] font-semibold text-[#64748B]">
               <span className="inline-flex items-center gap-1">
-                <FileImage size={11} className="text-[#B8944E]" />
+                <FileImage size={11} className="text-[#CCA038]" />
                 Images up to {maxImageMb}MB
               </span>
               <span>•</span>

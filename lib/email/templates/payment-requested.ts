@@ -67,7 +67,7 @@ export function generatePaymentRequestedEmail({
                 <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: #71717a; letter-spacing: 0.8px;">
                   Due Date
                 </div>
-                <div style="font-size: 20px; font-weight: 700; color: #b8944e; margin-top: 8px; letter-spacing: -0.3px;">
+                <div style="font-size: 20px; font-weight: 700; color: #CCA038; margin-top: 8px; letter-spacing: -0.3px;">
                   ${safeDueDate}
                 </div>
               </td>

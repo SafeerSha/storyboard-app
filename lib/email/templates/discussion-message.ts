@@ -47,7 +47,7 @@ export function generateDiscussionMessageEmail({
     </p>
 
     <!-- Message Quote Box -->
-    <div style="margin: 0 0 20px 0; padding: 18px 20px; background-color: #fafaf9; border-left: 4px solid #B8944E; border-radius: 8px;">
+    <div style="margin: 0 0 20px 0; padding: 18px 20px; background-color: #fafaf9; border-left: 4px solid #CCA038; border-radius: 8px;">
       <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: #78716c; margin-bottom: 6px;">
         ${safeSectionTitle}
       </div>

@@ -38,7 +38,7 @@ export function DashboardHeader({
   const desc = description || subtitle;
 
   return (
-    <header className="w-full sticky top-0 z-20 border-b border-[rgba(74,61,100,0.08)] bg-white/68 backdrop-blur-[20px] transition-colors">
+    <header className="w-full sticky top-0 z-20 border-b border-[rgba(15,23,42,0.08)] bg-white/68 backdrop-blur-[20px] transition-colors">
       <div
         className={`w-full mx-auto ${maxWidth} px-4 sm:px-8 py-3.5 sm:py-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4`}
       >
@@ -48,7 +48,7 @@ export function DashboardHeader({
             <button
               type="button"
               onClick={toggleMobile}
-              className="mt-0.5 grid h-8 w-8 sm:h-9 sm:w-9 shrink-0 place-items-center rounded-lg text-[#706C7D] hover:bg-[#E9E3F4]/30 hover:text-[#252331] transition-colors md:hidden"
+              className="mt-0.5 grid h-8 w-8 sm:h-9 sm:w-9 shrink-0 place-items-center rounded-lg text-[#334155] hover:bg-[#F1F5F9]/30 hover:text-[#0F172A] transition-colors md:hidden"
               aria-label="Toggle navigation menu"
             >
               <Menu size={19} />
@@ -58,7 +58,7 @@ export function DashboardHeader({
               {backHref && (
                 <Link
                   href={backHref}
-                  className="inline-flex items-center gap-1.5 text-xs font-medium text-[#706C7D] hover:text-[#252331] transition-colors mb-1 group"
+                  className="inline-flex items-center gap-1.5 text-xs font-medium text-[#334155] hover:text-[#0F172A] transition-colors mb-1 group"
                 >
                   <ArrowLeft size={13} className="transition-transform group-hover:-translate-x-0.5" />
                   <span>{backLabel || (backHref === "/projects" ? "Projects" : "Back")}</span>
@@ -66,20 +66,20 @@ export function DashboardHeader({
               )}
 
               {label && (
-                <p className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-[#9994A5] mb-0.5">
+                <p className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-[#64748B] mb-0.5">
                   {label}
                 </p>
               )}
 
               <div className="flex flex-wrap items-center gap-2">
-                <h1 className="text-lg sm:text-2xl lg:text-[28px] font-semibold tracking-tight text-[#252331] leading-tight">
+                <h1 className="text-lg sm:text-2xl lg:text-[28px] font-semibold tracking-tight text-[#0F172A] leading-tight">
                   {title}
                 </h1>
                 {badge && <div className="shrink-0">{badge}</div>}
               </div>
 
               {desc && (
-                <p className="mt-0.5 text-xs sm:text-sm text-[#706C7D] font-normal leading-relaxed max-w-2xl line-clamp-1 sm:line-clamp-none">
+                <p className="mt-0.5 text-xs sm:text-sm text-[#334155] font-normal leading-relaxed max-w-2xl line-clamp-1 sm:line-clamp-none">
                   {desc}
                 </p>
               )}

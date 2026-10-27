@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { SearchableSelect, SearchableSelectOption } from "@/components/ui/SearchableSelect";
 import { TaskKanbanBoard } from "./TaskKanbanBoard";
 import { TaskTableView } from "./TaskTableView";
 import { TaskModal } from "./TaskModal";
@@ -216,16 +217,16 @@ export function TasksWorkspace({
     <div className="w-full space-y-6">
       {/* Metrics Row */}
       <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
-        <div className="rounded-2xl border border-[rgba(74,61,100,0.08)] bg-white p-3.5 shadow-xs">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-[#9994A5]">
+        <div className="rounded-2xl border border-[rgba(15,23,42,0.08)] bg-white p-3.5 shadow-xs">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-[#64748B]">
             Total Tasks
           </span>
           <div className="mt-1 flex items-baseline gap-2">
-            <span className="text-2xl font-black text-[#252331]">{stats.total}</span>
+            <span className="text-2xl font-black text-[#0F172A]">{stats.total}</span>
           </div>
         </div>
 
-        <div className="rounded-2xl border border-[rgba(74,61,100,0.08)] bg-white p-3.5 shadow-xs">
+        <div className="rounded-2xl border border-[rgba(15,23,42,0.08)] bg-white p-3.5 shadow-xs">
           <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-500">
             <span className="h-2 w-2 rounded-full bg-slate-400" />
             To Do
@@ -235,17 +236,17 @@ export function TasksWorkspace({
           </div>
         </div>
 
-        <div className="rounded-2xl border border-[rgba(74,61,100,0.08)] bg-white p-3.5 shadow-xs">
-          <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-[#80642F]">
-            <span className="h-2 w-2 rounded-full bg-[#B8944E]" />
+        <div className="rounded-2xl border border-[rgba(15,23,42,0.08)] bg-white p-3.5 shadow-xs">
+          <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-[#785312]">
+            <span className="h-2 w-2 rounded-full bg-[#CCA038]" />
             In Progress
           </div>
           <div className="mt-1">
-            <span className="text-2xl font-black text-[#80642F]">{stats.inProgress}</span>
+            <span className="text-2xl font-black text-[#785312]">{stats.inProgress}</span>
           </div>
         </div>
 
-        <div className="rounded-2xl border border-[rgba(74,61,100,0.08)] bg-white p-3.5 shadow-xs">
+        <div className="rounded-2xl border border-[rgba(15,23,42,0.08)] bg-white p-3.5 shadow-xs">
           <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-purple-600">
             <span className="h-2 w-2 rounded-full bg-purple-500" />
             In Review
@@ -255,7 +256,7 @@ export function TasksWorkspace({
           </div>
         </div>
 
-        <div className="rounded-2xl border border-[rgba(74,61,100,0.08)] bg-white p-3.5 shadow-xs col-span-2 sm:col-span-1">
+        <div className="rounded-2xl border border-[rgba(15,23,42,0.08)] bg-white p-3.5 shadow-xs col-span-2 sm:col-span-1">
           <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-emerald-600">
             <span className="h-2 w-2 rounded-full bg-emerald-500" />
             Completed
@@ -267,20 +268,20 @@ export function TasksWorkspace({
       </div>
 
       {/* Filter & Action Bar */}
-      <div className="flex flex-col gap-3 rounded-2xl border border-[rgba(74,61,100,0.08)] bg-white p-4 shadow-xs">
+      <div className="flex flex-col gap-3 rounded-2xl border border-[rgba(15,23,42,0.08)] bg-white p-4 shadow-xs">
         <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3">
           {/* Search Input */}
           <div className="relative flex-1 min-w-[220px]">
             <Search
               size={15}
-              className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#9994A5]"
+              className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#64748B]"
             />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search tasks, descriptions, stories, or assignees..."
-              className="w-full rounded-xl border border-[rgba(74,61,100,0.12)] bg-[#FAF9FC] pl-10 pr-4 py-2 text-xs text-[#252331] focus:border-[#B8944E] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#B8944E]/20"
+              className="w-full rounded-xl border border-[rgba(15,23,42,0.12)] bg-[#F8F9FB] pl-10 pr-4 py-2 text-xs text-[#0F172A] focus:border-[#CCA038] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#CCA038]/20"
             />
             {searchQuery && (
               <button
@@ -299,25 +300,34 @@ export function TasksWorkspace({
             <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2">
               {/* Project Filter (if not locked to single project) */}
               {!fixedProjectId && (
-                <select
+                <SearchableSelect
+                  options={[
+                    {
+                      value: "all",
+                      label: `All Projects (${projects.length})`,
+                      count: projects.length,
+                      icon: <FolderKanban size={13} className="text-[#64748B]" />,
+                    },
+                    ...projects.map((p) => ({
+                      value: p.id,
+                      label: p.name,
+                      icon: <FolderKanban size={13} className="text-[#CCA038]" />,
+                    })),
+                  ]}
                   value={selectedProjectId}
-                  onChange={(e) => setSelectedProjectId(e.target.value)}
-                  className="w-full sm:w-auto rounded-xl border border-[rgba(74,61,100,0.12)] bg-white px-2.5 py-2 text-xs font-semibold text-[#252331] focus:border-[#B8944E] focus:outline-none truncate"
-                >
-                  <option value="all">All Projects</option>
-                  {projects.map((p) => (
-                    <option key={p.id} value={p.id}>
-                      {p.name}
-                    </option>
-                  ))}
-                </select>
+                  onChange={setSelectedProjectId}
+                  icon={<FolderKanban size={13} className="text-[#64748B]" />}
+                  placeholder="All Projects"
+                  searchPlaceholder="Search projects..."
+                  ariaLabel="Filter tasks by project"
+                />
               )}
 
               {/* Status Filter */}
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="w-full sm:w-auto rounded-xl border border-[rgba(74,61,100,0.12)] bg-white px-2.5 py-2 text-xs font-semibold text-[#252331] focus:border-[#B8944E] focus:outline-none"
+                className="w-full sm:w-auto rounded-xl border border-[rgba(15,23,42,0.12)] bg-white px-2.5 py-2 text-xs font-semibold text-[#0F172A] focus:border-[#CCA038] focus:outline-none"
               >
                 <option value="all">All Statuses</option>
                 <option value="todo">To Do</option>
@@ -330,7 +340,7 @@ export function TasksWorkspace({
               <select
                 value={categoryFilter}
                 onChange={(e) => setCategoryFilter(e.target.value)}
-                className="w-full sm:w-auto rounded-xl border border-[rgba(74,61,100,0.12)] bg-white px-2.5 py-2 text-xs font-semibold text-[#252331] focus:border-[#B8944E] focus:outline-none"
+                className="w-full sm:w-auto rounded-xl border border-[rgba(15,23,42,0.12)] bg-white px-2.5 py-2 text-xs font-semibold text-[#0F172A] focus:border-[#CCA038] focus:outline-none"
               >
                 <option value="all">All Domains</option>
                 <option value="frontend">🎨 Frontend</option>
@@ -343,7 +353,7 @@ export function TasksWorkspace({
               <select
                 value={priorityFilter}
                 onChange={(e) => setPriorityFilter(e.target.value)}
-                className="w-full sm:w-auto rounded-xl border border-[rgba(74,61,100,0.12)] bg-white px-2.5 py-2 text-xs font-semibold text-[#252331] focus:border-[#B8944E] focus:outline-none"
+                className="w-full sm:w-auto rounded-xl border border-[rgba(15,23,42,0.12)] bg-white px-2.5 py-2 text-xs font-semibold text-[#0F172A] focus:border-[#CCA038] focus:outline-none"
               >
                 <option value="all">All Priorities</option>
                 <option value="urgent">Urgent</option>
@@ -356,7 +366,7 @@ export function TasksWorkspace({
               <select
                 value={storyFilter}
                 onChange={(e) => setStoryFilter(e.target.value as any)}
-                className="w-full sm:w-auto col-span-2 sm:col-span-1 rounded-xl border border-[rgba(74,61,100,0.12)] bg-white px-2.5 py-2 text-xs font-semibold text-[#252331] focus:border-[#B8944E] focus:outline-none"
+                className="w-full sm:w-auto col-span-2 sm:col-span-1 rounded-xl border border-[rgba(15,23,42,0.12)] bg-white px-2.5 py-2 text-xs font-semibold text-[#0F172A] focus:border-[#CCA038] focus:outline-none"
               >
                 <option value="all">All Tasks</option>
                 <option value="linked">Linked to Story</option>
@@ -365,16 +375,16 @@ export function TasksWorkspace({
             </div>
 
             {/* View Mode Toggle + Create Task Button */}
-            <div className="flex items-center justify-between sm:justify-start gap-2 pt-2 sm:pt-0 border-t sm:border-t-0 border-[rgba(74,61,100,0.06)]">
+            <div className="flex items-center justify-between sm:justify-start gap-2 pt-2 sm:pt-0 border-t sm:border-t-0 border-[rgba(15,23,42,0.06)]">
               {/* View Mode Toggle: Kanban vs Table */}
-              <div className="flex items-center rounded-xl border border-[rgba(74,61,100,0.12)] bg-[#FAF9FC] p-1 shrink-0">
+              <div className="flex items-center rounded-xl border border-[rgba(15,23,42,0.12)] bg-[#F8F9FB] p-1 shrink-0">
                 <button
                   type="button"
                   onClick={() => setViewMode("kanban")}
                   className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-bold transition-all ${
                     viewMode === "kanban"
-                      ? "bg-white text-[#80642F] shadow-xs border border-[rgba(184,148,78,0.2)]"
-                      : "text-[#706C7D] hover:text-[#252331]"
+                      ? "bg-white text-[#785312] shadow-xs border border-[rgba(204,160,56,0.2)]"
+                      : "text-[#334155] hover:text-[#0F172A]"
                   }`}
                   title="Kanban Board View"
                 >
@@ -386,8 +396,8 @@ export function TasksWorkspace({
                   onClick={() => setViewMode("table")}
                   className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-bold transition-all ${
                     viewMode === "table"
-                      ? "bg-white text-[#80642F] shadow-xs border border-[rgba(184,148,78,0.2)]"
-                      : "text-[#706C7D] hover:text-[#252331]"
+                      ? "bg-white text-[#785312] shadow-xs border border-[rgba(204,160,56,0.2)]"
+                      : "text-[#334155] hover:text-[#0F172A]"
                   }`}
                   title="Table List View"
                 >
@@ -418,17 +428,17 @@ export function TasksWorkspace({
 
       {/* Main View Area */}
       {loading ? (
-        <div className="py-20 flex flex-col items-center justify-center text-[#9994A5]">
-          <div className="h-7 w-7 rounded-full border-2 border-[#B8944E] border-t-transparent animate-spin mb-3" />
+        <div className="py-20 flex flex-col items-center justify-center text-[#64748B]">
+          <div className="h-7 w-7 rounded-full border-2 border-[#CCA038] border-t-transparent animate-spin mb-3" />
           <p className="text-xs font-semibold">Loading tasks...</p>
         </div>
       ) : filteredTasks.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-[rgba(74,61,100,0.15)] bg-white/70 p-12 text-center">
-          <div className="mx-auto mb-3 grid h-12 w-12 place-items-center rounded-2xl bg-[rgba(184,148,78,0.1)] text-[#B8944E]">
+        <div className="rounded-2xl border border-dashed border-[rgba(15,23,42,0.15)] bg-white/70 p-12 text-center">
+          <div className="mx-auto mb-3 grid h-12 w-12 place-items-center rounded-2xl bg-[rgba(204,160,56,0.1)] text-[#CCA038]">
             <CheckSquare size={24} />
           </div>
-          <h3 className="text-base font-bold text-[#252331]">No tasks found</h3>
-          <p className="mt-1 text-xs text-[#706C7D] max-w-sm mx-auto">
+          <h3 className="text-base font-bold text-[#0F172A]">No tasks found</h3>
+          <p className="mt-1 text-xs text-[#334155] max-w-sm mx-auto">
             {searchQuery || statusFilter !== "all" || priorityFilter !== "all"
               ? "Try adjusting your filters or search terms."
               : "Get started by creating your first to-do task, assigning team members or clients, and linking stories."}

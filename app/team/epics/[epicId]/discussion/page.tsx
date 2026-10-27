@@ -68,11 +68,11 @@ export default async function TeamEpicDiscussionPage({
       </div>
 
       {/* Header */}
-      <div className="mb-8 rounded-2xl border border-[rgba(184,148,78,0.2)] bg-gradient-to-br from-[#FCFBFC] to-white p-6 shadow-sm">
+      <div className="mb-8 rounded-2xl border border-[rgba(204,160,56,0.2)] bg-gradient-to-br from-[#FCFBFC] to-white p-6 shadow-sm">
         <div className="flex flex-col gap-2">
-          <div className="flex items-center gap-2 text-xs font-semibold text-[#80642F]">
+          <div className="flex items-center gap-2 text-xs font-semibold text-[#785312]">
             <span>{project?.name || "Project"}</span>
-            <span className="text-[rgba(184,148,78,0.3)]">/</span>
+            <span className="text-[rgba(204,160,56,0.3)]">/</span>
             <span>Epic Discussion</span>
           </div>
           <h1 className="text-2xl font-bold text-slate-900">{epic.name}</h1>

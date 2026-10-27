@@ -75,11 +75,11 @@ export function Modal({
         {/* Header */}
         <div className="flex items-start justify-between border-b border-zinc-200 px-5 sm:px-6 py-4 bg-white">
           <div className="min-w-0 pr-4">
-            <h2 id="modal-title" className="text-base sm:text-lg font-semibold tracking-tight text-[#252331]">
+            <h2 id="modal-title" className="text-base sm:text-lg font-semibold tracking-tight text-[#0F172A]">
               {title}
             </h2>
             {description && (
-              <p className="mt-0.5 text-xs sm:text-sm text-[#706C7D] line-clamp-2">
+              <p className="mt-0.5 text-xs sm:text-sm text-[#334155] line-clamp-2">
                 {description}
               </p>
             )}
@@ -88,7 +88,7 @@ export function Modal({
             type="button"
             onClick={onClose}
             aria-label="Close dialog"
-            className="grid h-8 w-8 shrink-0 place-items-center rounded-lg text-[#9994A5] hover:bg-[#E9E3F4]/30 hover:text-[#252331] transition"
+            className="grid h-8 w-8 shrink-0 place-items-center rounded-lg text-[#64748B] hover:bg-[#F1F5F9]/30 hover:text-[#0F172A] transition"
           >
             <X size={16} />
           </button>
@@ -101,7 +101,7 @@ export function Modal({
 
         {/* Footer */}
         {footer && (
-          <div className="flex flex-col-reverse sm:flex-row items-center justify-end gap-2.5 border-t border-zinc-200 bg-[#FAF9FC] px-5 sm:px-6 py-3.5">
+          <div className="flex flex-col-reverse sm:flex-row items-center justify-end gap-2.5 border-t border-zinc-200 bg-[#F8F9FB] px-5 sm:px-6 py-3.5">
             {footer}
           </div>
         )}

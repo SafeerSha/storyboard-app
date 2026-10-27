@@ -117,8 +117,8 @@ export function StoryGitLinksModal({ story, field, isOpen, onClose, onSaved }: S
       }
     >
       <div className="space-y-2">
-        <label className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-[#9994A5]">
-          <meta.icon size={13} className="text-[#80642F]" />
+        <label className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-[#64748B]">
+          <meta.icon size={13} className="text-[#785312]" />
           {meta.label}
         </label>
         <input
@@ -133,15 +133,15 @@ export function StoryGitLinksModal({ story, field, isOpen, onClose, onSaved }: S
           }}
           placeholder={meta.placeholder}
           autoFocus
-          className="h-10 w-full rounded-xl border border-[rgba(74,61,100,0.11)] bg-white px-3.5 font-mono text-xs text-[#252331] placeholder-[#9994A5] placeholder:font-sans outline-none transition focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)]"
+          className="h-10 w-full rounded-xl border border-[rgba(15,23,42,0.11)] bg-white px-3.5 font-mono text-xs text-[#0F172A] placeholder-[#64748B] placeholder:font-sans outline-none transition focus:border-[#CCA038] focus:ring-1 focus:ring-[rgba(204,160,56,0.14)]"
         />
-        <p className="text-xs text-[#706C7D]">{meta.hint}</p>
+        <p className="text-xs text-[#334155]">{meta.hint}</p>
         {canOpen && (
           <a
             href={trimmed}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#80642F] hover:underline"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#785312] hover:underline"
           >
             <ExternalLink size={12} />
             Open current link

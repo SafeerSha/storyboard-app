@@ -134,7 +134,7 @@ function ResetPasswordInner() {
     <main
       className="grid min-h-screen place-items-center px-4 py-8 sm:px-6"
       style={{
-        backgroundColor: "#F5F2F7",
+        backgroundColor: "#F8F9FA",
         backgroundImage: `
           radial-gradient(circle at 15% 15%, rgba(210, 193, 235, 0.35), transparent 40%),
           radial-gradient(circle at 85% 20%, rgba(239, 207, 222, 0.30), transparent 35%),
@@ -155,10 +155,10 @@ function ResetPasswordInner() {
                 fontWeight: 700,
                 letterSpacing: "-0.04em",
                 lineHeight: 1,
-                color: "#252331",
+                color: "#0F172A",
               }}
             >
-              REQ<span style={{ color: "#B8944E" }}>ly</span>
+              REQ<span style={{ color: "#CCA038" }}>ly</span>
             </span>
 
             {/* Thin gold divider */}
@@ -168,7 +168,7 @@ function ResetPasswordInner() {
                 width: "28px",
                 height: "1px",
                 background:
-                  "linear-gradient(90deg, transparent, rgba(184,148,78,0.5), transparent)",
+                  "linear-gradient(90deg, transparent, rgba(204,160,56,0.5), transparent)",
               }}
             />
 
@@ -178,25 +178,25 @@ function ResetPasswordInner() {
                 fontWeight: 700,
                 letterSpacing: "0.08em",
                 textTransform: "uppercase",
-                color: "#252331",
+                color: "#0F172A",
               }}
             >
-              From <span style={{ color: "#B8944E" }}>requirements</span> to{" "}
-              <span style={{ color: "#B8944E" }}>delivery</span>
+              From <span style={{ color: "#CCA038" }}>requirements</span> to{" "}
+              <span style={{ color: "#CCA038" }}>delivery</span>
             </span>
           </div>
         </div>
 
         {/* Card */}
-        <div className="rounded-2xl border border-[rgba(74,61,100,0.08)] bg-white/90 backdrop-blur-[20px] p-6 sm:p-8 shadow-[0_20px_60px_rgba(70,55,95,0.08)] space-y-6">
+        <div className="rounded-2xl border border-[rgba(15,23,42,0.08)] bg-white/90 backdrop-blur-[20px] p-6 sm:p-8 shadow-[0_20px_60px_rgba(15,23,42,0.08)] space-y-6">
           {/* STATE 1: VERIFYING TOKEN */}
           {isVerifying && (
             <div className="flex flex-col items-center text-center py-6 space-y-3">
-              <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#B8944E] border-t-transparent" />
-              <p className="text-sm font-medium text-[#252331]">
+              <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#CCA038] border-t-transparent" />
+              <p className="text-sm font-medium text-[#0F172A]">
                 Verifying your reset link...
               </p>
-              <p className="text-xs text-[#9994A5]">
+              <p className="text-xs text-[#64748B]">
                 Please wait a moment while we validate your security token.
               </p>
             </div>
@@ -210,7 +210,7 @@ function ResetPasswordInner() {
               </div>
 
               <div className="space-y-1.5">
-                <h2 className="text-lg font-bold text-[#252331]">
+                <h2 className="text-lg font-bold text-[#0F172A]">
                   Link Invalid or Expired
                 </h2>
                 <p className="text-xs text-[#585365] leading-relaxed max-w-xs mx-auto">
@@ -219,8 +219,8 @@ function ResetPasswordInner() {
                 </p>
               </div>
 
-              <div className="w-full rounded-xl bg-[#FAF9FC] border border-[rgba(74,61,100,0.08)] p-3.5 text-xs text-[#706C7D] text-left space-y-1">
-                <span className="font-semibold text-[#252331] block">Why did this happen?</span>
+              <div className="w-full rounded-xl bg-[#F8F9FB] border border-[rgba(15,23,42,0.08)] p-3.5 text-xs text-[#334155] text-left space-y-1">
+                <span className="font-semibold text-[#0F172A] block">Why did this happen?</span>
                 <p>• Password reset links expire after 60 minutes for your security.</p>
                 <p>• Each link can only be used once to set a new password.</p>
                 <p>• A newer reset link may have been requested.</p>
@@ -240,15 +240,15 @@ function ResetPasswordInner() {
           {!isVerifying && tokenValid && !isSuccess && (
             <div>
               <div className="mb-5 space-y-1 text-center sm:text-left">
-                <h2 className="text-lg font-bold text-[#252331]">
+                <h2 className="text-lg font-bold text-[#0F172A]">
                   Set New Password
                 </h2>
-                <p className="text-xs text-[#706C7D]">
+                <p className="text-xs text-[#334155]">
                   Create a new, secure password for your REQly account.
                 </p>
                 {verifiedEmail && (
-                  <div className="mt-2 inline-flex items-center gap-1.5 rounded-lg bg-[#FAF9FC] border border-[rgba(74,61,100,0.08)] px-2.5 py-1 text-[11px] font-medium text-[#585365]">
-                    <Mail size={12} className="text-[#9994A5]" />
+                  <div className="mt-2 inline-flex items-center gap-1.5 rounded-lg bg-[#F8F9FB] border border-[rgba(15,23,42,0.08)] px-2.5 py-1 text-[11px] font-medium text-[#585365]">
+                    <Mail size={12} className="text-[#64748B]" />
                     <span>{verifiedEmail}</span>
                   </div>
                 )}
@@ -259,7 +259,7 @@ function ResetPasswordInner() {
                 <div>
                   <label
                     htmlFor="reset-new-password"
-                    className="block text-xs font-semibold uppercase tracking-wider text-[#9994A5] mb-1.5"
+                    className="block text-xs font-semibold uppercase tracking-wider text-[#64748B] mb-1.5"
                   >
                     New Password
                   </label>
@@ -277,7 +277,7 @@ function ResetPasswordInner() {
                     placeholder="At least 6 characters"
                     autoComplete="new-password"
                   />
-                  <div className="mt-1 flex items-center justify-between text-[11px] text-[#9994A5]">
+                  <div className="mt-1 flex items-center justify-between text-[11px] text-[#64748B]">
                     <span>Must be at least 6 characters</span>
                     {newPassword.length >= 6 && (
                       <span className="text-emerald-600 font-medium">✓ Length met</span>
@@ -289,7 +289,7 @@ function ResetPasswordInner() {
                 <div>
                   <label
                     htmlFor="reset-confirm-password"
-                    className="block text-xs font-semibold uppercase tracking-wider text-[#9994A5] mb-1.5"
+                    className="block text-xs font-semibold uppercase tracking-wider text-[#64748B] mb-1.5"
                   >
                     Confirm New Password
                   </label>
@@ -311,14 +311,14 @@ function ResetPasswordInner() {
                       {newPassword === confirmPassword ? (
                         <span className="text-emerald-600 font-medium">✓ Passwords match</span>
                       ) : (
-                        <span className="text-[#C25D72] font-medium">✗ Passwords do not match</span>
+                        <span className="text-[#E11D48] font-medium">✗ Passwords do not match</span>
                       )}
                     </div>
                   )}
                 </div>
 
                 {submitError && (
-                  <div className="rounded-xl bg-rose-50/80 border border-rose-200/80 p-3 text-xs text-[#C25D72] flex items-start gap-2">
+                  <div className="rounded-xl bg-rose-50/80 border border-rose-200/80 p-3 text-xs text-[#E11D48] flex items-start gap-2">
                     <AlertCircle size={15} className="shrink-0 mt-0.5" />
                     <span>{submitError}</span>
                   </div>
@@ -352,7 +352,7 @@ function ResetPasswordInner() {
               </div>
 
               <div className="space-y-1.5">
-                <h2 className="text-lg font-bold text-[#252331]">
+                <h2 className="text-lg font-bold text-[#0F172A]">
                   Password Reset Complete!
                 </h2>
                 <p className="text-xs text-[#585365] leading-relaxed max-w-xs mx-auto">
@@ -381,9 +381,9 @@ export default function ResetPasswordPage() {
       fallback={
         <main
           className="grid min-h-screen place-items-center px-4 py-8"
-          style={{ backgroundColor: "#F5F2F7" }}
+          style={{ backgroundColor: "#F8F9FA" }}
         >
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#B8944E] border-t-transparent" />
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#CCA038] border-t-transparent" />
         </main>
       }
     >

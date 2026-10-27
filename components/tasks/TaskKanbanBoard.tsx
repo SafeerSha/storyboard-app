@@ -52,9 +52,9 @@ export function TaskKanbanBoard({
     {
       id: "in_progress",
       label: "In Progress",
-      dotColor: "bg-[#B8944E]",
-      badgeBg: "bg-[rgba(184,148,78,0.12)]",
-      badgeText: "text-[#80642F]",
+      dotColor: "bg-[#CCA038]",
+      badgeBg: "bg-[rgba(204,160,56,0.12)]",
+      badgeText: "text-[#785312]",
     },
     {
       id: "in_review",
@@ -105,8 +105,8 @@ export function TaskKanbanBoard({
               onClick={() => scrollToColumn(col.id)}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold shrink-0 transition-all ${
                 isActive
-                  ? "bg-[#252331] text-white shadow-xs"
-                  : "bg-white text-[#706C7D] border border-[rgba(74,61,100,0.1)] hover:bg-slate-50"
+                  ? "bg-[#0F172A] text-white shadow-xs"
+                  : "bg-white text-[#334155] border border-[rgba(15,23,42,0.1)] hover:bg-slate-50"
               }`}
             >
               <span className={`h-2 w-2 rounded-full ${col.dotColor}`} />
@@ -134,13 +134,13 @@ export function TaskKanbanBoard({
               ref={(el) => {
                 columnRefs.current[col.id] = el;
               }}
-              className="w-[85vw] max-w-[340px] md:w-auto shrink-0 md:shrink flex flex-col rounded-2xl border border-[rgba(74,61,100,0.08)] bg-[#FBFAFD]/80 p-3 sm:p-3.5 min-h-[380px] sm:min-h-[450px] snap-center"
+              className="w-[85vw] max-w-[340px] md:w-auto shrink-0 md:shrink flex flex-col rounded-2xl border border-[rgba(15,23,42,0.08)] bg-[#FBFAFD]/80 p-3 sm:p-3.5 min-h-[380px] sm:min-h-[450px] snap-center"
             >
             {/* Column Header */}
-            <div className="flex items-center justify-between pb-3 mb-3 border-b border-[rgba(74,61,100,0.06)]">
+            <div className="flex items-center justify-between pb-3 mb-3 border-b border-[rgba(15,23,42,0.06)]">
               <div className="flex items-center gap-2">
                 <span className={`h-2.5 w-2.5 rounded-full ${col.dotColor}`} />
-                <h3 className="text-xs font-bold uppercase tracking-wider text-[#252331]">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-[#0F172A]">
                   {col.label}
                 </h3>
                 <span
@@ -155,7 +155,7 @@ export function TaskKanbanBoard({
                   type="button"
                   onClick={() => onCreateInStatus(col.id)}
                   title={`Add task to ${col.label}`}
-                  className="rounded-lg p-1 text-[#706C7D] hover:text-[#80642F] hover:bg-[rgba(184,148,78,0.08)] transition-colors"
+                  className="rounded-lg p-1 text-[#334155] hover:text-[#785312] hover:bg-[rgba(204,160,56,0.08)] transition-colors"
                 >
                   <Plus size={15} />
                 </button>
@@ -175,13 +175,13 @@ export function TaskKanbanBoard({
                   />
                 ))
               ) : (
-                <div className="py-12 flex flex-col items-center justify-center text-center px-4 rounded-xl border border-dashed border-[rgba(74,61,100,0.1)] bg-white/40">
-                  <p className="text-xs text-[#9994A5] font-medium">No tasks in {col.label}</p>
+                <div className="py-12 flex flex-col items-center justify-center text-center px-4 rounded-xl border border-dashed border-[rgba(15,23,42,0.1)] bg-white/40">
+                  <p className="text-xs text-[#64748B] font-medium">No tasks in {col.label}</p>
                   {onCreateInStatus && (
                     <button
                       type="button"
                       onClick={() => onCreateInStatus(col.id)}
-                      className="mt-2 text-xs font-semibold text-[#80642F] hover:underline flex items-center gap-1"
+                      className="mt-2 text-xs font-semibold text-[#785312] hover:underline flex items-center gap-1"
                     >
                       <Plus size={12} /> Add task
                     </button>

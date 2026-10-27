@@ -252,7 +252,7 @@ export function InboxInsightsWorkspace({
       ) : insights.length === 0 ? (
         /* Empty State */
         <div className="rounded-2xl border border-[#E2E6EF] bg-white p-12 text-center shadow-card">
-          <div className="grid h-12 w-12 place-items-center rounded-2xl bg-amber-50 text-[#80642F] mx-auto mb-3">
+          <div className="grid h-12 w-12 place-items-center rounded-2xl bg-amber-50 text-[#785312] mx-auto mb-3">
             <Lightbulb size={24} />
           </div>
           <h3 className="text-base font-semibold text-[#111827]">
@@ -332,7 +332,7 @@ export function InboxInsightsWorkspace({
 
                 {/* AI Summary Block */}
                 <div>
-                  <p className="text-[10px] font-semibold uppercase tracking-wider text-[#80642F] mb-1">
+                  <p className="text-[10px] font-semibold uppercase tracking-wider text-[#785312] mb-1">
                     AI Summary
                   </p>
                   <p className="text-xs sm:text-sm text-slate-700 leading-relaxed font-normal">

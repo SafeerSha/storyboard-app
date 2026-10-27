@@ -64,9 +64,9 @@ function fmtDatetime(d: string) {
 function ProgressBar({ received, total }: { received: number; total: number }) {
   const pct = total > 0 ? Math.min(100, Math.round((received / total) * 100)) : 0;
   return (
-    <div className="relative h-2.5 rounded-full bg-[rgba(74,61,100,0.08)] overflow-hidden">
+    <div className="relative h-2.5 rounded-full bg-[rgba(15,23,42,0.08)] overflow-hidden">
       <div
-        className="h-full bg-gradient-to-r from-[#B8944E] to-emerald-500 rounded-full transition-all duration-500"
+        className="h-full bg-gradient-to-r from-[#CCA038] to-emerald-500 rounded-full transition-all duration-500"
         style={{ width: `${pct}%` }}
       />
     </div>
@@ -115,8 +115,8 @@ function RequestPaymentModal({ remId, currency, onClose, onSuccess }: RequestMod
     }
   };
 
-  const inputClass = "w-full rounded-lg border border-[rgba(74,61,100,0.15)] px-3 py-2 text-xs sm:text-sm text-[#252331] focus:outline-none focus:ring-1 focus:ring-[#B8944E] bg-white";
-  const labelClass = "block text-[11px] font-bold uppercase tracking-wider text-[#706C7D] mb-1";
+  const inputClass = "w-full rounded-lg border border-[rgba(15,23,42,0.15)] px-3 py-2 text-xs sm:text-sm text-[#0F172A] focus:outline-none focus:ring-1 focus:ring-[#CCA038] bg-white";
+  const labelClass = "block text-[11px] font-bold uppercase tracking-wider text-[#334155] mb-1";
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
@@ -126,8 +126,8 @@ function RequestPaymentModal({ remId, currency, onClose, onSuccess }: RequestMod
             <Mail size={18} className="text-amber-600" />
           </div>
           <div>
-            <h2 className="font-semibold text-[#252331]">Request Payment</h2>
-            <p className="text-xs text-[#9994A5]">Create and send a payment request to the client</p>
+            <h2 className="font-semibold text-[#0F172A]">Request Payment</h2>
+            <p className="text-xs text-[#64748B]">Create and send a payment request to the client</p>
           </div>
         </div>
 
@@ -158,13 +158,13 @@ function RequestPaymentModal({ remId, currency, onClose, onSuccess }: RequestMod
             </div>
           </div>
 
-          <div className="flex items-center justify-between rounded-lg border border-[rgba(74,61,100,0.10)] bg-[#faf9fc] p-3 text-xs">
-            <span className="font-semibold text-[#252331]">Send Payment Request Email</span>
+          <div className="flex items-center justify-between rounded-lg border border-[rgba(15,23,42,0.10)] bg-[#F8F9FB] p-3 text-xs">
+            <span className="font-semibold text-[#0F172A]">Send Payment Request Email</span>
             <input
               type="checkbox"
               checked={sendEmail}
               onChange={(e) => setSendEmail(e.target.checked)}
-              className="h-4 w-4 rounded text-[#B8944E]"
+              className="h-4 w-4 rounded text-[#CCA038]"
             />
           </div>
         </div>
@@ -292,8 +292,8 @@ function RecordPaymentModal({
     }
   };
 
-  const inputClass = "w-full rounded-lg border border-[rgba(74,61,100,0.15)] px-3 py-2 text-xs sm:text-sm text-[#252331] focus:outline-none focus:ring-1 focus:ring-[#B8944E] bg-white";
-  const labelClass = "block text-[11px] font-bold uppercase tracking-wider text-[#706C7D] mb-1";
+  const inputClass = "w-full rounded-lg border border-[rgba(15,23,42,0.15)] px-3 py-2 text-xs sm:text-sm text-[#0F172A] focus:outline-none focus:ring-1 focus:ring-[#CCA038] bg-white";
+  const labelClass = "block text-[11px] font-bold uppercase tracking-wider text-[#334155] mb-1";
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 overflow-y-auto">
@@ -303,8 +303,8 @@ function RecordPaymentModal({
             <CheckCircle2 size={18} />
           </div>
           <div>
-            <h2 className="font-semibold text-[#252331]">Record Received Payment</h2>
-            <p className="text-xs text-[#9994A5]">Log an incoming transaction and distribute team shares</p>
+            <h2 className="font-semibold text-[#0F172A]">Record Received Payment</h2>
+            <p className="text-xs text-[#64748B]">Log an incoming transaction and distribute team shares</p>
           </div>
         </div>
 
@@ -378,21 +378,21 @@ function RecordPaymentModal({
 
           {/* Team Member Splits for this payment */}
           {splits.length > 0 && (
-            <div className="rounded-xl border border-[rgba(74,61,100,0.10)] bg-[#faf9fc] p-3.5 space-y-2.5">
+            <div className="rounded-xl border border-[rgba(15,23,42,0.10)] bg-[#F8F9FB] p-3.5 space-y-2.5">
               <div className="flex items-center justify-between">
-                <span className="font-bold text-[#252331] uppercase tracking-wider text-[11px] flex items-center gap-1.5">
-                  <Users size={13} className="text-[#80642F]" />
+                <span className="font-bold text-[#0F172A] uppercase tracking-wider text-[11px] flex items-center gap-1.5">
+                  <Users size={13} className="text-[#785312]" />
                   Team Remuneration Allocation
                 </span>
-                <span className="text-[10px] text-[#706C7D]">Auto-calculated from agreement</span>
+                <span className="text-[10px] text-[#334155]">Auto-calculated from agreement</span>
               </div>
 
               <div className="space-y-2">
                 {splits.map((split, idx) => (
-                  <div key={idx} className="flex items-center justify-between gap-3 bg-white p-2 rounded-lg border border-[rgba(74,61,100,0.06)]">
+                  <div key={idx} className="flex items-center justify-between gap-3 bg-white p-2 rounded-lg border border-[rgba(15,23,42,0.06)]">
                     <div>
-                      <p className="font-semibold text-[#252331]">{split.name}</p>
-                      <p className="text-[10px] text-[#9994A5]">{split.percentage ? `${split.percentage}% share` : split.role || "Member"}</p>
+                      <p className="font-semibold text-[#0F172A]">{split.name}</p>
+                      <p className="text-[10px] text-[#64748B]">{split.percentage ? `${split.percentage}% share` : split.role || "Member"}</p>
                     </div>
                     <div className="w-32">
                       <input
@@ -411,13 +411,13 @@ function RecordPaymentModal({
             </div>
           )}
 
-          <div className="flex items-center justify-between rounded-lg border border-[rgba(74,61,100,0.10)] bg-[#faf9fc] p-3 text-xs">
-            <span className="font-semibold text-[#252331]">Send Payment Receipt Email to Client</span>
+          <div className="flex items-center justify-between rounded-lg border border-[rgba(15,23,42,0.10)] bg-[#F8F9FB] p-3 text-xs">
+            <span className="font-semibold text-[#0F172A]">Send Payment Receipt Email to Client</span>
             <input
               type="checkbox"
               checked={sendEmail}
               onChange={(e) => setSendEmail(e.target.checked)}
-              className="h-4 w-4 rounded text-[#B8944E]"
+              className="h-4 w-4 rounded text-[#CCA038]"
             />
           </div>
         </div>
@@ -484,23 +484,23 @@ function SendAgreementModal({
     }
   };
 
-  const inputClass = "w-full rounded-lg border border-[rgba(74,61,100,0.15)] px-3 py-2 text-xs sm:text-sm text-[#252331] focus:outline-none focus:ring-1 focus:ring-[#B8944E] bg-white";
-  const labelClass = "block text-[11px] font-bold uppercase tracking-wider text-[#706C7D] mb-1";
+  const inputClass = "w-full rounded-lg border border-[rgba(15,23,42,0.15)] px-3 py-2 text-xs sm:text-sm text-[#0F172A] focus:outline-none focus:ring-1 focus:ring-[#CCA038] bg-white";
+  const labelClass = "block text-[11px] font-bold uppercase tracking-wider text-[#334155] mb-1";
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 animate-in fade-in duration-150">
-      <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl border border-[rgba(74,61,100,0.1)] space-y-4">
-        <div className="flex items-center justify-between border-b border-[rgba(74,61,100,0.08)] pb-3">
+      <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl border border-[rgba(15,23,42,0.1)] space-y-4">
+        <div className="flex items-center justify-between border-b border-[rgba(15,23,42,0.08)] pb-3">
           <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-xl bg-[rgba(184,148,78,0.12)] text-[#80642F]">
+            <div className="p-2 rounded-xl bg-[rgba(204,160,56,0.12)] text-[#785312]">
               <Mail size={18} />
             </div>
             <div>
-              <h2 className="font-semibold text-[#252331] text-sm sm:text-base">Send Agreement Email</h2>
-              <p className="text-[11px] text-[#706C7D]">Send official payment agreement confirmation</p>
+              <h2 className="font-semibold text-[#0F172A] text-sm sm:text-base">Send Agreement Email</h2>
+              <p className="text-[11px] text-[#334155]">Send official payment agreement confirmation</p>
             </div>
           </div>
-          <button onClick={onClose} className="text-[#9994A5] hover:text-[#252331] p-1 rounded-md">✕</button>
+          <button onClick={onClose} className="text-[#64748B] hover:text-[#0F172A] p-1 rounded-md">✕</button>
         </div>
 
         {error && (
@@ -519,12 +519,12 @@ function SendAgreementModal({
             placeholder="client@example.com"
             className={inputClass}
           />
-          <p className="text-[10px] text-[#9994A5] mt-1.5">
+          <p className="text-[10px] text-[#64748B] mt-1.5">
             The client will receive an agreement confirmation detailing total agreed amount, terms, and Client Portal access link.
           </p>
         </div>
 
-        <div className="flex justify-end gap-2 pt-3 border-t border-[rgba(74,61,100,0.06)]">
+        <div className="flex justify-end gap-2 pt-3 border-t border-[rgba(15,23,42,0.06)]">
           <Button variant="outline" size="sm" onClick={onClose} disabled={submitting}>
             Cancel
           </Button>
@@ -615,23 +615,23 @@ function SendTeamPaymentModal({
   };
 
   const inputClass =
-    "w-full rounded-lg border border-[rgba(74,61,100,0.15)] px-3 py-2 text-xs sm:text-sm text-[#252331] focus:outline-none focus:ring-1 focus:ring-[#B8944E] bg-white";
-  const labelClass = "block text-[11px] font-bold uppercase tracking-wider text-[#706C7D] mb-1";
+    "w-full rounded-lg border border-[rgba(15,23,42,0.15)] px-3 py-2 text-xs sm:text-sm text-[#0F172A] focus:outline-none focus:ring-1 focus:ring-[#CCA038] bg-white";
+  const labelClass = "block text-[11px] font-bold uppercase tracking-wider text-[#334155] mb-1";
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 animate-in fade-in duration-150">
-      <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl border border-[rgba(74,61,100,0.1)] space-y-4">
-        <div className="flex items-center justify-between border-b border-[rgba(74,61,100,0.08)] pb-3">
+      <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl border border-[rgba(15,23,42,0.1)] space-y-4">
+        <div className="flex items-center justify-between border-b border-[rgba(15,23,42,0.08)] pb-3">
           <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-xl bg-[rgba(184,148,78,0.12)] text-[#80642F]">
+            <div className="p-2 rounded-xl bg-[rgba(204,160,56,0.12)] text-[#785312]">
               <Mail size={18} />
             </div>
             <div>
-              <h2 className="font-semibold text-[#252331] text-sm sm:text-base">Send Allocation Email</h2>
-              <p className="text-[11px] text-[#706C7D]">Notify team member of their received payout</p>
+              <h2 className="font-semibold text-[#0F172A] text-sm sm:text-base">Send Allocation Email</h2>
+              <p className="text-[11px] text-[#334155]">Notify team member of their received payout</p>
             </div>
           </div>
-          <button onClick={onClose} className="text-[#9994A5] hover:text-[#252331] p-1 rounded-md cursor-pointer">✕</button>
+          <button onClick={onClose} className="text-[#64748B] hover:text-[#0F172A] p-1 rounded-md cursor-pointer">✕</button>
         </div>
 
         {error && (
@@ -642,27 +642,27 @@ function SendTeamPaymentModal({
         )}
 
         {/* Member & Split Info Summary */}
-        <div className="rounded-xl border border-[rgba(74,61,100,0.08)] bg-[#faf9fc] p-3.5 space-y-2 text-xs">
+        <div className="rounded-xl border border-[rgba(15,23,42,0.08)] bg-[#F8F9FB] p-3.5 space-y-2 text-xs">
           <div className="flex items-center justify-between">
-            <span className="text-[#706C7D]">Team Member:</span>
-            <span className="font-bold text-[#252331]">{split.member_name}</span>
+            <span className="text-[#334155]">Team Member:</span>
+            <span className="font-bold text-[#0F172A]">{split.member_name}</span>
           </div>
           {split.role && (
             <div className="flex items-center justify-between">
-              <span className="text-[#706C7D]">Role:</span>
-              <span className="text-[#252331] capitalize">{split.role}</span>
+              <span className="text-[#334155]">Role:</span>
+              <span className="text-[#0F172A] capitalize">{split.role}</span>
             </div>
           )}
           <div className="flex items-center justify-between">
-            <span className="text-[#706C7D]">Allocated Share:</span>
+            <span className="text-[#334155]">Allocated Share:</span>
             <span className="font-bold text-emerald-700 text-sm">
               {formatCurrency(split.amount, currency)}
               {split.percentage ? ` (${split.percentage}%)` : ""}
             </span>
           </div>
-          <div className="flex items-center justify-between border-t border-[rgba(74,61,100,0.06)] pt-2">
-            <span className="text-[#706C7D]">Payment Recorded:</span>
-            <span className="text-[#252331]">{fmt(payment.payment_date)}</span>
+          <div className="flex items-center justify-between border-t border-[rgba(15,23,42,0.06)] pt-2">
+            <span className="text-[#334155]">Payment Recorded:</span>
+            <span className="text-[#0F172A]">{fmt(payment.payment_date)}</span>
           </div>
         </div>
 
@@ -682,13 +682,13 @@ function SendTeamPaymentModal({
               <span>No email on file for {split.member_name}. Please enter their email address to send the allocation.</span>
             </p>
           ) : (
-            <p className="text-[10px] text-[#9994A5] mt-1.5">
+            <p className="text-[10px] text-[#64748B] mt-1.5">
               Verified email address from team member records. You can modify if needed.
             </p>
           )}
         </div>
 
-        <div className="flex justify-end gap-2 pt-3 border-t border-[rgba(74,61,100,0.06)]">
+        <div className="flex justify-end gap-2 pt-3 border-t border-[rgba(15,23,42,0.06)]">
           <Button variant="outline" size="sm" onClick={onClose} disabled={submitting}>
             Cancel
           </Button>
@@ -827,7 +827,7 @@ export default function RemunerationDetailPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-[#f8f7fc] flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-[#B8944E]" />
+        <Loader2 className="h-8 w-8 animate-spin text-[#CCA038]" />
       </div>
     );
   }
@@ -837,8 +837,8 @@ export default function RemunerationDetailPage() {
       <div className="min-h-screen bg-[#f8f7fc] p-8">
         <div className="max-w-md mx-auto rounded-2xl bg-white p-6 shadow-sm border border-red-200 text-center space-y-4">
           <AlertCircle className="h-10 w-10 text-red-500 mx-auto" />
-          <h2 className="text-lg font-semibold text-[#252331]">Error</h2>
-          <p className="text-sm text-[#706C7D]">{error || "Remuneration record not found"}</p>
+          <h2 className="text-lg font-semibold text-[#0F172A]">Error</h2>
+          <p className="text-sm text-[#334155]">{error || "Remuneration record not found"}</p>
           <Button onClick={() => router.push("/remunerations")}>Return to Remunerations</Button>
         </div>
       </div>
@@ -868,17 +868,17 @@ export default function RemunerationDetailPage() {
 
       <div className="mx-auto max-w-[1720px] px-4 sm:px-8 py-6 sm:py-8 space-y-6">
         {/* Top Header Card */}
-        <div className="rounded-2xl border border-[rgba(74,61,100,0.10)] bg-white p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="rounded-2xl border border-[rgba(15,23,42,0.10)] bg-white p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="space-y-1">
             <div className="flex items-center gap-3">
-              <h1 className="text-xl font-bold text-[#252331]">{rem.project?.name || "Project Remuneration"}</h1>
+              <h1 className="text-xl font-bold text-[#0F172A]">{rem.project?.name || "Project Remuneration"}</h1>
               <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold ${badge.bg}`}>
                 <span className={`h-1.5 w-1.5 rounded-full ${badge.indicator}`} />
                 {badge.label}
               </span>
             </div>
-            <p className="text-xs text-[#706C7D]">
-              Payment Method: <span className="font-semibold text-[#252331] capitalize">{rem.payment_method}</span>
+            <p className="text-xs text-[#334155]">
+              Payment Method: <span className="font-semibold text-[#0F172A] capitalize">{rem.payment_method}</span>
               {rem.client?.name && ` • Client: ${rem.client.name}`}
             </p>
           </div>
@@ -888,7 +888,7 @@ export default function RemunerationDetailPage() {
               variant="outline"
               size="md"
               onClick={() => setSendAgreementModalOpen(true)}
-              className="text-[#80642F] border-[rgba(184,148,78,0.3)] hover:bg-[rgba(184,148,78,0.06)]"
+              className="text-[#785312] border-[rgba(204,160,56,0.3)] hover:bg-[rgba(204,160,56,0.06)]"
               leftIcon={<Mail size={15} />}
             >
               Send Agreement Email
@@ -916,19 +916,19 @@ export default function RemunerationDetailPage() {
               </Button>
 
               {showAddMenu && (
-                <div className="absolute right-0 mt-2 w-60 rounded-xl border border-[rgba(74,61,100,0.10)] bg-white p-1.5 shadow-xl z-30 space-y-1 text-xs animate-in fade-in zoom-in-95 duration-100">
+                <div className="absolute right-0 mt-2 w-60 rounded-xl border border-[rgba(15,23,42,0.10)] bg-white p-1.5 shadow-xl z-30 space-y-1 text-xs animate-in fade-in zoom-in-95 duration-100">
                   <button
                     type="button"
                     onClick={() => {
                       setShowAddMenu(false);
                       setSendAgreementModalOpen(true);
                     }}
-                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-left text-[#252331] hover:bg-[#faf9fc] hover:text-[#80642F] font-medium transition-colors cursor-pointer"
+                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-left text-[#0F172A] hover:bg-[#F8F9FB] hover:text-[#785312] font-medium transition-colors cursor-pointer"
                   >
-                    <Mail size={15} className="text-[#B8944E] shrink-0" />
+                    <Mail size={15} className="text-[#CCA038] shrink-0" />
                     <div>
                       <p className="font-semibold">Send Agreement Email</p>
-                      <p className="text-[10px] text-[#9994A5]">Send terms & portal link to client</p>
+                      <p className="text-[10px] text-[#64748B]">Send terms & portal link to client</p>
                     </div>
                   </button>
 
@@ -938,12 +938,12 @@ export default function RemunerationDetailPage() {
                       setShowAddMenu(false);
                       setRequestModalOpen(true);
                     }}
-                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-left text-[#252331] hover:bg-[#faf9fc] hover:text-[#80642F] font-medium transition-colors cursor-pointer"
+                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-left text-[#0F172A] hover:bg-[#F8F9FB] hover:text-[#785312] font-medium transition-colors cursor-pointer"
                   >
                     <ReceiptText size={15} className="text-amber-600 shrink-0" />
                     <div>
                       <p className="font-semibold">Request Payment</p>
-                      <p className="text-[10px] text-[#9994A5]">Send payment demand / email</p>
+                      <p className="text-[10px] text-[#64748B]">Send payment demand / email</p>
                     </div>
                   </button>
 
@@ -954,12 +954,12 @@ export default function RemunerationDetailPage() {
                       setPreSelectedInstId(undefined);
                       setRecordModalOpen(true);
                     }}
-                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-left text-[#252331] hover:bg-[#faf9fc] hover:text-emerald-700 font-medium transition-colors cursor-pointer"
+                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-left text-[#0F172A] hover:bg-[#F8F9FB] hover:text-emerald-700 font-medium transition-colors cursor-pointer"
                   >
                     <CheckCircle2 size={15} className="text-emerald-600 shrink-0" />
                     <div>
                       <p className="font-semibold">Record Payment</p>
-                      <p className="text-[10px] text-[#9994A5]">Log received amount & splits</p>
+                      <p className="text-[10px] text-[#64748B]">Log received amount & splits</p>
                     </div>
                   </button>
                 </div>
@@ -970,9 +970,9 @@ export default function RemunerationDetailPage() {
 
         {/* Metric Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="rounded-2xl border border-[rgba(74,61,100,0.10)] bg-white p-5 shadow-sm space-y-2">
-            <span className="text-xs font-bold uppercase tracking-wider text-[#9994A5]">Total Agreement</span>
-            <p className="text-2xl font-bold text-[#252331]">{formatCurrency(totalAmount, rem.currency)}</p>
+          <div className="rounded-2xl border border-[rgba(15,23,42,0.10)] bg-white p-5 shadow-sm space-y-2">
+            <span className="text-xs font-bold uppercase tracking-wider text-[#64748B]">Total Agreement</span>
+            <p className="text-2xl font-bold text-[#0F172A]">{formatCurrency(totalAmount, rem.currency)}</p>
             <ProgressBar received={receivedAmount} total={totalAmount} />
           </div>
 
@@ -1002,11 +1002,11 @@ export default function RemunerationDetailPage() {
           {/* Left Columns (2 span): Payment Requests & Transaction Records */}
           <div className="lg:col-span-2 space-y-6">
             {/* Payment Requests & Installments Schedule */}
-            <div className="rounded-2xl border border-[rgba(74,61,100,0.10)] bg-white p-6 shadow-sm space-y-4">
-              <div className="flex items-center justify-between border-b border-[rgba(74,61,100,0.06)] pb-3">
+            <div className="rounded-2xl border border-[rgba(15,23,42,0.10)] bg-white p-6 shadow-sm space-y-4">
+              <div className="flex items-center justify-between border-b border-[rgba(15,23,42,0.06)] pb-3">
                 <div>
-                  <h2 className="text-base font-bold text-[#252331]">Payment Requests & Milestones</h2>
-                  <p className="text-xs text-[#9994A5]">Invoiced or scheduled installments</p>
+                  <h2 className="text-base font-bold text-[#0F172A]">Payment Requests & Milestones</h2>
+                  <p className="text-xs text-[#64748B]">Invoiced or scheduled installments</p>
                 </div>
                 <Button
                   size="sm"
@@ -1020,13 +1020,13 @@ export default function RemunerationDetailPage() {
 
               {installments.length === 0 ? (
                 <div className="text-center py-8 space-y-2">
-                  <Receipt className="mx-auto h-8 w-8 text-[#9994A5] opacity-50" />
-                  <p className="text-xs text-[#706C7D]">No payment requests created yet.</p>
+                  <Receipt className="mx-auto h-8 w-8 text-[#64748B] opacity-50" />
+                  <p className="text-xs text-[#334155]">No payment requests created yet.</p>
                   <Button
                     size="sm"
                     variant="outline"
                     onClick={() => setRequestModalOpen(true)}
-                    className="text-xs text-[#80642F] border-[#B8944E]"
+                    className="text-xs text-[#785312] border-[#CCA038]"
                   >
                     Request First Payment
                   </Button>
@@ -1041,19 +1041,19 @@ export default function RemunerationDetailPage() {
                     return (
                       <div
                         key={inst.id}
-                        className="rounded-xl border border-[rgba(74,61,100,0.10)] bg-[#faf9fc] p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                        className="rounded-xl border border-[rgba(15,23,42,0.10)] bg-[#F8F9FB] p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
                       >
                         <div className="space-y-1">
                           <div className="flex items-center gap-2">
-                            <span className="font-bold text-[#252331] text-sm">
+                            <span className="font-bold text-[#0F172A] text-sm">
                               {inst.name || `Payment Request #${inst.installment_number}`}
                             </span>
                             <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold ${instStatusBadge.bg}`}>
                               {instStatusBadge.label}
                             </span>
                           </div>
-                          <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-[#706C7D]">
-                            <span>Due: <strong className="text-[#252331]">{fmt(inst.due_date)}</strong></span>
+                          <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-[#334155]">
+                            <span>Due: <strong className="text-[#0F172A]">{fmt(inst.due_date)}</strong></span>
                             {inst.requested_date && (
                               <span>Requested: {fmt(inst.requested_date)}</span>
                             )}
@@ -1065,7 +1065,7 @@ export default function RemunerationDetailPage() {
 
                         <div className="flex items-center justify-between sm:justify-end gap-2.5 shrink-0">
                           <div className="text-right">
-                            <p className="text-base font-bold text-[#252331]">{formatCurrency(inst.amount, rem.currency)}</p>
+                            <p className="text-base font-bold text-[#0F172A]">{formatCurrency(inst.amount, rem.currency)}</p>
                             {!isFullyPaid && (
                               <p className="text-[10px] text-amber-700 font-medium">Bal: {formatCurrency(instRemaining, rem.currency)}</p>
                             )}
@@ -1088,7 +1088,7 @@ export default function RemunerationDetailPage() {
                             type="button"
                             onClick={() => setInstallmentToDelete(inst)}
                             title="Delete payment request / milestone"
-                            className="inline-flex items-center justify-center rounded-xl h-8 w-8 text-[#9994A5] hover:text-rose-600 hover:bg-rose-50 border border-transparent hover:border-rose-200 transition-colors cursor-pointer shrink-0"
+                            className="inline-flex items-center justify-center rounded-xl h-8 w-8 text-[#64748B] hover:text-rose-600 hover:bg-rose-50 border border-transparent hover:border-rose-200 transition-colors cursor-pointer shrink-0"
                           >
                             <Trash2 size={14} />
                           </button>
@@ -1101,11 +1101,11 @@ export default function RemunerationDetailPage() {
             </div>
 
             {/* Actual Payment Transactions Ledger */}
-            <div className="rounded-2xl border border-[rgba(74,61,100,0.10)] bg-white p-6 shadow-sm space-y-4">
-              <div className="flex items-center justify-between border-b border-[rgba(74,61,100,0.06)] pb-3">
+            <div className="rounded-2xl border border-[rgba(15,23,42,0.10)] bg-white p-6 shadow-sm space-y-4">
+              <div className="flex items-center justify-between border-b border-[rgba(15,23,42,0.06)] pb-3">
                 <div>
-                  <h2 className="text-base font-bold text-[#252331]">Actual Transaction Records</h2>
-                  <p className="text-xs text-[#9994A5]">Completed incoming payments and distributions</p>
+                  <h2 className="text-base font-bold text-[#0F172A]">Actual Transaction Records</h2>
+                  <p className="text-xs text-[#64748B]">Completed incoming payments and distributions</p>
                 </div>
                 <Button
                   size="sm"
@@ -1121,24 +1121,24 @@ export default function RemunerationDetailPage() {
               </div>
 
               {allPayments.length === 0 ? (
-                <p className="text-xs text-[#9994A5] py-6 text-center">No payment transactions recorded yet.</p>
+                <p className="text-xs text-[#64748B] py-6 text-center">No payment transactions recorded yet.</p>
               ) : (
                 <div className="space-y-3">
                   {allPayments.map((pm: any) => {
                     const sps = pm.team_splits || [];
                     return (
-                      <div key={pm.id} className="rounded-xl border border-[rgba(74,61,100,0.08)] bg-[#faf9fc] p-4 space-y-3 text-xs">
+                      <div key={pm.id} className="rounded-xl border border-[rgba(15,23,42,0.08)] bg-[#F8F9FB] p-4 space-y-3 text-xs">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2.5">
                             <span className="font-bold text-sm text-emerald-800">{formatCurrency(pm.amount, rem.currency)}</span>
-                            <span className="text-[#706C7D]">on {fmt(pm.payment_date)}</span>
-                            <span className="rounded bg-white border border-[rgba(74,61,100,0.10)] px-2 py-0.5 text-[10px] font-semibold text-[#252331]">
+                            <span className="text-[#334155]">on {fmt(pm.payment_date)}</span>
+                            <span className="rounded bg-white border border-[rgba(15,23,42,0.10)] px-2 py-0.5 text-[10px] font-semibold text-[#0F172A]">
                               {pm.payment_method}
                             </span>
                           </div>
                           <div className="flex items-center gap-2">
                             {pm.payment_reference && (
-                              <span className="font-mono text-[11px] text-[#252331] bg-white px-2 py-0.5 rounded border border-[rgba(74,61,100,0.10)]">
+                              <span className="font-mono text-[11px] text-[#0F172A] bg-white px-2 py-0.5 rounded border border-[rgba(15,23,42,0.10)]">
                                 Ref: {pm.payment_reference}
                               </span>
                             )}
@@ -1146,7 +1146,7 @@ export default function RemunerationDetailPage() {
                               type="button"
                               onClick={() => setPaymentToDelete(pm)}
                               title="Delete transaction record"
-                              className="inline-flex items-center justify-center rounded-lg h-7 w-7 text-[#9994A5] hover:text-rose-600 hover:bg-rose-50 border border-transparent hover:border-rose-200 transition-colors cursor-pointer shrink-0"
+                              className="inline-flex items-center justify-center rounded-lg h-7 w-7 text-[#64748B] hover:text-rose-600 hover:bg-rose-50 border border-transparent hover:border-rose-200 transition-colors cursor-pointer shrink-0"
                             >
                               <Trash2 size={13} />
                             </button>
@@ -1154,13 +1154,13 @@ export default function RemunerationDetailPage() {
                         </div>
 
                         {sps.length > 0 && (
-                          <div className="bg-white rounded-lg p-2.5 border border-[rgba(74,61,100,0.06)] space-y-2">
-                            <span className="font-bold text-[11px] text-[#80642F]">Team Allocation Breakdown:</span>
+                          <div className="bg-white rounded-lg p-2.5 border border-[rgba(15,23,42,0.06)] space-y-2">
+                            <span className="font-bold text-[11px] text-[#785312]">Team Allocation Breakdown:</span>
                             <div className="flex flex-wrap gap-2">
                               {sps.map((s: any, idx: number) => (
                                 <div
                                   key={idx}
-                                  className="inline-flex items-center gap-2 bg-zinc-50 hover:bg-zinc-100/80 border border-zinc-200 px-2.5 py-1 rounded-lg text-[11px] text-[#252331] transition-colors shadow-2xs"
+                                  className="inline-flex items-center gap-2 bg-zinc-50 hover:bg-zinc-100/80 border border-zinc-200 px-2.5 py-1 rounded-lg text-[11px] text-[#0F172A] transition-colors shadow-2xs"
                                 >
                                   <span>
                                     <strong>{s.member_name}</strong>: {formatCurrency(s.amount, rem.currency)}
@@ -1169,7 +1169,7 @@ export default function RemunerationDetailPage() {
                                     type="button"
                                     onClick={() => setTeamEmailTarget({ payment: pm, split: s })}
                                     title={`Send allocation email to ${s.member_name}`}
-                                    className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold text-[#80642F] bg-[rgba(184,148,78,0.12)] hover:bg-[rgba(184,148,78,0.24)] transition-colors cursor-pointer"
+                                    className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold text-[#785312] bg-[rgba(204,160,56,0.12)] hover:bg-[rgba(204,160,56,0.24)] transition-colors cursor-pointer"
                                   >
                                     <Mail size={11} />
                                     <span>Send Mail</span>
@@ -1190,24 +1190,24 @@ export default function RemunerationDetailPage() {
           {/* Right Column: Project Client Info, Team Remuneration, Audit Log */}
           <div className="space-y-6">
             {/* Client & Agreement Info */}
-            <div className="rounded-2xl border border-[rgba(74,61,100,0.10)] bg-white p-5 shadow-sm space-y-3 text-xs">
-              <div className="flex items-center justify-between border-b border-[rgba(74,61,100,0.06)] pb-2">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-[#9994A5]">Client & Agreement Info</h3>
+            <div className="rounded-2xl border border-[rgba(15,23,42,0.10)] bg-white p-5 shadow-sm space-y-3 text-xs">
+              <div className="flex items-center justify-between border-b border-[rgba(15,23,42,0.06)] pb-2">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-[#64748B]">Client & Agreement Info</h3>
                 <button
                   type="button"
                   onClick={() => setSendAgreementModalOpen(true)}
-                  className="text-[11px] font-semibold text-[#80642F] hover:underline flex items-center gap-1"
+                  className="text-[11px] font-semibold text-[#785312] hover:underline flex items-center gap-1"
                 >
                   <Mail size={12} />
                   <span>Send Email</span>
                 </button>
               </div>
-              <p className="font-bold text-[#252331] text-sm">{rem.client?.name || "Direct / In-House Project"}</p>
-              <p className="text-[#706C7D]">{rem.client?.email || "No email assigned"}</p>
-              <div className="border-t border-[rgba(74,61,100,0.06)] pt-2.5 space-y-1.5 text-[#706C7D]">
+              <p className="font-bold text-[#0F172A] text-sm">{rem.client?.name || "Direct / In-House Project"}</p>
+              <p className="text-[#334155]">{rem.client?.email || "No email assigned"}</p>
+              <div className="border-t border-[rgba(15,23,42,0.06)] pt-2.5 space-y-1.5 text-[#334155]">
                 <div className="flex justify-between">
                   <span>Agreement Date:</span>
-                  <strong className="text-[#252331]">{fmt(rem.agreement_date)}</strong>
+                  <strong className="text-[#0F172A]">{fmt(rem.agreement_date)}</strong>
                 </div>
                 <div className="flex justify-between">
                   <span>Receipt Emails:</span>
@@ -1218,7 +1218,7 @@ export default function RemunerationDetailPage() {
                 variant="outline"
                 size="sm"
                 onClick={() => setSendAgreementModalOpen(true)}
-                className="w-full text-xs font-semibold text-[#80642F] border-[rgba(184,148,78,0.25)] hover:bg-[rgba(184,148,78,0.05)] justify-center mt-1"
+                className="w-full text-xs font-semibold text-[#785312] border-[rgba(204,160,56,0.25)] hover:bg-[rgba(204,160,56,0.05)] justify-center mt-1"
                 leftIcon={<Mail size={13} />}
               >
                 {rem.client?.email ? "Resend Agreement Email" : "Send Agreement Email"}
@@ -1227,19 +1227,19 @@ export default function RemunerationDetailPage() {
 
             {/* Team Remuneration Agreed Splits */}
             {splits.length > 0 && (
-              <div className="rounded-2xl border border-[rgba(74,61,100,0.10)] bg-white p-5 shadow-sm space-y-3 text-xs">
-                <div className="flex items-center justify-between border-b border-[rgba(74,61,100,0.06)] pb-2">
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-[#9994A5]">Team Remuneration</h3>
-                  <span className="text-[10px] text-[#706C7D]">{splits.length} members</span>
+              <div className="rounded-2xl border border-[rgba(15,23,42,0.10)] bg-white p-5 shadow-sm space-y-3 text-xs">
+                <div className="flex items-center justify-between border-b border-[rgba(15,23,42,0.06)] pb-2">
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-[#64748B]">Team Remuneration</h3>
+                  <span className="text-[10px] text-[#334155]">{splits.length} members</span>
                 </div>
                 <div className="space-y-2">
                   {splits.map((split: any, idx: number) => (
-                    <div key={idx} className="flex items-center justify-between p-2 rounded-lg bg-[#faf9fc] border border-[rgba(74,61,100,0.06)]">
+                    <div key={idx} className="flex items-center justify-between p-2 rounded-lg bg-[#F8F9FB] border border-[rgba(15,23,42,0.06)]">
                       <div>
-                        <p className="font-semibold text-[#252331]">{split.name || split.member_name}</p>
-                        <p className="text-[10px] text-[#9994A5]">{split.percentage ? `${split.percentage}% share` : split.role || "Member"}</p>
+                        <p className="font-semibold text-[#0F172A]">{split.name || split.member_name}</p>
+                        <p className="text-[10px] text-[#64748B]">{split.percentage ? `${split.percentage}% share` : split.role || "Member"}</p>
                       </div>
-                      <span className="font-bold text-[#252331]">{formatCurrency(split.amount, rem.currency)}</span>
+                      <span className="font-bold text-[#0F172A]">{formatCurrency(split.amount, rem.currency)}</span>
                     </div>
                   ))}
                 </div>
@@ -1247,25 +1247,25 @@ export default function RemunerationDetailPage() {
             )}
 
             {/* Notification Audit Log */}
-            <div className="rounded-2xl border border-[rgba(74,61,100,0.10)] bg-white p-5 shadow-sm space-y-3">
-              <div className="flex items-center justify-between border-b border-[rgba(74,61,100,0.06)] pb-2">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-[#9994A5]">Notification Audit</h3>
-                <span className="text-[10px] text-[#9994A5]">{notifLogs.length} events</span>
+            <div className="rounded-2xl border border-[rgba(15,23,42,0.10)] bg-white p-5 shadow-sm space-y-3">
+              <div className="flex items-center justify-between border-b border-[rgba(15,23,42,0.06)] pb-2">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-[#64748B]">Notification Audit</h3>
+                <span className="text-[10px] text-[#64748B]">{notifLogs.length} events</span>
               </div>
 
               {notifLogs.length === 0 ? (
-                <p className="text-xs text-[#9994A5] py-2 text-center">No notifications logged yet.</p>
+                <p className="text-xs text-[#64748B] py-2 text-center">No notifications logged yet.</p>
               ) : (
                 <div className="space-y-2 max-h-56 overflow-y-auto pr-1 text-xs">
                   {notifLogs.map((log) => (
-                    <div key={log.id} className="border-b border-[rgba(74,61,100,0.04)] pb-1.5">
+                    <div key={log.id} className="border-b border-[rgba(15,23,42,0.04)] pb-1.5">
                       <div className="flex items-center justify-between font-semibold">
-                        <span className="text-[#252331] truncate max-w-[140px]">{log.recipient}</span>
+                        <span className="text-[#0F172A] truncate max-w-[140px]">{log.recipient}</span>
                         <span className={`text-[10px] px-1.5 rounded ${log.status === "sent" ? "bg-emerald-50 text-emerald-700" : "bg-zinc-100 text-zinc-600"}`}>
                           {log.status}
                         </span>
                       </div>
-                      <p className="text-[10px] text-[#9994A5]">{log.notification_type} • {fmtDatetime(log.created_at)}</p>
+                      <p className="text-[10px] text-[#64748B]">{log.notification_type} • {fmtDatetime(log.created_at)}</p>
                     </div>
                   ))}
                 </div>
@@ -1274,15 +1274,15 @@ export default function RemunerationDetailPage() {
 
             {/* Timeline */}
             {timeline.length > 0 && (
-              <div className="rounded-2xl border border-[rgba(74,61,100,0.10)] bg-white p-5 shadow-sm">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-[#9994A5] mb-3">Activity History</h3>
+              <div className="rounded-2xl border border-[rgba(15,23,42,0.10)] bg-white p-5 shadow-sm">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-[#64748B] mb-3">Activity History</h3>
                 <div className="space-y-3 max-h-60 overflow-y-auto pr-1">
                   {timeline.map((event, i) => (
                     <div key={event.id || i} className="flex gap-2 text-xs">
-                      <Clock size={12} className="text-[#80642F] shrink-0 mt-0.5" />
+                      <Clock size={12} className="text-[#785312] shrink-0 mt-0.5" />
                       <div>
-                        <p className="font-semibold text-[#252331]">{event.title}</p>
-                        <p className="text-[10px] text-[#9994A5]">{fmtDatetime(event.created_at)} · {event.actor_name}</p>
+                        <p className="font-semibold text-[#0F172A]">{event.title}</p>
+                        <p className="text-[10px] text-[#64748B]">{fmtDatetime(event.created_at)} · {event.actor_name}</p>
                       </div>
                     </div>
                   ))}
@@ -1348,15 +1348,15 @@ export default function RemunerationDetailPage() {
                 <Trash2 size={20} />
               </div>
               <div>
-                <h2 className="font-semibold text-[#252331] text-base">Delete Payment Request / Milestone?</h2>
-                <p className="text-xs text-[#9994A5]">Remove from schedule and ledger</p>
+                <h2 className="font-semibold text-[#0F172A] text-base">Delete Payment Request / Milestone?</h2>
+                <p className="text-xs text-[#64748B]">Remove from schedule and ledger</p>
               </div>
             </div>
 
-            <div className="text-xs text-[#706C7D] space-y-2">
+            <div className="text-xs text-[#334155] space-y-2">
               <p>
                 Are you sure you want to delete{" "}
-                <strong className="text-[#252331]">
+                <strong className="text-[#0F172A]">
                   {installmentToDelete.name || `Payment Request #${installmentToDelete.installment_number}`}
                 </strong>{" "}
                 ({formatCurrency(installmentToDelete.amount, rem.currency)})?
@@ -1402,12 +1402,12 @@ export default function RemunerationDetailPage() {
                 <Trash2 size={20} />
               </div>
               <div>
-                <h2 className="font-semibold text-[#252331] text-base">Delete Transaction Record?</h2>
-                <p className="text-xs text-[#9994A5]">Remove completed transaction</p>
+                <h2 className="font-semibold text-[#0F172A] text-base">Delete Transaction Record?</h2>
+                <p className="text-xs text-[#64748B]">Remove completed transaction</p>
               </div>
             </div>
 
-            <div className="text-xs text-[#706C7D] space-y-2">
+            <div className="text-xs text-[#334155] space-y-2">
               <p>
                 Are you sure you want to delete the transaction record of{" "}
                 <strong className="text-emerald-700">
@@ -1416,7 +1416,7 @@ export default function RemunerationDetailPage() {
                 received on <strong>{fmt(paymentToDelete.payment_date)}</strong>?
               </p>
 
-              <div className="rounded-lg border border-[rgba(74,61,100,0.10)] bg-[#faf9fc] p-3 text-[11px] text-[#706C7D] space-y-1">
+              <div className="rounded-lg border border-[rgba(15,23,42,0.10)] bg-[#F8F9FB] p-3 text-[11px] text-[#334155] space-y-1">
                 <p>• Deducts {formatCurrency(paymentToDelete.amount, rem.currency)} from the collected total balance.</p>
                 <p>• Automatically reverts and recalculates milestone payment progress.</p>
                 <p>• Removes team split payouts associated with this transaction.</p>
@@ -1453,14 +1453,14 @@ export default function RemunerationDetailPage() {
                 <Trash2 size={20} />
               </div>
               <div>
-                <h2 className="font-semibold text-[#252331] text-base">Delete Remuneration Agreement?</h2>
-                <p className="text-xs text-[#9994A5]">This action cannot be undone</p>
+                <h2 className="font-semibold text-[#0F172A] text-base">Delete Remuneration Agreement?</h2>
+                <p className="text-xs text-[#64748B]">This action cannot be undone</p>
               </div>
             </div>
 
-            <p className="text-xs text-[#706C7D] leading-relaxed">
+            <p className="text-xs text-[#334155] leading-relaxed">
               Are you sure you want to permanently delete the remuneration agreement for{" "}
-              <strong className="text-[#252331]">{rem.project?.name || "this project"}</strong>? This will remove all associated payment requests, logged transactions, team allocations, and audit history.
+              <strong className="text-[#0F172A]">{rem.project?.name || "this project"}</strong>? This will remove all associated payment requests, logged transactions, team allocations, and audit history.
             </p>
 
             <div className="flex justify-end gap-2.5 pt-2">

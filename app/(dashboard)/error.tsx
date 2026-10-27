@@ -24,8 +24,8 @@ export default function DashboardError({
           maxWidth: "480px",
           width: "100%",
           textAlign: "center",
-          boxShadow: "0 4px 32px rgba(74,61,100,0.08)",
-          border: "1px solid rgba(74,61,100,0.10)",
+          boxShadow: "0 4px 32px rgba(15,23,42,0.08)",
+          border: "1px solid rgba(15,23,42,0.10)",
         }}
       >
         <div
@@ -33,7 +33,7 @@ export default function DashboardError({
             width: "52px",
             height: "52px",
             borderRadius: "50%",
-            background: "rgba(184,148,78,0.10)",
+            background: "rgba(204,160,56,0.10)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -49,7 +49,7 @@ export default function DashboardError({
             margin: "0 0 0.5rem",
             fontSize: "1.125rem",
             fontWeight: 700,
-            color: "#252331",
+            color: "#0F172A",
             letterSpacing: "-0.02em",
           }}
         >
@@ -60,7 +60,7 @@ export default function DashboardError({
           style={{
             margin: "0 0 1.5rem",
             fontSize: "0.875rem",
-            color: "#706C7D",
+            color: "#334155",
             lineHeight: 1.6,
           }}
         >
@@ -73,7 +73,7 @@ export default function DashboardError({
             style={{
               margin: "-0.5rem 0 1rem",
               fontSize: "0.7rem",
-              color: "#9994A5",
+              color: "#64748B",
               fontFamily: "monospace",
             }}
           >
@@ -87,7 +87,7 @@ export default function DashboardError({
             style={{
               padding: "0.5rem 1.125rem",
               borderRadius: "0.625rem",
-              background: "#B8944E",
+              background: "#CCA038",
               color: "#fff",
               border: "none",
               cursor: "pointer",
@@ -105,8 +105,8 @@ export default function DashboardError({
               padding: "0.5rem 1.125rem",
               borderRadius: "0.625rem",
               background: "transparent",
-              color: "#706C7D",
-              border: "1px solid rgba(74,61,100,0.15)",
+              color: "#334155",
+              border: "1px solid rgba(15,23,42,0.15)",
               textDecoration: "none",
               fontSize: "0.8125rem",
               fontWeight: 500,

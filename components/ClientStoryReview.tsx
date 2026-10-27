@@ -367,7 +367,7 @@ export function ClientStoryReview({
               <Button
                 variant="outline"
                 size="sm"
-                leftIcon={<Bot size={13} className="text-[#80642F]" />}
+                leftIcon={<Bot size={13} className="text-[#785312]" />}
                 onClick={() => setAgentPromptOpen(true)}
                 className="bg-white text-slate-800 border-emerald-300 hover:bg-emerald-100/50"
               >
@@ -439,7 +439,7 @@ export function ClientStoryReview({
               <Button
                 variant="outline"
                 size="sm"
-                leftIcon={<Bot size={14} className="text-[#80642F]" />}
+                leftIcon={<Bot size={14} className="text-[#785312]" />}
                 onClick={() => setAgentPromptOpen(true)}
                 title="Convert to AI Agent Prompt"
               >

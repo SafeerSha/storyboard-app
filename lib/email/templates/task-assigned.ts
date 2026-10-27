@@ -36,7 +36,7 @@ export function generateTaskAssignedEmail({
       : priority === "high"
       ? "#ea580c"
       : priority === "medium"
-      ? "#B8944E"
+      ? "#CCA038"
       : "#64748b";
 
   const preheader = `You've been assigned a new task: "${safeTaskTitle}" in ${safeProjectName}`;

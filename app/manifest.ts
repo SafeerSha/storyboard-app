@@ -7,8 +7,8 @@ export default function manifest(): MetadataRoute.Manifest {
     description: 'From requirements to delivery.',
     start_url: '/',
     display: 'standalone',
-    background_color: '#F5F2F7',
-    theme_color: '#B8944E',
+    background_color: '#F8F9FA',
+    theme_color: '#CCA038',
     orientation: 'portrait-primary',
     icons: [
       {

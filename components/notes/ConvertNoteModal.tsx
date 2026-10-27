@@ -240,35 +240,35 @@ export function ConvertNoteModal({
       />
 
       {/* Modal Surface */}
-      <div className="relative w-full max-w-2xl rounded-2xl border border-[rgba(74,61,100,0.12)] bg-white p-5 sm:p-7 shadow-[0_20px_50px_rgba(70,55,95,0.18)] animate-in zoom-in-95 duration-150 max-h-[90vh] flex flex-col my-auto">
+      <div className="relative w-full max-w-2xl rounded-2xl border border-[rgba(15,23,42,0.12)] bg-white p-5 sm:p-7 shadow-[0_20px_50px_rgba(15,23,42,0.18)] animate-in zoom-in-95 duration-150 max-h-[90vh] flex flex-col my-auto">
         {/* Close Button */}
         <button
           type="button"
           onClick={onClose}
           disabled={loading || committing}
           aria-label="Close modal"
-          className="absolute right-4 top-4 grid h-8 w-8 place-items-center rounded-xl text-[#706C7D] hover:bg-[#FAF9FC] hover:text-[#252331] disabled:opacity-40 transition"
+          className="absolute right-4 top-4 grid h-8 w-8 place-items-center rounded-xl text-[#334155] hover:bg-[#F8F9FB] hover:text-[#0F172A] disabled:opacity-40 transition"
         >
           <X size={16} />
         </button>
 
         {/* Modal Header */}
         <div className="flex items-start gap-3.5 mb-5 shrink-0">
-          <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[rgba(184,148,78,0.12)] text-[#80642F] border border-[rgba(184,148,78,0.22)]">
+          <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[rgba(204,160,56,0.12)] text-[#785312] border border-[rgba(204,160,56,0.22)]">
             <Sparkles size={20} />
           </div>
           <div>
-            <h3 className="text-base sm:text-lg font-bold tracking-tight text-[#252331]">
+            <h3 className="text-base sm:text-lg font-bold tracking-tight text-[#0F172A]">
               Convert Note to Requirements
             </h3>
-            <p className="text-xs text-[#706C7D] mt-0.5">
+            <p className="text-xs text-[#334155] mt-0.5">
               Transform discussion notes into structured Epics and user stories with AI assistance.
             </p>
           </div>
         </div>
 
         {error && (
-          <div className="mb-4 rounded-xl border border-rose-200 bg-rose-50/90 p-3 text-xs text-[#C25D72] flex items-center gap-2 shrink-0">
+          <div className="mb-4 rounded-xl border border-rose-200 bg-rose-50/90 p-3 text-xs text-[#E11D48] flex items-center gap-2 shrink-0">
             <AlertCircle size={14} className="shrink-0" />
             <span>{error}</span>
           </div>
@@ -277,14 +277,14 @@ export function ConvertNoteModal({
         {/* Modal Body: Scrollable */}
         <div className="overflow-y-auto flex-1 pr-1 space-y-5">
           {/* Note Context Snapshot Card */}
-          <div className="rounded-xl border border-[rgba(74,61,100,0.08)] bg-[#FAF9FC] p-3.5 space-y-1.5">
+          <div className="rounded-xl border border-[rgba(15,23,42,0.08)] bg-[#F8F9FB] p-3.5 space-y-1.5">
             <div className="flex items-center justify-between">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-[#9994A5] flex items-center gap-1">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-[#64748B] flex items-center gap-1">
                 <FileText size={11} /> Source Note
               </span>
-              <span className="text-[11px] text-[#706C7D]">{note.title}</span>
+              <span className="text-[11px] text-[#334155]">{note.title}</span>
             </div>
-            <p className="text-xs text-[#706C7D] line-clamp-3 italic whitespace-pre-wrap">
+            <p className="text-xs text-[#334155] line-clamp-3 italic whitespace-pre-wrap">
               {note.content || "No content provided."}
             </p>
           </div>
@@ -293,7 +293,7 @@ export function ConvertNoteModal({
             /* Mode Selection Screen */
             <div className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-[#9994A5] mb-2">
+                <label className="block text-xs font-semibold uppercase tracking-wider text-[#64748B] mb-2">
                   Conversion Destination
                 </label>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
@@ -302,19 +302,19 @@ export function ConvertNoteModal({
                     onClick={() => setMode("new_epic_and_stories")}
                     className={`p-3 rounded-xl border text-left transition flex flex-col justify-between gap-2 cursor-pointer ${
                       mode === "new_epic_and_stories"
-                        ? "border-[#B8944E] bg-[rgba(184,148,78,0.06)] ring-1 ring-[#B8944E]"
-                        : "border-[rgba(74,61,100,0.10)] bg-white hover:border-[rgba(184,148,78,0.3)]"
+                        ? "border-[#CCA038] bg-[rgba(204,160,56,0.06)] ring-1 ring-[#CCA038]"
+                        : "border-[rgba(15,23,42,0.10)] bg-white hover:border-[rgba(204,160,56,0.3)]"
                     }`}
                   >
                     <div>
-                      <span className="font-semibold text-xs text-[#252331] block">
+                      <span className="font-semibold text-xs text-[#0F172A] block">
                         New Epic + Stories
                       </span>
-                      <span className="text-[11px] text-[#706C7D] mt-1 block">
+                      <span className="text-[11px] text-[#334155] mt-1 block">
                         Synthesizes an overarching theme and multiple feature stories.
                       </span>
                     </div>
-                    <span className="text-[10px] font-bold text-[#80642F] uppercase tracking-wider">
+                    <span className="text-[10px] font-bold text-[#785312] uppercase tracking-wider">
                       Recommended
                     </span>
                   </button>
@@ -327,19 +327,19 @@ export function ConvertNoteModal({
                       epics.length === 0 ? "opacity-50 cursor-not-allowed" : ""
                     } ${
                       mode === "existing_epic_stories"
-                        ? "border-[#B8944E] bg-[rgba(184,148,78,0.06)] ring-1 ring-[#B8944E]"
-                        : "border-[rgba(74,61,100,0.10)] bg-white hover:border-[rgba(184,148,78,0.3)]"
+                        ? "border-[#CCA038] bg-[rgba(204,160,56,0.06)] ring-1 ring-[#CCA038]"
+                        : "border-[rgba(15,23,42,0.10)] bg-white hover:border-[rgba(204,160,56,0.3)]"
                     }`}
                   >
                     <div>
-                      <span className="font-semibold text-xs text-[#252331] block">
+                      <span className="font-semibold text-xs text-[#0F172A] block">
                         Add to Existing Epic
                       </span>
-                      <span className="text-[11px] text-[#706C7D] mt-1 block">
+                      <span className="text-[11px] text-[#334155] mt-1 block">
                         Appends newly generated stories under an existing project Epic.
                       </span>
                     </div>
-                    <span className="text-[10px] text-[#706C7D]">
+                    <span className="text-[10px] text-[#334155]">
                       {epics.length} Epics available
                     </span>
                   </button>
@@ -349,32 +349,32 @@ export function ConvertNoteModal({
                     onClick={() => setMode("epic_only")}
                     className={`p-3 rounded-xl border text-left transition flex flex-col justify-between gap-2 cursor-pointer ${
                       mode === "epic_only"
-                        ? "border-[#B8944E] bg-[rgba(184,148,78,0.06)] ring-1 ring-[#B8944E]"
-                        : "border-[rgba(74,61,100,0.10)] bg-white hover:border-[rgba(184,148,78,0.3)]"
+                        ? "border-[#CCA038] bg-[rgba(204,160,56,0.06)] ring-1 ring-[#CCA038]"
+                        : "border-[rgba(15,23,42,0.10)] bg-white hover:border-[rgba(204,160,56,0.3)]"
                     }`}
                   >
                     <div>
-                      <span className="font-semibold text-xs text-[#252331] block">
+                      <span className="font-semibold text-xs text-[#0F172A] block">
                         Epic Only
                       </span>
-                      <span className="text-[11px] text-[#706C7D] mt-1 block">
+                      <span className="text-[11px] text-[#334155] mt-1 block">
                         Creates a parent Epic theme with discussion scope summary.
                       </span>
                     </div>
-                    <span className="text-[10px] text-[#706C7D]">No stories generated</span>
+                    <span className="text-[10px] text-[#334155]">No stories generated</span>
                   </button>
                 </div>
               </div>
 
               {mode === "existing_epic_stories" && epics.length > 0 && (
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-[#9994A5] mb-1.5">
-                    Select Target Epic <span className="text-[#C25D72]">*</span>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-[#64748B] mb-1.5">
+                    Select Target Epic <span className="text-[#E11D48]">*</span>
                   </label>
                   <select
                     value={selectedEpicId}
                     onChange={(e) => setSelectedEpicId(e.target.value)}
-                    className="w-full h-10 rounded-xl border border-[rgba(74,61,100,0.12)] bg-[#FAF9FC] px-3 text-xs font-medium text-[#252331] outline-none focus:border-[#B8944E] focus:bg-white"
+                    className="w-full h-10 rounded-xl border border-[rgba(15,23,42,0.12)] bg-[#F8F9FB] px-3 text-xs font-medium text-[#0F172A] outline-none focus:border-[#CCA038] focus:bg-white"
                   >
                     {epics.map((e) => (
                       <option key={e.id} value={e.id}>
@@ -387,21 +387,21 @@ export function ConvertNoteModal({
 
               {loading ? (
                 /* AI Loading steps */
-                <div className="rounded-xl border border-[rgba(184,148,78,0.2)] bg-[rgba(184,148,78,0.04)] p-5 text-center space-y-3">
-                  <div className="mx-auto grid h-10 w-10 place-items-center rounded-xl bg-white text-[#80642F] shadow-sm border border-[rgba(184,148,78,0.2)] animate-pulse">
+                <div className="rounded-xl border border-[rgba(204,160,56,0.2)] bg-[rgba(204,160,56,0.04)] p-5 text-center space-y-3">
+                  <div className="mx-auto grid h-10 w-10 place-items-center rounded-xl bg-white text-[#785312] shadow-sm border border-[rgba(204,160,56,0.2)] animate-pulse">
                     <Sparkles size={18} />
                   </div>
                   <div>
-                    <h4 className="text-xs sm:text-sm font-bold text-[#252331]">
+                    <h4 className="text-xs sm:text-sm font-bold text-[#0F172A]">
                       {steps[generationStep]}
                     </h4>
-                    <p className="text-[11px] text-[#706C7D] mt-0.5">
+                    <p className="text-[11px] text-[#334155] mt-0.5">
                       Synthesizing requirements from meeting discussion...
                     </p>
                   </div>
-                  <div className="w-full max-w-xs mx-auto h-1.5 bg-[rgba(74,61,100,0.08)] rounded-full overflow-hidden">
+                  <div className="w-full max-w-xs mx-auto h-1.5 bg-[rgba(15,23,42,0.08)] rounded-full overflow-hidden">
                     <div
-                      className="h-full bg-[#B8944E] transition-all duration-500"
+                      className="h-full bg-[#CCA038] transition-all duration-500"
                       style={{ width: `${((generationStep + 1) / steps.length) * 100}%` }}
                     />
                   </div>
@@ -425,17 +425,17 @@ export function ConvertNoteModal({
             <div className="space-y-4 animate-in fade-in duration-200">
               <div className="flex items-center justify-between">
                 <div>
-                  <span className="text-xs font-semibold uppercase tracking-wider text-[#9994A5]">
+                  <span className="text-xs font-semibold uppercase tracking-wider text-[#64748B]">
                     Review & Customize Requirements
                   </span>
-                  <p className="text-[11px] text-[#706C7D] mt-0.5">
+                  <p className="text-[11px] text-[#334155] mt-0.5">
                     AI classified items from your notes into bugs, feature changes, and new features.
                   </p>
                 </div>
                 <button
                   type="button"
                   onClick={() => setHasPreview(false)}
-                  className="text-xs font-medium text-[#80642F] hover:underline flex items-center gap-1 cursor-pointer"
+                  className="text-xs font-medium text-[#785312] hover:underline flex items-center gap-1 cursor-pointer"
                 >
                   <RotateCcw size={11} /> Change settings
                 </button>
@@ -443,13 +443,13 @@ export function ConvertNoteModal({
 
               {/* Epic Details Section */}
               {mode !== "existing_epic_stories" && (
-                <div className="rounded-xl border border-[rgba(74,61,100,0.12)] bg-[#FAF9FC] p-4 space-y-3">
-                  <div className="flex items-center gap-2 text-xs font-bold text-[#252331]">
-                    <Layers size={14} className="text-[#B8944E]" />
+                <div className="rounded-xl border border-[rgba(15,23,42,0.12)] bg-[#F8F9FB] p-4 space-y-3">
+                  <div className="flex items-center gap-2 text-xs font-bold text-[#0F172A]">
+                    <Layers size={14} className="text-[#CCA038]" />
                     <span>Proposed Epic</span>
                   </div>
                   <div>
-                    <label className="block text-[11px] font-semibold text-[#706C7D] mb-1">
+                    <label className="block text-[11px] font-semibold text-[#334155] mb-1">
                       Epic Name
                     </label>
                     <input
@@ -458,11 +458,11 @@ export function ConvertNoteModal({
                       onChange={(e) =>
                         setPreviewEpic((prev) => ({ ...prev, name: e.target.value }))
                       }
-                      className="w-full h-9 rounded-lg border border-[rgba(74,61,100,0.12)] bg-white px-3 text-xs font-semibold text-[#252331] outline-none focus:border-[#B8944E]"
+                      className="w-full h-9 rounded-lg border border-[rgba(15,23,42,0.12)] bg-white px-3 text-xs font-semibold text-[#0F172A] outline-none focus:border-[#CCA038]"
                     />
                   </div>
                   <div>
-                    <label className="block text-[11px] font-semibold text-[#706C7D] mb-1">
+                    <label className="block text-[11px] font-semibold text-[#334155] mb-1">
                       Description & Scope
                     </label>
                     <textarea
@@ -471,7 +471,7 @@ export function ConvertNoteModal({
                       onChange={(e) =>
                         setPreviewEpic((prev) => ({ ...prev, description: e.target.value }))
                       }
-                      className="w-full rounded-lg border border-[rgba(74,61,100,0.12)] bg-white p-2.5 text-xs text-[#252331] outline-none focus:border-[#B8944E] resize-none"
+                      className="w-full rounded-lg border border-[rgba(15,23,42,0.12)] bg-white p-2.5 text-xs text-[#0F172A] outline-none focus:border-[#CCA038] resize-none"
                     />
                   </div>
                 </div>
@@ -479,9 +479,9 @@ export function ConvertNoteModal({
 
               {/* Non-story meeting action items (if detected) */}
               {meetingActionItems.length > 0 && (
-                <div className="rounded-xl border border-[rgba(184,148,78,0.22)] bg-[rgba(184,148,78,0.05)] p-3 space-y-2">
+                <div className="rounded-xl border border-[rgba(204,160,56,0.22)] bg-[rgba(204,160,56,0.05)] p-3 space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-[11px] font-bold text-[#80642F] flex items-center gap-1.5">
+                    <span className="text-[11px] font-bold text-[#785312] flex items-center gap-1.5">
                       <FileText size={12} /> Meeting Action Items & Follow-ups ({meetingActionItems.length})
                     </span>
                     <button
@@ -494,7 +494,7 @@ export function ConvertNoteModal({
                         setTimeout(() => setCopiedActionItems(false), 2000);
                         toast.success("Action items copied to clipboard");
                       }}
-                      className="inline-flex items-center gap-1 text-[10px] font-semibold text-[#80642F] hover:underline cursor-pointer"
+                      className="inline-flex items-center gap-1 text-[10px] font-semibold text-[#785312] hover:underline cursor-pointer"
                     >
                       {copiedActionItems ? (
                         <Check size={11} className="text-emerald-600" />
@@ -506,8 +506,8 @@ export function ConvertNoteModal({
                   </div>
                   <ul className="space-y-1">
                     {meetingActionItems.map((item, i) => (
-                      <li key={i} className="text-[11px] text-[#706C7D] flex items-start gap-1.5">
-                        <span className="text-[#80642F] font-bold">•</span>
+                      <li key={i} className="text-[11px] text-[#334155] flex items-start gap-1.5">
+                        <span className="text-[#785312] font-bold">•</span>
                         <span>{item}</span>
                       </li>
                     ))}
@@ -525,8 +525,8 @@ export function ConvertNoteModal({
                         onClick={() => setFilterType("all")}
                         className={`px-2 py-0.5 rounded-md text-[11px] font-medium transition cursor-pointer ${
                           filterType === "all"
-                            ? "bg-[#252331] text-white"
-                            : "bg-[#FAF9FC] text-[#706C7D] hover:bg-slate-100"
+                            ? "bg-[#0F172A] text-white"
+                            : "bg-[#F8F9FB] text-[#334155] hover:bg-slate-100"
                         }`}
                       >
                         All ({previewStories.length})
@@ -583,7 +583,7 @@ export function ConvertNoteModal({
                           prev.map((s) => ({ ...s, enabled: !allSelected }))
                         );
                       }}
-                      className="text-[11px] font-medium text-[#80642F] hover:underline"
+                      className="text-[11px] font-medium text-[#785312] hover:underline"
                     >
                       {previewStories.every((s) => s.enabled) ? "Deselect all" : "Select all"}
                     </button>
@@ -603,7 +603,7 @@ export function ConvertNoteModal({
                             key={originalIdx}
                             className={`rounded-xl border transition p-3 space-y-2 ${
                               story.enabled
-                                ? "border-[rgba(74,61,100,0.12)] bg-white"
+                                ? "border-[rgba(15,23,42,0.12)] bg-white"
                                 : "border-slate-100 bg-slate-50/60 opacity-60"
                             }`}
                           >
@@ -619,7 +619,7 @@ export function ConvertNoteModal({
                                     )
                                   );
                                 }}
-                                className="mt-1 h-4 w-4 rounded border-slate-300 text-[#B8944E] focus:ring-[#B8944E] cursor-pointer"
+                                className="mt-1 h-4 w-4 rounded border-slate-300 text-[#CCA038] focus:ring-[#CCA038] cursor-pointer"
                               />
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-center gap-1.5 mb-1 flex-wrap">
@@ -659,10 +659,10 @@ export function ConvertNoteModal({
                                       )
                                     );
                                   }}
-                                  className="w-full text-xs font-semibold text-[#252331] bg-transparent outline-none focus:bg-white focus:ring-1 focus:ring-[#B8944E] rounded px-1.5 py-0.5 border border-transparent focus:border-[rgba(74,61,100,0.12)]"
+                                  className="w-full text-xs font-semibold text-[#0F172A] bg-transparent outline-none focus:bg-white focus:ring-1 focus:ring-[#CCA038] rounded px-1.5 py-0.5 border border-transparent focus:border-[rgba(15,23,42,0.12)]"
                                 />
                                 {story.description && (
-                                  <p className="text-[11px] text-[#706C7D] mt-0.5 px-1.5 whitespace-pre-line">
+                                  <p className="text-[11px] text-[#334155] mt-0.5 px-1.5 whitespace-pre-line">
                                     {story.description}
                                   </p>
                                 )}
@@ -671,7 +671,7 @@ export function ConvertNoteModal({
                               <button
                                 type="button"
                                 onClick={() => setPromptStory(story)}
-                                className="inline-flex items-center gap-1 text-[11px] font-medium text-[#80642F] bg-[rgba(184,148,78,0.08)] hover:bg-[rgba(184,148,78,0.16)] px-2 py-1 rounded-lg border border-[rgba(184,148,78,0.18)] transition shrink-0 cursor-pointer"
+                                className="inline-flex items-center gap-1 text-[11px] font-medium text-[#785312] bg-[rgba(204,160,56,0.08)] hover:bg-[rgba(204,160,56,0.16)] px-2 py-1 rounded-lg border border-[rgba(204,160,56,0.18)] transition shrink-0 cursor-pointer"
                                 title="Convert to AI Agent Prompt"
                               >
                                 <Bot size={12} />
@@ -689,7 +689,7 @@ export function ConvertNoteModal({
                                     )
                                   )
                                 }
-                                className="grid h-6 w-6 place-items-center text-[#706C7D] hover:text-[#252331] rounded"
+                                className="grid h-6 w-6 place-items-center text-[#334155] hover:text-[#0F172A] rounded"
                                 title="Toggle criteria"
                               >
                                 {story.isExpanded ? (
@@ -702,27 +702,27 @@ export function ConvertNoteModal({
 
                             {/* Expandable Criteria Checklist */}
                             {story.isExpanded && story.enabled && (
-                              <div className="pl-6 pt-1 border-t border-[rgba(74,61,100,0.06)] space-y-2 text-xs">
-                                <span className="text-[10px] font-bold uppercase tracking-wider text-[#9994A5]">
+                              <div className="pl-6 pt-1 border-t border-[rgba(15,23,42,0.06)] space-y-2 text-xs">
+                                <span className="text-[10px] font-bold uppercase tracking-wider text-[#64748B]">
                                   Acceptance Criteria ({story.acceptanceCriteria.length})
                                 </span>
                                 <ul className="space-y-1">
                                   {story.acceptanceCriteria.map((ac, acIdx) => (
                                     <li
                                       key={acIdx}
-                                      className="flex items-start gap-1.5 text-[11px] text-[#252331]"
+                                      className="flex items-start gap-1.5 text-[11px] text-[#0F172A]"
                                     >
                                       <span className="text-emerald-600 mt-0.5">•</span>
                                       <span className="flex-1">{ac}</span>
                                     </li>
                                   ))}
                                 </ul>
-                                <div className="pt-2 flex items-center justify-between border-t border-[rgba(74,61,100,0.06)] text-[11px]">
-                                  <span className="text-[#706C7D]">Ready for AI agent?</span>
+                                <div className="pt-2 flex items-center justify-between border-t border-[rgba(15,23,42,0.06)] text-[11px]">
+                                  <span className="text-[#334155]">Ready for AI agent?</span>
                                   <button
                                     type="button"
                                     onClick={() => setPromptStory(story)}
-                                    className="inline-flex items-center gap-1 font-semibold text-[#80642F] hover:text-[#B8944E] cursor-pointer"
+                                    className="inline-flex items-center gap-1 font-semibold text-[#785312] hover:text-[#CCA038] cursor-pointer"
                                   >
                                     <Bot size={12} />
                                     <span>Get AI Agent Prompt &rarr;</span>
@@ -741,7 +741,7 @@ export function ConvertNoteModal({
         </div>
 
         {/* Modal Footer */}
-        <div className="pt-4 mt-4 border-t border-[rgba(74,61,100,0.08)] flex items-center justify-between gap-3 shrink-0">
+        <div className="pt-4 mt-4 border-t border-[rgba(15,23,42,0.08)] flex items-center justify-between gap-3 shrink-0">
           <Button
             variant="outline"
             size="md"

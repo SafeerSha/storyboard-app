@@ -211,14 +211,14 @@ export function NoteImageGallery({
       {/* Header bar for Discussion Images */}
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2">
-          <div className="grid h-6 w-6 place-items-center rounded-lg bg-[rgba(184,148,78,0.12)] text-[#80642F]">
+          <div className="grid h-6 w-6 place-items-center rounded-lg bg-[rgba(204,160,56,0.12)] text-[#785312]">
             <ImageIcon size={13} />
           </div>
-          <span className="text-xs font-bold text-[#252331]">
+          <span className="text-xs font-bold text-[#0F172A]">
             Attached Discussion Images
           </span>
           {images.length > 0 && (
-            <span className="rounded-full bg-[rgba(74,61,100,0.08)] px-2 py-0.2 text-[10px] font-semibold text-[#706C7D]">
+            <span className="rounded-full bg-[rgba(15,23,42,0.08)] px-2 py-0.2 text-[10px] font-semibold text-[#334155]">
               {images.length}
             </span>
           )}
@@ -230,7 +230,7 @@ export function NoteImageGallery({
             size="sm"
             leftIcon={
               isUploading ? (
-                <Loader2 size={12} className="animate-spin text-[#B8944E]" />
+                <Loader2 size={12} className="animate-spin text-[#CCA038]" />
               ) : (
                 <Upload size={12} />
               )
@@ -247,8 +247,8 @@ export function NoteImageGallery({
 
       {/* Uploading indicator alert if active */}
       {isUploading && (
-        <div className="rounded-xl border border-[rgba(184,148,78,0.3)] bg-[rgba(184,148,78,0.06)] px-3 py-2 flex items-center gap-2.5 text-xs text-[#80642F] animate-pulse">
-          <Sparkles size={14} className="shrink-0 text-[#B8944E]" />
+        <div className="rounded-xl border border-[rgba(204,160,56,0.3)] bg-[rgba(204,160,56,0.06)] px-3 py-2 flex items-center gap-2.5 text-xs text-[#785312] animate-pulse">
+          <Sparkles size={14} className="shrink-0 text-[#CCA038]" />
           <span className="font-medium">{uploadStatusText}</span>
         </div>
       )}
@@ -264,21 +264,21 @@ export function NoteImageGallery({
           }}
           className={`cursor-pointer rounded-xl border border-dashed transition p-4 sm:p-5 text-center flex flex-col items-center justify-center gap-2 group ${
             isDragging
-              ? "border-[#B8944E] bg-[rgba(184,148,78,0.08)] ring-2 ring-[rgba(184,148,78,0.2)]"
-              : "border-[rgba(74,61,100,0.15)] bg-[#FAF9FC]/60 hover:bg-[#FAF9FC] hover:border-[rgba(74,61,100,0.25)]"
+              ? "border-[#CCA038] bg-[rgba(204,160,56,0.08)] ring-2 ring-[rgba(204,160,56,0.2)]"
+              : "border-[rgba(15,23,42,0.15)] bg-[#F8F9FB]/60 hover:bg-[#F8F9FB] hover:border-[rgba(15,23,42,0.25)]"
           }`}
         >
-          <div className="grid h-9 w-9 place-items-center rounded-xl bg-white text-[#9994A5] group-hover:text-[#80642F] group-hover:bg-[rgba(184,148,78,0.12)] border border-[rgba(74,61,100,0.10)] transition">
+          <div className="grid h-9 w-9 place-items-center rounded-xl bg-white text-[#64748B] group-hover:text-[#785312] group-hover:bg-[rgba(204,160,56,0.12)] border border-[rgba(15,23,42,0.10)] transition">
             <Upload size={16} />
           </div>
           <div>
-            <p className="text-xs font-semibold text-[#252331]">
+            <p className="text-xs font-semibold text-[#0F172A]">
               Attach mockups, diagrams, or meeting screenshots
             </p>
-            <p className="text-[11px] text-[#706C7D]">
+            <p className="text-[11px] text-[#334155]">
               Click to browse, drag & drop, or paste (<kbd className="rounded bg-gray-100 px-1 py-0.5 border text-[10px] font-mono">Ctrl+V</kbd>) inside the editor.
             </p>
-            <p className="text-[10px] text-[#9994A5] pt-0.5">
+            <p className="text-[10px] text-[#64748B] pt-0.5">
               Auto-converted to high-clarity WebP for maximum space savings.
             </p>
           </div>
@@ -289,7 +289,7 @@ export function NoteImageGallery({
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
           className={`grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 p-2 rounded-xl transition ${
-            isDragging ? "bg-[rgba(184,148,78,0.06)] border border-dashed border-[#B8944E]" : ""
+            isDragging ? "bg-[rgba(204,160,56,0.06)] border border-dashed border-[#CCA038]" : ""
           }`}
         >
           {images.map((img) => {
@@ -301,11 +301,11 @@ export function NoteImageGallery({
             return (
               <div
                 key={img.id}
-                className="group relative rounded-xl border border-[rgba(74,61,100,0.10)] bg-white shadow-2xs overflow-hidden flex flex-col transition hover:shadow-xs hover:border-[rgba(184,148,78,0.35)]"
+                className="group relative rounded-xl border border-[rgba(15,23,42,0.10)] bg-white shadow-2xs overflow-hidden flex flex-col transition hover:shadow-xs hover:border-[rgba(204,160,56,0.35)]"
               >
                 {/* Thumbnail Image */}
                 <div
-                  className="relative aspect-[4/3] w-full bg-[#FAF9FC] overflow-hidden cursor-pointer flex items-center justify-center"
+                  className="relative aspect-[4/3] w-full bg-[#F8F9FB] overflow-hidden cursor-pointer flex items-center justify-center"
                   onClick={() => setActivePreviewImage(img)}
                   title="Click to view full resolution"
                 >
@@ -319,7 +319,7 @@ export function NoteImageGallery({
 
                   {/* Hover Overlay with Preview Icon */}
                   <div className="absolute inset-0 bg-black/35 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                    <span className="grid h-7 w-7 place-items-center rounded-full bg-white/90 text-[#252331] shadow-xs">
+                    <span className="grid h-7 w-7 place-items-center rounded-full bg-white/90 text-[#0F172A] shadow-xs">
                       <Maximize2 size={13} />
                     </span>
                   </div>
@@ -346,16 +346,16 @@ export function NoteImageGallery({
                 </div>
 
                 {/* Card Info & Actions Footer */}
-                <div className="p-2 space-y-1 bg-white border-t border-[rgba(74,61,100,0.06)]">
+                <div className="p-2 space-y-1 bg-white border-t border-[rgba(15,23,42,0.06)]">
                   <div className="flex items-center justify-between gap-1">
-                    <p className="text-[11px] font-semibold text-[#252331] truncate" title={img.name}>
+                    <p className="text-[11px] font-semibold text-[#0F172A] truncate" title={img.name}>
                       {img.name}
                     </p>
                   </div>
 
                   {/* Size and savings indicator */}
-                  <div className="flex items-center justify-between text-[10px] text-[#706C7D]">
-                    <span className="font-medium text-[#252331]">
+                  <div className="flex items-center justify-between text-[10px] text-[#334155]">
+                    <span className="font-medium text-[#0F172A]">
                       {formatBytes(img.size)}
                     </span>
                     {savingsPercent > 0 && (
@@ -366,12 +366,12 @@ export function NoteImageGallery({
                   </div>
 
                   {/* Bottom Action Buttons */}
-                  <div className="flex items-center justify-end gap-1 pt-1 border-t border-[rgba(74,61,100,0.04)]">
+                  <div className="flex items-center justify-end gap-1 pt-1 border-t border-[rgba(15,23,42,0.04)]">
                     {onInsertMarkdown && (
                       <button
                         type="button"
                         onClick={() => handleInsertIntoNote(img)}
-                        className="text-[10px] text-[#706C7D] hover:text-[#B8944E] px-1 py-0.5 rounded hover:bg-[#FAF9FC] transition cursor-pointer"
+                        className="text-[10px] text-[#334155] hover:text-[#CCA038] px-1 py-0.5 rounded hover:bg-[#F8F9FB] transition cursor-pointer"
                         title="Insert markdown into note body"
                       >
                         Insert
@@ -381,7 +381,7 @@ export function NoteImageGallery({
                     <button
                       type="button"
                       onClick={() => handleCopyMarkdown(img)}
-                      className="text-[10px] text-[#706C7D] hover:text-[#252331] p-1 rounded hover:bg-[#FAF9FC] transition cursor-pointer"
+                      className="text-[10px] text-[#334155] hover:text-[#0F172A] p-1 rounded hover:bg-[#F8F9FB] transition cursor-pointer"
                       title="Copy Markdown link"
                     >
                       {copiedId === img.id ? (
@@ -394,7 +394,7 @@ export function NoteImageGallery({
                     <button
                       type="button"
                       onClick={() => setDeletingImageId(img.id)}
-                      className="text-[10px] text-[#C25D72] hover:bg-rose-50 p-1 rounded transition cursor-pointer"
+                      className="text-[10px] text-[#E11D48] hover:bg-rose-50 p-1 rounded transition cursor-pointer"
                       title="Delete image"
                     >
                       <Trash2 size={11} />
@@ -410,12 +410,12 @@ export function NoteImageGallery({
             onClick={() => {
               if (!disabled && !isUploading) fileInputRef.current?.click();
             }}
-            className="cursor-pointer rounded-xl border border-dashed border-[rgba(74,61,100,0.15)] bg-[#FAF9FC]/50 hover:bg-[#FAF9FC] hover:border-[rgba(184,148,78,0.3)] transition p-3 flex flex-col items-center justify-center gap-1.5 text-center aspect-[4/3] group"
+            className="cursor-pointer rounded-xl border border-dashed border-[rgba(15,23,42,0.15)] bg-[#F8F9FB]/50 hover:bg-[#F8F9FB] hover:border-[rgba(204,160,56,0.3)] transition p-3 flex flex-col items-center justify-center gap-1.5 text-center aspect-[4/3] group"
           >
-            <div className="grid h-7 w-7 place-items-center rounded-lg bg-white text-[#9994A5] group-hover:text-[#80642F] group-hover:bg-[rgba(184,148,78,0.12)] border border-[rgba(74,61,100,0.08)] transition">
+            <div className="grid h-7 w-7 place-items-center rounded-lg bg-white text-[#64748B] group-hover:text-[#785312] group-hover:bg-[rgba(204,160,56,0.12)] border border-[rgba(15,23,42,0.08)] transition">
               <Upload size={13} />
             </div>
-            <span className="text-[10px] font-semibold text-[#706C7D] group-hover:text-[#252331]">
+            <span className="text-[10px] font-semibold text-[#334155] group-hover:text-[#0F172A]">
               Add More
             </span>
           </div>

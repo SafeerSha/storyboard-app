@@ -405,7 +405,7 @@ export default function InboxItemDetailPage({
                 <span
                   className={`rounded-full px-1.5 py-0.2 text-[10px] font-bold ${
                     activeTab === "insights"
-                      ? "bg-[#B8944E] text-white"
+                      ? "bg-[#CCA038] text-white"
                       : "bg-slate-200 text-slate-700"
                   }`}
                 >

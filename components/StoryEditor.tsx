@@ -336,11 +336,11 @@ export function StoryEditor({
   const renderStatusSelector = () => (
     <div className="space-y-1.5">
       <div className="flex items-center justify-between">
-        <label className="block text-xs font-semibold uppercase tracking-wider text-[#9994A5]">
+        <label className="block text-xs font-semibold uppercase tracking-wider text-[#64748B]">
           Story Status
         </label>
         {savingStatus && (
-          <span className="inline-flex items-center gap-1 text-[11px] text-[#B8944E] font-medium animate-pulse">
+          <span className="inline-flex items-center gap-1 text-[11px] text-[#CCA038] font-medium animate-pulse">
             <Loader2 size={11} className="animate-spin" />
             Saving...
           </span>
@@ -349,10 +349,10 @@ export function StoryEditor({
       {isReadOnly ? (
         <div className="flex items-center gap-2">
           <Badge variant={normalizedStatus} size="sm" />
-          <span className="text-xs text-[#706C7D]">Read-only status</span>
+          <span className="text-xs text-[#334155]">Read-only status</span>
         </div>
       ) : (
-        <div className="inline-flex rounded-xl p-1 bg-[#FAF9FC] border border-[rgba(74,61,100,0.10)] gap-1">
+        <div className="inline-flex rounded-xl p-1 bg-[#F8F9FB] border border-[rgba(15,23,42,0.10)] gap-1">
           <button
             type="button"
             disabled={savingStatus}
@@ -360,10 +360,10 @@ export function StoryEditor({
             className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed ${
               normalizedStatus === "new"
                 ? "bg-white text-sky-700 shadow-xs border border-sky-200/80 ring-1 ring-sky-500/10"
-                : "text-[#706C7D] hover:text-[#252331] hover:bg-white/60"
+                : "text-[#334155] hover:text-[#0F172A] hover:bg-white/60"
             }`}
           >
-            <Sparkles size={12} className={normalizedStatus === "new" ? "text-sky-600" : "text-[#9994A5]"} />
+            <Sparkles size={12} className={normalizedStatus === "new" ? "text-sky-600" : "text-[#64748B]"} />
             <span>New</span>
           </button>
 
@@ -373,11 +373,11 @@ export function StoryEditor({
             onClick={() => handleStatusChange("active")}
             className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed ${
               normalizedStatus === "active"
-                ? "bg-white text-[#80642F] shadow-xs border border-[rgba(184,148,78,0.30)] ring-1 ring-[#B8944E]/15"
-                : "text-[#706C7D] hover:text-[#252331] hover:bg-white/60"
+                ? "bg-gradient-to-b from-[#FEF9EE] to-[#F5EAD4] text-[#785312] shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_1.5px_3px_rgba(120,80,15,0.12)] border border-[#CCA038]/60"
+                : "text-[#334155] hover:text-[#0F172A] hover:bg-white/60"
             }`}
           >
-            <Clock size={12} className={normalizedStatus === "active" ? "text-[#B8944E]" : "text-[#9994A5]"} />
+            <Clock size={12} className={normalizedStatus === "active" ? "text-[#CCA038]" : "text-[#64748B]"} />
             <span>Active</span>
           </button>
 
@@ -387,11 +387,11 @@ export function StoryEditor({
             onClick={() => handleStatusChange("done")}
             className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed ${
               normalizedStatus === "done"
-                ? "bg-white text-[#2E8B70] shadow-xs border border-[rgba(46,139,112,0.30)] ring-1 ring-[#2E8B70]/15"
-                : "text-[#706C7D] hover:text-[#252331] hover:bg-white/60"
+                ? "bg-white text-[#059669] shadow-xs border border-[rgba(5,150,105,0.30)] ring-1 ring-[#059669]/15"
+                : "text-[#334155] hover:text-[#0F172A] hover:bg-white/60"
             }`}
           >
-            <CheckCircle2 size={12} className={normalizedStatus === "done" ? "text-[#2E8B70]" : "text-[#9994A5]"} />
+            <CheckCircle2 size={12} className={normalizedStatus === "done" ? "text-[#059669]" : "text-[#64748B]"} />
             <span>Done</span>
           </button>
         </div>
@@ -402,8 +402,8 @@ export function StoryEditor({
   const renderGitLinks = () => (
     <div className="space-y-3">
       <div>
-        <label className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-[#9994A5] mb-1.5">
-          <GitBranch size={13} className="text-[#80642F]" />
+        <label className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-[#64748B] mb-1.5">
+          <GitBranch size={13} className="text-[#785312]" />
           Feature Branch
         </label>
         {isReadOnly ? (
@@ -412,11 +412,11 @@ export function StoryEditor({
               className="inline-flex max-w-full items-center gap-1.5 rounded-lg border border-zinc-200 bg-zinc-100 px-2.5 py-1.5"
               title={story.feature_branch}
             >
-              <GitBranch size={12} className="shrink-0 text-[#706C7D]" />
-              <span className="truncate font-mono text-xs text-[#252331]">{story.feature_branch}</span>
+              <GitBranch size={12} className="shrink-0 text-[#334155]" />
+              <span className="truncate font-mono text-xs text-[#0F172A]">{story.feature_branch}</span>
             </span>
           ) : (
-            <p className="text-xs text-[#9994A5]">No feature branch linked.</p>
+            <p className="text-xs text-[#64748B]">No feature branch linked.</p>
           )
         ) : (
           <input
@@ -424,14 +424,14 @@ export function StoryEditor({
             value={value.feature_branch || ""}
             onChange={(e) => setValue((v) => ({ ...v, feature_branch: e.target.value }))}
             placeholder="e.g. feature/requirements-hierarchy-toggle"
-            className="h-10 w-full rounded-xl border border-[rgba(74,61,100,0.11)] bg-white px-3.5 font-mono text-xs text-[#252331] placeholder-[#9994A5] placeholder:font-sans outline-none transition focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)]"
+            className="h-10 w-full rounded-xl border border-[rgba(15,23,42,0.11)] bg-white px-3.5 font-mono text-xs text-[#0F172A] placeholder-[#64748B] placeholder:font-sans outline-none transition focus:border-[#CCA038] focus:ring-1 focus:ring-[rgba(204,160,56,0.14)]"
           />
         )}
       </div>
 
       <div>
-        <label className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-[#9994A5] mb-1.5">
-          <GitPullRequest size={13} className="text-[#80642F]" />
+        <label className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-[#64748B] mb-1.5">
+          <GitPullRequest size={13} className="text-[#785312]" />
           Pull Request
         </label>
         {isReadOnly ? (
@@ -448,7 +448,7 @@ export function StoryEditor({
               <ExternalLink size={12} className="shrink-0" />
             </a>
           ) : (
-            <p className="text-xs text-[#9994A5]">No pull request linked.</p>
+            <p className="text-xs text-[#64748B]">No pull request linked.</p>
           )
         ) : (
           <input
@@ -456,7 +456,7 @@ export function StoryEditor({
             value={value.pull_request_url || ""}
             onChange={(e) => setValue((v) => ({ ...v, pull_request_url: e.target.value }))}
             placeholder="https://github.com/org/repo/pull/123"
-            className="h-10 w-full rounded-xl border border-[rgba(74,61,100,0.11)] bg-white px-3.5 text-xs text-[#252331] placeholder-[#9994A5] outline-none transition focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)]"
+            className="h-10 w-full rounded-xl border border-[rgba(15,23,42,0.11)] bg-white px-3.5 text-xs text-[#0F172A] placeholder-[#64748B] outline-none transition focus:border-[#CCA038] focus:ring-1 focus:ring-[rgba(204,160,56,0.14)]"
           />
         )}
       </div>
@@ -464,25 +464,25 @@ export function StoryEditor({
   );
 
   return (
-    <div className="rounded-[18px] border border-[rgba(74,61,100,0.08)] bg-white p-4 sm:p-7 shadow-[0_8px_30px_rgba(70,55,95,0.055)] space-y-5 sm:space-y-6">
+    <div className="rounded-[18px] border border-[rgba(15,23,42,0.08)] bg-white p-4 sm:p-7 shadow-[0_8px_30px_rgba(15,23,42,0.055)] space-y-5 sm:space-y-6">
       {/* Header */}
-      <div className="flex items-start justify-between gap-4 border-b border-[rgba(74,61,100,0.06)] pb-4">
+      <div className="flex items-start justify-between gap-4 border-b border-[rgba(15,23,42,0.06)] pb-4">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2 mb-1">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-[#9994A5]">
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-[#64748B]">
               {assignedEpic ? `${assignedEpic.name}` : "REQUIREMENTS"}
             </span>
             {openFeedbackCount > 0 && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-[rgba(168,121,54,0.08)] px-2 py-0.5 text-[11px] font-semibold text-[#A87936] border border-[rgba(168,121,54,0.16)]">
+              <span className="inline-flex items-center gap-1 rounded-full bg-[rgba(217,119,6,0.08)] px-2 py-0.5 text-[11px] font-semibold text-[#D97706] border border-[rgba(217,119,6,0.16)]">
                 <MessageSquare size={11} />
                 {openFeedbackCount} open feedback
               </span>
             )}
           </div>
-          <h3 className="text-lg font-semibold tracking-tight text-[#252331] truncate">
+          <h3 className="text-lg font-semibold tracking-tight text-[#0F172A] truncate">
             {value.title || "Untitled Story"}
           </h3>
-          <p className="mt-0.5 flex flex-wrap items-center gap-1.5 text-xs text-[#706C7D] font-medium">
+          <p className="mt-0.5 flex flex-wrap items-center gap-1.5 text-xs text-[#334155] font-medium">
             <span>{statusLabel}</span>
             {story.created_by_id && (
               <>
@@ -510,7 +510,7 @@ export function StoryEditor({
             <Button
               variant="outline"
               size="sm"
-              leftIcon={<Bot size={14} className="text-[#80642F]" />}
+              leftIcon={<Bot size={14} className="text-[#785312]" />}
               onClick={() => setAgentPromptOpen(true)}
               title="Convert this story implementation into an AI agent prompt"
             >
@@ -523,7 +523,7 @@ export function StoryEditor({
                 leftIcon={
                   <CheckCircle2
                     size={14}
-                    className={isTeamApproved ? "text-[#2E8B70]" : "text-white"}
+                    className={isTeamApproved ? "text-[#059669]" : "text-white"}
                   />
                 }
                 onClick={() => onApprove(storyId!)}
@@ -562,7 +562,7 @@ export function StoryEditor({
               <button
                 type="button"
                 onClick={() => setTaskModalOpen(true)}
-                className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-[#80642F] bg-[rgba(184,148,78,0.08)] hover:bg-[rgba(184,148,78,0.16)] border border-[rgba(184,148,78,0.20)] transition cursor-pointer shadow-2xs"
+                className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-[#785312] bg-[rgba(204,160,56,0.08)] hover:bg-[rgba(204,160,56,0.16)] border border-[rgba(204,160,56,0.20)] transition cursor-pointer shadow-2xs"
                 title="Create a to-do task against this story"
               >
                 <CheckSquare size={13} />
@@ -572,7 +572,7 @@ export function StoryEditor({
             <button
               type="button"
               onClick={() => setAgentPromptOpen(true)}
-              className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-[#80642F] bg-[rgba(184,148,78,0.08)] hover:bg-[rgba(184,148,78,0.16)] border border-[rgba(184,148,78,0.20)] transition cursor-pointer shadow-2xs"
+              className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-[#785312] bg-[rgba(204,160,56,0.08)] hover:bg-[rgba(204,160,56,0.16)] border border-[rgba(204,160,56,0.20)] transition cursor-pointer shadow-2xs"
               title="Convert to AI Agent Prompt for Cursor, Claude Code, Copilot, Antigravity"
             >
               <Bot size={13} />
@@ -582,7 +582,7 @@ export function StoryEditor({
               type="button"
               onClick={onCancel}
               aria-label="Close story editor"
-              className="grid h-8 w-8 shrink-0 place-items-center rounded-lg text-[#9994A5] hover:bg-[#E9E3F4]/30 hover:text-[#252331] transition"
+              className="grid h-8 w-8 shrink-0 place-items-center rounded-lg text-[#64748B] hover:bg-[#F1F5F9]/30 hover:text-[#0F172A] transition"
             >
               <X size={16} />
             </button>
@@ -609,7 +609,7 @@ export function StoryEditor({
 
             {/* Story Title */}
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-[#9994A5] mb-1.5">
+              <label className="block text-xs font-semibold uppercase tracking-wider text-[#64748B] mb-1.5">
                 Story Title
               </label>
               <input
@@ -617,13 +617,13 @@ export function StoryEditor({
                 value={value.title}
                 onChange={(e) => setValue({ ...value, title: e.target.value })}
                 placeholder="e.g. Manage User Profile"
-                className="h-10 w-full rounded-xl border border-[rgba(74,61,100,0.11)] bg-white px-3.5 text-sm font-medium text-[#252331] placeholder-[#9994A5] outline-none transition focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)]"
+                className="h-10 w-full rounded-xl border border-slate-300/90 bg-white px-3.5 text-sm font-medium text-[#0F172A] placeholder-[#64748B] shadow-2xs outline-none transition focus:border-[#CCA038] focus:ring-2 focus:ring-[#CCA038]/20 focus:shadow-xs"
               />
             </div>
 
             {/* Story Description */}
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-[#9994A5] mb-1.5">
+              <label className="block text-xs font-semibold uppercase tracking-wider text-[#64748B] mb-1.5">
                 Description
               </label>
               <Textarea
@@ -631,7 +631,7 @@ export function StoryEditor({
                 value={value.description}
                 onChange={(e) => setValue({ ...value, description: e.target.value })}
                 placeholder="Describe the user capability and business value..."
-                className="w-full rounded-xl border border-[rgba(74,61,100,0.11)] bg-white p-3 text-sm text-[#252331] placeholder-[#9994A5] outline-none transition focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)]"
+                className="w-full rounded-xl border border-slate-300/90 bg-white p-3 text-sm text-[#0F172A] placeholder-[#64748B] shadow-2xs outline-none transition focus:border-[#CCA038] focus:ring-2 focus:ring-[#CCA038]/20 focus:shadow-xs"
               />
             </div>
 
@@ -639,17 +639,17 @@ export function StoryEditor({
             <section className="space-y-3">
               <div className="flex items-center justify-between gap-3">
                 <div className="min-w-0 flex-1">
-                  <h4 className="text-sm font-semibold text-[#252331] tracking-tight">
+                  <h4 className="text-sm font-semibold text-[#0F172A] tracking-tight">
                     Acceptance Criteria
                   </h4>
-                  <p className="text-xs text-[#706C7D]">
+                  <p className="text-xs text-[#334155]">
                     Precise testable statements for client validation and sign-off.
                   </p>
                 </div>
                 <button
                   type="button"
                   onClick={() => add("acceptance_criteria")}
-                  className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-[#80642F] hover:bg-[rgba(184,148,78,0.08)] transition shrink-0 whitespace-nowrap cursor-pointer"
+                  className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-[#785312] hover:bg-[rgba(204,160,56,0.08)] transition shrink-0 whitespace-nowrap cursor-pointer"
                 >
                   <Plus size={13} />
                   <span>Add criterion</span>
@@ -662,10 +662,10 @@ export function StoryEditor({
                   return (
                     <div
                       key={i}
-                      className="rounded-xl border border-[rgba(74,61,100,0.08)] bg-[#FAF9FC] p-3 transition focus-within:border-[#B8944E] focus-within:bg-white"
+                      className="rounded-xl border border-[rgba(15,23,42,0.08)] bg-[#F8F9FB] p-3 transition focus-within:border-[#CCA038] focus-within:bg-white"
                     >
                       <div className="flex items-start gap-2.5">
-                        <span className="font-mono text-[11px] font-bold text-[#80642F] bg-[rgba(184,148,78,0.10)] border border-[rgba(184,148,78,0.15)] rounded px-1.5 py-0.5 shrink-0 mt-0.5">
+                        <span className="font-mono text-[11px] font-bold text-[#785312] bg-gradient-to-b from-[#FEF9EE] to-[#F5EAD4] border border-[#CCA038]/40 shadow-[inset_0_1px_0_rgba(255,255,255,0.8),0_1px_2px_rgba(120,80,15,0.06)] rounded px-1.5 py-0.5 shrink-0 mt-0.5">
                           {String(i + 1).padStart(2, "0")}
                         </span>
                         <Textarea
@@ -674,13 +674,13 @@ export function StoryEditor({
                           onChange={(e) => updateList("acceptance_criteria", i, e.target.value)}
                           placeholder="Describe specific validation or behavior..."
                           containerClassName="flex-1 min-w-0"
-                          className="w-full text-xs sm:text-sm text-[#252331] placeholder-[#9994A5] bg-transparent outline-none leading-relaxed"
+                          className="w-full text-xs sm:text-sm text-[#0F172A] placeholder-[#64748B] bg-transparent outline-none leading-relaxed"
                           actionSlot={
                             <button
                               type="button"
                               onClick={() => remove("acceptance_criteria", i)}
                               aria-label="Remove criterion"
-                              className="grid h-7 w-7 place-items-center rounded-lg text-[#9994A5] hover:bg-rose-50/80 hover:text-[#C25D72] transition cursor-pointer"
+                              className="grid h-7 w-7 place-items-center rounded-lg text-[#64748B] hover:bg-rose-50/80 hover:text-[#E11D48] transition cursor-pointer"
                             >
                               <Trash2 size={13} />
                             </button>
@@ -727,7 +727,7 @@ export function StoryEditor({
 
             {/* Epic Assignment */}
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-[#9994A5] mb-1.5">
+              <label className="block text-xs font-semibold uppercase tracking-wider text-[#64748B] mb-1.5">
                 Assigned Epic
               </label>
               <select
@@ -735,7 +735,7 @@ export function StoryEditor({
                 onChange={(e) =>
                   setValue({ ...value, epic_id: e.target.value || null })
                 }
-                className="h-10 w-full rounded-xl border border-[rgba(74,61,100,0.11)] bg-white px-3 text-sm text-[#252331] outline-none transition focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)] cursor-pointer"
+                className="h-10 w-full rounded-xl border border-slate-300/90 bg-white px-3 text-sm font-medium text-[#0F172A] shadow-2xs outline-none transition focus:border-[#CCA038] focus:ring-2 focus:ring-[#CCA038]/20 focus:shadow-xs cursor-pointer"
               >
                 <option value="">No Epic assigned (Uncategorized)</option>
                 {epics.map((epic) => (
@@ -745,14 +745,14 @@ export function StoryEditor({
                 ))}
               </select>
               {story.suggestedEpic && !suggestedEpicExists && (
-                <div className="mt-2 flex items-center justify-between gap-2 rounded-lg border border-[rgba(184,148,78,0.15)] bg-[rgba(184,148,78,0.06)] p-2.5 text-xs text-[#80642F]">
+                <div className="mt-2 flex items-center justify-between gap-2 rounded-lg border border-[rgba(204,160,56,0.15)] bg-[rgba(204,160,56,0.06)] p-2.5 text-xs text-[#785312]">
                   <span>
                     Suggested Epic: <strong>{story.suggestedEpic}</strong>
                   </span>
                   <button
                     type="button"
                     onClick={() => onCreateEpic(story.suggestedEpic!)}
-                    className="font-medium text-[#80642F] hover:underline shrink-0"
+                    className="font-medium text-[#785312] hover:underline shrink-0"
                   >
                     + Create Epic
                   </button>
@@ -767,24 +767,24 @@ export function StoryEditor({
             {projectId && (
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-[#9994A5]">
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-[#64748B]">
                     Assigned Reviewers
                   </label>
-                  <span className="text-xs text-[#706C7D]">
+                  <span className="text-xs text-[#334155]">
                     {selectedReviewerIds.length}{" "}
                     {selectedReviewerIds.length === 1 ? "reviewer" : "reviewers"}
                   </span>
                 </div>
-                <p className="text-xs text-[#706C7D]">
+                <p className="text-xs text-[#334155]">
                   Only assigned reviewers can discuss, request changes, and approve this story.
                 </p>
 
                 {canManageReviewers ? (
-                  <div className="rounded-xl border border-[rgba(74,61,100,0.11)] bg-[#FAF9FC] p-3">
+                  <div className="rounded-xl border border-[rgba(15,23,42,0.11)] bg-[#F8F9FB] p-3">
                     {loadingTeam ? (
-                      <p className="text-xs text-[#9994A5]">Loading team members...</p>
+                      <p className="text-xs text-[#64748B]">Loading team members...</p>
                     ) : candidateReviewers.length === 0 ? (
-                      <p className="text-xs text-[#706C7D]">
+                      <p className="text-xs text-[#334155]">
                         No other team members found in this project. Only client or team members verifying this story should be assigned as reviewers.
                       </p>
                     ) : (
@@ -803,8 +803,8 @@ export function StoryEditor({
                                 );
                               }}
                               className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium transition cursor-pointer ${isSelected
-                                  ? "bg-[#80642F] text-white shadow-2xs"
-                                  : "border border-[rgba(74,61,100,0.12)] bg-white text-[#252331] hover:bg-[#FAF9FC]"
+                                  ? "bg-[#785312] text-white shadow-2xs"
+                                  : "border border-[rgba(15,23,42,0.12)] bg-white text-[#0F172A] hover:bg-[#F8F9FB]"
                                 }`}
                             >
                               <span
@@ -833,19 +833,19 @@ export function StoryEditor({
                         return (
                           <span
                             key={rid}
-                            className="inline-flex items-center gap-1.5 rounded-lg border border-[rgba(74,61,100,0.12)] bg-white px-2.5 py-1 text-xs text-[#252331]"
+                            className="inline-flex items-center gap-1.5 rounded-lg border border-[rgba(15,23,42,0.12)] bg-white px-2.5 py-1 text-xs text-[#0F172A]"
                           >
                             <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
                             <span>{tm.name}</span>
                             {tm.username && (
-                              <span className="text-[10px] text-[#706C7D]">(@{tm.username})</span>
+                              <span className="text-[10px] text-[#334155]">(@{tm.username})</span>
                             )}
 
                           </span>
                         );
                       })
                     ) : (
-                      <span className="text-xs text-[#9994A5] italic">No reviewers assigned</span>
+                      <span className="text-xs text-[#64748B] italic">No reviewers assigned</span>
                     )}
                   </div>
                 )}
@@ -854,35 +854,35 @@ export function StoryEditor({
 
             {/* Linked Tasks Against This Story */}
             {storyId && projectId && (
-              <div className="space-y-2.5 rounded-xl border border-[rgba(74,61,100,0.11)] bg-[#FAF9FC] p-3.5">
+              <div className="space-y-2.5 rounded-xl border border-[rgba(15,23,42,0.11)] bg-[#F8F9FB] p-3.5">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <CheckSquare size={14} className="text-[#80642F]" />
-                    <label className="text-xs font-bold uppercase tracking-wider text-[#252331]">
+                    <CheckSquare size={14} className="text-[#785312]" />
+                    <label className="text-xs font-bold uppercase tracking-wider text-[#0F172A]">
                       Story Tasks
                     </label>
-                    <span className="rounded-full bg-[rgba(184,148,78,0.12)] px-2 py-0.2 text-[10px] font-bold text-[#80642F]">
+                    <span className="rounded-full bg-[rgba(204,160,56,0.12)] px-2 py-0.2 text-[10px] font-bold text-[#785312]">
                       {storyTasks.length}
                     </span>
                   </div>
                   <button
                     type="button"
                     onClick={() => setTaskModalOpen(true)}
-                    className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#80642F] hover:underline"
+                    className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#785312] hover:underline"
                   >
                     <Plus size={12} /> Add Task
                   </button>
                 </div>
 
                 {loadingTasks ? (
-                  <p className="text-xs text-[#9994A5]">Loading tasks...</p>
+                  <p className="text-xs text-[#64748B]">Loading tasks...</p>
                 ) : storyTasks.length === 0 ? (
-                  <div className="rounded-lg border border-dashed border-[rgba(74,61,100,0.1)] p-3 text-center">
-                    <p className="text-xs text-[#706C7D]">No tasks created against this story yet.</p>
+                  <div className="rounded-lg border border-dashed border-[rgba(15,23,42,0.1)] p-3 text-center">
+                    <p className="text-xs text-[#334155]">No tasks created against this story yet.</p>
                     <button
                       type="button"
                       onClick={() => setTaskModalOpen(true)}
-                      className="mt-1 text-xs font-semibold text-[#80642F] hover:underline inline-flex items-center gap-1"
+                      className="mt-1 text-xs font-semibold text-[#785312] hover:underline inline-flex items-center gap-1"
                     >
                       <Plus size={11} /> Create first task
                     </button>
@@ -893,19 +893,19 @@ export function StoryEditor({
                       <div
                         key={t.id}
                         onClick={() => setSelectedTaskId(t.id)}
-                        className="rounded-lg border border-[rgba(74,61,100,0.08)] bg-white p-2.5 hover:border-[#B8944E]/40 transition cursor-pointer flex items-center justify-between gap-2"
+                        className="rounded-lg border border-[rgba(15,23,42,0.08)] bg-white p-2.5 hover:border-[#CCA038]/40 transition cursor-pointer flex items-center justify-between gap-2"
                       >
                         <div className="flex flex-col min-w-0">
-                          <span className={`text-xs font-semibold text-[#252331] truncate ${t.status === "done" ? "line-through text-zinc-400" : ""}`}>
+                          <span className={`text-xs font-semibold text-[#0F172A] truncate ${t.status === "done" ? "line-through text-zinc-400" : ""}`}>
                             {t.title}
                           </span>
-                          <span className="text-[10px] text-[#706C7D] flex items-center gap-1.5 mt-0.5">
+                          <span className="text-[10px] text-[#334155] flex items-center gap-1.5 mt-0.5">
                             {t.assignee_name ? (
-                              <span className="font-medium text-[#252331]">
+                              <span className="font-medium text-[#0F172A]">
                                 {t.assignee_name}
                               </span>
                             ) : (
-                              <span className="text-[#9994A5] italic">Unassigned</span>
+                              <span className="text-[#64748B] italic">Unassigned</span>
                             )}
                             {t.due_date && <span>• Due {new Date(t.due_date).toLocaleDateString([], { month: "short", day: "numeric" })}</span>}
                           </span>
@@ -924,17 +924,17 @@ export function StoryEditor({
             <section className="space-y-3 pt-2">
               <div className="flex items-center justify-between gap-3">
                 <div className="min-w-0 flex-1">
-                  <h4 className="text-sm font-semibold text-[#252331] tracking-tight">
+                  <h4 className="text-sm font-semibold text-[#0F172A] tracking-tight">
                     Assumptions
                   </h4>
-                  <p className="text-xs text-[#706C7D]">
+                  <p className="text-xs text-[#334155]">
                     Underlying technical or product expectations.
                   </p>
                 </div>
                 <button
                   type="button"
                   onClick={() => add("assumptions")}
-                  className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-[#80642F] hover:bg-[rgba(184,148,78,0.08)] transition shrink-0 whitespace-nowrap cursor-pointer"
+                  className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-[#785312] hover:bg-[rgba(204,160,56,0.08)] transition shrink-0 whitespace-nowrap cursor-pointer"
                 >
                   <Plus size={13} />
                   <span>Add assumption</span>
@@ -947,24 +947,24 @@ export function StoryEditor({
                   return (
                     <div
                       key={i}
-                      className="rounded-xl border border-[rgba(74,61,100,0.08)] bg-[#FAF9FC] p-2.5 transition focus-within:border-[#B8944E] focus-within:bg-white"
+                      className="rounded-xl border border-[rgba(15,23,42,0.08)] bg-[#F8F9FB] p-2.5 transition focus-within:border-[#CCA038] focus-within:bg-white"
                     >
                       <div className="flex items-start gap-2">
-                        <span className="text-[#9994A5] font-bold text-sm shrink-0 mt-0.5">•</span>
+                        <span className="text-[#64748B] font-bold text-sm shrink-0 mt-0.5">•</span>
                         <Textarea
                           rows={1}
                           value={item}
                           onChange={(e) => updateList("assumptions", i, e.target.value)}
                           placeholder="e.g. Users already have an account."
                           containerClassName="flex-1 min-w-0"
-                          className="w-full text-xs sm:text-sm text-[#252331] placeholder-[#9994A5] bg-transparent outline-none leading-relaxed"
+                          className="w-full text-xs sm:text-sm text-[#0F172A] placeholder-[#64748B] bg-transparent outline-none leading-relaxed"
                           actionSize="sm"
                           actionSlot={
                             <button
                               type="button"
                               onClick={() => remove("assumptions", i)}
                               aria-label="Remove assumption"
-                              className="grid h-6 w-6 place-items-center rounded text-[#9994A5] hover:bg-rose-50/80 hover:text-[#C25D72] transition cursor-pointer"
+                              className="grid h-6 w-6 place-items-center rounded text-[#64748B] hover:bg-rose-50/80 hover:text-[#E11D48] transition cursor-pointer"
                             >
                               <Trash2 size={12} />
                             </button>
@@ -1007,17 +1007,17 @@ export function StoryEditor({
             <section className="space-y-3 pt-2">
               <div className="flex items-center justify-between gap-3">
                 <div className="min-w-0 flex-1">
-                  <h4 className="text-sm font-semibold text-[#252331] tracking-tight">
+                  <h4 className="text-sm font-semibold text-[#0F172A] tracking-tight">
                     Clarifications & Open Questions
                   </h4>
-                  <p className="text-xs text-[#706C7D]">
+                  <p className="text-xs text-[#334155]">
                     Questions awaiting client answers or team decisions.
                   </p>
                 </div>
                 <button
                   type="button"
                   onClick={() => add("clarifications")}
-                  className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-[#A87936] hover:bg-[rgba(168,121,54,0.08)] transition shrink-0 whitespace-nowrap cursor-pointer"
+                  className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-[#D97706] hover:bg-[rgba(217,119,6,0.08)] transition shrink-0 whitespace-nowrap cursor-pointer"
                 >
                   <Plus size={13} />
                   <span>Add clarification</span>
@@ -1030,24 +1030,24 @@ export function StoryEditor({
                   return (
                     <div
                       key={i}
-                      className="rounded-xl border border-[rgba(168,121,54,0.16)] bg-[rgba(168,121,54,0.04)] p-2.5 transition focus-within:border-[#A87936] focus-within:bg-white"
+                      className="rounded-xl border border-[rgba(217,119,6,0.16)] bg-[rgba(217,119,6,0.04)] p-2.5 transition focus-within:border-[#D97706] focus-within:bg-white"
                     >
                       <div className="flex items-start gap-2">
-                        <HelpCircle size={14} className="text-[#A87936] shrink-0 mt-1" />
+                        <HelpCircle size={14} className="text-[#D97706] shrink-0 mt-1" />
                         <Textarea
                           rows={1}
                           value={item}
                           onChange={(e) => updateList("clarifications", i, e.target.value)}
                           placeholder="e.g. Should email changes require verification?"
                           containerClassName="flex-1 min-w-0"
-                          className="w-full text-xs sm:text-sm text-[#252331] placeholder-[#9994A5] bg-transparent outline-none leading-relaxed"
+                          className="w-full text-xs sm:text-sm text-[#0F172A] placeholder-[#64748B] bg-transparent outline-none leading-relaxed"
                           actionSize="sm"
                           actionSlot={
                             <button
                               type="button"
                               onClick={() => remove("clarifications", i)}
                               aria-label="Remove clarification"
-                              className="grid h-6 w-6 place-items-center rounded text-[#9994A5] hover:bg-rose-50/80 hover:text-[#C25D72] transition cursor-pointer"
+                              className="grid h-6 w-6 place-items-center rounded text-[#64748B] hover:bg-rose-50/80 hover:text-[#E11D48] transition cursor-pointer"
                             >
                               <Trash2 size={12} />
                             </button>
@@ -1089,11 +1089,11 @@ export function StoryEditor({
 
             {/* General Story Feedback section */}
             {storyId && (
-              <div className="rounded-xl border border-[rgba(74,61,100,0.08)] bg-[#FAF9FC] p-4">
-                <h4 className="text-xs font-semibold uppercase tracking-wider text-[#252331] mb-1">
+              <div className="rounded-xl border border-[rgba(15,23,42,0.08)] bg-[#F8F9FB] p-4">
+                <h4 className="text-xs font-semibold uppercase tracking-wider text-[#0F172A] mb-1">
                   General Feedback & Story Discussion
                 </h4>
-                <p className="text-xs text-[#706C7D] mb-2">
+                <p className="text-xs text-[#334155] mb-2">
                   Non-point specific collaboration or broad change requests.
                 </p>
                 <ContextualFeedbackThread
@@ -1140,7 +1140,7 @@ export function StoryEditor({
 
           {/* Epic Assignment */}
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-[#9994A5] mb-1.5">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-[#64748B] mb-1.5">
               Assigned Epic
             </label>
             <select
@@ -1148,7 +1148,7 @@ export function StoryEditor({
               onChange={(e) =>
                 setValue({ ...value, epic_id: e.target.value || null })
               }
-              className="h-10 w-full rounded-xl border border-[rgba(74,61,100,0.11)] bg-white px-3 text-sm text-[#252331] outline-none transition focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)] cursor-pointer"
+              className="h-10 w-full rounded-xl border border-slate-300/90 bg-white px-3 text-sm font-medium text-[#0F172A] shadow-2xs outline-none transition focus:border-[#CCA038] focus:ring-2 focus:ring-[#CCA038]/20 focus:shadow-xs cursor-pointer"
             >
               <option value="">No Epic assigned (Uncategorized)</option>
               {epics.map((epic) => (
@@ -1158,14 +1158,14 @@ export function StoryEditor({
               ))}
             </select>
             {story.suggestedEpic && !suggestedEpicExists && (
-              <div className="mt-2 flex items-center justify-between gap-2 rounded-lg border border-[rgba(184,148,78,0.15)] bg-[rgba(184,148,78,0.06)] p-2.5 text-xs text-[#80642F]">
+              <div className="mt-2 flex items-center justify-between gap-2 rounded-lg border border-[rgba(204,160,56,0.15)] bg-[rgba(204,160,56,0.06)] p-2.5 text-xs text-[#785312]">
                 <span>
                   Suggested Epic: <strong>{story.suggestedEpic}</strong>
                 </span>
                 <button
                   type="button"
                   onClick={() => onCreateEpic(story.suggestedEpic!)}
-                  className="font-medium text-[#80642F] hover:underline shrink-0"
+                  className="font-medium text-[#785312] hover:underline shrink-0"
                 >
                   + Create Epic
                 </button>
@@ -1175,7 +1175,7 @@ export function StoryEditor({
 
           {/* Story Title */}
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-[#9994A5] mb-1.5">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-[#64748B] mb-1.5">
               Story Title
             </label>
             <input
@@ -1183,13 +1183,13 @@ export function StoryEditor({
               value={value.title}
               onChange={(e) => setValue({ ...value, title: e.target.value })}
               placeholder="e.g. Manage User Profile"
-              className="h-10 w-full rounded-xl border border-[rgba(74,61,100,0.11)] bg-white px-3.5 text-sm font-medium text-[#252331] placeholder-[#9994A5] outline-none transition focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)]"
+              className="h-10 w-full rounded-xl border border-slate-300/90 bg-white px-3.5 text-sm font-medium text-[#0F172A] placeholder-[#64748B] shadow-2xs outline-none transition focus:border-[#CCA038] focus:ring-2 focus:ring-[#CCA038]/20 focus:shadow-xs"
             />
           </div>
 
           {/* Story Description */}
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-[#9994A5] mb-1.5">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-[#64748B] mb-1.5">
               Description
             </label>
             <Textarea
@@ -1197,7 +1197,7 @@ export function StoryEditor({
               value={value.description}
               onChange={(e) => setValue({ ...value, description: e.target.value })}
               placeholder="Describe the user capability and business value..."
-              className="w-full rounded-xl border border-[rgba(74,61,100,0.11)] bg-white p-3 text-sm text-[#252331] placeholder-[#9994A5] outline-none transition focus:border-[#B8944E] focus:ring-1 focus:ring-[rgba(184,148,78,0.14)]"
+              className="w-full rounded-xl border border-slate-300/90 bg-white p-3 text-sm text-[#0F172A] placeholder-[#64748B] shadow-2xs outline-none transition focus:border-[#CCA038] focus:ring-2 focus:ring-[#CCA038]/20 focus:shadow-xs"
             />
           </div>
 
@@ -1205,24 +1205,24 @@ export function StoryEditor({
           {projectId && (
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <label className="block text-xs font-semibold uppercase tracking-wider text-[#9994A5]">
+                <label className="block text-xs font-semibold uppercase tracking-wider text-[#64748B]">
                   Assigned Reviewers
                 </label>
-                <span className="text-xs text-[#706C7D]">
+                <span className="text-xs text-[#334155]">
                   {selectedReviewerIds.length}{" "}
                   {selectedReviewerIds.length === 1 ? "reviewer" : "reviewers"}
                 </span>
               </div>
-              <p className="text-xs text-[#706C7D]">
+              <p className="text-xs text-[#334155]">
                 Only assigned reviewers can discuss, request changes, and approve this story.
               </p>
 
               {canManageReviewers ? (
-                <div className="rounded-xl border border-[rgba(74,61,100,0.11)] bg-[#FAF9FC] p-3">
+                <div className="rounded-xl border border-[rgba(15,23,42,0.11)] bg-[#F8F9FB] p-3">
                   {loadingTeam ? (
-                    <p className="text-xs text-[#9994A5]">Loading team members...</p>
+                    <p className="text-xs text-[#64748B]">Loading team members...</p>
                   ) : candidateReviewers.length === 0 ? (
-                    <p className="text-xs text-[#706C7D]">
+                    <p className="text-xs text-[#334155]">
                       No other team members found in this project. Only client or team members verifying this story should be assigned as reviewers.
                     </p>
                   ) : (
@@ -1241,8 +1241,8 @@ export function StoryEditor({
                               );
                             }}
                             className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium transition cursor-pointer ${isSelected
-                                ? "bg-[#80642F] text-white shadow-2xs"
-                                : "border border-[rgba(74,61,100,0.12)] bg-white text-[#252331] hover:bg-[#FAF9FC]"
+                                ? "bg-[#785312] text-white shadow-2xs"
+                                : "border border-[rgba(15,23,42,0.12)] bg-white text-[#0F172A] hover:bg-[#F8F9FB]"
                               }`}
                           >
                             <span
@@ -1280,12 +1280,12 @@ export function StoryEditor({
                       return (
                         <span
                           key={rid}
-                          className="inline-flex items-center gap-1.5 rounded-lg border border-[rgba(74,61,100,0.12)] bg-white px-2.5 py-1 text-xs text-[#252331]"
+                          className="inline-flex items-center gap-1.5 rounded-lg border border-[rgba(15,23,42,0.12)] bg-white px-2.5 py-1 text-xs text-[#0F172A]"
                         >
                           <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
                           <span>{tm.name}</span>
                           {tm.username && (
-                            <span className="text-[10px] text-[#706C7D]">(@{tm.username})</span>
+                            <span className="text-[10px] text-[#334155]">(@{tm.username})</span>
                           )}
                           {tm.role && tm.role !== "member" && (
                             <span className="rounded bg-zinc-100 px-1.5 py-0.5 text-[9px] uppercase tracking-wider font-semibold text-zinc-600 border border-zinc-200">
@@ -1296,29 +1296,29 @@ export function StoryEditor({
                       );
                     })
                   ) : (
-                    <span className="text-xs text-[#9994A5] italic">No reviewers assigned</span>
+                    <span className="text-xs text-[#64748B] italic">No reviewers assigned</span>
                   )}
                 </div>
               )}
             </div>
           )}
 
-          <div className="border-t border-[rgba(74,61,100,0.06)] my-4" />
+          <div className="border-t border-[rgba(15,23,42,0.06)] my-4" />
           {/* 1. Acceptance Criteria */}
           <section className="space-y-3">
             <div className="flex items-center justify-between gap-3">
               <div className="min-w-0 flex-1">
-                <h4 className="text-sm font-semibold text-[#252331] tracking-tight">
+                <h4 className="text-sm font-semibold text-[#0F172A] tracking-tight">
                   Acceptance Criteria
                 </h4>
-                <p className="text-xs text-[#706C7D]">
+                <p className="text-xs text-[#334155]">
                   Precise testable statements for client validation and sign-off.
                 </p>
               </div>
               <button
                 type="button"
                 onClick={() => add("acceptance_criteria")}
-                className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-[#80642F] hover:bg-[rgba(184,148,78,0.08)] transition shrink-0 whitespace-nowrap cursor-pointer"
+                className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-[#785312] hover:bg-[rgba(204,160,56,0.08)] transition shrink-0 whitespace-nowrap cursor-pointer"
               >
                 <Plus size={13} />
                 <span>Add criterion</span>
@@ -1331,10 +1331,10 @@ export function StoryEditor({
                 return (
                   <div
                     key={i}
-                    className="rounded-xl border border-[rgba(74,61,100,0.08)] bg-[#FAF9FC] p-3 transition focus-within:border-[#B8944E] focus-within:bg-white"
+                    className="rounded-xl border border-[rgba(15,23,42,0.08)] bg-[#F8F9FB] p-3 transition focus-within:border-[#CCA038] focus-within:bg-white"
                   >
                     <div className="flex items-start gap-2.5">
-                      <span className="font-mono text-[11px] font-bold text-[#80642F] bg-[rgba(184,148,78,0.10)] border border-[rgba(184,148,78,0.15)] rounded px-1.5 py-0.5 shrink-0 mt-0.5">
+                      <span className="font-mono text-[11px] font-bold text-[#785312] bg-gradient-to-b from-[#FEF9EE] to-[#F5EAD4] border border-[#CCA038]/40 shadow-[inset_0_1px_0_rgba(255,255,255,0.8),0_1px_2px_rgba(120,80,15,0.06)] rounded px-1.5 py-0.5 shrink-0 mt-0.5">
                         {String(i + 1).padStart(2, "0")}
                       </span>
                       <Textarea
@@ -1343,13 +1343,13 @@ export function StoryEditor({
                         onChange={(e) => updateList("acceptance_criteria", i, e.target.value)}
                         placeholder="Describe specific validation or behavior..."
                         containerClassName="flex-1 min-w-0"
-                        className="w-full text-xs sm:text-sm text-[#252331] placeholder-[#9994A5] bg-transparent outline-none leading-relaxed"
+                        className="w-full text-xs sm:text-sm text-[#0F172A] placeholder-[#64748B] bg-transparent outline-none leading-relaxed"
                         actionSlot={
                           <button
                             type="button"
                             onClick={() => remove("acceptance_criteria", i)}
                             aria-label="Remove criterion"
-                            className="grid h-7 w-7 place-items-center rounded-lg text-[#9994A5] hover:bg-rose-50/80 hover:text-[#C25D72] transition cursor-pointer"
+                            className="grid h-7 w-7 place-items-center rounded-lg text-[#64748B] hover:bg-rose-50/80 hover:text-[#E11D48] transition cursor-pointer"
                           >
                             <Trash2 size={13} />
                           </button>
@@ -1393,17 +1393,17 @@ export function StoryEditor({
           <section className="space-y-3 pt-2">
             <div className="flex items-center justify-between gap-3">
               <div className="min-w-0 flex-1">
-                <h4 className="text-sm font-semibold text-[#252331] tracking-tight">
+                <h4 className="text-sm font-semibold text-[#0F172A] tracking-tight">
                   Assumptions
                 </h4>
-                <p className="text-xs text-[#706C7D]">
+                <p className="text-xs text-[#334155]">
                   Underlying technical or product expectations.
                 </p>
               </div>
               <button
                 type="button"
                 onClick={() => add("assumptions")}
-                className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-[#80642F] hover:bg-[rgba(184,148,78,0.08)] transition shrink-0 whitespace-nowrap cursor-pointer"
+                className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-[#785312] hover:bg-[rgba(204,160,56,0.08)] transition shrink-0 whitespace-nowrap cursor-pointer"
               >
                 <Plus size={13} />
                 <span>Add assumption</span>
@@ -1416,24 +1416,24 @@ export function StoryEditor({
                 return (
                   <div
                     key={i}
-                    className="rounded-xl border border-[rgba(74,61,100,0.08)] bg-[#FAF9FC] p-2.5 transition focus-within:border-[#B8944E] focus-within:bg-white"
+                    className="rounded-xl border border-[rgba(15,23,42,0.08)] bg-[#F8F9FB] p-2.5 transition focus-within:border-[#CCA038] focus-within:bg-white"
                   >
                     <div className="flex items-start gap-2">
-                      <span className="text-[#9994A5] font-bold text-sm shrink-0 mt-0.5">•</span>
+                      <span className="text-[#64748B] font-bold text-sm shrink-0 mt-0.5">•</span>
                       <Textarea
                         rows={1}
                         value={item}
                         onChange={(e) => updateList("assumptions", i, e.target.value)}
                         placeholder="e.g. Users already have an account."
                         containerClassName="flex-1 min-w-0"
-                        className="w-full text-xs sm:text-sm text-[#252331] placeholder-[#9994A5] bg-transparent outline-none leading-relaxed"
+                        className="w-full text-xs sm:text-sm text-[#0F172A] placeholder-[#64748B] bg-transparent outline-none leading-relaxed"
                         actionSize="sm"
                         actionSlot={
                           <button
                             type="button"
                             onClick={() => remove("assumptions", i)}
                             aria-label="Remove assumption"
-                            className="grid h-6 w-6 place-items-center rounded text-[#9994A5] hover:bg-rose-50/80 hover:text-[#C25D72] transition cursor-pointer"
+                            className="grid h-6 w-6 place-items-center rounded text-[#64748B] hover:bg-rose-50/80 hover:text-[#E11D48] transition cursor-pointer"
                           >
                             <Trash2 size={12} />
                           </button>
@@ -1476,17 +1476,17 @@ export function StoryEditor({
           <section className="space-y-3 pt-2">
             <div className="flex items-center justify-between gap-3">
               <div className="min-w-0 flex-1">
-                <h4 className="text-sm font-semibold text-[#252331] tracking-tight">
+                <h4 className="text-sm font-semibold text-[#0F172A] tracking-tight">
                   Clarifications & Open Questions
                 </h4>
-                <p className="text-xs text-[#706C7D]">
+                <p className="text-xs text-[#334155]">
                   Questions awaiting client answers or team decisions.
                 </p>
               </div>
               <button
                 type="button"
                 onClick={() => add("clarifications")}
-                className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-[#A87936] hover:bg-[rgba(168,121,54,0.08)] transition shrink-0 whitespace-nowrap cursor-pointer"
+                className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-[#D97706] hover:bg-[rgba(217,119,6,0.08)] transition shrink-0 whitespace-nowrap cursor-pointer"
               >
                 <Plus size={13} />
                 <span>Add clarification</span>
@@ -1499,24 +1499,24 @@ export function StoryEditor({
                 return (
                   <div
                     key={i}
-                    className="rounded-xl border border-[rgba(168,121,54,0.16)] bg-[rgba(168,121,54,0.04)] p-2.5 transition focus-within:border-[#A87936] focus-within:bg-white"
+                    className="rounded-xl border border-[rgba(217,119,6,0.16)] bg-[rgba(217,119,6,0.04)] p-2.5 transition focus-within:border-[#D97706] focus-within:bg-white"
                   >
                     <div className="flex items-start gap-2">
-                      <HelpCircle size={14} className="text-[#A87936] shrink-0 mt-1" />
+                      <HelpCircle size={14} className="text-[#D97706] shrink-0 mt-1" />
                       <Textarea
                         rows={1}
                         value={item}
                         onChange={(e) => updateList("clarifications", i, e.target.value)}
                         placeholder="e.g. Should email changes require verification?"
                         containerClassName="flex-1 min-w-0"
-                        className="w-full text-xs sm:text-sm text-[#252331] placeholder-[#9994A5] bg-transparent outline-none leading-relaxed"
+                        className="w-full text-xs sm:text-sm text-[#0F172A] placeholder-[#64748B] bg-transparent outline-none leading-relaxed"
                         actionSize="sm"
                         actionSlot={
                           <button
                             type="button"
                             onClick={() => remove("clarifications", i)}
                             aria-label="Remove clarification"
-                            className="grid h-6 w-6 place-items-center rounded text-[#9994A5] hover:bg-rose-50/80 hover:text-[#C25D72] transition cursor-pointer"
+                            className="grid h-6 w-6 place-items-center rounded text-[#64748B] hover:bg-rose-50/80 hover:text-[#E11D48] transition cursor-pointer"
                           >
                             <Trash2 size={12} />
                           </button>
@@ -1558,11 +1558,11 @@ export function StoryEditor({
 
           {/* General Story Feedback section */}
           {storyId && (
-            <div className="rounded-xl border border-[rgba(74,61,100,0.08)] bg-[#FAF9FC] p-4">
-              <h4 className="text-xs font-semibold uppercase tracking-wider text-[#252331] mb-1">
+            <div className="rounded-xl border border-[rgba(15,23,42,0.08)] bg-[#F8F9FB] p-4">
+              <h4 className="text-xs font-semibold uppercase tracking-wider text-[#0F172A] mb-1">
                 General Feedback & Story Discussion
               </h4>
-              <p className="text-xs text-[#706C7D] mb-2">
+              <p className="text-xs text-[#334155] mb-2">
                 Non-point specific collaboration or broad change requests.
               </p>
               <ContextualFeedbackThread
@@ -1594,7 +1594,7 @@ export function StoryEditor({
 
       {/* Action Footer */}
       {layout === "sidebar" && (
-        <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-3 border-t border-[rgba(74,61,100,0.06)] pt-5">
+        <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-3 border-t border-[rgba(15,23,42,0.06)] pt-5">
           <div className="flex items-center gap-2">
             {onDelete && (
               <Button
@@ -1613,7 +1613,7 @@ export function StoryEditor({
                 leftIcon={
                   <CheckCircle2
                     size={14}
-                    className={isTeamApproved ? "text-[#2E8B70]" : "text-white"}
+                    className={isTeamApproved ? "text-[#059669]" : "text-white"}
                   />
                 }
                 onClick={() => onApprove(storyId!)}

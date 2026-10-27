@@ -104,10 +104,10 @@ export function TeamMemberRemunerationTab({
 
   if (loading) {
     return (
-      <div className="rounded-2xl border border-[rgba(74,61,100,0.08)] bg-white/80 p-12 text-center shadow-xs">
-        <Loader2 size={24} className="animate-spin text-[#B8944E] mx-auto mb-3" />
-        <p className="text-xs font-semibold text-[#252331]">Loading your remuneration ledger...</p>
-        <p className="text-[11px] text-[#706C7D] mt-0.5">Fetching your personal allocation and disbursement records</p>
+      <div className="rounded-2xl border border-[rgba(15,23,42,0.08)] bg-white/80 p-12 text-center shadow-xs">
+        <Loader2 size={24} className="animate-spin text-[#CCA038] mx-auto mb-3" />
+        <p className="text-xs font-semibold text-[#0F172A]">Loading your remuneration ledger...</p>
+        <p className="text-[11px] text-[#334155] mt-0.5">Fetching your personal allocation and disbursement records</p>
       </div>
     );
   }
@@ -134,16 +134,16 @@ export function TeamMemberRemunerationTab({
   return (
     <div className="space-y-6 animate-in fade-in duration-200">
       {/* ── Top Header Explainer ── */}
-      <div className="rounded-2xl border border-[rgba(74,61,100,0.08)] bg-white/88 p-4 sm:p-5 shadow-2xs backdrop-blur-md flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div className="rounded-2xl border border-[rgba(15,23,42,0.08)] bg-white/88 p-4 sm:p-5 shadow-2xs backdrop-blur-md flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[rgba(184,148,78,0.12)] text-[#80642F] border border-[rgba(184,148,78,0.2)]">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[rgba(204,160,56,0.12)] text-[#785312] border border-[rgba(204,160,56,0.2)]">
             <Wallet size={20} />
           </div>
           <div>
-            <h3 className="text-sm sm:text-base font-bold text-[#252331] leading-tight">
+            <h3 className="text-sm sm:text-base font-bold text-[#0F172A] leading-tight">
               My Remuneration & Payouts
             </h3>
-            <p className="text-xs text-[#706C7D]">
+            <p className="text-xs text-[#334155]">
               Your personal fee agreement, payments received, and remaining pending balance for {projectName}.
             </p>
           </div>
@@ -168,25 +168,25 @@ export function TeamMemberRemunerationTab({
       {/* ── Financial KPI Metrics (Scoped strictly to logged in member) ── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {/* 1. My Agreed Fee / Allocation */}
-        <div className="rounded-xl border border-[rgba(74,61,100,0.08)] bg-white/95 p-4 shadow-2xs">
+        <div className="rounded-xl border border-[rgba(15,23,42,0.08)] bg-white/95 p-4 shadow-2xs">
           <div className="flex items-center justify-between mb-1.5">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-[#9994A5]">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-[#64748B]">
               My Agreed Fee
             </span>
-            <div className="h-6 w-6 rounded-md bg-[rgba(184,148,78,0.10)] flex items-center justify-center text-[#80642F]">
+            <div className="h-6 w-6 rounded-md bg-[rgba(204,160,56,0.10)] flex items-center justify-center text-[#785312]">
               <BadgeDollarSign size={14} />
             </div>
           </div>
-          <p className="text-xl sm:text-2xl font-extrabold text-[#252331] tracking-tight">
+          <p className="text-xl sm:text-2xl font-extrabold text-[#0F172A] tracking-tight">
             {formatCurrency(allocatedAmount, currency)}
           </p>
-          <div className="mt-1 text-[11px] text-[#706C7D] font-medium flex items-center justify-between">
+          <div className="mt-1 text-[11px] text-[#334155] font-medium flex items-center justify-between">
             <span>
               {hasSplit ? (
                 data?.allocatedPercentage ? (
-                  <span className="text-[#80642F] font-semibold">{data.allocatedPercentage}% Project Split</span>
+                  <span className="text-[#785312] font-semibold">{data.allocatedPercentage}% Project Split</span>
                 ) : (
-                  <span className="text-[#80642F] font-semibold">Fixed Fee Allocation</span>
+                  <span className="text-[#785312] font-semibold">Fixed Fee Allocation</span>
                 )
               ) : (
                 <span className="text-zinc-500 italic">Not set by admin</span>
@@ -237,12 +237,12 @@ export function TeamMemberRemunerationTab({
         </div>
 
         {/* 4. Settlement Status */}
-        <div className="rounded-xl border border-[rgba(74,61,100,0.08)] bg-white/95 p-4 shadow-2xs">
+        <div className="rounded-xl border border-[rgba(15,23,42,0.08)] bg-white/95 p-4 shadow-2xs">
           <div className="flex items-center justify-between mb-1.5">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-[#9994A5]">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-[#64748B]">
               Settlement Status
             </span>
-            <div className="h-6 w-6 rounded-md bg-[#FAF9FC] border border-[rgba(74,61,100,0.1)] flex items-center justify-center text-[#706C7D]">
+            <div className="h-6 w-6 rounded-md bg-[#F8F9FB] border border-[rgba(15,23,42,0.1)] flex items-center justify-center text-[#334155]">
               <Receipt size={14} />
             </div>
           </div>
@@ -269,24 +269,24 @@ export function TeamMemberRemunerationTab({
               </span>
             )}
           </div>
-          <p className="mt-2 text-[10px] text-[#706C7D] truncate">
-            Role: <strong className="text-[#252331] capitalize">{data?.member.role || "Team Member"}</strong>
+          <p className="mt-2 text-[10px] text-[#334155] truncate">
+            Role: <strong className="text-[#0F172A] capitalize">{data?.member.role || "Team Member"}</strong>
           </p>
         </div>
       </div>
 
       {/* ── Progress Bar ── */}
       {allocatedAmount > 0 && (
-        <div className="rounded-xl border border-[rgba(74,61,100,0.08)] bg-white/90 p-4 shadow-2xs space-y-2">
+        <div className="rounded-xl border border-[rgba(15,23,42,0.08)] bg-white/90 p-4 shadow-2xs space-y-2">
           <div className="flex items-center justify-between text-xs">
-            <span className="font-semibold text-[#252331]">Payout Progress</span>
-            <span className="font-bold text-[#80642F]">
+            <span className="font-semibold text-[#0F172A]">Payout Progress</span>
+            <span className="font-bold text-[#785312]">
               {formatCurrency(totalPaid, currency)} of {formatCurrency(allocatedAmount, currency)} ({progressPercent}%)
             </span>
           </div>
-          <div className="relative h-2.5 w-full rounded-full bg-[rgba(74,61,100,0.08)] overflow-hidden">
+          <div className="relative h-2.5 w-full rounded-full bg-[rgba(15,23,42,0.08)] overflow-hidden">
             <div
-              className="h-full bg-gradient-to-r from-[#B8944E] to-emerald-500 rounded-full transition-all duration-500 ease-out"
+              className="h-full bg-gradient-to-r from-[#CCA038] to-emerald-500 rounded-full transition-all duration-500 ease-out"
               style={{ width: `${progressPercent}%` }}
             />
           </div>
@@ -307,15 +307,15 @@ export function TeamMemberRemunerationTab({
       )}
 
       {/* ── Disbursements Ledger Table ── */}
-      <div className="rounded-2xl border border-[rgba(74,61,100,0.08)] bg-white/95 p-4 sm:p-5 shadow-sm space-y-4">
-        <div className="flex items-center justify-between border-b border-[rgba(74,61,100,0.08)] pb-3">
+      <div className="rounded-2xl border border-[rgba(15,23,42,0.08)] bg-white/95 p-4 sm:p-5 shadow-sm space-y-4">
+        <div className="flex items-center justify-between border-b border-[rgba(15,23,42,0.08)] pb-3">
           <div>
-            <h4 className="text-sm font-bold text-[#252331]">Payment Disbursements to Me</h4>
-            <p className="text-xs text-[#706C7D]">
+            <h4 className="text-sm font-bold text-[#0F172A]">Payment Disbursements to Me</h4>
+            <p className="text-xs text-[#334155]">
               Record of actual payouts made to your account against project milestones.
             </p>
           </div>
-          <span className="rounded-full bg-[rgba(184,148,78,0.12)] px-2.5 py-0.5 text-xs font-bold text-[#80642F]">
+          <span className="rounded-full bg-[rgba(204,160,56,0.12)] px-2.5 py-0.5 text-xs font-bold text-[#785312]">
             {disbursements.length} {disbursements.length === 1 ? "Disbursement" : "Disbursements"}
           </span>
         </div>
@@ -325,17 +325,17 @@ export function TeamMemberRemunerationTab({
             <div className="h-10 w-10 rounded-xl bg-zinc-100 flex items-center justify-center text-zinc-400 mx-auto">
               <Receipt size={18} />
             </div>
-            <p className="text-xs font-bold text-[#252331]">No payments disbursed yet</p>
-            <p className="text-[11px] text-[#706C7D] max-w-sm mx-auto">
+            <p className="text-xs font-bold text-[#0F172A]">No payments disbursed yet</p>
+            <p className="text-[11px] text-[#334155] max-w-sm mx-auto">
               Whenever the project administrator records a payment disbursement to your account, you will find date records, amounts, and reference notes here.
             </p>
           </div>
         ) : (
           <div className="space-y-2.5">
             {/* Desktop Table View */}
-            <div className="hidden sm:block overflow-hidden rounded-xl border border-[rgba(74,61,100,0.08)]">
+            <div className="hidden sm:block overflow-hidden rounded-xl border border-[rgba(15,23,42,0.08)]">
               <table className="w-full text-left text-xs">
-                <thead className="bg-[#FAF9FC] text-[10px] font-bold uppercase tracking-wider text-[#9994A5] border-b border-[rgba(74,61,100,0.08)]">
+                <thead className="bg-[#F8F9FB] text-[10px] font-bold uppercase tracking-wider text-[#64748B] border-b border-[rgba(15,23,42,0.08)]">
                   <tr>
                     <th className="py-3 px-4">Date</th>
                     <th className="py-3 px-4">Milestone / Scope</th>
@@ -344,19 +344,19 @@ export function TeamMemberRemunerationTab({
                     <th className="py-3 px-4 text-right">Amount Received</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[rgba(74,61,100,0.06)] font-medium text-[#252331]">
+                <tbody className="divide-y divide-[rgba(15,23,42,0.06)] font-medium text-[#0F172A]">
                   {disbursements.map((d) => (
                     <tr key={d.id} className="hover:bg-zinc-50/50 transition-colors">
-                      <td className="py-3 px-4 font-mono text-[11px] text-[#706C7D]">
+                      <td className="py-3 px-4 font-mono text-[11px] text-[#334155]">
                         {fmtDate(d.paymentDate)}
                       </td>
                       <td className="py-3 px-4">
-                        <span className="font-semibold text-[#252331]">{d.installmentName}</span>
+                        <span className="font-semibold text-[#0F172A]">{d.installmentName}</span>
                       </td>
-                      <td className="py-3 px-4 capitalize text-[#706C7D]">
+                      <td className="py-3 px-4 capitalize text-[#334155]">
                         {d.paymentMethod.replace("_", " ")}
                       </td>
-                      <td className="py-3 px-4 text-[#706C7D] max-w-xs truncate">
+                      <td className="py-3 px-4 text-[#334155] max-w-xs truncate">
                         {d.referenceNote || "—"}
                       </td>
                       <td className="py-3 px-4 text-right font-extrabold text-emerald-700">
@@ -373,10 +373,10 @@ export function TeamMemberRemunerationTab({
               {disbursements.map((d) => (
                 <div
                   key={d.id}
-                  className="rounded-xl border border-[rgba(74,61,100,0.08)] bg-[#FAF9FC]/50 p-3.5 space-y-1.5"
+                  className="rounded-xl border border-[rgba(15,23,42,0.08)] bg-[#F8F9FB]/50 p-3.5 space-y-1.5"
                 >
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-[#252331] truncate">
+                    <span className="text-xs font-bold text-[#0F172A] truncate">
                       {d.installmentName}
                     </span>
                     <span className="text-sm font-extrabold text-emerald-700 shrink-0">
@@ -384,13 +384,13 @@ export function TeamMemberRemunerationTab({
                     </span>
                   </div>
 
-                  <div className="flex items-center justify-between text-[11px] text-[#706C7D] font-mono">
+                  <div className="flex items-center justify-between text-[11px] text-[#334155] font-mono">
                     <span>{fmtDate(d.paymentDate)}</span>
                     <span className="capitalize">{d.paymentMethod.replace("_", " ")}</span>
                   </div>
 
                   {d.referenceNote && (
-                    <p className="text-[11px] text-[#706C7D] italic border-t border-[rgba(74,61,100,0.06)] pt-1.5 mt-1">
+                    <p className="text-[11px] text-[#334155] italic border-t border-[rgba(15,23,42,0.06)] pt-1.5 mt-1">
                       Ref: {d.referenceNote}
                     </p>
                   )}
