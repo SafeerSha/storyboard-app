@@ -91,7 +91,7 @@ export async function POST(
         .filter((s: any) => s && s.title && s.title.trim())
         .map((s: any) => ({
           project_id: projectId,
-          epic_id: finalEpicId,
+          epic_id: s.epic_id !== undefined ? s.epic_id : finalEpicId,
           title: String(s.title).trim(),
           description: String(s.description || "").trim(),
           acceptance_criteria: Array.isArray(s.acceptanceCriteria) ? s.acceptanceCriteria : [],

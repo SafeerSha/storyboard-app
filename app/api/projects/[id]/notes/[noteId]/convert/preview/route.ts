@@ -60,6 +60,7 @@ export async function POST(
         ...s,
         enabled: true,
       })),
+      meetingActionItems: result.meetingActionItems || [],
     });
   } catch (err: any) {
     console.error("Conversion preview failed:", err);

@@ -16,6 +16,8 @@ import {
   RotateCcw,
   Check,
   Bot,
+  Bug,
+  Copy,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { toast } from "@/lib/toast";
@@ -37,6 +39,8 @@ interface ConvertNoteModalProps {
 
 interface PreviewStory {
   title: string;
+  storyType?: "bug" | "feature_change" | "new_feature";
+  severity?: "critical" | "high" | "medium" | "low";
   description: string;
   acceptanceCriteria: string[];
   assumptions: string[];
@@ -69,14 +73,17 @@ export function ConvertNoteModal({
   // Preview state
   const [previewEpic, setPreviewEpic] = useState({ name: "", description: "" });
   const [previewStories, setPreviewStories] = useState<PreviewStory[]>([]);
+  const [meetingActionItems, setMeetingActionItems] = useState<string[]>([]);
+  const [filterType, setFilterType] = useState<"all" | "bug" | "feature_change" | "new_feature">("all");
+  const [copiedActionItems, setCopiedActionItems] = useState(false);
   const [hasPreview, setHasPreview] = useState(false);
   const [promptStory, setPromptStory] = useState<PreviewStory | null>(null);
 
   const steps = [
-    "Reading discussion notes & context...",
-    "Identifying Epic theme & boundary...",
-    "Synthesizing client-friendly User Stories...",
-    "Consolidating acceptance criteria...",
+    "Reading live demo & meeting notes...",
+    "Autonomously detecting bugs, changes & new features...",
+    "Synthesizing structured defect & feature stories...",
+    "Consolidating client-ready acceptance criteria...",
   ];
 
   useEffect(() => {
@@ -99,6 +106,9 @@ export function ConvertNoteModal({
         description: "",
       });
       setPreviewStories([]);
+      setMeetingActionItems([]);
+      setFilterType("all");
+      setCopiedActionItems(false);
       if (epics.length > 0 && !selectedEpicId) {
         setSelectedEpicId(epics[0].id);
       }
@@ -136,6 +146,8 @@ export function ConvertNoteModal({
       setPreviewStories(
         (data.stories || []).map((s: any) => ({
           title: s.title || "Untitled Story",
+          storyType: s.storyType || "new_feature",
+          severity: s.severity || undefined,
           description: s.description || "",
           acceptanceCriteria: Array.isArray(s.acceptanceCriteria) ? s.acceptanceCriteria : [],
           assumptions: Array.isArray(s.assumptions) ? s.assumptions : [],
@@ -145,6 +157,7 @@ export function ConvertNoteModal({
         }))
       );
 
+      setMeetingActionItems(Array.isArray(data.meetingActionItems) ? data.meetingActionItems : []);
       setHasPreview(true);
     } catch (err: any) {
       setError(err.message || "Failed to generate preview. Check your connection.");
@@ -411,9 +424,14 @@ export function ConvertNoteModal({
             /* Interactive Preview Screen */
             <div className="space-y-4 animate-in fade-in duration-200">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold uppercase tracking-wider text-[#9994A5]">
-                  Review & Customize Requirements
-                </span>
+                <div>
+                  <span className="text-xs font-semibold uppercase tracking-wider text-[#9994A5]">
+                    Review & Customize Requirements
+                  </span>
+                  <p className="text-[11px] text-[#706C7D] mt-0.5">
+                    AI classified items from your notes into bugs, feature changes, and new features.
+                  </p>
+                </div>
                 <button
                   type="button"
                   onClick={() => setHasPreview(false)}
@@ -459,13 +477,104 @@ export function ConvertNoteModal({
                 </div>
               )}
 
+              {/* Non-story meeting action items (if detected) */}
+              {meetingActionItems.length > 0 && (
+                <div className="rounded-xl border border-[rgba(184,148,78,0.22)] bg-[rgba(184,148,78,0.05)] p-3 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] font-bold text-[#80642F] flex items-center gap-1.5">
+                      <FileText size={12} /> Meeting Action Items & Follow-ups ({meetingActionItems.length})
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        navigator.clipboard.writeText(
+                          meetingActionItems.map((item) => `• ${item}`).join("\n")
+                        );
+                        setCopiedActionItems(true);
+                        setTimeout(() => setCopiedActionItems(false), 2000);
+                        toast.success("Action items copied to clipboard");
+                      }}
+                      className="inline-flex items-center gap-1 text-[10px] font-semibold text-[#80642F] hover:underline cursor-pointer"
+                    >
+                      {copiedActionItems ? (
+                        <Check size={11} className="text-emerald-600" />
+                      ) : (
+                        <Copy size={11} />
+                      )}
+                      <span>{copiedActionItems ? "Copied" : "Copy All"}</span>
+                    </button>
+                  </div>
+                  <ul className="space-y-1">
+                    {meetingActionItems.map((item, i) => (
+                      <li key={i} className="text-[11px] text-[#706C7D] flex items-start gap-1.5">
+                        <span className="text-[#80642F] font-bold">•</span>
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
               {/* Stories List Section */}
               {mode !== "epic_only" && (
                 <div className="space-y-2.5">
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="font-semibold text-[#252331]">
-                      Generated Stories ({selectedCount} selected)
-                    </span>
+                  <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <button
+                        type="button"
+                        onClick={() => setFilterType("all")}
+                        className={`px-2 py-0.5 rounded-md text-[11px] font-medium transition cursor-pointer ${
+                          filterType === "all"
+                            ? "bg-[#252331] text-white"
+                            : "bg-[#FAF9FC] text-[#706C7D] hover:bg-slate-100"
+                        }`}
+                      >
+                        All ({previewStories.length})
+                      </button>
+                      {previewStories.some((s) => s.storyType === "bug") && (
+                        <button
+                          type="button"
+                          onClick={() => setFilterType("bug")}
+                          className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-medium transition cursor-pointer ${
+                            filterType === "bug"
+                              ? "bg-rose-700 text-white"
+                              : "bg-rose-50 text-rose-700 hover:bg-rose-100/80 border border-rose-200/80"
+                          }`}
+                        >
+                          <Bug size={11} />
+                          Bugs ({previewStories.filter((s) => s.storyType === "bug").length})
+                        </button>
+                      )}
+                      {previewStories.some((s) => s.storyType === "feature_change") && (
+                        <button
+                          type="button"
+                          onClick={() => setFilterType("feature_change")}
+                          className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-medium transition cursor-pointer ${
+                            filterType === "feature_change"
+                              ? "bg-sky-700 text-white"
+                              : "bg-sky-50 text-sky-700 hover:bg-sky-100/80 border border-sky-200/80"
+                          }`}
+                        >
+                          <RotateCcw size={10} />
+                          Changes ({previewStories.filter((s) => s.storyType === "feature_change").length})
+                        </button>
+                      )}
+                      {previewStories.some((s) => s.storyType === "new_feature" || !s.storyType) && (
+                        <button
+                          type="button"
+                          onClick={() => setFilterType("new_feature")}
+                          className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-medium transition cursor-pointer ${
+                            filterType === "new_feature"
+                              ? "bg-emerald-700 text-white"
+                              : "bg-emerald-50 text-emerald-700 hover:bg-emerald-100/80 border border-emerald-200/80"
+                          }`}
+                        >
+                          <Sparkles size={10} />
+                          Features ({previewStories.filter((s) => s.storyType === "new_feature" || !s.storyType).length})
+                        </button>
+                      )}
+                    </div>
+
                     <button
                       type="button"
                       onClick={() => {
@@ -481,106 +590,149 @@ export function ConvertNoteModal({
                   </div>
 
                   <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
-                    {previewStories.map((story, idx) => (
-                      <div
-                        key={idx}
-                        className={`rounded-xl border transition p-3 space-y-2 ${
-                          story.enabled
-                            ? "border-[rgba(74,61,100,0.12)] bg-white"
-                            : "border-slate-100 bg-slate-50/60 opacity-60"
-                        }`}
-                      >
-                        <div className="flex items-start gap-2.5">
-                          <input
-                            type="checkbox"
-                            checked={story.enabled}
-                            onChange={(e) => {
-                              const checked = e.target.checked;
-                              setPreviewStories((prev) =>
-                                prev.map((s, i) => (i === idx ? { ...s, enabled: checked } : s))
-                              );
-                            }}
-                            className="mt-1 h-4 w-4 rounded border-slate-300 text-[#B8944E] focus:ring-[#B8944E] cursor-pointer"
-                          />
-                          <div className="flex-1 min-w-0">
-                            <input
-                              type="text"
-                              value={story.title}
-                              disabled={!story.enabled}
-                              onChange={(e) => {
-                                const val = e.target.value;
-                                setPreviewStories((prev) =>
-                                  prev.map((s, i) => (i === idx ? { ...s, title: val } : s))
-                                );
-                              }}
-                              className="w-full text-xs font-semibold text-[#252331] bg-transparent outline-none focus:bg-white focus:ring-1 focus:ring-[#B8944E] rounded px-1.5 py-0.5 border border-transparent focus:border-[rgba(74,61,100,0.12)]"
-                            />
-                            {story.description && (
-                              <p className="text-[11px] text-[#706C7D] mt-0.5 px-1.5">
-                                {story.description}
-                              </p>
-                            )}
-                          </div>
-
-                          <button
-                            type="button"
-                            onClick={() => setPromptStory(story)}
-                            className="inline-flex items-center gap-1 text-[11px] font-medium text-[#80642F] bg-[rgba(184,148,78,0.08)] hover:bg-[rgba(184,148,78,0.16)] px-2 py-1 rounded-lg border border-[rgba(184,148,78,0.18)] transition shrink-0 cursor-pointer"
-                            title="Convert to AI Agent Prompt"
+                    {previewStories
+                      .filter((s) => {
+                        if (filterType === "all") return true;
+                        if (filterType === "new_feature") return s.storyType === "new_feature" || !s.storyType;
+                        return s.storyType === filterType;
+                      })
+                      .map((story) => {
+                        const originalIdx = previewStories.findIndex((orig) => orig === story);
+                        return (
+                          <div
+                            key={originalIdx}
+                            className={`rounded-xl border transition p-3 space-y-2 ${
+                              story.enabled
+                                ? "border-[rgba(74,61,100,0.12)] bg-white"
+                                : "border-slate-100 bg-slate-50/60 opacity-60"
+                            }`}
                           >
-                            <Bot size={12} />
-                            <span className="hidden sm:inline">AI Prompt</span>
-                          </button>
+                            <div className="flex items-start gap-2.5">
+                              <input
+                                type="checkbox"
+                                checked={story.enabled}
+                                onChange={(e) => {
+                                  const checked = e.target.checked;
+                                  setPreviewStories((prev) =>
+                                    prev.map((s, i) =>
+                                      i === originalIdx ? { ...s, enabled: checked } : s
+                                    )
+                                  );
+                                }}
+                                className="mt-1 h-4 w-4 rounded border-slate-300 text-[#B8944E] focus:ring-[#B8944E] cursor-pointer"
+                              />
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-1.5 mb-1 flex-wrap">
+                                  {story.storyType === "bug" && (
+                                    <span className="inline-flex items-center gap-1 rounded-md bg-rose-50 px-2 py-0.5 text-[10px] font-bold text-rose-700 border border-rose-200">
+                                      <Bug size={10} />
+                                      Bug Fix
+                                      {story.severity && (
+                                        <span className="capitalize text-[9px] opacity-80">
+                                          ({story.severity})
+                                        </span>
+                                      )}
+                                    </span>
+                                  )}
+                                  {story.storyType === "feature_change" && (
+                                    <span className="inline-flex items-center gap-1 rounded-md bg-sky-50 px-2 py-0.5 text-[10px] font-bold text-sky-700 border border-sky-200">
+                                      <RotateCcw size={9} />
+                                      Feature Change
+                                    </span>
+                                  )}
+                                  {(!story.storyType || story.storyType === "new_feature") && (
+                                    <span className="inline-flex items-center gap-1 rounded-md bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-700 border border-emerald-200">
+                                      <Sparkles size={9} />
+                                      New Feature
+                                    </span>
+                                  )}
+                                </div>
+                                <input
+                                  type="text"
+                                  value={story.title}
+                                  disabled={!story.enabled}
+                                  onChange={(e) => {
+                                    const val = e.target.value;
+                                    setPreviewStories((prev) =>
+                                      prev.map((s, i) =>
+                                        i === originalIdx ? { ...s, title: val } : s
+                                      )
+                                    );
+                                  }}
+                                  className="w-full text-xs font-semibold text-[#252331] bg-transparent outline-none focus:bg-white focus:ring-1 focus:ring-[#B8944E] rounded px-1.5 py-0.5 border border-transparent focus:border-[rgba(74,61,100,0.12)]"
+                                />
+                                {story.description && (
+                                  <p className="text-[11px] text-[#706C7D] mt-0.5 px-1.5 whitespace-pre-line">
+                                    {story.description}
+                                  </p>
+                                )}
+                              </div>
 
-                          <button
-                            type="button"
-                            onClick={() =>
-                              setPreviewStories((prev) =>
-                                prev.map((s, i) =>
-                                  i === idx ? { ...s, isExpanded: !s.isExpanded } : s
-                                )
-                              )
-                            }
-                            className="grid h-6 w-6 place-items-center text-[#706C7D] hover:text-[#252331] rounded"
-                            title="Toggle criteria"
-                          >
-                            {story.isExpanded ? (
-                              <ChevronDown size={14} />
-                            ) : (
-                              <ChevronRight size={14} />
-                            )}
-                          </button>
-                        </div>
-
-                        {/* Expandable Criteria Checklist */}
-                        {story.isExpanded && story.enabled && (
-                          <div className="pl-6 pt-1 border-t border-[rgba(74,61,100,0.06)] space-y-2 text-xs">
-                            <span className="text-[10px] font-bold uppercase tracking-wider text-[#9994A5]">
-                              Acceptance Criteria ({story.acceptanceCriteria.length})
-                            </span>
-                            <ul className="space-y-1">
-                              {story.acceptanceCriteria.map((ac, acIdx) => (
-                                <li key={acIdx} className="flex items-start gap-1.5 text-[11px] text-[#252331]">
-                                  <span className="text-emerald-600 mt-0.5">•</span>
-                                  <span className="flex-1">{ac}</span>
-                                </li>
-                              ))}
-                            </ul>
-                            <div className="pt-2 flex items-center justify-between border-t border-[rgba(74,61,100,0.06)] text-[11px]">
-                              <span className="text-[#706C7D]">Ready for AI agent?</span>
                               <button
                                 type="button"
                                 onClick={() => setPromptStory(story)}
-                                className="inline-flex items-center gap-1 font-semibold text-[#80642F] hover:text-[#B8944E] cursor-pointer"
+                                className="inline-flex items-center gap-1 text-[11px] font-medium text-[#80642F] bg-[rgba(184,148,78,0.08)] hover:bg-[rgba(184,148,78,0.16)] px-2 py-1 rounded-lg border border-[rgba(184,148,78,0.18)] transition shrink-0 cursor-pointer"
+                                title="Convert to AI Agent Prompt"
                               >
                                 <Bot size={12} />
-                                <span>Get AI Agent Prompt &rarr;</span>
+                                <span className="hidden sm:inline">AI Prompt</span>
+                              </button>
+
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setPreviewStories((prev) =>
+                                    prev.map((s, i) =>
+                                      i === originalIdx
+                                        ? { ...s, isExpanded: !s.isExpanded }
+                                        : s
+                                    )
+                                  )
+                                }
+                                className="grid h-6 w-6 place-items-center text-[#706C7D] hover:text-[#252331] rounded"
+                                title="Toggle criteria"
+                              >
+                                {story.isExpanded ? (
+                                  <ChevronDown size={14} />
+                                ) : (
+                                  <ChevronRight size={14} />
+                                )}
                               </button>
                             </div>
+
+                            {/* Expandable Criteria Checklist */}
+                            {story.isExpanded && story.enabled && (
+                              <div className="pl-6 pt-1 border-t border-[rgba(74,61,100,0.06)] space-y-2 text-xs">
+                                <span className="text-[10px] font-bold uppercase tracking-wider text-[#9994A5]">
+                                  Acceptance Criteria ({story.acceptanceCriteria.length})
+                                </span>
+                                <ul className="space-y-1">
+                                  {story.acceptanceCriteria.map((ac, acIdx) => (
+                                    <li
+                                      key={acIdx}
+                                      className="flex items-start gap-1.5 text-[11px] text-[#252331]"
+                                    >
+                                      <span className="text-emerald-600 mt-0.5">•</span>
+                                      <span className="flex-1">{ac}</span>
+                                    </li>
+                                  ))}
+                                </ul>
+                                <div className="pt-2 flex items-center justify-between border-t border-[rgba(74,61,100,0.06)] text-[11px]">
+                                  <span className="text-[#706C7D]">Ready for AI agent?</span>
+                                  <button
+                                    type="button"
+                                    onClick={() => setPromptStory(story)}
+                                    className="inline-flex items-center gap-1 font-semibold text-[#80642F] hover:text-[#B8944E] cursor-pointer"
+                                  >
+                                    <Bot size={12} />
+                                    <span>Get AI Agent Prompt &rarr;</span>
+                                  </button>
+                                </div>
+                              </div>
+                            )}
                           </div>
-                        )}
-                      </div>
-                    ))}
+                        );
+                      })}
                   </div>
                 </div>
               )}

@@ -754,7 +754,7 @@ export function ProjectWorkspace({
             }`}
           >
             <Receipt size={14} className={activeTab === "remuneration" ? "text-[#B8944E]" : "text-[#9994A5]"} />
-            <span className="hidden sm:inline">Remuneration & Splits</span>
+            <span className="hidden sm:inline">Remuneration</span>
             <span className="sm:hidden">Remuneration</span>
             <span className="rounded-full bg-[rgba(184,148,78,0.10)] px-1.5 sm:px-2 py-0.5 text-[10px] font-bold text-[#80642F]">
               Ledger

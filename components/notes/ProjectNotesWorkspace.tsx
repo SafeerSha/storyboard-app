@@ -656,9 +656,9 @@ export function ProjectNotesWorkspace({
                   leftIcon={<Sparkles size={13} className="text-[#80642F]" />}
                   onClick={() => setConvertModalOpen(true)}
                   className="text-xs font-semibold bg-gradient-to-r from-[rgba(184,148,78,0.18)] to-[rgba(184,148,78,0.28)] text-[#80642F] border border-[rgba(184,148,78,0.35)] hover:bg-[rgba(184,148,78,0.3)] shadow-2xs"
-                  title="Convert discussion into Epic and Stories"
+                  title="Autonomously convert notes into bugs and user stories with AI"
                 >
-                  Convert to Epic & Stories
+                  Convert to Stories (AI)
                 </Button>
               </div>
             </div>

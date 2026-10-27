@@ -80,8 +80,13 @@ export type ProjectNote = {
   updated_at: string;
 };
 
+export type ConvertNoteStoryType = "bug" | "feature_change" | "new_feature";
+export type ConvertNoteStorySeverity = "critical" | "high" | "medium" | "low";
+
 export type ConvertNotePreviewStory = {
   title: string;
+  storyType?: ConvertNoteStoryType;
+  severity?: ConvertNoteStorySeverity;
   description: string;
   acceptanceCriteria: string[];
   assumptions: string[];
@@ -96,6 +101,7 @@ export type ConvertNotePreviewResult = {
     description: string;
   };
   stories: ConvertNotePreviewStory[];
+  meetingActionItems?: string[];
 };
 
 export type ConvertNoteCommitPayload = {
