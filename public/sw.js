@@ -1,7 +1,12 @@
-const CACHE_NAME = 'reqly-static-v1';
+const CACHE_NAME = 'reqly-static-v2';
 
 const STATIC_ASSETS = [
   '/icon.svg',
+  '/icon-192.png',
+  '/icon-512.png',
+  '/icon-maskable-512.png',
+  '/apple-touch-icon.png',
+  '/favicon.ico',
   '/background.jpg'
 ];
 
